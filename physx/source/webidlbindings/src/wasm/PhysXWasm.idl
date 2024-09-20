@@ -1667,7 +1667,8 @@ PxJointLinearLimit implements PxJointLimitParameters;
 
 [Prefix="physx::"]
 interface PxJointLinearLimitPair {
-    void PxJointLinearLimitPair(float lowerLimit, float upperLimit, [Const, Ref] PxSpring spring);
+    void PxJointLinearLimitPair([Const, Ref] PxTolerancesScale scale, optional float lowerLimit, optional float upperLimit);
+    // void PxJointLinearLimitPair(float lowerLimit, float upperLimit, [Const, Ref] PxSpring spring);
     attribute float upper;
     attribute float lower;
 };
@@ -2571,6 +2572,23 @@ interface PxSphericalJointFlags {
 };
 
 [Prefix="physx::"]
+interface PxGearJoint {
+    boolean setHinges([Const] PxBase hinge0, [Const] PxBase hinge1);
+    void setGearRatio(float ratio);
+    float getGearRatio();
+};
+PxGearJoint implements PxJoint;
+
+[Prefix="physx::"]
+interface PxRackAndPinionJoint {
+    boolean setJoints([Const] PxBase hinge, [Const] PxBase prismatic);
+    void setRatio(float ratio);
+    float getRatio();
+    boolean setData(unsigned long nbRackTeeth, unsigned long nbPinionTeeth, float rackLength);
+};
+PxRackAndPinionJoint implements PxJoint;
+
+[Prefix="physx::"]
 interface PxSpring {
     void PxSpring(float stiffness, float damping);
     attribute float stiffness;
@@ -2713,6 +2731,8 @@ interface PxTopLevelFunctions {
     static PxPrismaticJoint PrismaticJointCreate([Ref] PxPhysics physics, PxRigidActor actor0, [Ref] PxTransform localFrame0, PxRigidActor actor1, [Ref] PxTransform localFrame1);
     static PxRevoluteJoint RevoluteJointCreate([Ref] PxPhysics physics, PxRigidActor actor0, [Ref] PxTransform localFrame0, PxRigidActor actor1, [Ref] PxTransform localFrame1);
     static PxSphericalJoint SphericalJointCreate([Ref] PxPhysics physics, PxRigidActor actor0, [Ref] PxTransform localFrame0, PxRigidActor actor1, [Ref] PxTransform localFrame1);
+    static PxGearJoint GearJointCreate([Ref] PxPhysics physics, PxRigidActor actor0, [Ref] PxTransform localFrame0, PxRigidActor actor1, [Ref] PxTransform localFrame1);
+    static PxRackAndPinionJoint RackAndPinionJointCreate([Ref] PxPhysics physics, PxRigidActor actor0, [Ref] PxTransform localFrame0, PxRigidActor actor1, [Ref] PxTransform localFrame1);
     static PxConvexMesh CreateConvexMesh([Const, Ref] PxCookingParams params, [Const, Ref] PxConvexMeshDesc desc);
     static PxTriangleMesh CreateTriangleMesh([Const, Ref] PxCookingParams params, [Const, Ref] PxTriangleMeshDesc desc);
     static PxHeightField CreateHeightField([Const, Ref] PxHeightFieldDesc desc);
@@ -4117,6 +4137,7 @@ enum PxHitFlagEnum {
     "PxHitFlagEnum::eNORMAL",
     "PxHitFlagEnum::eUV",
     "PxHitFlagEnum::eASSUME_NO_INITIAL_OVERLAP",
+    "PxHitFlagEnum::eANY_HIT",
     "PxHitFlagEnum::eMESH_MULTIPLE",
     "PxHitFlagEnum::eMESH_ANY",
     "PxHitFlagEnum::eMESH_BOTH_SIDES",

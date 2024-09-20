@@ -326,6 +326,14 @@ struct PxTopLevelFunctions {
         return physx::PxSphericalJointCreate(physics, actor0, localFrame0, actor1, localFrame1);
     }
 
+    static physx::PxGearJoint* GearJointCreate(physx::PxPhysics& physics, physx::PxRigidActor* actor0, physx::PxTransform& localFrame0, physx::PxRigidActor* actor1, physx::PxTransform& localFrame1) {
+        return physx::PxGearJointCreate(physics, actor0, localFrame0, actor1, localFrame1);
+    }
+
+    static physx::PxRackAndPinionJoint* RackAndPinionJointCreate(physx::PxPhysics& physics, physx::PxRigidActor* actor0, physx::PxTransform& localFrame0, physx::PxRigidActor* actor1, physx::PxTransform& localFrame1) {
+        return physx::PxRackAndPinionJointCreate(physics, actor0, localFrame0, actor1, localFrame1);
+    }
+
     static physx::PxConvexMesh* CreateConvexMesh(const physx::PxCookingParams& params, const physx::PxConvexMeshDesc& desc) {
         return PxCreateConvexMesh(params, desc);
     }
