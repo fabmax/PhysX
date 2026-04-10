@@ -398,6 +398,12 @@ struct PxTopLevelFunctions {
         return PxIntegrateTransform(curTrans, linvel, angvel, timeStep, result);
     }
 
+    static physx::PxDim3 GetTriangleMeshSDFDimensions(const physx::PxTriangleMesh& mesh) {
+        physx::PxDim3 dims = {0, 0, 0};
+        mesh.getSDFDimensions(dims.x, dims.y, dims.z);
+        return dims;
+    }
+
     static bool CookTriangleMesh(const physx::PxCookingParams& params, const physx::PxTriangleMeshDesc& desc, physx::PxOutputStream& stream) {
         return PxCookTriangleMesh(params, desc, stream);
     }
