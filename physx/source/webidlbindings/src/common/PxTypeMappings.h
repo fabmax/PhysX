@@ -171,6 +171,7 @@ typedef physx::PxTetrahedronMeshDesc::PxMeshFormat PxTetrahedronMeshFormatEnum;
 typedef physx::PxTetrahedronMeshFlag::Enum PxTetrahedronMeshFlagEnum;
 typedef physx::PxTriangleMeshAnalysisResult::Enum PxTriangleMeshAnalysisResultEnum;
 typedef physx::PxTriangleMeshFlag::Enum PxTriangleMeshFlagEnum;
+typedef physx::PxSdfBitsPerSubgridPixel::Enum PxSdfBitsPerSubgridPixelEnum;
 typedef physx::PxTriggerPairFlag::Enum PxTriggerPairFlagEnum;
 typedef physx::PxVisualizationParameter::Enum PxVisualizationParameterEnum;
 typedef physx::vehicle2::PxVehicleAxes::Enum PxVehicleAxesEnum;
