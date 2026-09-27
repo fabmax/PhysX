@@ -8232,6 +8232,58 @@ JNIEXPORT void JNICALL Java_physx_physics_PxArticulationCacheFlags_00024Raw_dest
     delete (physx::PxArticulationCacheFlags*) _address;
 }
 
+// PxPerformanceEnvelope
+JNIEXPORT jint JNICALL Java_physx_physics_PxPerformanceEnvelope__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxPerformanceEnvelope);
+}
+JNIEXPORT jlong JNICALL Java_physx_physics_PxPerformanceEnvelope_00024Raw_PxPerformanceEnvelope_1placed__J(JNIEnv*, jclass, jlong _placement_address) {
+    return (jlong) new((void*)_placement_address) physx::PxPerformanceEnvelope();
+}
+JNIEXPORT jlong JNICALL Java_physx_physics_PxPerformanceEnvelope_00024Raw_PxPerformanceEnvelope_1placed__JFFFF(JNIEnv*, jclass, jlong _placement_address, jfloat maxEffort, jfloat maxActuatorVelocity, jfloat velocityDependentResistance, jfloat speedEffortGradient) {
+    return (jlong) new((void*)_placement_address) physx::PxPerformanceEnvelope(maxEffort, maxActuatorVelocity, velocityDependentResistance, speedEffortGradient);
+}
+JNIEXPORT jlong JNICALL Java_physx_physics_PxPerformanceEnvelope_00024Raw_PxPerformanceEnvelope__(JNIEnv*, jclass) {
+    return (jlong) new physx::PxPerformanceEnvelope();
+}
+JNIEXPORT jlong JNICALL Java_physx_physics_PxPerformanceEnvelope_00024Raw_PxPerformanceEnvelope__FFFF(JNIEnv*, jclass, jfloat maxEffort, jfloat maxActuatorVelocity, jfloat velocityDependentResistance, jfloat speedEffortGradient) {
+    return (jlong) new physx::PxPerformanceEnvelope(maxEffort, maxActuatorVelocity, velocityDependentResistance, speedEffortGradient);
+}
+JNIEXPORT void JNICALL Java_physx_physics_PxPerformanceEnvelope_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxPerformanceEnvelope*) _address;
+}
+JNIEXPORT jfloat JNICALL Java_physx_physics_PxPerformanceEnvelope_00024Raw_getMaxEffort(JNIEnv*, jclass, jlong _address) {
+    physx::PxPerformanceEnvelope* _self = (physx::PxPerformanceEnvelope*) _address;
+    return (jfloat) _self->maxEffort;
+}
+JNIEXPORT void JNICALL Java_physx_physics_PxPerformanceEnvelope_00024Raw_setMaxEffort(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxPerformanceEnvelope* _self = (physx::PxPerformanceEnvelope*) _address;
+    _self->maxEffort = value;
+}
+JNIEXPORT jfloat JNICALL Java_physx_physics_PxPerformanceEnvelope_00024Raw_getMaxActuatorVelocity(JNIEnv*, jclass, jlong _address) {
+    physx::PxPerformanceEnvelope* _self = (physx::PxPerformanceEnvelope*) _address;
+    return (jfloat) _self->maxActuatorVelocity;
+}
+JNIEXPORT void JNICALL Java_physx_physics_PxPerformanceEnvelope_00024Raw_setMaxActuatorVelocity(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxPerformanceEnvelope* _self = (physx::PxPerformanceEnvelope*) _address;
+    _self->maxActuatorVelocity = value;
+}
+JNIEXPORT jfloat JNICALL Java_physx_physics_PxPerformanceEnvelope_00024Raw_getVelocityDependentResistance(JNIEnv*, jclass, jlong _address) {
+    physx::PxPerformanceEnvelope* _self = (physx::PxPerformanceEnvelope*) _address;
+    return (jfloat) _self->velocityDependentResistance;
+}
+JNIEXPORT void JNICALL Java_physx_physics_PxPerformanceEnvelope_00024Raw_setVelocityDependentResistance(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxPerformanceEnvelope* _self = (physx::PxPerformanceEnvelope*) _address;
+    _self->velocityDependentResistance = value;
+}
+JNIEXPORT jfloat JNICALL Java_physx_physics_PxPerformanceEnvelope_00024Raw_getSpeedEffortGradient(JNIEnv*, jclass, jlong _address) {
+    physx::PxPerformanceEnvelope* _self = (physx::PxPerformanceEnvelope*) _address;
+    return (jfloat) _self->speedEffortGradient;
+}
+JNIEXPORT void JNICALL Java_physx_physics_PxPerformanceEnvelope_00024Raw_setSpeedEffortGradient(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxPerformanceEnvelope* _self = (physx::PxPerformanceEnvelope*) _address;
+    _self->speedEffortGradient = value;
+}
+
 // PxArticulationDrive
 JNIEXPORT jint JNICALL Java_physx_physics_PxArticulationDrive__1_1sizeOf(JNIEnv*, jclass) {
     return sizeof(physx::PxArticulationDrive);
@@ -8242,11 +8294,17 @@ JNIEXPORT jlong JNICALL Java_physx_physics_PxArticulationDrive_00024Raw_PxArticu
 JNIEXPORT jlong JNICALL Java_physx_physics_PxArticulationDrive_00024Raw_PxArticulationDrive_1placed__JFFFI(JNIEnv*, jclass, jlong _placement_address, jfloat stiffness, jfloat damping, jfloat maxForce, jint driveType) {
     return (jlong) new((void*)_placement_address) physx::PxArticulationDrive(stiffness, damping, maxForce, (PxArticulationDriveTypeEnum) driveType);
 }
+JNIEXPORT jlong JNICALL Java_physx_physics_PxArticulationDrive_00024Raw_PxArticulationDrive_1placed__JFFJI(JNIEnv*, jclass, jlong _placement_address, jfloat stiffness, jfloat damping, jlong envelope, jint driveType) {
+    return (jlong) new((void*)_placement_address) physx::PxArticulationDrive(stiffness, damping, *((physx::PxPerformanceEnvelope*) envelope), (PxArticulationDriveTypeEnum) driveType);
+}
 JNIEXPORT jlong JNICALL Java_physx_physics_PxArticulationDrive_00024Raw_PxArticulationDrive__(JNIEnv*, jclass) {
     return (jlong) new physx::PxArticulationDrive();
 }
 JNIEXPORT jlong JNICALL Java_physx_physics_PxArticulationDrive_00024Raw_PxArticulationDrive__FFFI(JNIEnv*, jclass, jfloat stiffness, jfloat damping, jfloat maxForce, jint driveType) {
     return (jlong) new physx::PxArticulationDrive(stiffness, damping, maxForce, (PxArticulationDriveTypeEnum) driveType);
+}
+JNIEXPORT jlong JNICALL Java_physx_physics_PxArticulationDrive_00024Raw_PxArticulationDrive__FFJI(JNIEnv*, jclass, jfloat stiffness, jfloat damping, jlong envelope, jint driveType) {
+    return (jlong) new physx::PxArticulationDrive(stiffness, damping, *((physx::PxPerformanceEnvelope*) envelope), (PxArticulationDriveTypeEnum) driveType);
 }
 JNIEXPORT void JNICALL Java_physx_physics_PxArticulationDrive_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
     delete (physx::PxArticulationDrive*) _address;
@@ -8274,6 +8332,14 @@ JNIEXPORT jfloat JNICALL Java_physx_physics_PxArticulationDrive_00024Raw_getMaxF
 JNIEXPORT void JNICALL Java_physx_physics_PxArticulationDrive_00024Raw_setMaxForce(JNIEnv*, jclass, jlong _address, jfloat value) {
     physx::PxArticulationDrive* _self = (physx::PxArticulationDrive*) _address;
     _self->maxForce = value;
+}
+JNIEXPORT jlong JNICALL Java_physx_physics_PxArticulationDrive_00024Raw_getEnvelope(JNIEnv*, jclass, jlong _address) {
+    physx::PxArticulationDrive* _self = (physx::PxArticulationDrive*) _address;
+    return (jlong) &_self->envelope;
+}
+JNIEXPORT void JNICALL Java_physx_physics_PxArticulationDrive_00024Raw_setEnvelope(JNIEnv*, jclass, jlong _address, jlong value) {
+    physx::PxArticulationDrive* _self = (physx::PxArticulationDrive*) _address;
+    _self->envelope = *((physx::PxPerformanceEnvelope*) value);
 }
 JNIEXPORT jint JNICALL Java_physx_physics_PxArticulationDrive_00024Raw_getDriveType(JNIEnv*, jclass, jlong _address) {
     physx::PxArticulationDrive* _self = (physx::PxArticulationDrive*) _address;
@@ -8405,6 +8471,12 @@ JNIEXPORT jlong JNICALL Java_physx_physics_PxArticulationJointReducedCoordinate_
 JNIEXPORT void JNICALL Java_physx_physics_PxArticulationJointReducedCoordinate_00024Raw_setDriveParams(JNIEnv*, jclass, jlong _address, jint axis, jlong drive) {
     physx::PxArticulationJointReducedCoordinate* self = (physx::PxArticulationJointReducedCoordinate*) _address;
     self->setDriveParams((PxArticulationAxisEnum) axis, *((physx::PxArticulationDrive*) drive));
+}
+JNIEXPORT jlong JNICALL Java_physx_physics_PxArticulationJointReducedCoordinate_00024Raw_getDriveParams(JNIEnv*, jclass, jlong _address, jint axis) {
+    physx::PxArticulationJointReducedCoordinate* self = (physx::PxArticulationJointReducedCoordinate*) _address;
+    static thread_local physx::PxArticulationDrive _cache = self->getDriveParams((PxArticulationAxisEnum) axis);
+    _cache = self->getDriveParams((PxArticulationAxisEnum) axis);
+    return (jlong) &_cache;
 }
 JNIEXPORT void JNICALL Java_physx_physics_PxArticulationJointReducedCoordinate_00024Raw_setDriveTarget__JIF(JNIEnv*, jclass, jlong _address, jint axis, jfloat target) {
     physx::PxArticulationJointReducedCoordinate* self = (physx::PxArticulationJointReducedCoordinate*) _address;
@@ -11772,9 +11844,6 @@ JNIEXPORT jint JNICALL Java_physx_physics_PxArticulationDriveTypeEnum__1geteNONE
 JNIEXPORT jint JNICALL Java_physx_physics_PxArticulationFlagEnum__1geteFIX_1BASE(JNIEnv*, jclass) {
     return PxArticulationFlagEnum::eFIX_BASE;
 }
-JNIEXPORT jint JNICALL Java_physx_physics_PxArticulationFlagEnum__1geteDRIVE_1LIMITS_1ARE_1FORCES(JNIEnv*, jclass) {
-    return PxArticulationFlagEnum::eDRIVE_LIMITS_ARE_FORCES;
-}
 JNIEXPORT jint JNICALL Java_physx_physics_PxArticulationFlagEnum__1geteDISABLE_1SELF_1COLLISION(JNIEnv*, jclass) {
     return PxArticulationFlagEnum::eDISABLE_SELF_COLLISION;
 }
@@ -12052,9 +12121,6 @@ JNIEXPORT jint JNICALL Java_physx_physics_PxConstraintFlagEnum__1geteCOLLISION_1
 }
 JNIEXPORT jint JNICALL Java_physx_physics_PxConstraintFlagEnum__1geteVISUALIZATION(JNIEnv*, jclass) {
     return PxConstraintFlagEnum::eVISUALIZATION;
-}
-JNIEXPORT jint JNICALL Java_physx_physics_PxConstraintFlagEnum__1geteDRIVE_1LIMITS_1ARE_1FORCES(JNIEnv*, jclass) {
-    return PxConstraintFlagEnum::eDRIVE_LIMITS_ARE_FORCES;
 }
 JNIEXPORT jint JNICALL Java_physx_physics_PxConstraintFlagEnum__1geteIMPROVED_1SLERP(JNIEnv*, jclass) {
     return PxConstraintFlagEnum::eIMPROVED_SLERP;
