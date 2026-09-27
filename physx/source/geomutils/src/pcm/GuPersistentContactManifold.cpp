@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "foundation/PxMemory.h"
 #include "geomutils/PxContactBuffer.h"
@@ -394,7 +371,7 @@ void PersistentContactManifold::drawManifold(PxRenderOutput& out, const PxTransf
 }
 
 void PersistentContactManifold::drawManifold(const PersistentContact& m, PxRenderOutput& out, const PxTransformV& trA, const PxTransformV& trB) const
-{	
+{
 #if VISUALIZE_PERSISTENT_CONTACT
 	drawManifoldPoint(m, trA, trB, out, gColors[0]);
 #else
@@ -827,7 +804,7 @@ void PersistentContactManifold::addBatchManifoldContacts(const PersistentContact
 
 		mNumContacts = GU_MANIFOLD_CACHE_SIZE;
 	}
-}  
+}
 
 //	This function is for the plane and box contact gen. If the number of points passed in is more than 4, we need to do contact reduction 
 void PersistentContactManifold::addBatchManifoldContactsCluster(const PersistentContact* manifoldContacts, PxU32 numPoints)
@@ -1240,7 +1217,7 @@ void PersistentContactManifold::reduceBatchContacts2(const PersistentContact* ma
 	if(secondIndex != index)
 	{
 		mContactPoints[1] = manifoldPoints[secondIndex];
-	}	
+	}
 }
 
 PxU32 PersistentContactManifold::addManifoldPoint(const Vec3VArg localPointA, const Vec3VArg localPointB, const Vec4VArg localNormalPen, const FloatVArg replaceBreakingThreshold)
@@ -2094,7 +2071,7 @@ void MultiplePersistentContactManifold::addManifoldContactPoints(MeshPersistentC
 						const FloatV _maxPen = addBatchManifoldContactsToSingleManifold(manifold, manifoldContact, numManifoldContacts, patch, sqReplaceBreakingThreshold, maxContactsPerManifold);
 						FStore(_maxPen, &mMaxPen[mManifoldIndices[mNumManifolds]]);
 						mNumManifolds++;
-					}	
+					}
 					else
 					{
 						//we can't allocate a new manifold  and no existing manifold has the same normal as this patch, we need to find the shallowest penetration manifold. If this manifold is shallower than
@@ -2263,7 +2240,7 @@ void MultiplePersistentContactManifold::toBuffer(PxU8* PX_RESTRICT buffer) const
 		CachedMeshPersistentContact* contacts = reinterpret_cast<CachedMeshPersistentContact*>(buff);
 		//convert the mesh persistent contact to cached mesh persistent contact to save 16 byte memory per contact
 		for(PxU32 b = 0; b<manifold.mNumContacts; ++b)
-		{	
+		{
 			V4StoreA(Vec4V_From_Vec3V(manifold.mContactPoints[b].mLocalPointA), &contacts[b].mLocalPointA.x);
 			V4StoreA(Vec4V_From_Vec3V(manifold.mContactPoints[b].mLocalPointB), &contacts[b].mLocalPointB.x);
 			V4StoreA(manifold.mContactPoints[b].mLocalNormalPen, &contacts[b].mLocalNormal.x);

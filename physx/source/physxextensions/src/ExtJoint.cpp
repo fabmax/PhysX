@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "ExtJoint.h"
 
@@ -53,7 +30,7 @@ static void normalToTangents(const PxVec3& n, PxVec3& t1, PxVec3& t2)
 		t1 = PxVec3(0,-n.z*k,n.y*k);
 		t2 = PxVec3(a*k,-n.x*t1.z,n.x*t1.y);
 	}
-	else 
+	else
 	{
 		const PxReal a = n.x*n.x + n.y*n.y;
 		const PxReal k = PxReal(1.0)/PxSqrt(a);
@@ -95,7 +72,7 @@ void PxSetJointGlobalFrame(PxJoint& joint, const PxVec3* wsAnchor, const PxVec3*
 		PxVec3 normalw, binormalw;
 		::normalToTangents(axisw, binormalw, normalw);
 		//because axis is supposed to be the Z axis of a frame with the other two being X and Y, we need to negate
-		//Y to make the frame right handed. Note that the above call makes a right handed frame if we pass X --> Y,Z, so 
+		//Y to make the frame right handed. Note that the above call makes a right handed frame if we pass X --> Y,Z, so
 		//it need not be changed.
 
 		for(PxU32 i=0; i<2; i++)
@@ -114,7 +91,7 @@ void PxSetJointGlobalFrame(PxJoint& joint, const PxVec3* wsAnchor, const PxVec3*
 			}
 
 			PxMat33 rot(localAxis[i], localNormal[i], localAxis[i].cross(localNormal[i]));
-			
+
 			localPose[i].q = PxQuat(rot);
 			localPose[i].q.normalize();
 		}
@@ -129,7 +106,12 @@ void PxSetJointGlobalFrame(PxJoint& joint, const PxVec3* wsAnchor, const PxVec3*
 void physx::Ext::omniPvdSetBaseJointParams(const PxJoint& joint, PxJointConcreteType::Enum cType)
 {
 	OMNI_PVD_WRITE_SCOPE_BEGIN(pvdWriter, pvdRegData)
+	omniPvdSetBaseJointParams(pvdWriter, pvdRegData, joint, cType);
+	OMNI_PVD_WRITE_SCOPE_END
+}
 
+void physx::Ext::omniPvdSetBaseJointParams(OmniPvdWriter* pvdWriter, const OmniPvdPxExtensionsRegistrationData* pvdRegData, const PxJoint& joint, PxJointConcreteType::Enum cType)
+{
 	const PxJoint& j = static_cast<const PxJoint&>(joint);
 	PxRigidActor* actors[2]; j.getActors(actors[0], actors[1]);
 	OMNI_PVD_SET_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxJoint, actor0, j, actors[0])
@@ -151,14 +133,12 @@ void physx::Ext::omniPvdSetBaseJointParams(const PxJoint& joint, PxJointConcrete
 	OMNI_PVD_SET_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxJoint, invMassScale1, j, j.getInvMassScale1())
 	OMNI_PVD_SET_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxJoint, invInertiaScale1, j, j.getInvInertiaScale1())
 	const char* name = j.getName() ? j.getName() : "";
-	PxU32 nameLen = PxU32(strlen(name)) + 1;
+	PxU32 nameLen = PxU32(strnlen(name, UINT32_MAX - 1)) + 1;
 	OMNI_PVD_SET_ARRAY_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxJoint, name, j, name, nameLen)
 	const char* typeName = j.getConcreteTypeName();
-	PxU32 typeNameLen = PxU32(strlen(typeName)) + 1;
+	PxU32 typeNameLen = PxU32(strnlen(typeName, UINT32_MAX - 1)) + 1;
 	OMNI_PVD_SET_ARRAY_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxJoint, concreteTypeName, j, typeName, typeNameLen)
 	OMNI_PVD_SET_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxJoint, type, j, cType)
-
-	OMNI_PVD_WRITE_SCOPE_END
 }
 
 #endif

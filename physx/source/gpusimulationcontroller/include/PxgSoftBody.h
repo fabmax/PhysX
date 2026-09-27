@@ -1,43 +1,14 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved. 
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef PXG_SOFTBODY_H
 #define PXG_SOFTBODY_H
 
-#include "PxsHeapMemoryAllocator.h"
-#include "foundation/PxUserAllocated.h"
-#include "foundation/PxVec4.h"
-#include "PxgCudaBuffer.h"
-#include "cutil_math.h"
-#include "PxDeformableVolume.h"
-#include "PxDeformableVolumeFlag.h"
-#include "PxSoftBodyFlag.h" // deprecated
-#include "PxgSimulationCoreDesc.h"
+#include "foundation/PxMat33.h"
+#include "foundation/PxBounds3.h"
+#include <vector_types.h>
 
 #define MAX_SELF_COLLISION_CONTACTS		1000
 #define NUM_BLOCK_PER_SOFTBODY_SOLVE_TETRA	2
@@ -52,12 +23,17 @@ namespace physx
 		class BVTetrahedronMesh;
 		class TetrahedronMesh;
 		class DeformableVolumeAuxData;
-	};
+	}
 
+	namespace Cm
+	{
+		class VirtualAllocatorCallback;
+	}
 
 	struct PxgMat33Block;
 	struct PxgSpatialVectorBlock;
 	class PxgNonRigidFilterPair;
+	struct PxgAllocatorDesc;
 
 #if PX_VC 
 #pragma warning(push)   
@@ -80,11 +56,9 @@ namespace physx
 	{
 	public:
 
-		PX_DEPRECATED static PxU32 dataIndexFromFlagDEPRECATED(PxSoftBodyGpuDataFlag::Enum flag);
-
 		// AD: We only use this for the host mirror as the GPU-side are PxgCudaBuffers and we only assign the pointers. 
 		// Make sure to pass the right allocator in here!
-		void deallocate(PxsHeapMemoryAllocator* allocator); 
+		void deallocate(Cm::VirtualAllocatorCallback& hostAlloc); 
 
 		void*					mTetMeshData;
 		PxU8*					mTetMeshSurfaceHint;
@@ -104,7 +78,12 @@ namespace physx
 		const float4*			mSimKinematicTarget;
 		bool*					mVertsAreDeformed;
 		bool*					mVertsCanNotDeform;
-		float4*					mSimDeltaPos; //sizeof mNumVertsGM, store the deltaPos change for the grid model verts
+
+		// Accumulated position delta of the sim verts since step start (integration plus
+		// constraint corrections), sizeof mNumVertsGM. Advances in position iterations
+		// only and stays frozen through velocity iterations. The contact solves read it
+		// for computing the separation.
+		float4*					mSimDeltaPos;
 		PxgMat33Block*			mSimTetraRestPoses;
 		PxgMat33Block*			mOrigQinv;
 		
@@ -130,7 +109,12 @@ namespace physx
 
 		PxgSpatialVectorBlock*	mSimTetraMultipliers;
 
-		float4*					mSimDelta; //initialize to zero and zero every time in the apply delta kernel
+		// Per-iteration solve scratch. The solves scatter their deltas into .xyz and
+		// the count+prep kernels put the mass-splitting refCount into .w. Every
+		// iteration sb_gm_applyExternalDeltasLaunch consumes and zeroes it, updating
+		// mSimVelocity_InvMass always and mSimPosition_InvMass plus mSimDeltaPos in
+		// position iterations only.
+		float4*					mSimDelta;
 
 		PxBounds3*				mPackedNodeBounds;
 
@@ -171,7 +155,7 @@ namespace physx
 		PxU32					mNumTetsPerElement;
 		PxU32					mNumJacobiVertices;
 
-		PxReal					mRestDistance;
+		PxReal					mRestOffset;
 		PxReal					mOriginalContactOffset;
 		PxReal					mJacobiScale;
 		
@@ -181,52 +165,7 @@ namespace physx
 #pragma warning(pop)   
 #endif
 
-	class PxgSoftBodyBuffer : public PxUserAllocated
-	{
-	public:
-
-		PxgSoftBodyBuffer(PxgHeapMemoryAllocatorManager* heapMemoryManager);
-
-		PxgCudaBuffer						tetMeshData;
-		PxgTypedCudaBuffer<PxU8>			tetMeshSurfaceHint;
-		PxgTypedCudaBuffer<uint4>			tetIndices;
-		PxgTypedCudaBuffer<PxU32>			tetIndicesRemapTable;
-		PxgTypedCudaBuffer<PxMat33>			tetStresses;
-		PxgTypedCudaBuffer<PxReal>			tetStressCoefficient;
-		PxgTypedCudaBuffer<PxMat33>			tetRestPoses;
-		PxgTypedCudaBuffer<float4>			tetRotations;
-
-		PxgTypedCudaBuffer<uint4>			tetIndicesGM;
-		PxgTypedCudaBuffer<float4>			pPostion_InvMassGM;
-		PxgTypedCudaBuffer<bool>			vertsAreDeformed;
-		PxgTypedCudaBuffer<bool>			vertsCantDeform;
-		PxgTypedCudaBuffer<PxgMat33Block>	tetRestPosesGM;
-		PxgTypedCudaBuffer<PxgMat33Block>	origTetRestPosesGM;
-		PxgTypedCudaBuffer<float4>			tetRotationsGM;
-		PxgTypedCudaBuffer<PxU32>			orderedTetGM;
-		PxgTypedCudaBuffer<PxU32>			jacobiVertIndicesGM;
-		PxgTypedCudaBuffer<PxgSpatialVectorBlock>	tetMultipliersGM;
-
-		PxgTypedCudaBuffer<float4>			pDeltaVGM;
-
-		PxgTypedCudaBuffer<float4>			pBarycentricGM;
-		PxgTypedCudaBuffer<PxU32>			pRemapGM;
-		PxgTypedCudaBuffer<PxU32>			tetRemapColToSim;
-		PxgTypedCudaBuffer<PxU32>			tetAccumulatedRemapColToSim;
-		PxgTypedCudaBuffer<PxU8>			surfaceVertsHint;
-		PxgTypedCudaBuffer<PxU32>			surfaceVertToTetRemap;
-		PxgTypedCudaBuffer<float4>			pDeltaPosGM;
-		PxgTypedCudaBuffer<float4>			pPosition_InvMassGMCP;
-		PxgTypedCudaBuffer<float4>			pVelocity_InvMassGMCP;
-		PxgTypedCudaBuffer<PxU32>			remapOutputGMCP;
-		PxgTypedCudaBuffer<PxU32>			accumulatedPartitionsGMCP;
-		PxgTypedCudaBuffer<PxU32>			accumulatedCopiesGMCP;
-		PxgTypedCudaBuffer<uint4>			pullIndices;
-		PxgTypedCudaBuffer<PxU16>			orderedMaterialIndices;
-		PxgTypedCudaBuffer<PxU16>			materialIndices;
-		PxgTypedCudaBuffer<PxBounds3>		packedNodeBounds; //for refit
-		PxgTypedCudaBuffer<PxgNonRigidFilterPair> filterPairs;
-	};
+	class PxgSoftBodyBuffer;
 
 	class PxgSoftBodyUtil
 	{
@@ -234,7 +173,7 @@ namespace physx
 		static PxU32 computeTetMeshByteSize(const Gu::BVTetrahedronMesh* tetMesh);
 		static PxU32 loadOutTetMesh(void* mem, const Gu::BVTetrahedronMesh* tetMesh);
 		static void initialTetData(PxgSoftBody& softbody, const Gu::BVTetrahedronMesh* colTetMesh, const Gu::TetrahedronMesh* simTetMesh, 
-			const Gu::DeformableVolumeAuxData* softBodyAuxData, const PxU16* materialsHandles, PxsHeapMemoryAllocator* alloc);
+			const Gu::DeformableVolumeAuxData* softBodyAuxData, const PxU16* materialsHandles, Cm::VirtualAllocatorCallback& hostAlloc);
 		static void computeBasisMatrix(PxMat33* restPoses, const Gu::DeformableVolumeMesh* tetMesh);
 
 	};

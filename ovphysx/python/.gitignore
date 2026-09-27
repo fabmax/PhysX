@@ -1,0 +1,13 @@
+# Python build artifacts
+build/
+*.egg-info/
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environment
+venv/
+.venv/
+
+# Test outputs
+pytest_results.xml

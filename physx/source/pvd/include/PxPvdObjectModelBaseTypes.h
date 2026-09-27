@@ -1,28 +1,5 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef PX_PVD_OBJECT_MODEL_BASE_TYPES_H
 #define PX_PVD_OBJECT_MODEL_BASE_TYPES_H
@@ -65,7 +42,7 @@ inline bool isMeaningful(const char* str)
 inline uint32_t safeStrLen(const char* str)
 {
 	str = nonNull(str);
-	return static_cast<uint32_t>(strlen(str));
+	return static_cast<uint32_t>(strnlen(str, UINT32_MAX - 1));
 }
 
 struct ObjectRef
@@ -172,7 +149,7 @@ DECLARE_BASE_PVD_TYPE(PxQuat)			\
 DECLARE_BASE_PVD_TYPE(PxTransform)		\
 DECLARE_BASE_PVD_TYPE(PxMat33)			\
 DECLARE_BASE_PVD_TYPE(PxMat44)			\
-DECLARE_BASE_PVD_TYPE(U32Array4)		
+DECLARE_BASE_PVD_TYPE(U32Array4)
 
 struct PvdBaseType
 {
@@ -257,7 +234,7 @@ struct PvdDataTypeToNamespacedNameMap
 	struct PvdDataTypeToNamespacedNameMap<type>                                                                        \
 	{                                                                                                                  \
 		NamespacedName Name;                                                                                           \
-		PvdDataTypeToNamespacedNameMap<type>() : Name("physx3", #type)                                                 \
+		PvdDataTypeToNamespacedNameMap() : Name("physx3", #type)                                                       \
 		{                                                                                                              \
 		}                                                                                                              \
 	};                                                                                                                 \
@@ -265,7 +242,7 @@ struct PvdDataTypeToNamespacedNameMap
 	struct PvdDataTypeToNamespacedNameMap<const type&>                                                                 \
 	{                                                                                                                  \
 		NamespacedName Name;                                                                                           \
-		PvdDataTypeToNamespacedNameMap<const type&>() : Name("physx3", #type)                                          \
+		PvdDataTypeToNamespacedNameMap() : Name("physx3", #type)                                                       \
 		{                                                                                                              \
 		}                                                                                                              \
 	};
@@ -289,7 +266,7 @@ inline NamespacedName getPvdNamespacedNameForType()
 	struct PvdDataTypeToNamespacedNameMap<type>                                                                        \
 	{                                                                                                                  \
 		NamespacedName Name;                                                                                           \
-		PvdDataTypeToNamespacedNameMap<type>() : Name(ns, name)                                                        \
+		PvdDataTypeToNamespacedNameMap() : Name(ns, name)                                                              \
 		{                                                                                                              \
 		}                                                                                                              \
 	};
@@ -299,7 +276,7 @@ inline NamespacedName getPvdNamespacedNameForType()
 	struct PvdDataTypeToNamespacedNameMap<newType>                                                                     \
 	{                                                                                                                  \
 		NamespacedName Name;                                                                                           \
-		PvdDataTypeToNamespacedNameMap<newType>() : Name(PvdDataTypeToNamespacedNameMap<oldType>().Name)               \
+		PvdDataTypeToNamespacedNameMap() : Name(PvdDataTypeToNamespacedNameMap<oldType>().Name)                        \
 		{                                                                                                              \
 		}                                                                                                              \
 	};

@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.   
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef PX_PARTICLE_SYSTEM_FLAG_H
 #define PX_PARTICLE_SYSTEM_FLAG_H
@@ -51,31 +28,15 @@ struct PxParticleBufferFlag
 		eUPDATE_POSITION = 1 << 0,				//!< Specifies the position (first 3 floats) and inverse mass (last float) data (array of PxVec4 * number of particles)
 		eUPDATE_VELOCITY = 1 << 1,				//!< Specifies the velocity (first 3 floats) data (array of PxVec4 * number of particles)
 		eUPDATE_PHASE = 1 << 2,					//!< Specifies the per-particle phase flag data (array of PxU32 * number of particles)
-		eUPDATE_RESTPOSITION = 1 << 3,			//!< Specifies the rest position (first 3 floats) data for cloth buffers
-		eUPDATE_CLOTH = 1 << 5,					//!< Specifies the cloth buffer (see PxParticleClothBuffer)
-		eUPDATE_RIGID = 1 << 6,					//!< Specifies the rigid buffer (see PxParticleRigidBuffer)
-		eUPDATE_DIFFUSE_PARAM = 1 << 7,			//!< Specifies the diffuse particle parameter buffer (see PxDiffuseParticleParams)
-		eUPDATE_ATTACHMENTS = 1 << 8,			//!< Specifies the attachments.
+		eUPDATE_RESTPOSITION = 1 << 3,			//!< Specifies the rest position (first 3 floats) data
+		eUPDATE_DIFFUSE_PARAM = 1 << 4,			//!< Specifies the diffuse particle parameter buffer (see PxDiffuseParticleParams)
 
 		eALL =
-		eUPDATE_POSITION | eUPDATE_VELOCITY | eUPDATE_PHASE | eUPDATE_RESTPOSITION | eUPDATE_CLOTH | eUPDATE_RIGID | eUPDATE_DIFFUSE_PARAM | eUPDATE_ATTACHMENTS
+		eUPDATE_POSITION | eUPDATE_VELOCITY | eUPDATE_PHASE | eUPDATE_RESTPOSITION | eUPDATE_DIFFUSE_PARAM
 	};
 };
 
 typedef PxFlags<PxParticleBufferFlag::Enum, PxU32> PxParticleBufferFlags;
-
-/**
-\brief A pair of particle buffer unique id and GPU particle system index. 
-
-\see PxScene::applyParticleBufferData
-
-\deprecated There is no replacement.
-*/
-PX_DEPRECATED struct PxGpuParticleBufferIndexPair
-{
-	PxU32 		systemIndex; // gpu particle system index	
-	PxU32		bufferIndex; // particle buffer unique id
-};
 
 /**
 \brief Identifies per-particle behavior for a PxParticleSystem.

@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "PxgSolverBody.h"
 #include "PxgSolverConstraintBlock1D.h"
@@ -54,6 +31,8 @@ void artiSolveBlockPartition(PxgSolverCoreDesc* PX_RESTRICT solverDesc, const Px
 
 	const PxgIslandContext& island = solverDesc->islandContextPool[islandIndex];
 
+	const PxReal rigidContactBiasCoefficient = island.mBiasCoefficients.rigidContact;
+
 	//PxgBodySim* gBodySims = sharedDesc->bodySims;
 	PxgArticulationBlockData* gArticulations = artiDesc->mArticulationBlocks;
 
@@ -65,7 +44,7 @@ void artiSolveBlockPartition(PxgSolverCoreDesc* PX_RESTRICT solverDesc, const Px
 
 	PxU32 startIndex = partitionIndex == 0 ? island.mArtiBatchStartIndex : solverDesc->artiConstraintsPerPartition[partitionIndex + startPartitionIndex - 1];
 	//PxU32 startIndex = solverDesc->constraintsPerPartition[partitionIndex + startPartitionIndex];
-	
+
 	const PxU32 articulationBatchOffset = solverDesc->islandContextPool->mBatchCount;
 
 	//const PxU32 nbArticulations = artiDesc->nbArticulations;
@@ -80,9 +59,6 @@ void artiSolveBlockPartition(PxgSolverCoreDesc* PX_RESTRICT solverDesc, const Px
 	const uint threadIndexInWarp = threadIdx.x;
 
 	uint k = startIndex + globalWarpIndex + articulationBatchOffset;	
-
-	PxgErrorAccumulator error;
-	const bool accumulateError = solverDesc->contactErrorAccumulator.mCounter >= 0;
 
 	if (k < endIndex)
 	{
@@ -190,7 +166,7 @@ void artiSolveBlockPartition(PxgSolverCoreDesc* PX_RESTRICT solverDesc, const Px
 			solveExtContactsBlock(batch, vel0, vel1, doFriction, msIterativeData.blockContactHeaders,
 			                      msIterativeData.blockFrictionHeaders, msIterativeData.blockContactPoints,
 			                      msIterativeData.blockFrictions, msIterativeData.artiResponse, impulse0, impulse1,
-			                      threadIndexInWarp, accumulateError ? &error : NULL, curRef0, curRef1);
+			                      threadIndexInWarp, rigidContactBiasCoefficient, curRef0, curRef1);
 		}
 		else
 		{
@@ -198,7 +174,7 @@ void artiSolveBlockPartition(PxgSolverCoreDesc* PX_RESTRICT solverDesc, const Px
 			solveExt1DBlock(batch, vel0, vel1, threadIndexInWarp, msIterativeData.blockJointConstraintHeaders,
 			                msIterativeData.blockJointConstraintRowsCon, msIterativeData.blockJointConstraintRowsMod,
 			                &responses[responseIndex], impulse0, impulse1,
-			                solverDesc->contactErrorAccumulator.mCounter >= 0, curRef0, curRef1);
+			                curRef0, curRef1);
 		}
 
 		//Pull impulse from threads 6-12
@@ -258,9 +234,6 @@ void artiSolveBlockPartition(PxgSolverCoreDesc* PX_RESTRICT solverDesc, const Px
 				vel1.top.x, vel1.top.y, vel1.top.z, vel1.bottom.x, vel1.bottom.y, vel1.bottom.z);*/
 			//printf("%i: Output ArticB index = %i, articId = %i (%f, %f, %f, %f, %f, %f)\n", threadIndexInWarp, index, solverBodyId1,
 			//	impulse1.top.x, impulse1.top.y, impulse1.top.z, impulse1.bottom.x, impulse1.bottom.y, impulse1.bottom.z);
-		}		
+		}
 	}
-
-	if (accumulateError)
-		error.accumulateErrorGlobalFullWarp(solverDesc->contactErrorAccumulator, threadIndexInWarp);
 }

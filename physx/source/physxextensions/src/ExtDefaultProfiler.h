@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef EXT_DEFAULT_PROFILER_H
 #define EXT_DEFAULT_PROFILER_H
@@ -61,8 +38,8 @@ public:
 	PxMutex& mMutex;
 
 
-	DefaultProfilerDataBlock(const PxU32 bufferSize, PxOutputStream& outputStream, PxMutex& mutex) : 
-		mOutputStream(outputStream), 
+	DefaultProfilerDataBlock(const PxU32 bufferSize, PxOutputStream& outputStream, PxMutex& mutex) :
+		mOutputStream(outputStream),
 		mMutex(mutex)
 	{
 		mBuffer = static_cast<char*>(PxAlignedAllocator<DEFAULT_PROFILER_REQUIRED_ALIGNMENT>().allocate(bufferSize, PX_FL));
@@ -70,22 +47,22 @@ public:
 		mEndBuffer = mBuffer + bufferSize;
 	}
 
-	~DefaultProfilerDataBlock() 
-	{ 
+	~DefaultProfilerDataBlock()
+	{
 		PxAlignedAllocator<DEFAULT_PROFILER_REQUIRED_ALIGNMENT>().deallocate(mBuffer);
 	}
 
 	PxU32 size() const
-	{ 
+	{
 		return (PxU32)(mNextEntry - mBuffer);
 	}
 
 	bool isFull(const PxU32 size) const
-	{ 
+	{
 		return (mNextEntry + size >= mEndBuffer);
 	}
 
-	void seek(const PxU32 offset) 
+	void seek(const PxU32 offset)
 	{
 		mNextEntry = mBuffer + offset;
 	}
@@ -117,7 +94,7 @@ public:
 		if(name && mNameKeys.contains(key) == false)
 		{
 			nameSize = sNameSize;
-			nameStringSize = (PxU32)strlen(name) + 1;
+			nameStringSize = (PxU32)strnlen(name, UINT32_MAX - 1) + 1;
 
 			// Pad the string buffer.
 			paddedNameStringSize = (nameStringSize + (DEFAULT_PROFILER_REQUIRED_ALIGNMENT - 1)) & ~(DEFAULT_PROFILER_REQUIRED_ALIGNMENT - 1);
@@ -167,7 +144,7 @@ public:
 
 			mNameKeys.insert(key);
 		}
-	} 
+	}
 };
 
 

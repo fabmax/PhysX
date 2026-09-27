@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef PX_TYPE_INFO_H
 #define PX_TYPE_INFO_H
@@ -58,7 +35,6 @@ struct PxConcreteType
 		eTRIANGLE_MESH_BVH34,
 		eTETRAHEDRON_MESH,
 		eDEFORMABLE_VOLUME_MESH,
-		eSOFTBODY_MESH PX_DEPRECATED = eDEFORMABLE_VOLUME_MESH, //!< \deprecated
 
 		eRIGID_DYNAMIC,
 		eRIGID_STATIC,
@@ -66,7 +42,6 @@ struct PxConcreteType
 		eMATERIAL,
 		eDEFORMABLE_SURFACE_MATERIAL,
 		eDEFORMABLE_VOLUME_MATERIAL,
-		eSOFTBODY_MATERIAL PX_DEPRECATED = eDEFORMABLE_VOLUME_MATERIAL, //!< \deprecated
 		ePBD_MATERIAL,
 		eCONSTRAINT,
 		eAGGREGATE,
@@ -81,17 +56,13 @@ struct PxConcreteType
 		ePRUNING_STRUCTURE,
 		eBVH,
 		eDEFORMABLE_VOLUME,
-		eSOFT_BODY PX_DEPRECATED = eDEFORMABLE_VOLUME, //!< \deprecated
 		eDEFORMABLE_VOLUME_STATE,
-		eSOFT_BODY_STATE PX_DEPRECATED = eDEFORMABLE_VOLUME_STATE, //!< \deprecated
 		ePBD_PARTICLESYSTEM,
 		eDEFORMABLE_SURFACE,
 		eDEFORMABLE_ATTACHMENT,
 		eDEFORMABLE_ELEMENT_FILTER,
 		ePARTICLE_BUFFER,
 		ePARTICLE_DIFFUSE_BUFFER,
-		ePARTICLE_CLOTH_BUFFER,
-		ePARTICLE_RIGID_BUFFER,
 		
 		ePHYSX_CORE_COUNT,
         eFIRST_PHYSX_EXTENSION = 256,
@@ -146,8 +117,6 @@ PX_DEFINE_TYPEINFO(PxDeformableAttachment,					PxConcreteType::eDEFORMABLE_ATTAC
 PX_DEFINE_TYPEINFO(PxDeformableElementFilter,				PxConcreteType::eDEFORMABLE_ELEMENT_FILTER)
 PX_DEFINE_TYPEINFO(PxParticleBuffer,						PxConcreteType::ePARTICLE_BUFFER)
 PX_DEFINE_TYPEINFO(PxParticleAndDiffuseBuffer,				PxConcreteType::ePARTICLE_DIFFUSE_BUFFER)
-PX_DEFINE_TYPEINFO(PxParticleClothBuffer,					PxConcreteType::ePARTICLE_CLOTH_BUFFER)
-PX_DEFINE_TYPEINFO(PxParticleRigidBuffer,					PxConcreteType::ePARTICLE_RIGID_BUFFER)
 
 #if !PX_DOXYGEN
 } // namespace physx

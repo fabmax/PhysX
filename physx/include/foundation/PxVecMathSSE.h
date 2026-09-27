@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
-// Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
+// Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef PX_VEC_MATH_SSE_H
 #define PX_VEC_MATH_SSE_H
@@ -2570,7 +2547,7 @@ PX_FORCE_INLINE Mat44V M44Inverse(const Mat44V& a)
 //////////////////////////////////
 
 // PT: TODO: seems to be in the wrong section
-PX_FORCE_INLINE Vec4V V4LoadXYZW(const PxF32& x, const PxF32& y, const PxF32& z, const PxF32& w)
+PX_FORCE_INLINE Vec4V V4LoadXYZW(PxF32 x, PxF32 y, PxF32 z, PxF32 w)
 {
 	return _mm_set_ps(w, z, y, x);
 }
@@ -2676,34 +2653,25 @@ PX_FORCE_INLINE VecU16V V4I16CompareGt(VecU16V a, VecU16V b)
 // unsigned compares are not supported on x86
 PX_FORCE_INLINE VecU16V V4U16CompareGt(VecU16V a, VecU16V b)
 {
-	// _mm_cmpgt_epi16 doesn't work for unsigned values unfortunately
-	// return m128_I2F(_mm_cmpgt_epi16(internalSimd::m128_F2I(a), internalSimd::m128_F2I(b)));
-	VecU16V result;
-	result.m128_u16[0] = PxU16((a).m128_u16[0] > (b).m128_u16[0]);
-	result.m128_u16[1] = PxU16((a).m128_u16[1] > (b).m128_u16[1]);
-	result.m128_u16[2] = PxU16((a).m128_u16[2] > (b).m128_u16[2]);
-	result.m128_u16[3] = PxU16((a).m128_u16[3] > (b).m128_u16[3]);
-	result.m128_u16[4] = PxU16((a).m128_u16[4] > (b).m128_u16[4]);
-	result.m128_u16[5] = PxU16((a).m128_u16[5] > (b).m128_u16[5]);
-	result.m128_u16[6] = PxU16((a).m128_u16[6] > (b).m128_u16[6]);
-	result.m128_u16[7] = PxU16((a).m128_u16[7] > (b).m128_u16[7]);
-	return result;
+	const PxU16 signMask = 0x8000;
+	const __m128i signBit = _mm_set1_epi16(PxI16(signMask));
+
+	const __m128i a_i = _mm_xor_si128(_mm_castps_si128(a), signBit);
+	const __m128i b_i = _mm_xor_si128(_mm_castps_si128(b), signBit);
+	const __m128i result = _mm_cmpgt_epi16(a_i, b_i);
+	return _mm_castsi128_ps(result); // Back to __m128
 }
 
 PX_FORCE_INLINE Vec4V Vec4V_From_VecU32V(VecU32V a)
 {
-	Vec4V result = V4LoadXYZW(PxF32(a.m128_u32[0]), PxF32(a.m128_u32[1]), PxF32(a.m128_u32[2]), PxF32(a.m128_u32[3]));
-	return result;
+	// Cast __m128 (actually storing ints) to __m128i, convert to float
+	return _mm_cvtepi32_ps(_mm_castps_si128(a));
 }
 
 PX_FORCE_INLINE VecU32V U4LoadXYZW(PxU32 x, PxU32 y, PxU32 z, PxU32 w)
 {
-	VecU32V result;
-	result.m128_u32[0] = x;
-	result.m128_u32[1] = y;
-	result.m128_u32[2] = z;
-	result.m128_u32[3] = w;
-	return result;
+	const __m128i v = _mm_set_epi32((int)w, (int)z, (int)y, (int)x);
+	return _mm_castsi128_ps(v); // Store as __m128 for compatibility
 }
 
 } // namespace aos

@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "common/PxSerializer.h"
 #include "extensions/PxConstraintExt.h"
@@ -45,7 +22,7 @@ namespace
 	{
 		RequiresCallback(physx::PxCollection& c) : collection(c) {}
 		void process(PxBase& base)
-		{			
+		{
 			  if(!collection.contains(base))
 				  collection.add(base);
 		}
@@ -95,7 +72,7 @@ namespace
 						PxU32 typeId;
 						PxJoint* joint = reinterpret_cast<PxJoint*>(objects[j]->getExternalReference(typeId));				
 						if(typeId == PxConstraintExtIDs::eJOINT)
-						{							
+						{
 							const PxSerializer* sj = sr.getSerializer(joint->getConcreteType());
 							PX_ASSERT(sj);
 							sj->requiresObjects(*joint, callback);
@@ -105,12 +82,12 @@ namespace
 					}
 				}
 			}
-		}	
+		}
 	}
 }
 
 bool PxSerialization::isSerializable(PxCollection& collection, PxSerializationRegistry& sr, const PxCollection* externalReferences) 
-{		
+{
 	PxCollection* subordinateCollection = PxCreateCollection();
 	PX_ASSERT(subordinateCollection);
 
@@ -129,14 +106,14 @@ bool PxSerialization::isSerializable(PxCollection& collection, PxSerializationRe
 			{
 				PxBase* object = externalReferences->find(id);
 				if(object && (object != &s))
-				{					
+				{
 					subordinateCollection->release();					
 					return PxGetFoundation().error(physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, 
 						"PxSerialization::isSerializable: Reference id %llu used both in current collection and in externalReferences. "
 						"Please use unique identifiers.", id);	
 				}
 			}
-		}		
+		}
 	}
 
 	PxCollection* requiresCollection = PxCreateCollection();
@@ -169,14 +146,14 @@ bool PxSerialization::isSerializable(PxCollection& collection, PxSerializationRe
 				if(externalReferences)
 				{
 					if(!externalReferences->contains(s0))
-					{						
+					{
 						PxGetFoundation().error(physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, 
 							"PxSerialization::isSerializable: Object of type %s references a missing object of type %s. "
 							"The missing object needs to be added to either the current collection or the externalReferences collection.",
 							s.getConcreteTypeName(), s0.getConcreteTypeName());						
 					}
 					else if(externalReferences->getId(s0) == PX_SERIAL_OBJECT_ID_INVALID)
-					{						
+					{
 						PxGetFoundation().error(physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, 
 							"PxSerialization::isSerializable: Object of type %s in externalReferences collection requires an id.", 
 							s0.getConcreteTypeName());
@@ -185,7 +162,7 @@ bool PxSerialization::isSerializable(PxCollection& collection, PxSerializationRe
 						continue;
 				}
 				else
-				{				
+				{
 					PxGetFoundation().error(physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, 
 						"PxSerialization::isSerializable: Object of type %s references a missing serial object of type %s. "
 						"Please completed the collection or specify an externalReferences collection containing the object.",
@@ -194,7 +171,7 @@ bool PxSerialization::isSerializable(PxCollection& collection, PxSerializationRe
 				subordinateCollection->release();
 				requiresCollection->release();
 				return false;	
-			}		
+			}
 		}
 		cmRequiresCollection->mObjects.clear();
 	}
@@ -256,7 +233,7 @@ bool PxSerialization::isSerializable(PxCollection& collection, PxSerializationRe
 }
 
 void PxSerialization::complete(PxCollection& collection, PxSerializationRegistry& sr, const PxCollection* exceptFor, bool followJoints)
-{	
+{
 	PxCollection* curCollection = PxCreateCollection();
 	PX_ASSERT(curCollection);	
 	curCollection->add(collection);
@@ -265,7 +242,7 @@ void PxSerialization::complete(PxCollection& collection, PxSerializationRegistry
 	PX_ASSERT(requiresCollection);
 
 	do
-	{		
+	{
 		getRequiresCollection(*requiresCollection, *curCollection, collection, exceptFor, sr, followJoints);		
 		
 		collection.add(*requiresCollection);

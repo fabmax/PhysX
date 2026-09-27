@@ -1,64 +1,41 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef PXG_NPHASE_IMPLEMENTATION_CONTEXT_H
 #define PXG_NPHASE_IMPLEMENTATION_CONTEXT_H
 
 #include "CmTask.h"
-#include "foundation/PxMutex.h"
 
 #include "PxvNphaseImplementationContext.h"
-#include "PxgNarrowphaseCore.h"
-#include "PxgSimulationCore.h"
-#include "foundation/PxHashMap.h"
 
 #include "PxsContactManagerState.h"
 #include "PxgContactManager.h"
-#include "PxgPersistentContactManifold.h"
-#include "PxgHeapMemAllocator.h"
+#include "PxgBucket.h"
 
 namespace physx
 {
-	struct PxcNpWorkUnit;
-	class PxgNphaseImplementationContext;
-	class PxgGpuContext;
-	class PxgParticleSystemCore;
-	class PxsKernelWranglerManager;
-
 	namespace Bp
 	{
-		class BpNonVirtualMemAllocator;
+		class BoundsArray;
 	}
 
 	namespace Dy
 	{
 		class Context;
 	}
+
+	struct PxcNpWorkUnit;
+	class PxsKernelWranglerManager;
+
+	class PxgNphaseImplementationContext;
+	class PxgGpuContext;
+	struct PxgContactManagers;
+	struct PxgGpuContactManagers;
+	class PxgGpuNarrowphaseCore;
+	class PxgSimulationCore;
+	struct PxgAllocatorDesc;
 	
 	class PxgCMGpuDiscreteUpdateBase: public Cm::Task
 	{
@@ -102,12 +79,12 @@ namespace physx
 			mDt = dt;
 		}
 
-		virtual const char* getName() const
+		virtual const char* getName() const PX_OVERRIDE
 		{
 			return "PxgCMGpuDiscreteUpdateFallbackTask";
 		}
 
-		void runInternal();
+		virtual	void runInternal()	PX_OVERRIDE;
 
 	protected:
 		PxReal							mDt;
@@ -128,12 +105,12 @@ namespace physx
 		{
 		}
 
-		virtual void setPostBroadPhaseTask(PxBaseTask* postBroadPhaseTask) 
+		virtual void setPostBroadPhaseTask(PxBaseTask* postBroadPhaseTask)
 		{
 			mPostBroadPhaseTask = postBroadPhaseTask;
 		}
 
-		virtual void release()
+		virtual void release() PX_OVERRIDE
 		{
 			if(mFirstPassNpContinuation)
 				mFirstPassNpContinuation->removeReference();
@@ -142,9 +119,9 @@ namespace physx
 
 		void setFirstPassContinuation(PxBaseTask* firstPassContinuation) { mFirstPassNpContinuation = firstPassContinuation; }
 
-		void runInternal();
+		virtual	void runInternal()	PX_OVERRIDE;
 
-		virtual const char* getName() const
+		virtual const char* getName() const PX_OVERRIDE
 		{
 			return "PxgNphaseImplementationContext.firstContactManagerDiscreteUpdate";
 		}
@@ -160,9 +137,9 @@ namespace physx
 		virtual ~PxgCMGpuDiscreteSecondPassUpdateTask()
 		{}
 
-		void runInternal();
+		virtual	void runInternal()	PX_OVERRIDE;
 
-		virtual const char* getName() const
+		virtual const char* getName() const PX_OVERRIDE
 		{
 			return "PxgNphaseImplementationContext.secondContactManagerDiscreteUpdate";
 		}
@@ -178,8 +155,8 @@ namespace physx
 		
 		PxgNphaseImplementationContext(PxsContext& context, PxsKernelWranglerManager* gpuKernelWrangler, PxvNphaseImplementationFallback* fallbackForUnsupportedCMs,
 			const PxGpuDynamicsMemoryConfig& gpuDynamicsConfig, void* contactStreamBase, void* patchStreamBase, void* forceAndIndiceStreamBase,
-			PxBoundsArrayPinned& bounds, IG::IslandSim* islandSim, 
-			physx::Dy::Context* dynamicsContext, PxgHeapMemoryAllocatorManager* heapMemoryManager, 
+			Bp::BoundsArray& bounds, IG::IslandSim* islandSim, 
+			physx::Dy::Context* dynamicsContext, PxgAllocatorDesc& allocDesc, 
 			bool useGPUNP);
 
 		virtual ~PxgNphaseImplementationContext();
@@ -281,7 +258,7 @@ namespace physx
 		PxgCMGpuDiscreteSecondPassUpdateTask	mUpdateCMsSecondPassTask;
 		PxgCMGpuDiscreteUpdateFallbackTask		mUpdateFallbackPairs;
 
-		PxPinnedArray<PxsContactManagerOutput>	mContactManagerOutputs;
+		Cm::PinnableArray<PxsContactManagerOutput>	mContactManagerOutputs;
 		
 		PxBitMap								mGpuContactManagerBitMap[GPU_BUCKET_ID::eCount];
 		PxU32									mRecordedGpuPairCount[GPU_BUCKET_ID::eCount];
@@ -293,7 +270,7 @@ namespace physx
 
 		PxU32									mTotalNbPairs;
 
-		PxBoundsArrayPinned&					mBounds;
+		Bp::BoundsArray&						mBounds;
 
 		bool									mHasContactDistanceChanged;
 		bool									mUseGPUBP;

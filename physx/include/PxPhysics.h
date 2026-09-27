@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef PX_PHYSICS_H
 #define PX_PHYSICS_H
@@ -61,9 +38,6 @@ class PxFoundation;
 
 class PxPruningStructure;
 class PxBVH;
-
-class PxParticleClothBuffer;
-class PxParticleRigidBuffer;
 
 class PxDeformableVolumeMesh;
 
@@ -350,15 +324,6 @@ public:
 	\see createTetrahedronMesh
 	*/
 	virtual PxDeformableVolumeMesh* createDeformableVolumeMesh(PxInputStream& stream) = 0;
-
-	/**
-	\brief Deprecated
-	\see createDeformableVolumeMesh
-	*/
-	PX_DEPRECATED PX_FORCE_INLINE PxDeformableVolumeMesh* createSoftBodyMesh(PxInputStream& stream)
-	{
-		return createDeformableVolumeMesh(stream);
-	}
 
 	//\}
 	/** \name BVHs
@@ -651,6 +616,18 @@ public:
 	virtual PxU32 getNbConstraints() const = 0;
 
 	/**
+	\brief Writes the constraints that currently exist into a user buffer.
+
+	\param[out] userBuffer The buffer to receive constraint pointers.
+	\param[in] bufferSize The number of constraint pointers which can be stored in the buffer.
+	\param[in] startIndex Index of first constraint pointer to be retrieved.
+	\return Number of constraint pointers written to the buffer.
+
+	\see getNbConstraints() PxConstraint
+	*/
+	virtual PxU32 getConstraints(PxConstraint** userBuffer, PxU32 bufferSize, PxU32 startIndex = 0) const = 0;
+
+	/**
 	\brief Creates a reduced-coordinate articulation with all fields initialized to their default values.
 
 	\return the new articulation
@@ -720,15 +697,6 @@ public:
 	virtual PxDeformableVolume* createDeformableVolume(PxCudaContextManager& cudaContextManager) = 0;
 
 	/**
-	\brief Deprecated
-	\see createDeformableVolume
-	*/
-	PX_DEPRECATED PX_FORCE_INLINE PxDeformableVolume* createSoftBody(PxCudaContextManager& cudaContextManager)
-	{
-		return createDeformableVolume(cudaContextManager);
-	}
-
-	/**
 	\brief Creates a particle system with a position-based dynamics (PBD) solver.
 
 	A PBD particle system can be used to simulate particle systems with fluid and granular particles. It also allows simulating cloth using
@@ -757,55 +725,25 @@ public:
 	\brief Create particle buffer to simulate fluid/granular material.
 
 	\param[in] maxParticles The maximum number of particles in this buffer.
-	\param[in] maxVolumes The maximum number of volumes in this buffer. See PxParticleVolume.
 	\param[in] cudaContextManager The PxCudaContextManager this buffer is tied to.
 	\return PxParticleBuffer instance
 
 	\see PxParticleBuffer
 	*/
-	virtual PxParticleBuffer* createParticleBuffer(PxU32 maxParticles, PxU32 maxVolumes, PxCudaContextManager* cudaContextManager) = 0;
+	virtual PxParticleBuffer* createParticleBuffer(PxU32 maxParticles, PxCudaContextManager* cudaContextManager) = 0;
 
 	/**
 	\brief Create a particle buffer for fluid dynamics with diffuse particles. Diffuse particles are used to simulate fluid effects
 	such as foam, spray and bubbles.
 
 	\param[in] maxParticles The maximum number of particles in this buffer.
-	\param[in] maxVolumes The maximum number of volumes in this buffer. See #PxParticleVolume.
-	\param[in] maxDiffuseParticles The max number of diffuse particles int this buffer.
+	\param[in] maxDiffuseParticles The max number of diffuse particles in this buffer.
 	\param[in] cudaContextManager The PxCudaContextManager this buffer is tied to.
 	\return PxParticleAndDiffuseBuffer instance
 
 	\see PxParticleAndDiffuseBuffer, PxDiffuseParticleParams
 	*/
-	virtual PxParticleAndDiffuseBuffer* createParticleAndDiffuseBuffer(PxU32 maxParticles, PxU32 maxVolumes, PxU32 maxDiffuseParticles, PxCudaContextManager* cudaContextManager) = 0;
-
-	/**
-	\brief Create a particle buffer to simulate particle cloth.
-
-	\param[in] maxParticles The maximum number of particles in this buffer.
-	\param[in] maxNumVolumes The maximum number of volumes in this buffer. See #PxParticleVolume.
-	\param[in] maxNumCloths The maximum number of cloths in this buffer. See #PxParticleCloth.
-	\param[in] maxNumTriangles The maximum number of triangles for aerodynamics.
-	\param[in] maxNumSprings The maximum number of springs to connect particles. See #PxParticleSpring.
-	\param[in] cudaContextManager The PxCudaContextManager this buffer is tied to.
-	\return PxParticleClothBuffer instance
-
-	\see PxParticleClothBuffer
-	*/
-	virtual PxParticleClothBuffer* createParticleClothBuffer(PxU32 maxParticles, PxU32 maxNumVolumes, PxU32 maxNumCloths, PxU32 maxNumTriangles, PxU32 maxNumSprings, PxCudaContextManager* cudaContextManager) = 0;
-	
-	/**
-	\brief Create a particle buffer to simulate rigid bodies using shape matching with particles.
-
-	\param[in] maxParticles The maximum number of particles in this buffer.
-	\param[in] maxNumVolumes The maximum number of volumes in this buffer. See #PxParticleVolume.
-	\param[in] maxNumRigids The maximum number of rigid bodies this buffer is used to simulate.
-	\param[in] cudaContextManager The PxCudaContextManager this buffer is tied to.
-	\return PxParticleRigidBuffer instance
-
-	\see PxParticleRigidBuffer
-	*/
-	virtual PxParticleRigidBuffer* createParticleRigidBuffer(PxU32 maxParticles, PxU32 maxNumVolumes, PxU32 maxNumRigids, PxCudaContextManager* cudaContextManager) = 0;
+	virtual PxParticleAndDiffuseBuffer* createParticleAndDiffuseBuffer(PxU32 maxParticles, PxU32 maxDiffuseParticles, PxCudaContextManager* cudaContextManager) = 0;
 
 	//\}
 	/** \name Materials
@@ -908,15 +846,6 @@ public:
 	virtual PxDeformableVolumeMaterial* createDeformableVolumeMaterial(PxReal youngs, PxReal poissons, PxReal dynamicFriction, PxReal elasticityDamping = 0.0f) = 0;
 
 	/**
-	\brief Deprecated
-	\see createDeformableVolumeMaterial
-	*/
-	PX_DEPRECATED PX_FORCE_INLINE PxDeformableVolumeMaterial* createFEMSoftBodyMaterial(PxReal youngs, PxReal poissons, PxReal dynamicFriction)
-	{
-		return createDeformableVolumeMaterial(youngs, poissons, dynamicFriction);
-	}
-
-	/**
 	\brief Return the number of deformable volume materials that currently exist.
 
 	\return Number of materials.
@@ -924,15 +853,6 @@ public:
 	\see getDeformableVolumeMaterials()
 	*/
 	virtual PxU32 getNbDeformableVolumeMaterials() const = 0;
-
-	/**
-	\brief Deprecated
-	\see getNbDeformableVolumeMaterials
-	*/
-	PX_DEPRECATED PX_FORCE_INLINE PxU32 getNbFEMSoftBodyMaterials() const
-	{
-		return getNbDeformableVolumeMaterials();
-	}
 
 	/**
 	\brief Writes the array of deformable volume material pointers to a user buffer.
@@ -949,15 +869,6 @@ public:
 	\see getNbDeformableVolumeMaterials() PxDeformableVolumeMaterial
 	*/
 	virtual PxU32 getDeformableVolumeMaterials(PxDeformableVolumeMaterial** userBuffer, PxU32 bufferSize, PxU32 startIndex = 0) const = 0;
-
-	/**
-	\brief Deprecated
-	\see getDeformableVolumeMaterials
-	*/
-	PX_DEPRECATED PX_FORCE_INLINE PxU32 getFEMSoftBodyMaterials(PxDeformableVolumeMaterial** userBuffer, PxU32 bufferSize, PxU32 startIndex = 0) const
-	{
-		return getDeformableVolumeMaterials(userBuffer, bufferSize, startIndex);
-	}
 
 	/**
 	\brief Creates a new PBD material with certain default properties.

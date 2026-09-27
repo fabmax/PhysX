@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef DY_CONTACT_PREP_SHARED_H
 #define DY_CONTACT_PREP_SHARED_H
@@ -148,7 +125,7 @@ PX_FORCE_INLINE PxU32 extractContacts(PxContactBuffer& buffer, const PxsContactM
 		while(iter.hasNextPatch())
 		{
 			iter.nextPatch();
-			while(iter.hasNextContact())
+			while(iter.hasNextContact() && (numContacts < PxContactBuffer::MAX_CONTACTS))
 			{
 				iter.nextContact();
 				PxPrefetchLine(iter.contact, 128);
@@ -298,7 +275,7 @@ PX_FORCE_INLINE void computeCompliantContactCoefficientsTGS(const FloatVArg dt, 
 PX_FORCE_INLINE void constructContactConstraint(const Mat33V& invSqrtInertia0, const Mat33V& invSqrtInertia1, const FloatVArg invMassNorLenSq0, 
 	const FloatVArg invMassNorLenSq1, const FloatVArg angD0, const FloatVArg angD1, const Vec3VArg bodyFrame0p, const Vec3VArg bodyFrame1p,
 	const Vec3VArg normal, const FloatVArg norVel, const VecCrossV& norCross, const Vec3VArg angVel0, const Vec3VArg angVel1,
-	const FloatVArg invDt, const FloatVArg invDtp8, const FloatVArg dt, const FloatVArg restDistance, const FloatVArg maxPenBias, const FloatVArg restitution,
+	const FloatVArg invDt, const FloatVArg invDtWithBiasCoefficient, const FloatVArg dt, const FloatVArg restDistance, const FloatVArg maxPenBias, const FloatVArg restitution,
 	const FloatVArg bounceThreshold, const PxContactPoint& contact, SolverContactPoint& solverContact,
 	const FloatVArg ccdMaxSeparation, const Vec3VArg solverOffsetSlop, const FloatVArg damping, const BoolVArg accelerationSpring)
 {
@@ -366,7 +343,7 @@ PX_FORCE_INLINE void constructContactConstraint(const Mat33V& invSqrtInertia0, c
 		// Divide bias term by dt and additionally scale it down if it's in penetration
 		// Do not scale it if it's not in penetration, otherwise we falsely act on contacts that are still
 		// sufficiently far away.
-		const FloatV penetrationInvDtScaled = FSel(isSeparated, penetrationInvDt, FMul(penetration, invDtp8));
+		const FloatV penetrationInvDtScaled = FSel(isSeparated, penetrationInvDt, FMul(penetration, invDtWithBiasCoefficient));
 
 		FloatV scaledBias = FMul(velMultiplier, FMax(maxPenBias, penetrationInvDtScaled));
 

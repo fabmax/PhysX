@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
-// Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
+// Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "GuSweepTests.h"
 #include "GuHeightFieldUtil.h"
@@ -135,7 +112,7 @@ public:
 		mSweepHit.faceIndex = 0xFFFFffff;
 	}
 
-	virtual bool onEvent(PxU32 nb, const PxU32* indices)
+	virtual bool onEvent(PxU32 nb, const PxU32* indices) PX_OVERRIDE
 	{
 		PX_ALIGN_PREFIX(16) PxU8 tribuf[HF_SWEEP_REPORT_BUFFER_SIZE*sizeof(PxTriangle)] PX_ALIGN_SUFFIX(16);
 		PxTriangle* tmpT = reinterpret_cast<PxTriangle*>(tribuf);
@@ -297,7 +274,7 @@ public:
 		mConvexHull.initialize(&hull, V3Zero(), vScale, vQuat, convexScale.isIdentity());
 	}
 
-	virtual bool onEvent(PxU32 nbEntities, const PxU32* entities)
+	virtual bool onEvent(PxU32 nbEntities, const PxU32* entities) PX_OVERRIDE
 	{
 		const PxTransform idt(PxIdentity);
 		for(PxU32 i=0; i<nbEntities; i++)
@@ -429,7 +406,7 @@ public:
 		mSweepHit.faceIndex = 0xFFFFffff;
 	}
 
-	virtual bool onEvent(PxU32 nb, const PxU32* indices)
+	virtual bool onEvent(PxU32 nb, const PxU32* indices) PX_OVERRIDE
 	{
 		const FloatV zero = FZero();
 		const Vec3V zeroV = V3Zero();

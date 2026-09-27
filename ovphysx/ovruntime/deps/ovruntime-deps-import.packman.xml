@@ -1,0 +1,20 @@
+<project toolsVersion="5.0">
+  <!-- Namespaced ovruntime source-build dependency set.
+       Runtime plugins come from ovruntime_deps, while OVStage supplies the
+       matched resolver, OmniClient, and omniverse_connection runtime set. Do
+       not import RTX runtime packages here; the separate
+       rtx-plugins-deps.packman.xml pull is only a source-build header input for
+       omni.physx.foundation and is not used by ovphysx packaging/licensing. -->
+  <!-- glm/imgui/cuda/gsl from the ovruntime_deps package. Needs the
+       platform_target and usd_ver tokens. -->
+  <import path="../_build/target-deps/ovruntime_deps_release/deps/target-deps.packman.xml">
+    <filter include="glm" linkPath="../_build/target-deps/glm" />
+    <filter include="imgui" linkPath="../_build/target-deps/imgui" />
+    <filter include="cuda" linkPath="../_build/target-deps/cuda" />
+    <filter include="gsl" linkPath="../_build/target-deps/gsl" />
+  </import>
+  <!-- USD is pinned by this repository, not taken from ovruntime_deps. -->
+  <import path="usd-deps.packman.xml">
+    <filter include="usd-${config}" />
+  </import>
+</project>

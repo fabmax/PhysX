@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef CM_TASK_H
 #define CM_TASK_H
@@ -55,12 +32,12 @@ namespace Cm
 			mContextID = contextId;
 		}
 
-		virtual void run()
+		virtual void run() PX_OVERRIDE
 		{
 #if PX_SWITCH  // special case because default rounding mode is not nearest
 			PX_FPU_GUARD;
 #else
-			PX_SIMD_GUARD;
+			PX_SIMD_GUARD
 #endif
 			runInternal();
 		}
@@ -74,12 +51,12 @@ namespace Cm
 	{
 	public:
 
-		virtual void run()
+		virtual void run() PX_OVERRIDE
 		{
 #if PX_SWITCH  // special case because default rounding mode is not nearest
 			PX_FPU_GUARD;
 #else
-			PX_SIMD_GUARD;
+			PX_SIMD_GUARD
 #endif
 			runInternal();
 		}
@@ -94,22 +71,22 @@ namespace Cm
 
 		DelegateTask(PxU64 contextID, T* obj, const char* name) : Cm::Task(contextID), mObj(obj), mName(name) {}
 
-		virtual void run()
+		virtual void run() PX_OVERRIDE
 		{
 #if PX_SWITCH  // special case because default rounding mode is not nearest
 			PX_FPU_GUARD;
 #else
-			PX_SIMD_GUARD;
+			PX_SIMD_GUARD
 #endif
 			(mObj->*Fn)(mCont);
 		}
 
-		virtual void runInternal()
+		virtual void runInternal() PX_OVERRIDE
 		{
 			(mObj->*Fn)(mCont);
 		}
 
-		virtual const char* getName() const
+		virtual const char* getName() const PX_OVERRIDE
 		{
 			return mName;
 		}
@@ -136,33 +113,35 @@ namespace Cm
 	public:
 		FanoutTask(PxU64 contextID, const char* name) : Cm::BaseTask(), mRefCount(0), mName(name), mNotifySubmission(false) { mContextID = contextID; }
 
-		virtual void runInternal() {}
+		virtual void runInternal() PX_OVERRIDE {}
 
-		virtual const char* getName() const { return mName; }
+		virtual const char* getName() const PX_OVERRIDE { return mName; }
 
 		/**
 		Swap mDependents with mReferencesToRemove when refcount goes to 0.
 		*/
-		virtual void removeReference()
+		virtual void removeReference() PX_OVERRIDE
 		{
-			PxMutex::ScopedLock lock(mMutex);
-			if (!physx::PxAtomicDecrement(&mRefCount))
+			bool submit;
 			{
-				// prevents access to mReferencesToRemove until release
-				physx::PxAtomicIncrement(&mRefCount);
-				mNotifySubmission = false;
-				PX_ASSERT(mReferencesToRemove.empty());
-				for (PxU32 i = 0; i < mDependents.size(); i++)
-					mReferencesToRemove.pushBack(mDependents[i]);
-				mDependents.clear();
-				mTm->getCpuDispatcher()->submitTask(*this);
+				PxMutex::ScopedLock lock(mMutex);
+				submit = removeReferenceInternal();
 			}
+
+			// It is important that the mutex is unlocked before the task is dispatched and that no member variables are
+			// touched after that. Dispatching the task might stall this method. Meanwhile the dispatched task can finish,
+			// get released and follow-up events might even free its memory. Once this method here resumes running, the task
+			// memory might not be accessible any longer. Even if the memory was still valid, a fiber-based scheduler might
+			// resume this method on a different thread than when it started but the mutex might rely on the same thread
+			// doing the locking and unlocking.
+			if (submit)
+				mTm->getCpuDispatcher()->submitTask(*this);
 		}
 
 		/** 
 		\brief Increases reference count
 		*/
-		virtual void addReference()
+		virtual void addReference() PX_OVERRIDE
 		{
 			PxMutex::ScopedLock lock(mMutex);
 			physx::PxAtomicIncrement(&mRefCount);
@@ -172,7 +151,7 @@ namespace Cm
 		/** 
 		\brief Return the ref-count for this task 
 		*/
-		PX_INLINE PxI32 getReference() const
+		virtual PX_INLINE PxI32 getReference() const	PX_OVERRIDE
 		{
 			return mRefCount;
 		}
@@ -203,9 +182,10 @@ namespace Cm
 		Reduces reference counts of the continuation task and the dependent tasks, also 
 		clearing the copy of continuation and dependents task list.
 		*/
-		virtual void release()
+		virtual void release() PX_OVERRIDE
 		{
 			PxInlineArray<physx::PxBaseTask*, 10> referencesToRemove;
+			bool submit = false;
 
 			{
 				PxMutex::ScopedLock lock(mMutex);
@@ -219,19 +199,18 @@ namespace Cm
 				// allow access to mReferencesToRemove again
 				if (mNotifySubmission)
 				{
-					removeReference();
+					submit = removeReferenceInternal();
 				}
 				else
 				{
 					physx::PxAtomicDecrement(&mRefCount);
 				}
-
-				// the scoped lock needs to get freed before the continuation tasks get (potentially) submitted because
-				// those continuation tasks might trigger events that delete this task and corrupt the memory of the
-				// mutex (for example, assume this task is a member of the scene then the submitted tasks cause the simulation 
-				// to finish and then the scene gets released which in turn will delete this task. When this task then finally
-				// continues the heap memory will be corrupted.
 			}
+
+			// It is important that the mutex is unlocked before the task is dispatched and that no member variables are
+			// touched after that. See the comment in removeReference() for details.
+			if (submit)
+				mTm->getCpuDispatcher()->submitTask(*this);
 
 			for (PxU32 i=0; i < referencesToRemove.size(); ++i)
 				referencesToRemove[i]->removeReference();
@@ -244,6 +223,25 @@ namespace Cm
 		PxInlineArray<physx::PxBaseTask*, 4> mReferencesToRemove;
 		bool mNotifySubmission;
 		PxMutex mMutex; // guarding mDependents and mNotifySubmission
+
+	private:
+		// refcount bookkeeping, call with mMutex held. Returns true if the task has to be handed to the
+		// dispatcher, which the caller must do once mMutex is released.
+		bool removeReferenceInternal()
+		{
+			if (!physx::PxAtomicDecrement(&mRefCount))
+			{
+				// prevents access to mReferencesToRemove until release
+				physx::PxAtomicIncrement(&mRefCount);
+				mNotifySubmission = false;
+				PX_ASSERT(mReferencesToRemove.empty());
+				for (PxU32 i = 0; i < mDependents.size(); i++)
+					mReferencesToRemove.pushBack(mDependents[i]);
+				mDependents.clear();
+				return true;
+			}
+			return false;
+		}
 	};
 
 
@@ -257,7 +255,7 @@ namespace Cm
 		DelegateFanoutTask(PxU64 contextID, T* obj, const char* name) : 
 		  FanoutTask(contextID, name), mObj(obj) { }
 
-		  virtual void runInternal()
+		  virtual void runInternal() PX_OVERRIDE
 		  {
 			  physx::PxBaseTask* continuation = mReferencesToRemove.empty() ? NULL : mReferencesToRemove[0];
 			  (mObj->*Fn)(continuation);

@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "SnippetFontData.h"
 #include "SnippetFontRenderer.h"
@@ -122,7 +99,7 @@ void GLFontRenderer::print_(float x, float y, float fontSize, const char* pStrin
 	if(!m_isInit)
 		m_isInit = init();
 
-	unsigned int num = (unsigned int)(strlen(pString));
+	unsigned int num = (unsigned int)(strnlen(pString, UINT32_MAX - 1));
 	if(m_isInit && num > 0)
 	{
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -181,7 +158,7 @@ void GLFontRenderer::print_(float x, float y, float fontSize, const char* pStrin
 				float glyphWidth = (float)GLFontGlyphWidth[c]+1;
 				if(forceMonoSpace)
 					glyphWidth = (float)monoSpaceWidth;
-				
+
 				glyphWidth = glyphWidth*(fontSize/(((float)OGL_FONT_TEXTURE_WIDTH)/OGL_FONT_CHARS_PER_ROW))-0.01f;
 
 				const float cxUV = float((c)%OGL_FONT_CHARS_PER_ROW)/OGL_FONT_CHARS_PER_ROW+0.008f;
@@ -217,14 +194,14 @@ void GLFontRenderer::print_(float x, float y, float fontSize, const char* pStrin
 
 				pTextureCoordList[textureCoordIndex++] = cxUV+glyphWidthUV;
 				pTextureCoordList[textureCoordIndex++] = cyUV+glyphHeightUV;
-				
+
 				pVertList[vertIndex++] = x+fontSize+translate;
 				pVertList[vertIndex++] = y+0+translateDown;
 				pVertList[vertIndex++] = 0;
 
 				pTextureCoordList[textureCoordIndex++] = cxUV+glyphWidthUV;
 				pTextureCoordList[textureCoordIndex++] = cyUV;
-				
+
 				pVertList[vertIndex++] = x+fontSize+translate;
 				pVertList[vertIndex++] = y+fontSize+translateDown;
 				pVertList[vertIndex++] = 0;
@@ -233,7 +210,7 @@ void GLFontRenderer::print_(float x, float y, float fontSize, const char* pStrin
 			}
 		}
 
-		glEnableClientState(GL_VERTEX_ARRAY);		
+		glEnableClientState(GL_VERTEX_ARRAY);
 //		glVertexPointer(3, GL_FLOAT, num*6, pVertList);
 		glVertexPointer(3, GL_FLOAT, 3*4, pVertList);
 
@@ -258,10 +235,10 @@ void GLFontRenderer::print_(float x, float y, float fontSize, const char* pStrin
 		}
 		glMatrixMode(GL_MODELVIEW);
 		glPopMatrix();
-		
+
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_LIGHTING);
-		glDisable(GL_TEXTURE_2D);	
+		glDisable(GL_TEXTURE_2D);
 		glDisable(GL_BLEND);
 		glEnable(GL_CULL_FACE);
 	}

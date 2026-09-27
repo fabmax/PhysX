@@ -1,33 +1,11 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef PXG_SIMULATION_CORE_DESC_H
 #define	PXG_SIMULATION_CORE_DESC_H
 
 #include "foundation/PxSimpleTypes.h"
+#include "foundation/PxVec3.h"
 #include "DyVArticulation.h"
 #include "PxDeformableSurface.h"
 #include "PxDeformableVolume.h"
@@ -49,6 +27,7 @@ namespace physx
 	struct PxgSolverBodySleepData;
 	struct PxgShape;
 	struct PxgBodySim;
+	struct PxgBodySimVelocities;
 	struct PxgShapeSim;
 	struct PxgArticulationLink;
 	struct PxgArticulationLinkProp;
@@ -68,6 +47,7 @@ namespace physx
 	namespace Dy
 	{
 		struct ArticulationJointCore;
+		struct ArticulationMimicJointCore;
 		class ArticulationJointCoreData;
 	}
 	
@@ -75,6 +55,7 @@ namespace physx
 	{
 		const PxgBodySim*	mNewBodySim;
 		PxgBodySim*			mBodySimBufferDeviceData;
+		PxgBodySimVelocities*	mPrevVelocitiesBuffer;		// PdHC: Previous velocities buffer for acceleration computation
 		PxU32				mNbNewBodies;	//number of newly added bodies
 	};
 
@@ -188,49 +169,19 @@ namespace physx
 	}PX_ALIGN_SUFFIX(16);
 
 
-	struct PxgConeLimitParams
-	{
-		union
-		{
-			float4 low_high_limits;
-			float4 low_high_angle;
-		};
-
-		union
-		{
-			float4 axis_angle;
-			float4 barycentric;
-		};
-	};
-
-	//KS - consider splitting into 2x structures - 16 bytes and 8 bytes!
-	//soft body/cloth with rigid
+	// Host-staged rigid-deformable (soft body or cloth) attachment. Uploaded on dirtyRigidAttachments
+	// and baked into PxgDbRigidAttachmentBlock by the rigid-attach prep kernel.
 	class PxgFEMRigidAttachment : public PxgRigidFilterPair
 	{
 	public:
-		union 
-		{
-			float4 localPose0;
-			float4 baryOrType0;
-		};
+		PxVec3 localPose0;
+		// Mass-splitting: count of active attachments sharing this rigid. Computed on the host at
+		// attachment-update time. Co-located with localPose0 so the pair fills one 16-byte slot.
+		PxU32 rigidBodyRefCount;
 
-		PxgConeLimitParams coneLimitParams;
 		float4 baryOrType1;
 	};
 	
-	PX_ALIGN_PREFIX(16)
-	struct PxgParticleRigidConstraint
-	{
-		float4	raXn0_biasW[32];
-		float4	raXn1_biasW[32];
-		float4	raXn2_biasW[32];
-		float4	velMultiplierXYZ_invMassW[32];
-		float4	low_high_limits[32];
-		float4	axis_angle[32];
-		PxU64	particleId[32];
-		PxU64	rigidId[32];
-	}PX_ALIGN_SUFFIX(16);
-
 	PX_ALIGN_PREFIX(16)
 	class PxgNonRigidFilterPair
 	{
@@ -265,12 +216,10 @@ namespace physx
 	class PxgFEMFEMAttachment
 	{
 	public:
-		PxgConeLimitParams coneLimitParams;
 		float4 barycentricCoordinates0;
 		float4 barycentricCoordinates1;
 		PxU64  index0;
 		PxU32  index1;
-		PxReal constraintOffset;
 
 	}PX_ALIGN_SUFFIX(16);
 

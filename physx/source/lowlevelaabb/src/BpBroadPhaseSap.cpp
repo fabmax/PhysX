@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "foundation/PxMath.h"
 #include "common/PxProfileZone.h"
@@ -407,7 +384,7 @@ void BroadPhaseSap::shiftOrigin(const PxVec3& shift, const PxBounds3* /*boundsAr
 }
 
 #if PX_CHECKED
-bool BroadPhaseSap::isValid(const BroadPhaseUpdateData& updateData) const
+BroadPhaseUpdateError::Enum BroadPhaseSap::isValid(const BroadPhaseUpdateData& updateData) const
 {
 	//Test that the created bounds haven't been added already (without first being removed).
 	const BpHandle* created=updateData.getCreatedHandles();
@@ -423,9 +400,9 @@ bool BroadPhaseSap::isValid(const BroadPhaseUpdateData& updateData) const
 			{
 				const SapBox1D& box1d=mBoxEndPts[j][id];
 				if(box1d.mMinMax[0] != BP_INVALID_BP_HANDLE && box1d.mMinMax[0] != PX_REMOVED_BP_HANDLE)
-					return false;	//This box has been added already but without being removed.
+					return BroadPhaseUpdateError::eALREADY_ADDED;	//This box has been added already but without being removed.
 				if(box1d.mMinMax[1] != BP_INVALID_BP_HANDLE && box1d.mMinMax[1] != PX_REMOVED_BP_HANDLE)
-					return false;	//This box has been added already but without being removed.
+					return BroadPhaseUpdateError::eALREADY_ADDED;	//This box has been added already but without being removed.
 			}
 		}
 	}
@@ -437,7 +414,7 @@ bool BroadPhaseSap::isValid(const BroadPhaseUpdateData& updateData) const
 	{
 		const BpHandle id = updated[i];
 		if(id >= mBoxesCapacity)
-			return false;
+			return BroadPhaseUpdateError::eOUT_OF_BOUNDS;
 	}
 
 	//Test that the updated bounds have been been added without being removed.
@@ -450,9 +427,9 @@ bool BroadPhaseSap::isValid(const BroadPhaseUpdateData& updateData) const
 			const SapBox1D& box1d=mBoxEndPts[j][id];
 
 			if(BP_INVALID_BP_HANDLE == box1d.mMinMax[0] || PX_REMOVED_BP_HANDLE == box1d.mMinMax[0])
-				return false;	//This box has either not been added or has been removed
+				return BroadPhaseUpdateError::eNOT_IN_DATABASE;	//This box has either not been added or has been removed
 			if(BP_INVALID_BP_HANDLE == box1d.mMinMax[1] || PX_REMOVED_BP_HANDLE == box1d.mMinMax[1])
-				return false;	//This box has either not been added or has been removed
+				return BroadPhaseUpdateError::eNOT_IN_DATABASE;	//This box has either not been added or has been removed
 		}
 	}
 
@@ -463,7 +440,7 @@ bool BroadPhaseSap::isValid(const BroadPhaseUpdateData& updateData) const
 	{
 		const BpHandle id = removed[i];
 		if(id >= mBoxesCapacity)
-			return false;
+			return BroadPhaseUpdateError::eOUT_OF_BOUNDS;
 	}
 
 	//Test that the removed bounds have already been added and haven't been removed.
@@ -476,16 +453,16 @@ bool BroadPhaseSap::isValid(const BroadPhaseUpdateData& updateData) const
 			const SapBox1D& box1d=mBoxEndPts[j][id];
 
 			if(BP_INVALID_BP_HANDLE == box1d.mMinMax[0] || PX_REMOVED_BP_HANDLE == box1d.mMinMax[0])
-				return false;	//This box has either not been added or has been removed
+				return BroadPhaseUpdateError::eALREADY_REMOVED;	//This box has either not been added or has been removed
 			if(BP_INVALID_BP_HANDLE == box1d.mMinMax[1] || PX_REMOVED_BP_HANDLE == box1d.mMinMax[1])
-				return false;	//This box has either not been added or has been removed
+				return BroadPhaseUpdateError::eALREADY_REMOVED;	//This box has either not been added or has been removed
 		}
 	}
-	return true;
+	return BroadPhaseUpdateError::eNO_ERROR;
 }
 #endif
 
-void BroadPhaseSap::update(PxcScratchAllocator* scratchAllocator, const BroadPhaseUpdateData& updateData, PxBaseTask* /*continuation*/)
+void BroadPhaseSap::update(PxU32 /*numCpuTasks*/, Cm::FlushPool* /*flushPool*/, PxcScratchAllocator* scratchAllocator, const BroadPhaseUpdateData& updateData, PxBaseTask* /*continuation*/)
 {
 	PX_CHECK_AND_RETURN(scratchAllocator, "BroadPhaseSap::update - scratchAllocator must be non-NULL \n");
 
@@ -508,9 +485,8 @@ bool BroadPhaseSap::setUpdateData(const BroadPhaseUpdateData& updateData)
 	PX_ASSERT(0==mDeletedPairsSize);
 
 #if PX_CHECKED
-	if(!BroadPhaseUpdateData::isValid(updateData, *this, false, mContextID))
+	if(updateData.isValid(mContextID, this) != BroadPhaseUpdateError::eNO_ERROR)
 	{
-		PX_CHECK_MSG(false, "Illegal BroadPhaseUpdateData \n");
 		mCreated			= NULL;
 		mCreatedSize		= 0;
 		mUpdated			= NULL;
@@ -519,6 +495,7 @@ bool BroadPhaseSap::setUpdateData(const BroadPhaseUpdateData& updateData)
 		mRemovedSize		= 0;
 		mBoxBoundsMinMax	= updateData.getAABBs();
 		mBoxGroups			= updateData.getGroups();
+
 		return false;
 	}
 #endif
@@ -1279,7 +1256,7 @@ void BroadPhaseSap::batchUpdate
 						
 	#if PERFORM_COMPARISONS
 						if(IsMax)
-						{		
+						{
 							const BpHandle ownerId=getOwner(CurrentData);
 							SapBox1D* PX_RESTRICT id1 = asapBoxes + ownerId;
 							// Our min passed a max => start overlap
@@ -1316,7 +1293,7 @@ void BroadPhaseSap::batchUpdate
 						CurrentValue = BaseEPValues[CurrentIndex];
 					}
 					while(ThisValue < CurrentValue);
-				}			
+				}
 				else 
 				{
 					// Max is moving left:
@@ -1610,7 +1587,7 @@ void BroadPhaseSap::batchUpdateFewUpdates(const PxU32 Axis, BroadPhasePair*& pai
 						
 	#if PERFORM_COMPARISONS
 						if(IsMax)
-						{		
+						{
 							const BpHandle ownerId=getOwner(CurrentData);
 							SapBox1D* PX_RESTRICT id1 = asapBoxes + ownerId;
 							// Our min passed a max => start overlap
@@ -1646,7 +1623,7 @@ void BroadPhaseSap::batchUpdateFewUpdates(const PxU32 Axis, BroadPhasePair*& pai
 						CurrentValue = BaseEPValues[CurrentIndex];
 					}
 					while(ThisValue < CurrentValue);
-				}			
+				}
 				else 
 				{
 					// Max is moving left:

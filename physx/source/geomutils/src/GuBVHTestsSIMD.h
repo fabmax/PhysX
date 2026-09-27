@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
-// Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
+// Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef GU_BVH_TESTS_SIMD_H
 #define GU_BVH_TESTS_SIMD_H
@@ -102,7 +79,7 @@ protected:
 // probably not worth having a SIMD version of this unless the traversal passes Vec3Vs
 struct AABBAABBTest
 {
-	PX_FORCE_INLINE AABBAABBTest(const PxTransform&t, const PxBoxGeometry&b)
+	PX_FORCE_INLINE AABBAABBTest(const PxTransform& t, const PxBoxGeometry& b)
 	: mCenter(V3LoadU(t.p))
 	, mExtents(V3LoadU(b.halfExtents))
 	{ }
@@ -113,7 +90,7 @@ struct AABBAABBTest
 	{ }
 
 	PX_FORCE_INLINE PxIntBool operator()(const Vec3V center, const Vec3V extents) const		
-	{	
+	{
 		//PxVec3 c; PxVec3_From_Vec3V(center, c);
 		//PxVec3 e; PxVec3_From_Vec3V(extents, e);
 		//if(PxAbs(c.x - mCenter.x) > mExtents.x + e.x) return IntFalse;
@@ -141,7 +118,7 @@ struct SphereAABBTest
 	{}
 	
 	PX_FORCE_INLINE PxIntBool operator()(const Vec3V boxCenter, const Vec3V boxExtents) const		
-	{	
+	{
 		const Vec3V offset = V3Sub(mCenter, boxCenter);
 		const Vec3V closest = V3Clamp(offset, V3Neg(boxExtents), boxExtents);
 		const Vec3V d = V3Sub(offset, closest);
@@ -197,7 +174,7 @@ struct OBBAABBTests
 
 	// TODO: force inline it?
 	PxIntBool operator()(const Vec3V center, const Vec3V extents) const
-	{	
+	{
 		const Vec3V t = V3Sub(mT, center);
 
 		// class I - axes of AABB

@@ -1,28 +1,5 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "extensions/PxSamplingExt.h"
 #include "GuSDF.h"
@@ -389,7 +366,7 @@ namespace
 	{
 		AlwaysInsideTester() {}
 
-		virtual bool pointInVolume(const PxVec3&) const
+		virtual bool pointInVolume(const PxVec3&) const PX_OVERRIDE
 		{
 			return true;
 		}
@@ -404,7 +381,7 @@ namespace
 
 		PointInSphereTester(const PxVec3& center, const PxReal radius) : mCenter(center), mRadius(radius) {}
 
-		virtual bool pointInVolume(const PxVec3& p) const
+		virtual bool pointInVolume(const PxVec3& p) const PX_OVERRIDE
 		{
 			return pointInSphere(p, mCenter, mRadius);
 		}
@@ -421,7 +398,7 @@ namespace
 		PointInOBBTester(const PxVec3& boxCenter, const PxVec3& boxAxisAlignedExtents, const PxQuat boxOrientation) 
 			: mBoxCenter(boxCenter), mBoxAxisAlignedExtents(boxAxisAlignedExtents), mBoxOrientation(boxOrientation) {}
 
-		virtual bool pointInVolume(const PxVec3& p) const
+		virtual bool pointInVolume(const PxVec3& p) const PX_OVERRIDE
 		{
 			PxVec3 localPoint = mBoxOrientation.rotateInv(p - mBoxCenter);
 			return localPoint.x >= -mBoxAxisAlignedExtents.x && localPoint.x <= mBoxAxisAlignedExtents.x &&
@@ -439,25 +416,25 @@ namespace
 
 		virtual void addSamplesInVolume(const PointInVolumeTester& pointInVolume, const PxVec3& sphereCenter, PxReal sphereRadius, bool createVolumeSamples);
 
-		virtual void addSamplesInSphere(const PxVec3& sphereCenter, PxReal sphereRadius, bool createVolumeSamples);
+		virtual void addSamplesInSphere(const PxVec3& sphereCenter, PxReal sphereRadius, bool createVolumeSamples) PX_OVERRIDE;
 
-		virtual void addSamplesInBox(const PxBounds3& axisAlignedBox, const PxQuat& boxOrientation, bool createVolumeSamples);
+		virtual void addSamplesInBox(const PxBounds3& axisAlignedBox, const PxQuat& boxOrientation, bool createVolumeSamples) PX_OVERRIDE;
 
-		virtual const PxArray<PxI32>& getSampleTriangleIds() const { return triangleIds; }
+		virtual const PxArray<PxI32>& getSampleTriangleIds() const PX_OVERRIDE { return triangleIds; }
 
-		virtual const PxArray<PxVec3>& getSampleBarycentrics() const { return barycentricCoordinates; }
+		virtual const PxArray<PxVec3>& getSampleBarycentrics() const PX_OVERRIDE { return barycentricCoordinates; }
 
-		virtual bool setSamplingRadius(PxReal samplingRadius) { return poissonSamplerShared.setSamplingRadius(samplingRadius); }
+		virtual bool setSamplingRadius(PxReal samplingRadius) PX_OVERRIDE { return poissonSamplerShared.setSamplingRadius(samplingRadius); }
 
-		virtual void addSamples(const PxArray<PxVec3>& samples) { poissonSamplerShared.addSamples(samples); }
+		virtual void addSamples(const PxArray<PxVec3>& samples) PX_OVERRIDE { poissonSamplerShared.addSamples(samples); }
 
 		void createVolumeSamples(const PointInVolumeTester& pointInVolume, const PxVec3& sphereCenter, PxReal sphereRadius, PxReal randomScale, PxReal r, bool addToSparseGrid = true);
 
-		virtual PxU32 removeSamples(const PxArray<PxVec3>& samples) { return poissonSamplerShared.removeSamples(samples); }
+		virtual PxU32 removeSamples(const PxArray<PxVec3>& samples) PX_OVERRIDE { return poissonSamplerShared.removeSamples(samples); }
 
-		virtual const PxArray<PxVec3>& getSamples() const { return poissonSamplerShared.result; }
+		virtual const PxArray<PxVec3>& getSamples() const PX_OVERRIDE { return poissonSamplerShared.result; }
 
-		virtual bool isPointInTriangleMesh(const PxVec3& p);
+		virtual bool isPointInTriangleMesh(const PxVec3& p) PX_OVERRIDE;
 
 		virtual ~TriangleMeshPoissonSampler() { }
 
@@ -499,19 +476,19 @@ namespace
 		
 		virtual void addSamplesInVolume(const PointInVolumeTester& pointInVolume, const PxVec3& sphereCenter, PxReal sphereRadius, bool createVolumeSamples);
 
-		virtual void addSamplesInSphere(const PxVec3& sphereCenter, PxReal sphereRadius, bool createVolumeSamples);
+		virtual void addSamplesInSphere(const PxVec3& sphereCenter, PxReal sphereRadius, bool createVolumeSamples) PX_OVERRIDE;
 		
-		virtual void addSamplesInBox(const PxBounds3& axisAlignedBox, const PxQuat& boxOrientation, bool createVolumeSamples);
+		virtual void addSamplesInBox(const PxBounds3& axisAlignedBox, const PxQuat& boxOrientation, bool createVolumeSamples) PX_OVERRIDE;
 
-		virtual bool setSamplingRadius(PxReal samplingRadius) { return poissonSamplerShared.setSamplingRadius(samplingRadius); }
+		virtual bool setSamplingRadius(PxReal samplingRadius) PX_OVERRIDE { return poissonSamplerShared.setSamplingRadius(samplingRadius); }
 
-		virtual void addSamples(const PxArray<PxVec3>& samples) { poissonSamplerShared.addSamples(samples); }
+		virtual void addSamples(const PxArray<PxVec3>& samples) PX_OVERRIDE { poissonSamplerShared.addSamples(samples); }
 
 		void createVolumeSamples(const PointInVolumeTester& pointInVolume, const PxVec3& sphereCenter, PxReal sphereRadius, PxReal randomScale, PxReal r, bool addToSparseGrid = true);
 
-		virtual PxU32 removeSamples(const PxArray<PxVec3>& samples) { return poissonSamplerShared.removeSamples(samples); }
+		virtual PxU32 removeSamples(const PxArray<PxVec3>& samples) PX_OVERRIDE { return poissonSamplerShared.removeSamples(samples); }
 
-		virtual const PxArray<PxVec3>& getSamples() const { return poissonSamplerShared.result; }
+		virtual const PxArray<PxVec3>& getSamples() const PX_OVERRIDE { return poissonSamplerShared.result; }
 
 		virtual ~ShapePoissonSampler() { }
 
@@ -663,7 +640,7 @@ PxU32 PoissonSamplerShared::removeSamples(const PxArray<PxVec3>& samples)
 		PxArray<PxI32> samplesToRemove;
 		samplesToRemove.reserve(samples.size());
 		for (PxU32 i = 0; i < samples.size(); ++i)
-		{				
+		{
 			PxI32 index = findSample(samples[i]);
 			PX_ASSERT(samples[i] == result[index]);
 			if (index >= 0) 				
@@ -1062,7 +1039,7 @@ void TriangleMeshPoissonSampler::addSamplesInVolume(const PointInVolumeTester& p
 			localActiveSamples[localSampleIndex] = localActiveSamples[localActiveSamples.size() - 1];
 			localActiveSamples.remove(localActiveSamples.size() - 1);
 		}
-	}		
+	}
 
 	if (volumeSamples)
 	{
@@ -1361,7 +1338,7 @@ void ShapePoissonSampler::addSamplesInVolume(const PointInVolumeTester& pointInV
 		PxReal r = (1.0f + 2.0f * randomScale) * 1.001f * poissonSamplerShared.currentSamplingRadius;
 		createVolumeSamples(pointInVolume, sphereCenter, sphereRadius, randomScale, r);
 	}
-}	
+}
 
 void ShapePoissonSampler::createVolumeSamples(const PointInVolumeTester& pointInVolume, const PxVec3& sphereCenter, PxReal sphereRadius, PxReal randomScale, PxReal r, bool addToSparseGrid)
 {
@@ -1416,7 +1393,7 @@ bool PxSamplingExt::poissonSample(const PxSimpleTriangleMesh& mesh, PxReal r, Px
 	PxReal boundingSphereRadius = 1.001f * (sampler.max - sampler.poissonSamplerShared.min).magnitude() * 0.5f;
 
 	if (axisAlignedBox == NULL || boxOrientation == NULL) 
-	{			
+	{
 		sampler.addSamplesInSphere(center, boundingSphereRadius, false);
 
 		if (rVolume > 0.0f)
@@ -1443,7 +1420,7 @@ bool PxSamplingExt::poissonSample(const PxSimpleTriangleMesh& mesh, PxReal r, Px
 		*barycentricCoordinates = sampler.getSampleBarycentrics();
 
 	return true;
-}	
+}
 
 bool PxSamplingExt::poissonSample(const PxGeometry& geometry, const PxTransform& transform, const PxBounds3& worldBounds, PxReal r, PxArray<PxVec3>& result, PxReal rVolume,
 	const PxBounds3* axisAlignedBox, const PxQuat* boxOrientation, PxU32 maxNumSamples, PxU32 numSampleAttemptsAroundPoint)
@@ -1461,7 +1438,7 @@ bool PxSamplingExt::poissonSample(const PxGeometry& geometry, const PxTransform&
 		sampler.addSamplesInSphere(center, worldBounds.getExtents().magnitude() * 1.001f, false);
 
 		if (rVolume > 0.0f)
-		{				
+		{
 			AlwaysInsideTester tester;
 			sampler.createVolumeSamples(tester, center, boundingSphereRadius, 0.1f, rVolume, false);
 		}
@@ -1471,7 +1448,7 @@ bool PxSamplingExt::poissonSample(const PxGeometry& geometry, const PxTransform&
 		sampler.addSamplesInBox(*axisAlignedBox, *boxOrientation, false);
 
 		if (rVolume > 0.0f)
-		{				
+		{
 			PointInOBBTester tester(axisAlignedBox->getCenter(), axisAlignedBox->getExtents(), *boxOrientation);
 			sampler.createVolumeSamples(tester, center, boundingSphereRadius, 0.1f, rVolume, false);
 		}

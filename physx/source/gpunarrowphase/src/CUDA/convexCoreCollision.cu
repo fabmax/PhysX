@@ -1,42 +1,19 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "foundation/PxSimpleTypes.h"
 
 #include "cuda.h"
 #include "cudaNpCommon.h"
 
-#include "PxsTransformCache.h"
+#include "PxsCachedTransform.h"
 #include "PxsContactManagerState.h"
 #include "PxgContactManager.h"
 #include "PxgConvexConvexShape.h"
 #include "PxgPersistentContactManifold.h"
-#include "PxgSoftBodyCore.h"
+#include "PxgDeformableContactInfo.h"
 #include "PxgSoftBody.h"
 #include "PxgFEMCloth.h"
 
@@ -692,12 +669,20 @@ namespace physx
 				Point point;
 				PxVec3 normal;
 
+				// PT: contacts produced here carry no face index, and nothing downstream needs one: the GPU
+				// narrow phase takes both materials from the shapes and applies them to the whole patch (see
+				// writeOutput below). Meshes with per-triangle materials never reach this code anyway - they
+				// fail PxgGpuNarrowphaseCore::isMeshGPUCompatible(), so the pair is routed to the CPU narrow
+				// phase, which is where the per-triangle material lookup lives.
 				__device__ static NewPoint make(const PxVec3& p, PxReal d, const PxVec3& n)
-					{ NewPoint np; np.point = Point::make(p, d); np.normal = n; return np; }
+					{ NewPoint np; np.point = Point::make(p, d, PXC_CONTACT_NO_FACE_INDEX); np.normal = n; return np; }
 			};
 
 			NewPoint newPoints[WARP_SIZE * MAX_CONVEX_CONTACTS];
 			Point tmpBuffer[8];
+
+			PX_FORCE_INLINE __device__ void init()
+				{ mNumPatches = mNumPoints = 0; }
 
 			__device__ void addPoints(const PxVec3& normal, PxVec3 points[Gu::MAX_CONVEX_CONTACTS],
 				PxReal dists[Gu::MAX_CONVEX_CONTACTS], PxU32 numPoints, const PxTransform& transform)
@@ -724,7 +709,7 @@ namespace physx
 						PxVec3 minDistNormal = shuffle(FULL_MASK, p.normal, minDistThread);
 
 						// select points with the same normal as the deepest one
-						bool sameNormal = p.normal.dot(minDistNormal) > SAME_NORMAL;
+						bool sameNormal = p.normal.dot(minDistNormal) > PXC_SAME_NORMAL;
 						PxU32 sameNormalMask = allMask & __ballot_sync(FULL_MASK, sameNormal);
 
 						// select up to 4 best points forming the largest quad
@@ -838,7 +823,7 @@ namespace physx
 				PxReal maxDot = normal.dot(patchNormal);
 				PxU32 maxDotThread = maxIndex(maxDot, FULL_MASK, maxDot);
 
-				if (maxDot > SAME_NORMAL)
+				if (maxDot > PXC_SAME_NORMAL)
 					// fitting patch found
 					return maxDotThread;
 
@@ -957,7 +942,6 @@ void convexCoreTrimeshNphase_Kernel32(
 		PxBounds3 convexBounds;
 		TestTrimesh trimesh;
 		Gu::Contact32 contact;
-		PxU32 contactLock;
 
 		__device__ static _Shared& cast(PxU8* ptr)
 			{ return *reinterpret_cast<_Shared*>(ptr); }
@@ -975,15 +959,14 @@ void convexCoreTrimeshNphase_Kernel32(
 
 	if (warpThreadIndex == 0)
 	{
-		in = TestInput(testIndex, cmInputs, shapes, transformCache, contactDistance, NULL);
+		PX_PLACEMENT_NEW(&in, TestInput(testIndex, cmInputs, shapes, transformCache, contactDistance, NULL));
 		in.checkTypes(PxGeometryType::eCONVEXCORE, PxGeometryType::eTRIANGLEMESH);
 		transform0in1 = in.transform1.transformInv(in.transform0);
 		Gu::makeConvexShape(in.shape0, transform0in1, convex);
 		convexBounds = convex.computeBounds();
 		convexBounds.fattenFast(in.contactDist);
-		trimesh = TestTrimesh(TrimeshBvh(in.shape1));
-		contact = Gu::Contact32();
-		_sh.contactLock = 0;
+		PX_PLACEMENT_NEW(&trimesh, TestTrimesh(TrimeshBvh(in.shape1)));
+		contact.init();
 	}
 
 	__syncwarp();
@@ -1004,25 +987,8 @@ void convexCoreTrimeshNphase_Kernel32(
 				const PxVec3 triNormal = sh.trimesh.bvh.getTriNormal(triIndex);
 				numPoints = Gu::generateContacts(sh.convex, tri, sh.in.contactDist, triNormal, normal, points, dists);
 			}
-#if 1
-			// this version uses full warp of 32 threads to generate contact patches
+
 			sh.contact.addPoints(normal, points, dists, numPoints, sh.in.transform1);
-#else
-			// in this version every thread waits on a spinlock for its turn to add
-			// its contact points to one of contact patches. the version is slow and
-			// will be removed after the version above proves reliable.
-			if (numPoints)
-			{
-				const PxVec3 worldNormal = sh.in.transform1.rotate(normal);
-				for (PxU32 i = 0; i < numPoints; ++i)
-				{
-					const PxVec3 worldPoint = sh.in.transform1.transform(points[i]);
-					while (atomicCAS(&sh.contactLock, 0, 1) != 0);
-					sh.contact.addPoint(worldPoint, worldNormal, dists[i]);
-					atomicExch(&sh.contactLock, 0);
-				}
-			}
-#endif
 		}
 	}
 	callback(_sh);
@@ -1143,13 +1109,13 @@ extern "C" __global__ void convexCoreTetmeshNphase_Kernel32(
 
 	if (warpThreadIndex == 0)
 	{
-		in = TestInput(testIndex, cmInputs, shapes, transformCache, contactDistance, restDistance);
+		PX_PLACEMENT_NEW(&in, TestInput(testIndex, cmInputs, shapes, transformCache, contactDistance, restDistance));
 		in.checkTypes(PxGeometryType::eCONVEXCORE, PxGeometryType::eTETRAHEDRONMESH);
 		transform0in1 = in.transform1.transformInv(in.transform0);
 		Gu::makeConvexShape(in.shape0, transform0in1, convex);
 		convexBounds = convex.computeBounds();
 		convexBounds.fattenFast(in.contactDist);
-		tetmesh = TestTetmesh(TetmeshBvh(in.shape1, softbodies));
+		PX_PLACEMENT_NEW(&tetmesh, TestTetmesh(TetmeshBvh(in.shape1, softbodies)));
 		_sh.rigidId = shapeToRigidRemapTable[_sh.in.cacheRef0];
 		_sh.softbodyId = _sh.in.shape1.particleOrSoftbodyId;
 		_sh.writer = writer;

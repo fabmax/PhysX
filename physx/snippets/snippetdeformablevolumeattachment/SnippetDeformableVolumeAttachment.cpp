@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 // ****************************************************************************
 // This snippet demonstrates how to tie rigid and deformable volumes together.
@@ -38,7 +15,6 @@
 #include "../snippetdeformablevolume/SnippetDeformableVolume.h"
 #include "../snippetdeformablevolume/MeshGenerator.h"
 #include "extensions/PxTetMakerExt.h"
-#include "extensions/PxTetrahedronMeshExt.h"
 #include "extensions/PxDeformableVolumeExt.h"
 
 using namespace physx;
@@ -103,7 +79,7 @@ void addDeformableVolume(PxDeformableVolume* deformableVolume, PxDeformableVolum
 static PxDeformableVolume* createDeformableVolume(const PxCookingParams& params, const PxArray<PxVec3>& triVerts, const PxArray<PxU32>& triIndices, bool useCollisionMeshForSimulation = false)
 {
 	PxDeformableVolumeMaterial* material = PxGetPhysics().createDeformableVolumeMaterial(1e+6f, 0.45f, 0.5f);
-	material->setDamping(0.005f);
+	material->setElasticityDamping(0.005f);
 
 	PxDeformableVolumeMesh* deformableVolumeMesh;
 
@@ -171,61 +147,43 @@ static PxRigidDynamic* createRigidCube(PxReal halfExtent, const PxVec3& position
 	return body;
 }
 
-void convertCollisionToSim(PxDeformableVolume* deformableVolume, PxU32* tetId, PxVec4* barycentric, PxU32 size)
+static void connectCubeToDeformableVolume(PxRigidDynamic* cube, PxDeformableVolume* deformableVolume)
 {
-	for (PxU32 i = 0; i < size; i++)
-	{
-		PxDeformableVolumeExt::convertCollisionToSimulationTet(*deformableVolume, tetId[i], barycentric[i], tetId[i], barycentric[i]);
-	}
-}
-
-static void connectCubeToDeformableVolume(PxRigidDynamic* cube, PxReal cubeHalfExtent, const PxVec3& cubePosition, PxDeformableVolume* deformableVolume, PxU32 pointGridResolution = 10)
-{
-	PxArray<PxU32> tetArray;
-	PxArray<PxVec4> baryArray;
+	PxArray<PxU32> simVertexArray;
 	PxArray<PxVec4> posArray;
 
-	float f = 2.0f * cubeHalfExtent / (pointGridResolution - 1);
-	for (PxU32 ix = 0; ix < pointGridResolution; ++ix)
+	const PxTetrahedronMesh* simMesh = deformableVolume->getSimulationMesh();
+	const PxVec3* simVerts = static_cast<const PxVec3*>(simMesh->getVertices());
+	const PxU32 nbSimVerts = simMesh->getNbVertices();
+
+	PxShape* shape = NULL;
+	cube->getShapes(&shape, 1);
+	const PxTransform shapePose = PxShapeExt::getGlobalPose(*shape, *cube);
+	const PxGeometry& shapeGeom = shape->getGeometry();
+	const PxReal inflationSq = 0.5f * 0.5f;
+
+	for (PxU32 v = 0; v < nbSimVerts; ++v)
 	{
-		PxReal x = ix * f - cubeHalfExtent;
-		for (PxU32 iy = 0; iy < pointGridResolution; ++iy)
+		if (PxGeometryQuery::pointDistance(simVerts[v], shapeGeom, shapePose) <= inflationSq)
 		{
-			PxReal y = iy * f - cubeHalfExtent;
-			for (PxU32 iz = 0; iz < pointGridResolution; ++iz)
-			{
-				PxReal z = iz * f - cubeHalfExtent;
-				PxVec3 p(x, y, z);
-				PxVec4 bary;
-				PxI32 tet = PxTetrahedronMeshExt::findTetrahedronContainingPoint(deformableVolume->getCollisionMesh(), p + cubePosition, bary);
-				if (tet >= 0)
-				{
-					tetArray.pushBack(tet);
-					baryArray.pushBack(bary);
-					posArray.pushBack(PxVec4(p, 0.0f));
-				}
-			}
+			simVertexArray.pushBack(v);
+			posArray.pushBack(PxVec4(shapePose.transformInv(simVerts[v]), 0.0f));
 		}
 	}
 
-	{
-		PxDeformableAttachmentData desc;
+	PxDeformableAttachmentData desc;
 
-		desc.actor[0] = deformableVolume;
-		desc.type[0] = PxDeformableAttachmentTargetType::eTETRAHEDRON;
-		convertCollisionToSim(deformableVolume, tetArray.begin(), baryArray.begin(), tetArray.size());
-		desc.indices[0].data = tetArray.begin();
-		desc.indices[0].count = tetArray.size();
-		desc.coords[0].data = baryArray.begin();
-		desc.coords[0].count = baryArray.size();
+	desc.actor[0] = deformableVolume;
+	desc.type[0] = PxDeformableAttachmentTargetType::eVERTEX;
+	desc.indices[0].data = simVertexArray.begin();
+	desc.indices[0].count = simVertexArray.size();
 
-		desc.actor[1] = cube;
-		desc.type[1] = PxDeformableAttachmentTargetType::eRIGID;
-		desc.coords[1].data = posArray.begin();
-		desc.coords[1].count = posArray.size();
+	desc.actor[1] = cube;
+	desc.type[1] = PxDeformableAttachmentTargetType::eRIGID;
+	desc.coords[1].data = posArray.begin();
+	desc.coords[1].count = posArray.size();
 
-		gPhysics->createDeformableAttachment(desc);
-	}
+	gPhysics->createDeformableAttachment(desc);
 }
 
 static void createDeformableVolumes(const PxCookingParams& params)
@@ -253,16 +211,14 @@ static void createDeformableVolumes(const PxCookingParams& params)
 	PxDeformableVolume* deformableVolumeCone = createDeformableVolume(params, triVerts, triIndices);
 
 	PxReal halfExtent = 1;
-	PxVec3 cubePosA(0, 7.25, 0);
-	PxVec3 cubePosB(0, 11.75, 0);
-	PxRigidDynamic* rigidCubeA = createRigidCube(halfExtent, cubePosA);
-	PxRigidDynamic* rigidCubeB = createRigidCube(halfExtent, cubePosB);
-	
-	connectCubeToDeformableVolume(rigidCubeA, 2*halfExtent, cubePosA, deformableVolumeSphere);
-	connectCubeToDeformableVolume(rigidCubeA, 2*halfExtent, cubePosA, deformableVolumeCube);
+	PxRigidDynamic* rigidCubeA = createRigidCube(halfExtent, PxVec3(0, 7.25, 0));
+	PxRigidDynamic* rigidCubeB = createRigidCube(halfExtent, PxVec3(0, 11.75, 0));
 
-	connectCubeToDeformableVolume(rigidCubeB, 2*halfExtent, cubePosB, deformableVolumeCube);
-	connectCubeToDeformableVolume(rigidCubeB, 2*halfExtent, cubePosB, deformableVolumeCone);
+	connectCubeToDeformableVolume(rigidCubeA, deformableVolumeSphere);
+	connectCubeToDeformableVolume(rigidCubeA, deformableVolumeCube);
+
+	connectCubeToDeformableVolume(rigidCubeB, deformableVolumeCube);
+	connectCubeToDeformableVolume(rigidCubeB, deformableVolumeCone);
 }
 
 void initPhysics(bool /*interactive*/)
@@ -309,7 +265,8 @@ void initPhysics(bool /*interactive*/)
 	sceneDesc.gpuMaxNumPartitions = 8;
 
 	sceneDesc.filterShader = deformableVolumeRigidBodyFilter;
-	sceneDesc.solverType = PxSolverType::ePGS;
+	sceneDesc.solverType = PxSolverType::eTGS;
+	sceneDesc.flags |= PxSceneFlag::eENABLE_EXTERNAL_FORCES_EVERY_ITERATION_TGS;
 
 	gScene = gPhysics->createScene(sceneDesc);
 	PxPvdSceneClient* pvdClient = gScene->getScenePvdClient();

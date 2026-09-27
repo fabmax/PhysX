@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "foundation/PxPreprocessor.h"
 
@@ -123,7 +100,7 @@ static void renderDeformableVolumeGeometry(const PxTetrahedronMesh& mesh, const 
 {
 	const int tetFaces[4][3] = { {0,2,1}, {0,1,3}, {0,3,2}, {1,2,3} };
 
-	//Get the deformed vertices			
+	//Get the deformed vertices
 	//const PxVec3* vertices = mesh.getVertices();
 	const PxU32 tetCount = mesh.getNbTetrahedrons();
 	const PxU32 has16BitIndices = mesh.getTetrahedronMeshFlags() & PxTetrahedronMeshFlag::e16_BIT_INDICES;
@@ -211,14 +188,14 @@ static void renderGeometry(const PxGeometry& geom)
 			glPushMatrix();
 			glTranslatef(halfHeight, 0.0f, 0.0f);
 			glScalef(radius,radius,radius);
-			glutSolidSphere(1, 10, 10);		
+			glutSolidSphere(1, 10, 10);
 			glPopMatrix();
 
 			//Sphere
 			glPushMatrix();
 			glTranslatef(-halfHeight, 0.0f, 0.0f);
 			glScalef(radius,radius,radius);
-			glutSolidSphere(1, 10, 10);		
+			glutSolidSphere(1, 10, 10);
 			glPopMatrix();
 
 			//Cylinder
@@ -350,7 +327,7 @@ static void renderGeometry(const PxGeometry& geom)
 		}
 		break;
 
-		case PxGeometryType::eTETRAHEDRONMESH: 
+		case PxGeometryType::eTETRAHEDRONMESH:
 		{
 			const int tetFaces[4][3] = { {0,2,1}, {0,1,3}, {0,3,2}, {1,2,3} };
 
@@ -358,7 +335,7 @@ static void renderGeometry(const PxGeometry& geom)
 
 			const PxTetrahedronMesh& mesh = *tetGeom.tetrahedronMesh;
 
-			//Get the deformed vertices			
+			//Get the deformed vertices
 			const PxVec3* vertices = mesh.getVertices();
 			const PxU32 tetCount = mesh.getNbTetrahedrons();
 			const PxU32 has16BitIndices = mesh.getTetrahedronMeshFlags() & PxTetrahedronMeshFlag::e16_BIT_INDICES;
@@ -392,7 +369,7 @@ static void renderGeometry(const PxGeometry& geom)
 					const PxVec3& v0 = vertices[vref[tetFaces[j][0]]];
 					const PxVec3& v1 = vertices[vref[tetFaces[j][1]]];
 					const PxVec3& v2 = vertices[vref[tetFaces[j][2]]];
-					
+
 					PxVec3 fnormal = (v1 - v0).cross(v2 - v0);
 					fnormal.normalize();
 
@@ -497,13 +474,14 @@ static void defaultExitCallback()
 
 static void setupDefaultWindow(const char* name, RenderCallback rdcb)
 {
-	char* namestr = new char[strlen(name)+1];
-	strcpy(namestr, name);
+	size_t len = strnlen(name, UINT32_MAX - 1) + 1;
+	char* namestr = new char[len];
+	Pxstrlcpy(namestr, len, name);
 	int argc = 1;
 	char* argv[1] = { namestr };
 
 	glutInit(&argc, argv);
-	
+
 	gScreenWidth	= INITIAL_SCREEN_WIDTH;
 	gScreenHeight	= INITIAL_SCREEN_HEIGHT;
 
@@ -516,7 +494,7 @@ static void setupDefaultWindow(const char* name, RenderCallback rdcb)
 	int mainHandle = glutCreateWindow(name);
 	GLenum err = glewInit();
 	if (GLEW_OK != err)
-	{		
+	{
 		fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
 	}
 	glutSetWindow(mainHandle);
@@ -546,9 +524,9 @@ static void setupDefaultRenderState()
 	// Setup lighting
 /*	glEnable(GL_LIGHTING);
 	PxReal ambientColor[]	= { 0.0f, 0.1f, 0.2f, 0.0f };
-	PxReal diffuseColor[]	= { 1.0f, 1.0f, 1.0f, 0.0f };		
-	PxReal specularColor[]	= { 0.0f, 0.0f, 0.0f, 0.0f };		
-	PxReal position[]		= { 100.0f, 100.0f, 400.0f, 1.0f };		
+	PxReal diffuseColor[]	= { 1.0f, 1.0f, 1.0f, 0.0f };
+	PxReal specularColor[]	= { 0.0f, 0.0f, 0.0f, 0.0f };
+	PxReal position[]		= { 100.0f, 100.0f, 400.0f, 1.0f };
 	glLightfv(GL_LIGHT0, GL_AMBIENT, ambientColor);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseColor);
 	glLightfv(GL_LIGHT0, GL_SPECULAR, specularColor);
@@ -595,9 +573,9 @@ static void InitLighting()
 
 /*		glEnable(GL_LIGHTING);
 		PxReal ambientColor[]	= { 0.0f, 0.1f, 0.2f, 0.0f };
-		PxReal diffuseColor[]	= { 1.0f, 1.0f, 1.0f, 0.0f };		
-		PxReal specularColor[]	= { 0.0f, 0.0f, 0.0f, 0.0f };		
-		PxReal position[]		= { 100.0f, 100.0f, 400.0f, 1.0f };		
+		PxReal diffuseColor[]	= { 1.0f, 1.0f, 1.0f, 0.0f };
+		PxReal specularColor[]	= { 0.0f, 0.0f, 0.0f, 0.0f };
+		PxReal position[]		= { 100.0f, 100.0f, 400.0f, 1.0f };
 		glLightfv(GL_LIGHT0, GL_AMBIENT, ambientColor);
 		glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseColor);
 		glLightfv(GL_LIGHT0, GL_SPECULAR, specularColor);
@@ -607,9 +585,9 @@ static void InitLighting()
 	if(0)
 	{
 		glEnable(GL_FOG);
-		glFogi(GL_FOG_MODE,GL_LINEAR); 
-		//glFogi(GL_FOG_MODE,GL_EXP); 
-		//glFogi(GL_FOG_MODE,GL_EXP2); 
+		glFogi(GL_FOG_MODE,GL_LINEAR);
+		//glFogi(GL_FOG_MODE,GL_EXP);
+		//glFogi(GL_FOG_MODE,GL_EXP2);
 		glFogf(GL_FOG_START, 0.0f);
 		glFogf(GL_FOG_END, 100.0f);
 		glFogf(GL_FOG_DENSITY, 0.005f);
@@ -635,9 +613,9 @@ void showFPS(int updateIntervalMS, const char* info)
 	if (currentTime - gLastTime > updateIntervalMS)
 	{
 		if (info)
-			sprintf(gTitle, " FPS : %4.0f%s", gFrameCounter * 1000.0 / (currentTime - gLastTime), info);
+			Pxsnprintf(gTitle, sizeof(gTitle), " FPS : %4.0f%s", gFrameCounter * 1000.0 / (currentTime - gLastTime), info);
 		else
-			sprintf(gTitle, " FPS : %4.0f", gFrameCounter * 1000.0 / (currentTime - gLastTime));
+			Pxsnprintf(gTitle, sizeof(gTitle), " FPS : %4.0f", gFrameCounter * 1000.0 / (currentTime - gLastTime));
 		glutSetWindowTitle(gTitle);
 		gLastTime = currentTime;
 		gFrameCounter = 0;
@@ -818,9 +796,9 @@ void renderActors(PxRigidActor** actors, const PxU32 numActors, bool shadows, co
 			const bool isTrigger = cb ? cb->isTrigger(shapes[j]) : shapes[j]->getFlags() & PxShapeFlag::eTRIGGER_SHAPE;
 			if(isTrigger)
 				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			
+
 			// render object
-			glPushMatrix();						
+			glPushMatrix();
 			glMultMatrixf(&shapePose.column0.x);
 			if(sleeping)
 			{
@@ -836,7 +814,7 @@ void renderActors(PxRigidActor** actors, const PxU32 numActors, bool shadows, co
 
 			if(shadows)
 			{
-				glPushMatrix();						
+				glPushMatrix();
 				glMultMatrixf(shadowMat);
 				glMultMatrixf(&shapePose.column0.x);
 				glDisable(GL_LIGHTING);
@@ -869,7 +847,7 @@ void renderActors(PxRigidActor** actors, const PxU32 numActors, bool shadows, co
 			for(PxU32 j=0;j<nbShapes;j++)
 			{
 				const PxMat44 shapePose(PxShapeExt::getGlobalPose(*shapes[j], *actors[i]));
-				glPushMatrix();						
+				glPushMatrix();
 				glMultMatrixf(&shapePose.column0.x);
 				renderGeometry(shapes[j]->getGeometry());
 				glPopMatrix();
@@ -910,7 +888,7 @@ void renderGeoms(const PxU32 nbGeoms, const PxGeometry* geoms, const PxTransform
 		stream += gGeomSizes[geom.getType()];
 
 		// render object
-		glPushMatrix();						
+		glPushMatrix();
 		glMultMatrixf(&shapePose.column0.x);
 		glColor4f(color.x, color.y, color.z, 1.0f);
 		renderGeometry(geom);
@@ -918,7 +896,7 @@ void renderGeoms(const PxU32 nbGeoms, const PxGeometry* geoms, const PxTransform
 
 		if(shadows)
 		{
-			glPushMatrix();						
+			glPushMatrix();
 			glMultMatrixf(shadowMat);
 			glMultMatrixf(&shapePose.column0.x);
 			glDisable(GL_LIGHTING);
@@ -944,7 +922,7 @@ void renderGeoms(const PxU32 nbGeoms, const PxGeometryHolder* geoms, const PxTra
 		const PxGeometry& geom = geoms[j].any();
 
 		// render object
-		glPushMatrix();						
+		glPushMatrix();
 		glMultMatrixf(&shapePose.column0.x);
 		glColor4f(color.x, color.y, color.z, 1.0f);
 		renderGeometry(geom);
@@ -952,7 +930,7 @@ void renderGeoms(const PxU32 nbGeoms, const PxGeometryHolder* geoms, const PxTra
 
 		if(shadows)
 		{
-			glPushMatrix();						
+			glPushMatrix();
 			glMultMatrixf(shadowMat);
 			glMultMatrixf(&shapePose.column0.x);
 			glDisable(GL_LIGHTING);
@@ -984,7 +962,7 @@ void renderGeoms(const PxU32 nbGeoms, const PxGeometryHolder* geoms, const PxTra
 			const PxGeometry& geom = geoms[j].any();
 
 			// render object
-			glPushMatrix();						
+			glPushMatrix();
 			glMultMatrixf(&shapePose.column0.x);
 			renderGeometry(geom);
 			glPopMatrix();
@@ -1015,7 +993,7 @@ void renderMesh(physx::PxU32 /*nbVerts*/, const physx::PxU8* verts, const PxU32 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	const PxMat44 idt(PxIdentity);
-	glPushMatrix();						
+	glPushMatrix();
 	glMultMatrixf(&idt.column0.x);
 	glColor4f(color.x, color.y, color.z, 1.0f);
 	if (!enableBackFaceCulling)
@@ -1045,7 +1023,7 @@ void renderMesh(physx::PxU32 /*nbVerts*/, const physx::PxU8* verts, const PxU32 
 			const PxVec3& v0 = getVec3(verts, vref0, vertsStrideInBytes);
 			const PxVec3& v1 = flipFaceOrientation ? getVec3(verts, vref2, vertsStrideInBytes) : getVec3(verts, vref1, vertsStrideInBytes);
 			const PxVec3& v2 = flipFaceOrientation ? getVec3(verts, vref1, vertsStrideInBytes) : getVec3(verts, vref2, vertsStrideInBytes);
-			
+
 			if (normals)
 			{
 				const PxVec3& n0 = getVec3(normals, vref0, normalsStrideInBytes);
@@ -1053,7 +1031,7 @@ void renderMesh(physx::PxU32 /*nbVerts*/, const physx::PxU8* verts, const PxU32 
 				const PxVec3& n2 = flipFaceOrientation ? getVec3(normals, vref1, normalsStrideInBytes) : getVec3(normals, vref2, normalsStrideInBytes);
 				pushVertex(v0, v1, v2, n0, n1, n2, flipFaceOrientation ? -1.0f : 1.0f);
 			}
-			else 
+			else
 			{
 				PxVec3 fnormal = (v1 - v0).cross(v2 - v0);
 				fnormal.normalize();
@@ -1087,14 +1065,14 @@ void renderMesh(physx::PxU32 /*nbVerts*/, const physx::PxU8* verts, const PxU32 
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
 
-			glPushMatrix();						
+			glPushMatrix();
 			glMultMatrixf(&idt.column0.x);
 
 				glEnableClientState(GL_NORMAL_ARRAY);
 				glEnableClientState(GL_VERTEX_ARRAY);
 				const PxVec3* vertexBuffer = getVertexBuffer();
 				glNormalPointer(GL_FLOAT, 2*3*sizeof(float), vertexBuffer);
-				glVertexPointer(3, GL_FLOAT, 2*3*sizeof(float), vertexBuffer+1);				
+				glVertexPointer(3, GL_FLOAT, 2*3*sizeof(float), vertexBuffer+1);
 				glDrawArrays(GL_TRIANGLES, 0, int(nbTris * 3));
 				glDisableClientState(GL_VERTEX_ARRAY);
 				glDisableClientState(GL_NORMAL_ARRAY);
@@ -1190,7 +1168,7 @@ void DrawIcosahedraPoints(const PxArray<PxVec3>& pts, const PxVec3& color, float
 		{
 			PxVec3 center = pts[i];
 
-			for (PxU32 j = 0; j < 20; ++j) 
+			for (PxU32 j = 0; j < 20; ++j)
 			{
 				const PxVec3& v0 = icosahedronPoints[icosahedronIndices[3 * j + 0]] * radius + center;
 				const PxVec3& v1 = icosahedronPoints[icosahedronIndices[3 * j + 1]] * radius + center;
@@ -1369,7 +1347,7 @@ void* SharedGLBuffer::map()
 {
 	if (devicePointer)
 		return devicePointer;
-	
+
 #if USE_CUDA_INTEROP
 	size_t numBytes;
 	cudaContextManager->acquireContext();
@@ -1403,7 +1381,7 @@ void SharedGLBuffer::unmap()
 
 void DrawPoints(GLuint vbo, PxU32 numPoints, const PxVec3& color, float scale, PxU32 coordinatesPerPoint, PxU32 stride, size_t offset)
 {
-	glPointSize(scale);	
+	glPointSize(scale);
 	glDisable(GL_LIGHTING);
 	glColor4f(color.x, color.y, color.z, 1.0f);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -1419,7 +1397,7 @@ void DrawPoints(GLuint vbo, PxU32 numPoints, const PxVec3& color, float scale, P
 void DrawLines(GLuint vbo, PxU32 numPoints, const PxVec3& color, float scale, PxU32 coordinatesPerPoint, PxU32 stride, size_t offset)
 {
 	PX_ASSERT(numPoints % 2 == 0);
-	glLineWidth(scale);	
+	glLineWidth(scale);
 	glDisable(GL_LIGHTING);
 	glColor4f(color.x, color.y, color.z, 1.0f);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -1443,7 +1421,7 @@ void DrawMeshIndexed(GLuint vbo, GLuint elementbuffer, GLuint numTriangles, cons
 	glColor4f(color.x, color.y, color.z, 1.0f);
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glEnableClientState(GL_VERTEX_ARRAY);	
+	glEnableClientState(GL_VERTEX_ARRAY);
 	glVertexPointer(3, GL_FLOAT, stride, (void*)0);
 	glEnableClientState(GL_NORMAL_ARRAY);
 	glNormalPointer(GL_FLOAT, stride, (void*)(3 * sizeof(float)));
@@ -1651,7 +1629,7 @@ void DrawRectangle(float x_start, float x_end, float y_start, float y_end, const
 	}
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
-	
+
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_LIGHTING);

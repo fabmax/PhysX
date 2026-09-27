@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef GU_AABB_PRUNER_H
 #define GU_AABB_PRUNER_H
@@ -135,13 +112,13 @@ namespace Gu
 
 		// Pruner
 												DECLARE_PRUNER_API_COMMON
-		virtual			bool					isDynamic()			const		{ return mIncrementalRebuild;	}
+		virtual			bool					isDynamic()			const PX_OVERRIDE { return mIncrementalRebuild;	}
 		//~Pruner
 
 		// DynamicPruner
-		virtual			void					setRebuildRateHint(PxU32 nbStepsForRebuild);	// Besides the actual rebuild steps, 3 additional steps are needed.
-		virtual			bool					buildStep(bool synchronousCall = true);	// returns true if finished
-		virtual			bool					prepareBuild();	// returns true if new tree is needed
+		virtual			void					setRebuildRateHint(PxU32 nbStepsForRebuild) PX_OVERRIDE;	// Besides the actual rebuild steps, 3 additional steps are needed.
+		virtual			bool					buildStep(bool synchronousCall = true) PX_OVERRIDE;	// returns true if finished
+		virtual			bool					prepareBuild() PX_OVERRIDE;	// returns true if new tree is needed
 		//~DynamicPruner
 
 		// direct access for test code

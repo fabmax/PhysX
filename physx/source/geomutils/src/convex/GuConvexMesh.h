@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef GU_CONVEX_MESH_H
 #define GU_CONVEX_MESH_H
@@ -96,7 +73,7 @@ namespace Gu
 							 					ConvexMesh(PxBaseFlags baseFlags) : PxConvexMesh(baseFlags), mHullData(PxEmpty), mNb(PxEmpty) 
 												{
 													mNb.setBit();
-												}									
+												}
 
 						void					preExportDataReset() { Cm::RefCountable_preExportDataReset(*this); }
 		 virtual		void					exportExtraData(PxSerializationContext& stream);
@@ -112,26 +89,26 @@ namespace Gu
 						bool					load(PxInputStream& stream);
 
 		// PxBase
-		virtual			void					onRefCountZero();
+		virtual			void					onRefCountZero() PX_OVERRIDE;
 		//~PxBase
 
 		// PxRefCounted
-		virtual			PxU32					getReferenceCount()								const;
-		virtual			void					acquireReference();
+		virtual			PxU32					getReferenceCount()								const PX_OVERRIDE;
+		virtual			void					acquireReference() PX_OVERRIDE;
 		//~PxRefCounted
 
 		// PxConvexMesh										
-		virtual			void					release();
-		virtual			PxU32					getNbVertices()									const	{ return mHullData.mNbHullVertices;		}
-		virtual			const PxVec3*			getVertices()									const	{ return mHullData.getHullVertices();	}
-		virtual			const PxU8*				getIndexBuffer()								const	{ return mHullData.getVertexData8();	}
-		virtual			PxU32					getNbPolygons()									const	{ return mHullData.mNbPolygons;			}
-		virtual			bool					getPolygonData(PxU32 i, PxHullPolygon& data)	const;
-		virtual			bool					isGpuCompatible()								const;						
+		virtual			void					release() PX_OVERRIDE;
+		virtual			PxU32					getNbVertices()									const PX_OVERRIDE { return mHullData.mNbHullVertices;	}
+		virtual			const PxVec3*			getVertices()									const PX_OVERRIDE { return mHullData.getHullVertices();	}
+		virtual			const PxU8*				getIndexBuffer()								const PX_OVERRIDE { return mHullData.getVertexData8();	}
+		virtual			PxU32					getNbPolygons()									const PX_OVERRIDE { return mHullData.mNbPolygons;		}
+		virtual			bool					getPolygonData(PxU32 i, PxHullPolygon& data)	const PX_OVERRIDE;
+		virtual			bool					isGpuCompatible()								const PX_OVERRIDE;						
 
-		virtual			void					getMassInformation(PxReal& mass, PxMat33& localInertia, PxVec3& localCenterOfMass)	const;
-		virtual			PxBounds3				getLocalBounds()								const;
-		virtual			const PxReal*			getSDF() const;
+		virtual			void					getMassInformation(PxReal& mass, PxMat33& localInertia, PxVec3& localCenterOfMass)	const PX_OVERRIDE;
+		virtual			PxBounds3				getLocalBounds()								const PX_OVERRIDE;
+		virtual			const PxReal*			getSDF() const PX_OVERRIDE;
 		
 		//~PxConvexMesh
 
@@ -146,7 +123,7 @@ namespace Gu
 		PX_FORCE_INLINE	ConvexHullData&			getHull()												{ return mHullData;						}
 		PX_FORCE_INLINE	const CenterExtents&	getLocalBoundsFast()							const	{ return mHullData.mAABB;				}
 		PX_FORCE_INLINE	PxReal					getMass()										const	{ return mMass;							}
-		PX_FORCE_INLINE void					setMass(PxReal mass)									{ mMass = mass;							}		
+		PX_FORCE_INLINE void					setMass(PxReal mass)									{ mMass = mass;							}
 		PX_FORCE_INLINE	const PxMat33&			getInertia()									const	{ return mInertia;						}
 		PX_FORCE_INLINE void					setInertia(const PxMat33& inertia)						{ mInertia = inertia;					}
 

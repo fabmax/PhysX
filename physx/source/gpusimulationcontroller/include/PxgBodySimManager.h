@@ -1,52 +1,24 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef PXG_BODYSIM_MANAGER_H
 #define	PXG_BODYSIM_MANAGER_H
 
 #include "foundation/PxBitMap.h"
-#include "foundation/PxPinnedArray.h"
-#include "PxgCudaMemoryAllocator.h"
+#include "foundation/PxHashMap.h"
 #include "PxNodeIndex.h"
-#include "PxgBodySim.h"
+#include "CmPinnableArray.h"
 #include "CmIDPool.h"
 #include "CmBlockArray.h"
-#include "foundation/PxHashMap.h"
+#include "PxsHeapStats.h"
+#include "PxgBodySim.h"
 
 namespace physx
 {
 	class PxsRigidBody;
 	struct PxsExternalAccelerationProvider;
-
-	namespace IG
-	{
-		class NodeIndex;
-	}
 
 	namespace Dy
 	{
@@ -105,16 +77,17 @@ namespace physx
 	{
 		PX_NOCOPY(PxgBodySimManager)
 	public:
-		PxgBodySimManager(const PxVirtualAllocator& allocator) : mNewUpdatedBodies(allocator), 
+		PxgBodySimManager(Cm::VirtualAllocatorCallback& hostAlloc) :
+			mNewUpdatedBodies(hostAlloc, PxsHeapStats::eSIMULATION), 
 			mTotalNumBodies(0), mNbUpdatedBodies(0), 
 			mTotalNumArticulations(0), mTotalNumSoftBodies(0), mTotalNumFEMCloths(0),
 			mTotalNumPBDParticleSystems(0),
-			mActivePBDParticleSystems(allocator),
+			mActivePBDParticleSystems(hostAlloc, PxsHeapStats::eSIMULATION_PARTICLES),
 			mActivePBDParticleSystemsDirty(false),
-			mActiveSoftbodies(allocator),
-			mActiveSelfCollisionSoftbodies(allocator),
+			mActiveSoftbodies(hostAlloc, PxsHeapStats::eSIMULATION_SOFTBODY),
+			mActiveSelfCollisionSoftbodies(hostAlloc, PxsHeapStats::eSIMULATION_SOFTBODY),
 			mActiveSoftbodiesDirty(false),
-			mActiveFEMCloths(allocator),
+			mActiveFEMCloths(hostAlloc, PxsHeapStats::eSIMULATION_FEMCLOTH),
 			mActiveFEMClothsDirty(false),
 			mTotalStaticArticContacts(0), 
 			mTotalStaticArticJoints(0),
@@ -211,7 +184,7 @@ namespace physx
 		Cm::DeferredIDPool										mPBDParticleSystemIdPool; //generate the remap id between pxgbodysim and pxgparticlesystem
 
 
-		PxPinnedArray<PxgBodySimVelocityUpdate>					mNewUpdatedBodies;
+		Cm::PinnableArray<PxgBodySimVelocityUpdate>				mNewUpdatedBodies;
 		PxU32													mTotalNumBodies; //include rigid body and articulation
 		PxU32													mNbUpdatedBodies; //this is used for multiply threads in the ScBeforeSolverTask to update body information
 
@@ -224,14 +197,14 @@ namespace physx
 		PxArray<PxU32>											mActiveSoftbodyIndex;
 		PxArray<PxU32>											mActiveSelfCollisionSoftbodyIndex;
 
-		PxInt32ArrayPinned										mActivePBDParticleSystems;
+		Cm::PinnableArray<PxU32>								mActivePBDParticleSystems;
 		bool													mActivePBDParticleSystemsDirty;
-		PxInt32ArrayPinned										mActiveSoftbodies;
-		PxInt32ArrayPinned										mActiveSelfCollisionSoftbodies;
+		Cm::PinnableArray<PxU32>								mActiveSoftbodies;
+		Cm::PinnableArray<PxU32>								mActiveSelfCollisionSoftbodies;
 		PxArray<PxU32>											mActiveSoftbodiesStaging;
 		PxArray<PxU32>											mActiveSelfCollisionSoftBodiesStaging;
 		bool													mActiveSoftbodiesDirty;
-		PxInt32ArrayPinned										mActiveFEMCloths;
+		Cm::PinnableArray<PxU32>								mActiveFEMCloths;
 		PxArray<PxU32>											mActiveFEMClothStaging;
 		bool													mActiveFEMClothsDirty;
 

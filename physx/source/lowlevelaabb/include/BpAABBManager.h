@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef BP_AABBMANAGER_H
 #define BP_AABBMANAGER_H
@@ -110,11 +87,11 @@ namespace Bp
 		{
 		}
 
-		virtual const char* getName() const { return "PostBroadPhaseStage2Task"; }
+		virtual const char* getName() const PX_OVERRIDE { return "PostBroadPhaseStage2Task"; }
 
 		void setFlushPool(Cm::FlushPool* pool) { mFlushPool = pool; }
 
-		virtual void runInternal();
+		virtual void runInternal() PX_OVERRIDE;
 	};
 
 	class ProcessAggPairsBase;
@@ -131,8 +108,8 @@ namespace Bp
 	{
 													PX_NOCOPY(AABBManager)
 	public:
-														AABBManager(BroadPhase& bp, BoundsArray& boundsArray, PxFloatArrayPinnedSafe& contactDistance,
-																	PxU32 maxNbAggregates, PxU32 maxNbShapes, PxVirtualAllocator& allocator, PxU64 contextID,
+														AABBManager(BroadPhase& bp, BoundsArray& boundsArray, Cm::PinnableArray<PxReal>& contactDistance,
+																	PxU32 maxNbAggregates, PxU32 maxNbShapes, Cm::VirtualAllocatorCallback& allocator, PxU64 contextID,
 																	PxPairFilteringMode::Enum kineKineFilteringMode, PxPairFilteringMode::Enum staticKineFilteringMode);
 
 		virtual											~AABBManager() {}
@@ -144,7 +121,7 @@ namespace Bp
 		virtual			bool							addBounds(BoundsIndex index, PxReal contactDistance, Bp::FilterGroup::Enum group, void* userdata, AggregateHandle aggregateHandle, ElementType::Enum volumeType, PxU32 envID)	PX_OVERRIDE	PX_FINAL;
 		virtual			bool							removeBounds(BoundsIndex index)	PX_OVERRIDE	PX_FINAL;
 		virtual			void							updateBPFirstPass(PxU32 numCpuTasks, Cm::FlushPool& flushPool, bool hasContactDistanceUpdated, PxBaseTask* continuation)	PX_OVERRIDE	PX_FINAL;
-		virtual			void							updateBPSecondPass(PxcScratchAllocator* scratchAllocator, PxBaseTask* continuation)	PX_OVERRIDE	PX_FINAL;
+		virtual			void							updateBPSecondPass(PxU32 numCpuTasks, Cm::FlushPool& flushPool, PxcScratchAllocator* scratchAllocator, PxBaseTask* continuation)	PX_OVERRIDE	PX_FINAL;
 		virtual			void							postBroadPhase(PxBaseTask*, Cm::FlushPool& flushPool)	PX_OVERRIDE	PX_FINAL;
 		virtual			void							reallocateChangedAABBMgActorHandleMap(const PxU32 size)	PX_OVERRIDE	PX_FINAL;
 		virtual			bool							getOutOfBoundsObjects(OutOfBoundsData& data)			PX_OVERRIDE	PX_FINAL;

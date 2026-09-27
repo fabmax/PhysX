@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "common/PxInsertionCallback.h"
 #include "GuCooking.h"
@@ -289,7 +266,7 @@ static TriangleMeshData* loadMeshData(PxInputStream& stream)
 		{
 			for(PxU32 i=0;i<data->mNbTriangles*3;i++)
 				flip(adj[i]);
-		}		
+		}
 	}
 
 	// PT: TODO better
@@ -466,7 +443,7 @@ void MeshFactory::addTriangleMesh(TriangleMesh* np, bool lock)
 }
 
 PxTriangleMesh* MeshFactory::createTriangleMesh(TriangleMeshData& data)
-{	
+{
 	TriangleMesh* np;
 
 	if(data.mType==PxMeshMidPhase::eBVH33)
@@ -487,12 +464,12 @@ PxTriangleMesh* MeshFactory::createTriangleMesh(TriangleMeshData& data)
 
 // data injected by cooking lib for runtime cooking
 PxTriangleMesh* MeshFactory::createTriangleMesh(void* data)
-{	
+{
 	return createTriangleMesh(*reinterpret_cast<TriangleMeshData*>(data));
 }
 
 PxTriangleMesh* MeshFactory::createTriangleMesh(PxInputStream& desc)
-{	
+{
 	TriangleMeshData* data = ::loadMeshData(desc);
 	if(!data)
 		return NULL;
@@ -575,7 +552,7 @@ static TetrahedronMeshData* loadTetrahedronMeshData(PxInputStream& stream)
 		PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "Invalid tetrahedron indices.");
 		PX_DELETE(data);
 		return NULL;
-	}		
+	}
 #endif
 
 	// Import local bounds
@@ -637,7 +614,7 @@ static bool loadDeformableVolumeMeshData(PxInputStream& stream, DeformableVolume
 	{
 		PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "Invalid tetrahedron indices.");
 		return false;
-	}	
+	}
 #endif
 
 	//const PxU32 nbSurfaceTriangleIndices = 3 * nbSurfaceTriangles;
@@ -778,7 +755,7 @@ static bool loadDeformableVolumeMeshData(PxInputStream& stream, DeformableVolume
 		{
 			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "Invalid tetrahedron indices.");
 			return false;
-		}		
+		}
 #endif
 
 		//stream.read(data.mGridModelVerticesInvMass, sizeof(PxVec4) * nbGridModelVertices);
@@ -1198,7 +1175,7 @@ namespace
 	public:
 		StandaloneInsertionCallback() {}
 
-		virtual PxBase* buildObjectFromData(PxConcreteType::Enum type, void* data)
+		virtual PxBase* buildObjectFromData(PxConcreteType::Enum type, void* data) PX_OVERRIDE
 		{
 			if(type == PxConcreteType::eTRIANGLE_MESH_BVH33)
 			{

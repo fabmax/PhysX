@@ -1,38 +1,16 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
-// Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
+// Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "PxgFEMCloth.h"
 #include "GuTriangleMesh.h"
-#include "GuInternal.h"
 #include "PxsDeformableSurfaceMaterialCore.h"
+#include "PxsHeapStats.h"
+#include "CmVirtualAllocatorCallback.h"
+#include "foundation/PxVec2.h"
+#include "foundation/PxSort.h"
 #include "cutil_math.h"
-#include "geometry/PxSimpleTriangleMesh.h"
-#include <stdio.h>
 
 namespace physx
 {
@@ -110,7 +88,7 @@ PxU32 PxgFEMClothUtil::loadOutTriangleMesh(void* mem, const Gu::TriangleMesh* tr
 PxU32 PxgFEMClothUtil::initialTriangleData(PxgFEMCloth& femCloth, PxArray<uint2>& trianglePairTriangleIndices,
 										   PxArray<uint4>& trianglePairVertexIndices, const Gu::TriangleMesh* triangleMesh,
 										   const PxU16* materialHandles, PxsDeformableSurfaceMaterialData* materials,
-										   const PxU32 nbMaterials, PxsHeapMemoryAllocator* alloc)
+										   const PxU32 nbMaterials, Cm::VirtualAllocatorCallback& hostAlloc)
 {
 	const PxU32 nbTriangles = triangleMesh->getNbTrianglesFast();
 	const PxU32 nbVertices = triangleMesh->getNbVerticesFast();
@@ -411,7 +389,7 @@ PxU32 PxgFEMClothUtil::initialTriangleData(PxgFEMCloth& femCloth, PxArray<uint2>
 	femCloth.mNbTrianglesWithActiveEdges = pair0_trianglesWithActiveEdges.size();
 
 	femCloth.mTrianglesWithActiveEdges = reinterpret_cast<PxU32*>(
-		alloc->allocate(sizeof(PxU32) * pair0_trianglesWithActiveEdges.size(), PxsHeapStats::eSIMULATION_FEMCLOTH, PX_FL));
+		hostAlloc.allocate(sizeof(PxU32) * pair0_trianglesWithActiveEdges.size(), PxsHeapStats::eSIMULATION_FEMCLOTH, PX_FL));
 
 	PxMemCopy(femCloth.mTrianglesWithActiveEdges, &pair0_trianglesWithActiveEdges[0], sizeof(PxU32)* pair0_trianglesWithActiveEdges.size());
 
@@ -1001,43 +979,43 @@ PxU32 getType0NumAuthoredEdgesInTriangle(PxU32 edgeAuthorship)
 	return (edgeAuthorship & EdgeEncodingMask::TYPE0_AUTH_COUNT_MASK) >> EdgeEncoding::TYPE0_AUTH_COUNT_POS;
 }
 
-void PxgFEMCloth::deallocate(PxsHeapMemoryAllocator *allocator)
+void PxgFEMCloth::deallocate(Cm::VirtualAllocatorCallback& hostAlloc)
 {
 	if (mNbNonSharedTriangles)
 	{
-		allocator->deallocate(mOrderedNonSharedTriangleVertexIndices_triIndex);
-		allocator->deallocate(mOrderedNonSharedTriangleRestPoseInv);
-		allocator->deallocate(mNonSharedTriAccumulatedPartitionsCP);
+		hostAlloc.deallocate(mOrderedNonSharedTriangleVertexIndices_triIndex);
+		hostAlloc.deallocate(mOrderedNonSharedTriangleRestPoseInv);
+		hostAlloc.deallocate(mNonSharedTriAccumulatedPartitionsCP);
 	}
 
 	if (mNbSharedTrianglePairs)
 	{
-		allocator->deallocate(mOrderedSharedTrianglePairVertexIndices);
-		allocator->deallocate(mOrderedSharedRestBendingAngle_flexuralStiffness_damping);
-		allocator->deallocate(mOrderedSharedRestEdge0_edge1);
-		allocator->deallocate(mOrderedSharedRestEdgeLength_material0_material1);
+		hostAlloc.deallocate(mOrderedSharedTrianglePairVertexIndices);
+		hostAlloc.deallocate(mOrderedSharedRestBendingAngle_flexuralStiffness_damping);
+		hostAlloc.deallocate(mOrderedSharedRestEdge0_edge1);
+		hostAlloc.deallocate(mOrderedSharedRestEdgeLength_material0_material1);
 
-		allocator->deallocate(mSharedTriPairRemapOutputCP);
-		allocator->deallocate(mSharedTriPairAccumulatedPartitionsCP);
-		allocator->deallocate(mSharedTriPairAccumulatedCopiesCP);
+		hostAlloc.deallocate(mSharedTriPairRemapOutputCP);
+		hostAlloc.deallocate(mSharedTriPairAccumulatedPartitionsCP);
+		hostAlloc.deallocate(mSharedTriPairAccumulatedCopiesCP);
 	}
 
 	if (mNbNonSharedTrianglePairs)
 	{
-		allocator->deallocate(mOrderedNonSharedTrianglePairVertexIndices);
-		allocator->deallocate(mOrderedNonSharedRestBendingAngle_flexuralStiffness_damping);
+		hostAlloc.deallocate(mOrderedNonSharedTrianglePairVertexIndices);
+		hostAlloc.deallocate(mOrderedNonSharedRestBendingAngle_flexuralStiffness_damping);
 
-		allocator->deallocate(mNonSharedTriPairRemapOutputCP);
-		allocator->deallocate(mNonSharedTriPairAccumulatedPartitionsCP);
-		allocator->deallocate(mNonSharedTriPairAccumulatedCopiesCP);
+		hostAlloc.deallocate(mNonSharedTriPairRemapOutputCP);
+		hostAlloc.deallocate(mNonSharedTriPairAccumulatedPartitionsCP);
+		hostAlloc.deallocate(mNonSharedTriPairAccumulatedCopiesCP);
 	}
 
-	allocator->deallocate(mTriMeshData);
-	allocator->deallocate(mTrianglesWithActiveEdges);
-	allocator->deallocate(mTriangleVertexIndices);
+	hostAlloc.deallocate(mTriMeshData);
+	hostAlloc.deallocate(mTrianglesWithActiveEdges);
+	hostAlloc.deallocate(mTriangleVertexIndices);
 
-	allocator->deallocate(mMaterialIndices);
-	allocator->deallocate(mDynamicFrictions);
+	hostAlloc.deallocate(mMaterialIndices);
+	hostAlloc.deallocate(mDynamicFrictions);
 }
 
 } // namespace physx

@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "geometry/PxSphereGeometry.h"
 #include "geometry/PxCustomGeometry.h"
@@ -52,8 +29,8 @@ using namespace aos;
 
 //#define USE_VIRTUAL_GJK
 #ifdef USE_VIRTUAL_GJK
-static bool virtualGjkRaycastPenetration(const GjkConvex& a, const GjkConvex& b, const aos::Vec3VArg initialDir, const aos::FloatVArg initialLambda, const aos::Vec3VArg s, const aos::Vec3VArg r, aos::FloatV& lambda, 
-		aos::Vec3V& normal, aos::Vec3V& closestA, const PxReal _inflation, const bool initialOverlap)
+static bool virtualGjkRaycastPenetration(const GjkConvex& a, const GjkConvex& b, const Vec3VArg initialDir, const FloatVArg initialLambda, const Vec3VArg s, const Vec3VArg r, FloatV& lambda, 
+		Vec3V& normal, Vec3V& closestA, const PxReal _inflation, const bool initialOverlap)
 {
 	return gjkRaycastPenetration<GjkConvex, GjkConvex >(a, b, initialDir, initialLambda, s, r, lambda, normal, closestA, _inflation, initialOverlap);
 }
@@ -646,9 +623,9 @@ static bool sweepCapsule_ConvexCoreGeom(GU_CAPSULE_SWEEP_FUNC_PARAMS)
 		PxCapsuleGeometry capsule;
 		CapsuleSupport(const PxCapsuleGeometry& c)
 			: capsule(c) {}
-		virtual PxReal getMargin() const
+		virtual PxReal getMargin() const PX_OVERRIDE
 			{ return capsule.radius; }
-		virtual PxVec3 supportLocal(const PxVec3& dir) const
+		virtual PxVec3 supportLocal(const PxVec3& dir) const PX_OVERRIDE
 			{ return PxVec3(PxSign(dir.x) * capsule.halfHeight, 0, 0); }
 	};
 
@@ -657,9 +634,9 @@ static bool sweepCapsule_ConvexCoreGeom(GU_CAPSULE_SWEEP_FUNC_PARAMS)
 		Gu::ConvexShape shape;
 		ConvexCoreSupport(const PxConvexCoreGeometry& g)
 			{ Gu::makeConvexShape(g, PxTransform(PxIdentity), shape); }
-		virtual PxReal getMargin() const
+		virtual PxReal getMargin() const PX_OVERRIDE
 			{ return shape.margin; }
-		virtual PxVec3 supportLocal(const PxVec3& dir) const
+		virtual PxVec3 supportLocal(const PxVec3& dir) const PX_OVERRIDE
 			{ return shape.supportLocal(dir); }
 	};
 
@@ -704,9 +681,9 @@ static bool sweepBox_ConvexCoreGeom(GU_BOX_SWEEP_FUNC_PARAMS)
 		PxBoxGeometry box;
 		BoxSupport(const PxBoxGeometry& b)
 			: box(b) {}
-		virtual PxReal getMargin() const
+		virtual PxReal getMargin() const PX_OVERRIDE
 			{ return 0; }
-		virtual PxVec3 supportLocal(const PxVec3& dir) const
+		virtual PxVec3 supportLocal(const PxVec3& dir) const PX_OVERRIDE
 			{ return PxVec3(PxSign(dir.x) * box.halfExtents.x,
 				PxSign(dir.y) * box.halfExtents.y, PxSign(dir.z) * box.halfExtents.z); }
 	};
@@ -716,9 +693,9 @@ static bool sweepBox_ConvexCoreGeom(GU_BOX_SWEEP_FUNC_PARAMS)
 		Gu::ConvexShape shape;
 		ConvexCoreSupport(const PxConvexCoreGeometry& g)
 			{ Gu::makeConvexShape(g, PxTransform(PxIdentity), shape); }
-		virtual PxReal getMargin() const
+		virtual PxReal getMargin() const PX_OVERRIDE
 			{ return shape.margin; }
-		virtual PxVec3 supportLocal(const PxVec3& dir) const
+		virtual PxVec3 supportLocal(const PxVec3& dir) const PX_OVERRIDE
 			{ return shape.supportLocal(dir); }
 	};
 
@@ -872,9 +849,9 @@ static bool sweepConvexCore_ConvexCore(GU_CONVEXCORE_SWEEP_FUNC_PARAMS)
 		Gu::ConvexShape shape;
 		ConvexCoreSupport(const PxConvexCoreGeometry& g)
 			{ Gu::makeConvexShape(g, PxTransform(PxIdentity), shape); }
-		virtual PxReal getMargin() const
+		virtual PxReal getMargin() const PX_OVERRIDE
 			{ return shape.margin; }
-		virtual PxVec3 supportLocal(const PxVec3& dir) const
+		virtual PxVec3 supportLocal(const PxVec3& dir) const PX_OVERRIDE
 			{ return shape.supportLocal(dir); }
 	};
 
@@ -920,10 +897,10 @@ static bool sweepConvexCore_MeshGeom(GU_CONVEXCORE_SWEEP_FUNC_PARAMS)
 		TriSupport(const PxVec3& _v0, const PxVec3& _v1, const PxVec3& _v2)
 			: v0(_v0), v1(_v1), v2(_v2) {}
 
-		virtual PxReal getMargin() const
+		virtual PxReal getMargin() const PX_OVERRIDE
 			{ return 0; }
 
-		virtual PxVec3 supportLocal(const PxVec3& dir) const
+		virtual PxVec3 supportLocal(const PxVec3& dir) const PX_OVERRIDE
 			{ PxReal d0 = dir.dot(v0), d1 = dir.dot(v1), d2 = dir.dot(v2);
 			  return (d0 > d1 && d0 > d2) ? v0 : (d1 > d2) ? v1 : v2; }
 	};
@@ -937,10 +914,10 @@ static bool sweepConvexCore_MeshGeom(GU_CONVEXCORE_SWEEP_FUNC_PARAMS)
 			: inflation(inf)
 			{ Gu::makeConvexShape(g, PxTransform(PxIdentity), shape); }
 
-		virtual PxReal getMargin() const
+		virtual PxReal getMargin() const PX_OVERRIDE
 			{ return shape.margin + inflation; }
 
-		virtual PxVec3 supportLocal(const PxVec3& dir) const
+		virtual PxVec3 supportLocal(const PxVec3& dir) const PX_OVERRIDE
 			{ return shape.supportLocal(dir); }
 	};
 
@@ -961,7 +938,7 @@ static bool sweepConvexCore_MeshGeom(GU_CONVEXCORE_SWEEP_FUNC_PARAMS)
 			closestHit.distance = FLT_MAX;
 		}
 
-		virtual PxAgain processHit(const PxGeomRaycastHit& hit, const PxVec3& v0, const PxVec3& v1, const PxVec3& v2, PxReal&, const PxU32*)
+		virtual PxAgain processHit(const PxGeomRaycastHit& hit, const PxVec3& v0, const PxVec3& v1, const PxVec3& v2, PxReal&, const PxU32*) PX_OVERRIDE
 		{
 			PxReal t; PxVec3 n, p;
 			TriSupport triSupport(v0, v1, v2);
@@ -1030,10 +1007,10 @@ bool sweepConvexCore_HeightFieldGeom(GU_CONVEXCORE_SWEEP_FUNC_PARAMS)
 		TriSupport(const PxVec3& _v0, const PxVec3& _v1, const PxVec3& _v2)
 			: v0(_v0), v1(_v1), v2(_v2) {}
 
-		virtual PxReal getMargin() const
+		virtual PxReal getMargin() const PX_OVERRIDE
 			{ return 0; }
 
-		virtual PxVec3 supportLocal(const PxVec3& dir) const
+		virtual PxVec3 supportLocal(const PxVec3& dir) const PX_OVERRIDE
 			{ PxReal d0 = dir.dot(v0), d1 = dir.dot(v1), d2 = dir.dot(v2);
 			  return (d0 > d1 && d0 > d2) ? v0 : (d1 > d2) ? v1 : v2; }
 	};
@@ -1047,10 +1024,10 @@ bool sweepConvexCore_HeightFieldGeom(GU_CONVEXCORE_SWEEP_FUNC_PARAMS)
 			: inflation(inf)
 			{ Gu::makeConvexShape(g, PxTransform(PxIdentity), shape); }
 
-		virtual PxReal getMargin() const
+		virtual PxReal getMargin() const PX_OVERRIDE
 			{ return shape.margin + inflation; }
 
-		virtual PxVec3 supportLocal(const PxVec3& dir) const
+		virtual PxVec3 supportLocal(const PxVec3& dir) const PX_OVERRIDE
 			{ return shape.supportLocal(dir); }
 	};
 
@@ -1071,7 +1048,7 @@ bool sweepConvexCore_HeightFieldGeom(GU_CONVEXCORE_SWEEP_FUNC_PARAMS)
 			closestHit.distance = FLT_MAX;
 		}
 
-		virtual bool reportTouchedTris(PxU32 nb, const PxU32* indices)
+		virtual bool reportTouchedTris(PxU32 nb, const PxU32* indices) PX_OVERRIDE
 		{
 			while(nb--)
 			{
@@ -1149,10 +1126,10 @@ bool sweepConvex_ConvexCoreGeom(GU_CONVEX_SWEEP_FUNC_PARAMS)
 		ConvexSupport(const PxConvexMeshGeometry& c, PxReal inf)
 			: convex(c), inflation(inf) {}
 
-		virtual PxReal getMargin() const
+		virtual PxReal getMargin() const PX_OVERRIDE
 			{ return inflation; }
 
-		virtual PxVec3 supportLocal(const PxVec3& dir) const
+		virtual PxVec3 supportLocal(const PxVec3& dir) const PX_OVERRIDE
 		{
 			PxVec3 d = convex.scale.rotation.rotateInv(convex.scale.rotation.rotate(dir)
 				.multiply(convex.scale.scale));
@@ -1184,9 +1161,9 @@ bool sweepConvex_ConvexCoreGeom(GU_CONVEX_SWEEP_FUNC_PARAMS)
 		Gu::ConvexShape shape;
 		ConvexCoreSupport(const PxConvexCoreGeometry& g)
 			{ Gu::makeConvexShape(g, PxTransform(PxIdentity), shape); }
-		virtual PxReal getMargin() const
+		virtual PxReal getMargin() const PX_OVERRIDE
 			{ return shape.margin; }
-		virtual PxVec3 supportLocal(const PxVec3& dir) const
+		virtual PxVec3 supportLocal(const PxVec3& dir) const PX_OVERRIDE
 			{ return shape.supportLocal(dir); }
 	};
 

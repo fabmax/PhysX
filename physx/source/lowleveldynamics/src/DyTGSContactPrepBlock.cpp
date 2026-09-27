@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "foundation/PxPreprocessor.h"
 #include "foundation/PxVecMath.h"
@@ -33,6 +10,7 @@
 #include "DyTGSDynamics.h"
 #include "DyCpuGpu1dConstraint.h"
 #include "DyAllocator.h"
+#include "PxvDynamics.h"	// PXV_NO_MAX_CONTACT_IMPULSE
 
 using namespace physx;
 using namespace Gu;
@@ -41,7 +19,6 @@ using namespace Gu;
 #include "DyContactPrepShared.h"
 #include "DyConstraintPrep.h"
 #include "DyTGS.h"
-#include "DySolverContext.h"
 
 namespace physx
 {
@@ -50,7 +27,7 @@ namespace Dy
 	inline bool ValidateVec4(const Vec4V v)
 	{
 		PX_ALIGN(16, PxVec4 vF);
-		aos::V4StoreA(v, &vF.x);
+		V4StoreA(v, &vF.x);
 		return vF.isFinite();
 	}
 
@@ -209,23 +186,16 @@ public:
 	PxU32		flags[4];
 } PX_ALIGN_SUFFIX(16);
 
-PX_ALIGN_PREFIX(16)
-struct SolverConstraint1DStep4WithResidual : public SolverConstraint1DStep4
-{
-	Vec4V		residualVelIter;
-	Vec4V		residualPosIter;
-}PX_ALIGN_SUFFIX(16);
-
 static void setupFinalizeSolverConstraints4Step(PxTGSSolverContactDesc* PX_RESTRICT descs, CorrelationBuffer& c,
 	PxU8* PX_RESTRICT workspace, PxReal invDtF32, PxReal totalDtF32, PxReal invTotalDtF32,
 	PxReal dtF32, PxReal bounceThresholdF32, PxReal biasCoefficient,
-	const aos::Vec4VArg invMassScale0, const aos::Vec4VArg invInertiaScale0,
-	const aos::Vec4VArg invMassScale1, const aos::Vec4VArg invInertiaScale1)
+	const Vec4VArg invMassScale0, const Vec4VArg invInertiaScale0,
+	const Vec4VArg invMassScale1, const Vec4VArg invInertiaScale1)
 {
 	//OK, we have a workspace of pre-allocated space to store all 4 descs in. We now need to create the constraints in it
 
-	//const Vec4V ccdMaxSeparation = aos::V4LoadXYZW(descs[0].maxCCDSeparation, descs[1].maxCCDSeparation, descs[2].maxCCDSeparation, descs[3].maxCCDSeparation);
-	const Vec4V solverOffsetSlop = aos::V4LoadXYZW(descs[0].offsetSlop, descs[1].offsetSlop, descs[2].offsetSlop, descs[3].offsetSlop);
+	//const Vec4V ccdMaxSeparation = V4LoadXYZW(descs[0].maxCCDSeparation, descs[1].maxCCDSeparation, descs[2].maxCCDSeparation, descs[3].maxCCDSeparation);
+	const Vec4V solverOffsetSlop = V4LoadXYZW(descs[0].offsetSlop, descs[1].offsetSlop, descs[2].offsetSlop, descs[3].offsetSlop);
 
 	const Vec4V zero = V4Zero();
 	const Vec4V one = V4One();
@@ -372,17 +342,19 @@ static void setupFinalizeSolverConstraints4Step(PxTGSSolverContactDesc* PX_RESTR
 	PX_TRANSPOSE_44_34(invInertia01Z, invInertia11Z, invInertia21Z, invInertia31Z, invInertia1X2, invInertia1Y2, invInertia1Z2);
 
 	const FloatV invDt = FLoad(invDtF32);
-	const PxReal scale = PxMin(0.8f, biasCoefficient);
 	
-	const FloatV p8 = FLoad(scale);
-	const FloatV frictionBiasScale = FMul(invDt, p8);
+	const FloatV biasCoefficientV = FLoad(biasCoefficient);
+	//#8 disableStrongFriction removes the friction position bias, matching the scalar path
+	const bool disableStrongFriction_[] = {	descs[0].disableStrongFriction, descs[1].disableStrongFriction,
+											descs[2].disableStrongFriction, descs[3].disableStrongFriction };
+	const Vec4V frictionBiasScale = V4Sel(BLoad(disableStrongFriction_), V4Zero(), V4Splat(invDt));
 	const Vec4V totalDt = V4Load(totalDtF32);
 	const FloatV invTotalDt = FLoad(invTotalDtF32);
 	
-	const Vec4V p84 = V4Splat(p8);
+	const Vec4V biasCoefficientV4 = V4Splat(biasCoefficientV);
 	const Vec4V bounceThreshold = V4Splat(FLoad(bounceThresholdF32));
 
-	const Vec4V invDtp8 = V4Splat(FMul(invDt, p8));
+	const Vec4V invDtWithBiasCoefficient = V4Splat(FMul(invDt, biasCoefficientV));
 
 	const FloatV dt = FLoad(dtF32);
 
@@ -527,7 +499,8 @@ static void setupFinalizeSolverConstraints4Step(PxTGSSolverContactDesc* PX_RESTR
 		header->normalY = normalY;
 		header->normalZ = normalZ;
 
-		header->maxPenBias = maxPenBias;
+		//#7 compliant contacts ignore the maximum bias ('restitution' holds negated values, see load above)
+		header->maxPenBias = V4Sel(V4IsGrtr(restitution, V4Zero()), V4Load(-PX_MAX_F32), maxPenBias);
 
 		const Vec4V norVel0 = V4MulAdd(normalZ, linVelT20, V4MulAdd(normalY, linVelT10, V4Mul(normalX, linVelT00)));
 		const Vec4V norVel1 = V4MulAdd(normalZ, linVelT21, V4MulAdd(normalY, linVelT11, V4Mul(normalX, linVelT01)));
@@ -740,23 +713,20 @@ static void setupFinalizeSolverConstraints4Step(PxTGSSolverContactDesc* PX_RESTR
 				const Vec4V velMultiplier = V4Sel(isCompliant, V4Mul(V4Mul(x, a), massIfAccelElseOne), recipResponse);
 
 				// biasCoeff includes the unit response s.t. velDeltaFromPosError = separation*biasCoeff 
-				const Vec4V scaledBias = V4Neg(V4Sel(isCompliant, V4Mul(rdt, V4Mul(x, oneIfAccelElseR)), V4Sel(isSeparated, V4Splat(invDt), invDtp8)));
+				const Vec4V scaledBias = V4Neg(V4Sel(isCompliant, V4Mul(rdt, V4Mul(x, oneIfAccelElseR)), V4Sel(isSeparated, V4Splat(invDt), invDtWithBiasCoefficient)));
 
-				Vec4V targetVelocity = V4NegMulSub(vrel0, kinematicScale0, V4MulAdd(vrel1, kinematicScale1, V4Sel(isGreater2, V4Mul(vrel, restitution), zero)));
+				Vec4V targetVelocity = V4Add(cTargetNorVel, V4Sel(isGreater2, V4Mul(vrel, restitution), zero));
 
 				penetration = V4MulAdd(targetVelocity, ratio, penetration);
 
-				//Vec4V biasedErr = V4Sel(isGreater2, targetVelocity, scaledBias);
-				//Vec4V biasedErr = V4Add(targetVelocity, scaledBias);
-
-				//biasedErr = V4NegMulSub(V4Sub(vrel, cTargetNorVel), velMultiplier, biasedErr);
+				targetVelocity = V4NegMulSub(vrel0, kinematicScale0, V4MulAdd(vrel1, kinematicScale1, targetVelocity));
 
 				//These values are present for static and dynamic contacts			
 				solverContact->raXnI[0] = delAngVel0X;
 				solverContact->raXnI[1] = delAngVel0Y;
 				solverContact->raXnI[2] = delAngVel0Z;
 				solverContact->velMultiplier = V4Sel(bFinished, zero, velMultiplier);
-				solverContact->targetVelocity = V4Add(cTargetNorVel, targetVelocity);
+				solverContact->targetVelocity = targetVelocity;
 				solverContact->separation = penetration;
 				solverContact->biasCoefficient = V4Sel(bFinished, zero, scaledBias);
 				solverContact->recipResponse = V4Sel(bFinished, zero, recipResponse);
@@ -994,18 +964,18 @@ static void setupFinalizeSolverConstraints4Step(PxTGSSolverContactDesc* PX_RESTR
 					const Vec4V rbWorldY = V4Add(rbY, bodyFrame1pY);
 					const Vec4V rbWorldZ = V4Add(rbZ, bodyFrame1pZ);
 
-					Vec4V errorX = V4Sub(raWorldX, rbWorldX);
-					Vec4V errorY = V4Sub(raWorldY, rbWorldY);
-					Vec4V errorZ = V4Sub(raWorldZ, rbWorldZ);
+					const Vec4V errorX = V4Sub(raWorldX, rbWorldX);
+					const Vec4V errorY = V4Sub(raWorldY, rbWorldY);
+					const Vec4V errorZ = V4Sub(raWorldZ, rbWorldZ);
 
 					/*errorX = V4Sel(V4IsGrtr(solverOffsetSlop, V4Abs(errorX)), zero, errorX);
 					errorY = V4Sel(V4IsGrtr(solverOffsetSlop, V4Abs(errorY)), zero, errorY);
 					errorZ = V4Sel(V4IsGrtr(solverOffsetSlop, V4Abs(errorZ)), zero, errorZ);*/
 
-					PxU32 contactIndex0 = c.contactID[frictionIndex0][index0];
-					PxU32 contactIndex1 = c.contactID[frictionIndex1][index1];
-					PxU32 contactIndex2 = c.contactID[frictionIndex2][index2];
-					PxU32 contactIndex3 = c.contactID[frictionIndex3][index3];
+					const PxU32 contactIndex0 = c.contactID[frictionIndex0][index0];
+					const PxU32 contactIndex1 = c.contactID[frictionIndex1][index1];
+					const PxU32 contactIndex2 = c.contactID[frictionIndex2][index2];
+					const PxU32 contactIndex3 = c.contactID[frictionIndex3][index3];
 
 					//Ensure that the contact indices are valid
 					PX_ASSERT(contactIndex0 == 0xffff || contactIndex0 < descs[0].numContacts);
@@ -1013,10 +983,11 @@ static void setupFinalizeSolverConstraints4Step(PxTGSSolverContactDesc* PX_RESTR
 					PX_ASSERT(contactIndex2 == 0xffff || contactIndex2 < descs[2].numContacts);
 					PX_ASSERT(contactIndex3 == 0xffff || contactIndex3 < descs[3].numContacts);
 
+					//#9 each lane's fallback must read its own contact stream (see the PGS version in DyContactPrep4.cpp)
 					Vec4V targetVel0 = V4LoadA(contactIndex0 == 0xFFFF ? &contactBase0->targetVel.x : &descs[0].contacts[contactIndex0].targetVel.x);
-					Vec4V targetVel1 = V4LoadA(contactIndex1 == 0xFFFF ? &contactBase0->targetVel.x : &descs[1].contacts[contactIndex1].targetVel.x);
-					Vec4V targetVel2 = V4LoadA(contactIndex2 == 0xFFFF ? &contactBase0->targetVel.x : &descs[2].contacts[contactIndex2].targetVel.x);
-					Vec4V targetVel3 = V4LoadA(contactIndex3 == 0xFFFF ? &contactBase0->targetVel.x : &descs[3].contacts[contactIndex3].targetVel.x);
+					Vec4V targetVel1 = V4LoadA(contactIndex1 == 0xFFFF ? &contactBase1->targetVel.x : &descs[1].contacts[contactIndex1].targetVel.x);
+					Vec4V targetVel2 = V4LoadA(contactIndex2 == 0xFFFF ? &contactBase2->targetVel.x : &descs[2].contacts[contactIndex2].targetVel.x);
+					Vec4V targetVel3 = V4LoadA(contactIndex3 == 0xFFFF ? &contactBase3->targetVel.x : &descs[3].contacts[contactIndex3].targetVel.x);
 
 					Vec4V targetVelX, targetVelY, targetVelZ;
 					PX_TRANSPOSE_44_34(targetVel0, targetVel1, targetVel2, targetVel3, targetVelX, targetVelY, targetVelZ);
@@ -1100,7 +1071,7 @@ static void setupFinalizeSolverConstraints4Step(PxTGSSolverContactDesc* PX_RESTR
 						f0->rbXnI[1] = delAngVel1Y;
 						f0->rbXnI[2] = delAngVel1Z;
 
-						const Vec4V velMultiplier = V4Mul(maxImpulseScale, V4Sel(V4IsGrtr(resp, zero), V4Div(p84, resp), zero));
+						const Vec4V velMultiplier = V4Mul(maxImpulseScale, V4Sel(V4IsGrtr(resp, zero), V4Div(biasCoefficientV4, resp), zero));
 
 						Vec4V error = V4MulAdd(t0Z, errorZ, V4MulAdd(t0Y, errorY, V4Mul(t0X, errorX)));
 
@@ -1114,7 +1085,7 @@ static void setupFinalizeSolverConstraints4Step(PxTGSSolverContactDesc* PX_RESTR
 						f0->raXnI[2] = delAngVel0Z;
 						f0->error = error;
 						f0->velMultiplier = velMultiplier;
-						f0->biasCoefficient = V4Splat(frictionBiasScale);
+						f0->biasCoefficient = frictionBiasScale;	//#8
 						f0->targetVel = targetVel;
 					}
 
@@ -1195,7 +1166,7 @@ static void setupFinalizeSolverConstraints4Step(PxTGSSolverContactDesc* PX_RESTR
 						f1->rbXnI[1] = delAngVel1Y;
 						f1->rbXnI[2] = delAngVel1Z;
 
-						const Vec4V velMultiplier = V4Mul(maxImpulseScale, V4Sel(V4IsGrtr(resp, zero), V4Div(p84, resp), zero));
+						const Vec4V velMultiplier = V4Mul(maxImpulseScale, V4Sel(V4IsGrtr(resp, zero), V4Div(biasCoefficientV4, resp), zero));
 
 						Vec4V error = V4MulAdd(t1Z, errorZ, V4MulAdd(t1Y, errorY, V4Mul(t1X, errorX)));
 
@@ -1210,18 +1181,20 @@ static void setupFinalizeSolverConstraints4Step(PxTGSSolverContactDesc* PX_RESTR
 						f1->error = error;
 						f1->velMultiplier = velMultiplier;
 						f1->targetVel = targetVel;
-						f1->biasCoefficient = V4Splat(frictionBiasScale);
+						f1->biasCoefficient = frictionBiasScale;	//#8
 					}
 				}
 
 				header->dynamicFriction = V4LoadA(dynamicFriction);
 				header->staticFriction = V4LoadA(staticFriction);
-
-				frictionPatchWritebackAddrIndex0++;
-				frictionPatchWritebackAddrIndex1++;
-				frictionPatchWritebackAddrIndex2++;
-				frictionPatchWritebackAddrIndex3++;
 			}
+
+			//#2 the friction stream stores one FrictionPatch per non-empty patch regardless of anchor
+			// count, so the writeback indices must also advance for anchorless patches (like the scalar path)
+			frictionPatchWritebackAddrIndex0++;
+			frictionPatchWritebackAddrIndex1++;
+			frictionPatchWritebackAddrIndex2++;
+			frictionPatchWritebackAddrIndex3++;
 		}
 	}
 }
@@ -1348,7 +1321,7 @@ static void computeBlockStreamByteSizes4(PxTGSSolverContactDesc* descs,
 
 	//If we have max impulse, reserve a buffer for it
 	if (hasMaxImpulse)
-		constraintSize += sizeof(aos::Vec4V) * totalContacts;
+		constraintSize += sizeof(Vec4V) * totalContacts;
 
 	_solverConstraintByteSize = ((constraintSize + headerSize + 0x0f) & ~0x0f);
 	PX_ASSERT(0 == (_solverConstraintByteSize & 0x0f));
@@ -1448,20 +1421,8 @@ SolverConstraintPrepState::Enum createFinalizeSolverContacts4Step(
 		growPatches(c, blockDesc.contacts, blockDesc.bodyFrame0, blockDesc.bodyFrame1, blockDesc.startFrictionPatchIndex,
 			frictionOffsetThreshold + blockDescs[a].restDistance);
 
-		//Remove the empty friction patches - do we actually need to do this?
-		for (PxU32 p = c.frictionPatchCount; p > blockDesc.startFrictionPatchIndex; --p)
-		{
-			if (c.correlationListHeads[p - 1] == 0xffff)
-			{
-				//We have an empty patch...need to bin this one...
-				for (PxU32 p2 = p; p2 < c.frictionPatchCount; ++p2)
-				{
-					c.correlationListHeads[p2 - 1] = c.correlationListHeads[p2];
-					c.frictionPatchContactCounts[p2 - 1] = c.frictionPatchContactCounts[p2];
-				}
-				c.frictionPatchCount--;
-			}
-		}
+		//#1 remove empty friction patches, compacting all per-patch arrays together (see removeEmptyFrictionPatches)
+		removeEmptyFrictionPatches(c, blockDesc.startFrictionPatchIndex);
 
 		PxU32 numFricPatches = c.frictionPatchCount - blockDesc.startFrictionPatchIndex;
 		blockDesc.numFrictionPatches = numFricPatches;
@@ -1618,7 +1579,11 @@ SolverConstraintPrepState::Enum createFinalizeSolverContacts4Step(
 			return SolverConstraintPrepState::eUNBATCHABLE;
 
 		blockDesc.numContacts = contactCount;
-		blockDesc.hasMaxImpulse = hasMaxImpulse;
+		//#3 a body-level max contact impulse (min of both bodies) is baked into every extracted
+		// contact's maxImpulse above: when a cap is actually set (below the no-cap sentinel), emit
+		// the block max-impulse array too, so the batched solver clamps against it like the scalar
+		// path (which always stores per-contact maxImpulse) does.
+		blockDesc.hasMaxImpulse = hasMaxImpulse || defaultMaxImpulse < PXV_NO_MAX_CONTACT_IMPULSE;
 		blockDesc.disableStrongFriction = blockDesc.disableStrongFriction || hasTargetVelocity;
 
 		blockDesc.invMassScales.linear0 *= invMassScale0;
@@ -1655,13 +1620,13 @@ static void setOrthoData(const PxReal& ang0X, const PxReal& ang0Y, const PxReal&
 SolverConstraintPrepState::Enum setupSolverConstraintStep4
 (PxTGSSolverConstraintPrepDesc* PX_RESTRICT constraintDescs,
 	const PxReal dt, const PxReal totalDt, const PxReal recipdt, const PxReal recipTotalDt, PxU32& totalRows,
-	PxConstraintAllocator& allocator, PxU32 maxRows, const PxReal lengthScale, const PxReal biasCoefficient, bool isResidualReportingEnabled);
+	PxConstraintAllocator& allocator, PxU32 maxRows, const PxReal lengthScale, const PxReal biasCoefficient);
 
 SolverConstraintPrepState::Enum setupSolverConstraintStep4
 (SolverConstraintShaderPrepDesc* PX_RESTRICT constraintShaderDescs,
 	PxTGSSolverConstraintPrepDesc* PX_RESTRICT constraintDescs,
 	const PxReal dt, const PxReal totalDt, const PxReal recipdt, const PxReal recipTotalDt, PxU32& totalRows,
-	PxConstraintAllocator& allocator, const PxReal lengthScale, const PxReal biasCoefficient, bool isResidualReportingEnabled)
+	PxConstraintAllocator& allocator, const PxReal lengthScale, const PxReal biasCoefficient)
 {
 	//KS - we will never get here with constraints involving articulations so we don't need to stress about those in here
 
@@ -1713,14 +1678,14 @@ SolverConstraintPrepState::Enum setupSolverConstraintStep4
 			desc.invMassScales.angular1 = 0.0f;
 	}
 
-	return setupSolverConstraintStep4(constraintDescs, dt, totalDt, recipdt, recipTotalDt, totalRows, allocator, maxRows, lengthScale, biasCoefficient, isResidualReportingEnabled);
+	return setupSolverConstraintStep4(constraintDescs, dt, totalDt, recipdt, recipTotalDt, totalRows, allocator, maxRows, lengthScale, biasCoefficient);
 }
 
 SolverConstraintPrepState::Enum setupSolverConstraintStep4
 (PxTGSSolverConstraintPrepDesc* PX_RESTRICT constraintDescs,
 	const PxReal stepDt, const PxReal simDt, const PxReal recipStepDt, const PxReal recipSimDt, PxU32& totalRows,
 	PxConstraintAllocator& allocator, PxU32 maxRows,
-	const PxReal lengthScale, const PxReal biasCoefficient, bool isResidualReportingEnabled)
+	const PxReal lengthScale, const PxReal biasCoefficient)
 {
 	const Vec4V zero = V4Zero();
 	Px1DConstraint* allSorted[MAX_CONSTRAINT_ROWS * 4];
@@ -1754,7 +1719,7 @@ SolverConstraintPrepState::Enum setupSolverConstraintStep4
 		numRows += desc.numRows;
 	}
 
-	const PxU32 stride = isResidualReportingEnabled ? sizeof(SolverConstraint1DStep4WithResidual) : sizeof(SolverConstraint1DStep4);
+	const PxU32 stride = sizeof(SolverConstraint1DStep4);
 
 	const PxU32 constraintLength = sizeof(SolverConstraint1DHeaderStep4) + stride * maxRows;
 
@@ -1776,7 +1741,7 @@ SolverConstraintPrepState::Enum setupSolverConstraintStep4
 
 	totalRows = numRows;
 
-	const PxReal erp = 0.5f * biasCoefficient;
+	const PxReal erp = biasCoefficient;
 
 	const bool isKinematic00 = constraintDescs[0].body0->isKinematic;
 	const bool isKinematic01 = constraintDescs[0].body1->isKinematic;
@@ -2079,12 +2044,6 @@ SolverConstraintPrepState::Enum setupSolverConstraintStep4
 			c->minImpulse = minImpulse;
 			c->maxImpulse = maxImpulse;
 			c->appliedForce = zero;
-			if (isResidualReportingEnabled) 
-			{
-				SolverConstraint1DStep4WithResidual* cc = static_cast<SolverConstraint1DStep4WithResidual*>(c);
-				cc->residualPosIter = zero;
-				cc->residualVelIter = zero;
-			}
 
 			const Vec4V lin0MagSq = V4MulAdd(clin0Z, clin0Z, V4MulAdd(clin0Y, clin0Y, V4Mul(clin0X, clin0X)));
 			const Vec4V cang0DotAngDelta = V4MulAdd(angDelta0Z, angDelta0Z, V4MulAdd(angDelta0Y, angDelta0Y, V4Mul(angDelta0X, angDelta0X)));
@@ -2120,7 +2079,7 @@ SolverConstraintPrepState::Enum setupSolverConstraintStep4
 			const Vec4V lnormalVel1 = V4MulAdd(clin1X, linVel1T0, V4MulAdd(clin1Y, linVel1T1, V4Mul(clin1Z, linVel1T2)));
 
 			const Vec4V angVel0 = V4MulAdd(cang0X, angState0T0, V4MulAdd(cang0Y, angState0T1, V4Mul(cang0Z, angState0T2)));
-			const Vec4V angVel1 = V4MulAdd(angDelta1X, angState1T0, V4MulAdd(angDelta1Y, angState1T1, V4Mul(angDelta1Z, angState1T2)));
+			const Vec4V angVel1 = V4MulAdd(cang1X, angState1T0, V4MulAdd(cang1Y, angState1T1, V4Mul(cang1Z, angState1T2)));	//#5 project raw angular Jacobian, not the inertia-scaled axis
 
 			const Vec4V normalVel0 = V4Add(lnormalVel0, angVel0);
 			const Vec4V normalVel1 = V4Add(lnormalVel1, angVel1);
@@ -2202,7 +2161,7 @@ SolverConstraintPrepState::Enum setupSolverConstraintStep4
 						velMultipliers4[i] = desc.velMultiplier;
 						targetScales4[i] = desc.targetVel;
 						maxBiasSpeeds4[i] = maxBiasVelocityI;
-					}	
+					}
 					else
 					{
 						biasScales4[i] = 0.0f;
@@ -2278,7 +2237,7 @@ SolverConstraintPrepState::Enum setupSolverConstraintStep4
 }
 
 static void solveContact4_Block(const PxSolverConstraintDesc* PX_RESTRICT desc, const bool doFriction, const PxReal minPenetration,
-	const PxReal elapsedTimeF32, SolverContext& cache)
+	const PxReal elapsedTimeF32)
 {
 	PxTGSSolverBodyVel& b00 = *desc[0].tgsBodyA;
 	PxTGSSolverBodyVel& b01 = *desc[0].tgsBodyB;
@@ -2373,9 +2332,6 @@ static void solveContact4_Block(const PxSolverConstraintDesc* PX_RESTRICT desc, 
 	Vec4V linDeltaX = V4Sub(linDelta0T0, linDelta1T0);
 	Vec4V linDeltaY = V4Sub(linDelta0T1, linDelta1T1);
 	Vec4V linDeltaZ = V4Sub(linDelta0T2, linDelta1T2);
-
-	Dy::ErrorAccumulator error;
-	const bool residualReportingActive = cache.contactErrorAccumulator;
 
 	while (currPtr < last)
 	{
@@ -2498,9 +2454,6 @@ static void solveContact4_Block(const PxSolverConstraintDesc* PX_RESTRICT desc, 
 
 			const Vec4V newAppliedForce = V4Min(V4Add(appliedForce, _deltaF), maxImpulse);
 			const Vec4V deltaF = V4Sub(newAppliedForce, appliedForce);
-
-			if (residualReportingActive)
-				error.accumulateErrorLocalV4(deltaF, velMultiplier);
 
 			accumDeltaF = V4Add(accumDeltaF, deltaF);
 
@@ -2653,9 +2606,6 @@ static void solveContact4_Block(const PxSolverConstraintDesc* PX_RESTRICT desc, 
 				const Vec4V deltaF0 = V4Sub(newAppliedForce0, appliedForce0);
 				const Vec4V deltaF1 = V4Sub(newAppliedForce1, appliedForce1);
 
-				if (residualReportingActive)
-					error.accumulateErrorLocalV4(deltaF0, f0.velMultiplier, deltaF1, f1.velMultiplier);
-
 				frictionAppliedForce[i] = newAppliedForce0;
 				frictionAppliedForce[i+1] = newAppliedForce1;
 
@@ -2759,9 +2709,6 @@ static void solveContact4_Block(const PxSolverConstraintDesc* PX_RESTRICT desc, 
 	PX_ASSERT(b21.angularVelocity.isFinite());
 	PX_ASSERT(b31.linearVelocity.isFinite());
 	PX_ASSERT(b31.angularVelocity.isFinite());
-
-	if (residualReportingActive)
-		error.accumulateErrorGlobal(*cache.contactErrorAccumulator);
 }
 
 // VR: used in both PGS and TGS
@@ -2772,7 +2719,7 @@ void computeFrictionImpulseBlock(
 	Vec4V& impulse0, Vec4V& impulse1, Vec4V& impulse2, Vec4V& impulse3
 );
 
-static void writeBackContact4_Block(const PxSolverConstraintDesc* PX_RESTRICT desc, SolverContext* /*cache*/)
+static void writeBackContact4_Block(const PxSolverConstraintDesc* PX_RESTRICT desc)
 {
 	const PxU8* PX_RESTRICT last = desc[0].constraint + getConstraintLength(desc[0]);
 
@@ -2791,12 +2738,8 @@ static void writeBackContact4_Block(const PxSolverConstraintDesc* PX_RESTRICT de
 	const PxU32 contactSize = sizeof(SolverContactPointStepBlock);
 	const PxU32 frictionSize = sizeof(SolverContactFrictionStepBlock);
 
-	Vec4V normalForce = V4Zero();
-
 	//We'll need this.
 	//const Vec4V vZero	= V4Zero();
-
-	bool writeBackThresholds[4] = { false, false, false, false };
 
 	while ((currPtr < last))
 	{
@@ -2824,29 +2767,23 @@ static void writeBackContact4_Block(const PxSolverConstraintDesc* PX_RESTRICT de
 		SolverContactFrictionStepBlock* PX_RESTRICT frictions = (SolverContactFrictionStepBlock*)currPtr;
 		currPtr += (numFrictionConstr * frictionSize);
 
-		writeBackThresholds[0] = hdr->flags[0] & SolverContactHeader::eHAS_FORCE_THRESHOLDS;
-		writeBackThresholds[1] = hdr->flags[1] & SolverContactHeader::eHAS_FORCE_THRESHOLDS;
-		writeBackThresholds[2] = hdr->flags[2] & SolverContactHeader::eHAS_FORCE_THRESHOLDS;
-		writeBackThresholds[3] = hdr->flags[3] & SolverContactHeader::eHAS_FORCE_THRESHOLDS;
+		// PT: the per-lane counts and the null-ness of the writeback pointers are all loop-invariant, so fold
+		// them into one count per lane - a null pointer is just a zero count. And appliedForces is SoA in the
+		// constraint blob (the 4 lanes are the 4 pairs of this batch), so we are copying scalar floats to scalar
+		// floats: V4GetX/Y/Z/W meant a 16-byte load plus four shuffles purely to feed four single-float stores.
+		// Now nothing is loaded at all when force writeback is off, which is the common case.
+		const PxU32 c0 = vForceWriteback0 ? hdr->numNormalConstrs[0] : 0;
+		const PxU32 c1 = vForceWriteback1 ? hdr->numNormalConstrs[1] : 0;
+		const PxU32 c2 = vForceWriteback2 ? hdr->numNormalConstrs[2] : 0;
+		const PxU32 c3 = vForceWriteback3 ? hdr->numNormalConstrs[3] : 0;
 
 		for (PxU32 i = 0; i<numNormalConstr; i++)
 		{
-			//contacts = (SolverContactBatchPointBase4*)(((PxU8*)contacts) + contactSize);
-			const FloatV appliedForce0 = V4GetX(appliedForces[i]);
-			const FloatV appliedForce1 = V4GetY(appliedForces[i]);
-			const FloatV appliedForce2 = V4GetZ(appliedForces[i]);
-			const FloatV appliedForce3 = V4GetW(appliedForces[i]);
-
-			normalForce = V4Add(normalForce, appliedForces[i]);
-
-			if (vForceWriteback0 && i < hdr->numNormalConstrs[0])
-				FStore(appliedForce0, vForceWriteback0++);
-			if (vForceWriteback1 && i < hdr->numNormalConstrs[1])
-				FStore(appliedForce1, vForceWriteback1++);
-			if (vForceWriteback2 && i < hdr->numNormalConstrs[2])
-				FStore(appliedForce2, vForceWriteback2++);
-			if (vForceWriteback3 && i < hdr->numNormalConstrs[3])
-				FStore(appliedForce3, vForceWriteback3++);
+			const PxF32* PX_RESTRICT af = reinterpret_cast<const PxF32*>(appliedForces + i);
+			if (i < c0)	*vForceWriteback0++ = af[0];
+			if (i < c1)	*vForceWriteback1++ = af[1];
+			if (i < c2)	*vForceWriteback2++ = af[2];
+			if (i < c3)	*vForceWriteback3++ = af[3];
 		}
 
 		// Writeback friction impulses
@@ -2904,49 +2841,25 @@ static void writeBackContact4_Block(const PxSolverConstraintDesc* PX_RESTRICT de
 		}
 	}
 
-	PX_UNUSED(writeBackThresholds);
-
-#if 0
-	if (cache)
-	{
-
-		PX_ALIGN(16, PxReal nf[4]);
-		V4StoreA(normalForce, nf);
-
-		Sc::ShapeInteraction** shapeInteractions = reinterpret_cast<SolverContactHeader4*>(desc[0].constraint)->shapeInteraction;
-
-		for (PxU32 a = 0; a < 4; ++a)
-		{
-			if (writeBackThresholds[a] && desc[a].linkIndexA == PxSolverConstraintDesc::NO_LINK && desc[a].linkIndexB == PxSolverConstraintDesc::NO_LINK &&
-				nf[a] != 0.f && (bd0[a]->reportThreshold < PX_MAX_REAL || bd1[a]->reportThreshold < PX_MAX_REAL))
-			{
-				ThresholdStreamElement elt;
-				elt.normalForce = nf[a];
-				elt.threshold = PxMin<float>(bd0[a]->reportThreshold, bd1[a]->reportThreshold);
-				elt.nodeIndexA = bd0[a]->nodeIndex;
-				elt.nodeIndexB = bd1[a]->nodeIndex;
-				elt.shapeInteraction = shapeInteractions[a];
-				PxOrder(elt.nodeIndexA, elt.nodeIndexB);
-				PX_ASSERT(elt.nodeIndexA < elt.nodeIndexB);
-				PX_ASSERT(cache.mThresholdStreamIndex < cache.mThresholdStreamLength);
-				cache.mThresholdStream[cache.mThresholdStreamIndex++] = elt;
-			}
-		}
-	}
-#endif
+	// PT: contact force threshold reports (PxPairFlag::eNOTIFY_THRESHOLD_FORCE_*) are documented as
+	// PGS-only and CPU-only. This function used to carry a half-finished implementation of them: a
+	// forceThreshold flag, a normalForce accumulator, and an #if 0'd emission block that had stopped
+	// compiling (it referenced reportThreshold, which lives on PxSolverBodyData - never passed in here -
+	// and PxSolverConstraintDesc::NO_LINK). All of it fed a PX_UNUSED. Removed, so that the documented
+	// restriction is visible from the code rather than something you have to reconstruct.
+	// The live implementation is the PGS one: writeBackContact() in DySolverConstraints.cpp.
 }
 
 void solveContact4(DY_TGS_SOLVE_METHOD_PARAMS)
 {
 	PX_UNUSED(txInertias);
-	//PX_UNUSED(cache);
 
-	solveContact4_Block(desc + hdr.startIndex, true, minPenetration, elapsedTime, cache);
+	solveContact4_Block(desc + hdr.startIndex, true, minPenetration, elapsedTime);
 }
 
 void writeBackContact4(DY_TGS_WRITEBACK_METHOD_PARAMS)
 {
-	writeBackContact4_Block(desc + hdr.startIndex, cache);
+	writeBackContact4_Block(desc + hdr.startIndex);
 }
 
 static PX_FORCE_INLINE Vec4V V4Dot3(const Vec4V& x0, const Vec4V& y0, const Vec4V& z0, const Vec4V& x1, const Vec4V& y1, const Vec4V& z1)
@@ -2954,7 +2867,7 @@ static PX_FORCE_INLINE Vec4V V4Dot3(const Vec4V& x0, const Vec4V& y0, const Vec4
 	return V4MulAdd(x0, x1, V4MulAdd(y0, y1, V4Mul(z0, z1)));
 }
 
-static void solve1DStep4(const PxSolverConstraintDesc* PX_RESTRICT desc, const PxTGSSolverBodyTxInertia* const txInertias, PxReal elapsedTimeF32, const SolverContext& cache)
+static void solve1DStep4(const PxSolverConstraintDesc* PX_RESTRICT desc, const PxTGSSolverBodyTxInertia* const txInertias, PxReal elapsedTimeF32)
 {
 	PxU8* PX_RESTRICT bPtr = desc->constraint;
 	if (bPtr == NULL)
@@ -3041,7 +2954,7 @@ static void solve1DStep4(const PxSolverConstraintDesc* PX_RESTRICT desc, const P
 	PX_TRANSPOSE_44_34(angDelta01, angDelta11, angDelta21, angDelta31, angDelta1T0, angDelta1T1, angDelta1T2);
 
 	const SolverConstraint1DHeaderStep4* PX_RESTRICT  header = reinterpret_cast<const SolverConstraint1DHeaderStep4*>(bPtr);
-	PxU8* PX_RESTRICT base = reinterpret_cast<PxU8*>(bPtr + sizeof(SolverConstraint1DHeaderStep4));
+	SolverConstraint1DStep4* PX_RESTRICT base = reinterpret_cast<SolverConstraint1DStep4*>(bPtr + sizeof(SolverConstraint1DHeaderStep4));
 
 	Vec4V invInertia00X = V4LoadU(&txI00.sqrtInvInertia.column0.x);	// PT: safe because 'column1' follows 'column0' in PxMat33
 	Vec4V invInertia00Y = V4LoadU(&txI00.sqrtInvInertia.column1.x);	// PT: safe because 'column2' follows 'column1' in PxMat33
@@ -3144,13 +3057,11 @@ static void solve1DStep4(const PxSolverConstraintDesc* PX_RESTRICT desc, const P
 		V4Sub(V4Dot3(header->angOrthoAxis0X[2], header->angOrthoAxis0Y[2], header->angOrthoAxis0Z[2], angDelta0T0, angDelta0T1, angDelta0T2),
 			V4Dot3(header->angOrthoAxis1X[2], header->angOrthoAxis1Y[2], header->angOrthoAxis1Z[2], angDelta1T0, angDelta1T1, angDelta1T2)));
 
-	PxU32 stride = cache.contactErrorAccumulator ? sizeof(SolverConstraint1DStep4WithResidual) : sizeof(SolverConstraint1DStep4);
-
 	const PxU32 count = header->count;
-	for (PxU32 i = 0; i<count; ++i/*, base++*/)
+	for (PxU32 i = 0; i<count; ++i, base++)
 	{
-		PxPrefetchLine(base + stride);
-		SolverConstraint1DStep4& c = reinterpret_cast<SolverConstraint1DStep4&>(*base);
+		PxPrefetchLine(base + 1);
+		SolverConstraint1DStep4& c = *base;
 
 		const Vec4V cangVel0X = V4Add(c.ang0[0], V4NegMulSub(raZ, c.lin0[1], V4Mul(raY, c.lin0[2])));
 		const Vec4V cangVel0Y = V4Add(c.ang0[1], V4NegMulSub(raX, c.lin0[2], V4Mul(raZ, c.lin0[0])));
@@ -3264,7 +3175,7 @@ static void solve1DStep4(const PxSolverConstraintDesc* PX_RESTRICT desc, const P
 		const Vec4V clinVel1Y_ = c.lin1[1];
 		const Vec4V clinVel1Z_ = c.lin1[2];
 
-		const aos::BoolV isSpringConstraint = V4IsEqU32(V4U32and(flags, springFlagMask), springFlagMask);
+		const BoolV isSpringConstraint = V4IsEqU32(V4U32and(flags, springFlagMask), springFlagMask);
 		
 		const Vec4V errorChange = computeResolvedGeometricErrorTGSBlock(
 			raMotionX, raMotionY, raMotionZ,
@@ -3313,15 +3224,6 @@ static void solve1DStep4(const PxSolverConstraintDesc* PX_RESTRICT desc, const P
 		const Vec4V deltaF = V4Sub(clampedForce, c.appliedForce);
 
 		c.appliedForce = clampedForce;
-		if (cache.contactErrorAccumulator) 
-		{
-			SolverConstraint1DStep4WithResidual& cc = static_cast<SolverConstraint1DStep4WithResidual&>(c);
-			const Vec4V residual = Dy::calculateResidualV4(deltaF, vMul);
-			if (cache.isPositionIteration)
-				cc.residualPosIter = residual;
-			else
-				cc.residualVelIter = residual;
-		}
 
 		const Vec4V deltaFIM0 = V4Mul(deltaF, mass0);
 		const Vec4V deltaFIM1 = V4Mul(deltaF, mass1);
@@ -3342,8 +3244,6 @@ static void solve1DStep4(const PxSolverConstraintDesc* PX_RESTRICT desc, const P
 		linVel1T2 = V4NegMulSub(clinVel1Z_, deltaFIM1, linVel1T2);
 		angState0T2 = V4MulAdd(delAngVel0Z, angDetaF0, angState0T2);
 		angState1T2 = V4NegMulSub(delAngVel1Z, angDetaF1, angState1T2);
-
-		base += stride;
 	}
 
 	PX_TRANSPOSE_44(linVel0T0, linVel0T1, linVel0T2, linVel0T3, linVel00, linVel10, linVel20, linVel30);
@@ -3410,15 +3310,12 @@ static void solve1DStep4(const PxSolverConstraintDesc* PX_RESTRICT desc, const P
 void solve1D4(DY_TGS_SOLVE_METHOD_PARAMS)
 {
 	PX_UNUSED(minPenetration);
-	PX_UNUSED(cache);
 
-	solve1DStep4(desc + hdr.startIndex, txInertias, elapsedTime, cache);
+	solve1DStep4(desc + hdr.startIndex, txInertias, elapsedTime);
 }
 
 void writeBack1D4(DY_TGS_WRITEBACK_METHOD_PARAMS)
 {
-	PX_UNUSED(cache);
-
 	ConstraintWriteback* writeback0 = reinterpret_cast<ConstraintWriteback*>(desc[hdr.startIndex].writeBack);
 	ConstraintWriteback* writeback1 = reinterpret_cast<ConstraintWriteback*>(desc[hdr.startIndex + 1].writeBack);
 	ConstraintWriteback* writeback2 = reinterpret_cast<ConstraintWriteback*>(desc[hdr.startIndex + 2].writeBack);
@@ -3427,19 +3324,16 @@ void writeBack1D4(DY_TGS_WRITEBACK_METHOD_PARAMS)
 	if (writeback0 || writeback1 || writeback2 || writeback3)
 	{
 		SolverConstraint1DHeaderStep4* header = reinterpret_cast<SolverConstraint1DHeaderStep4*>(desc[hdr.startIndex].constraint);
-		PxU8* base = reinterpret_cast<PxU8*>(desc[hdr.startIndex].constraint + sizeof(SolverConstraint1DHeaderStep4));
-		PxU32 stride = cache->contactErrorAccumulator ? sizeof(SolverConstraint1DStep4WithResidual) : sizeof(SolverConstraint1DStep4);
+		SolverConstraint1DStep4* base = reinterpret_cast<SolverConstraint1DStep4*>(desc[hdr.startIndex].constraint + sizeof(SolverConstraint1DHeaderStep4));
 
 		const Vec4V zero = V4Zero();
 		Vec4V linX(zero), linY(zero), linZ(zero);
 		Vec4V angX(zero), angY(zero), angZ(zero);
-		Vec4V residual(zero);
-		Vec4V residualPosIter(zero);
 
 		const PxU32 count = header->count;
 		for (PxU32 i = 0; i<count; i++)
 		{
-			const SolverConstraint1DStep4* c = reinterpret_cast<const SolverConstraint1DStep4*>(base);
+			const SolverConstraint1DStep4* c = base;
 
 			//Load in flags
 			const VecI32V flags = I4LoadU(reinterpret_cast<const PxI32*>(&c->flags[0]));
@@ -3451,29 +3345,31 @@ void writeBack1D4(DY_TGS_WRITEBACK_METHOD_PARAMS)
 
 			const Vec4V appliedForce = V4Sel(isEq, c->appliedForce, zero);
 
-			if (cache->contactErrorAccumulator) 
-			{
-				const SolverConstraint1DStep4WithResidual* cc = static_cast<const SolverConstraint1DStep4WithResidual*>(c);
-				residual = V4MulAdd(cc->residualVelIter, cc->residualVelIter, residual);
-				residualPosIter = V4MulAdd(cc->residualPosIter, cc->residualPosIter, residualPosIter);
-			}
-
 			linX = V4MulAdd(c->lin0[0], appliedForce, linX);
 			linY = V4MulAdd(c->lin0[1], appliedForce, linY);
 			linZ = V4MulAdd(c->lin0[2], appliedForce, linZ);
 
-			angX = V4MulAdd(c->ang0[0], appliedForce, angX);
-			angY = V4MulAdd(c->ang0[1], appliedForce, angY);
-			angZ = V4MulAdd(c->ang0[2], appliedForce, angZ);
+			//#6 ang0 was zeroed at prep time for linear rows: reconstruct their angular Jacobian
+			// from lin0 x rAWorld, matching the scalar writeBack1DStep. That convention is
+			// sign-opposite to the rA x lin0 reconstruction in solve1DStep4 and to the
+			// body0WorkOffset x lin correction below: the reported force deliberately follows
+			// the scalar path so block and scalar stay identical, see PX-5320.
+			const Vec4V ang0X = V4Add(c->ang0[0], V4NegMulSub(c->lin0[2], header->rAWorld[1], V4Mul(c->lin0[1], header->rAWorld[2])));
+			const Vec4V ang0Y = V4Add(c->ang0[1], V4NegMulSub(c->lin0[0], header->rAWorld[2], V4Mul(c->lin0[2], header->rAWorld[0])));
+			const Vec4V ang0Z = V4Add(c->ang0[2], V4NegMulSub(c->lin0[1], header->rAWorld[0], V4Mul(c->lin0[0], header->rAWorld[1])));
 
-			base += stride;
+			angX = V4MulAdd(ang0X, appliedForce, angX);
+			angY = V4MulAdd(ang0Y, appliedForce, angY);
+			angZ = V4MulAdd(ang0Z, appliedForce, angZ);
+
+			base++;
 		}
 
 		//We need to do the cross product now
-
-		angX = V4Sub(angX, V4NegMulSub(header->body0WorkOffset[0], linY, V4Mul(header->body0WorkOffset[1], linZ)));
-		angY = V4Sub(angY, V4NegMulSub(header->body0WorkOffset[1], linZ, V4Mul(header->body0WorkOffset[2], linX)));
-		angZ = V4Sub(angZ, V4NegMulSub(header->body0WorkOffset[2], linX, V4Mul(header->body0WorkOffset[0], linY)));
+		//#6 corrected component indices to form body0WorkOffset x lin
+		angX = V4Sub(angX, V4NegMulSub(header->body0WorkOffset[2], linY, V4Mul(header->body0WorkOffset[1], linZ)));
+		angY = V4Sub(angY, V4NegMulSub(header->body0WorkOffset[0], linZ, V4Mul(header->body0WorkOffset[2], linX)));
+		angZ = V4Sub(angZ, V4NegMulSub(header->body0WorkOffset[1], linX, V4Mul(header->body0WorkOffset[0], linY)));
 
 		const Vec4V linLenSq = V4MulAdd(linZ, linZ, V4MulAdd(linY, linY, V4Mul(linX, linX)));
 		const Vec4V angLenSq = V4MulAdd(angZ, angZ, V4MulAdd(angY, angY, V4Mul(angX, angX)));
@@ -3486,45 +3382,35 @@ void writeBack1D4(DY_TGS_WRITEBACK_METHOD_PARAMS)
 		PX_ALIGN(16, PxU32 iBroken[4]);
 		BStoreA(broken, iBroken);
 
-		PX_ALIGN(16, PxReal residual4[4]);
-		V4StoreA(residual, residual4);
-
-		PX_ALIGN(16, PxReal residual4PosIter[4]);
-		V4StoreA(residualPosIter, residual4PosIter);
-
 		Vec4V lin0, lin1, lin2, lin3;
 		Vec4V ang0, ang1, ang2, ang3;
 
 		PX_TRANSPOSE_34_44(linX, linY, linZ, lin0, lin1, lin2, lin3);
 		PX_TRANSPOSE_34_44(angX, angY, angZ, ang0, ang1, ang2, ang3);
-		
+
 		if (writeback0)
 		{
 			V3StoreU(Vec3V_From_Vec4V_WUndefined(lin0), writeback0->linearImpulse);
 			V3StoreU(Vec3V_From_Vec4V_WUndefined(ang0), writeback0->angularImpulse);
-			writeback0->setCombined(header->breakable[0] ? PxU32(iBroken[0] != 0) : 0, residual4PosIter[0]);
-			writeback0->residual = residual4[0];
+			writeback0->broken = header->breakable[0] ? PxU32(iBroken[0] != 0) : 0;
 		}
 		if (writeback1)
 		{
 			V3StoreU(Vec3V_From_Vec4V_WUndefined(lin1), writeback1->linearImpulse);
 			V3StoreU(Vec3V_From_Vec4V_WUndefined(ang1), writeback1->angularImpulse);
-			writeback1->setCombined(header->breakable[1] ? PxU32(iBroken[1] != 0) : 0, residual4PosIter[1]);
-			writeback1->residual = residual4[1];
+			writeback1->broken = header->breakable[1] ? PxU32(iBroken[1] != 0) : 0;
 		}
 		if (writeback2)
 		{
 			V3StoreU(Vec3V_From_Vec4V_WUndefined(lin2), writeback2->linearImpulse);
 			V3StoreU(Vec3V_From_Vec4V_WUndefined(ang2), writeback2->angularImpulse);
-			writeback2->setCombined(header->breakable[2] ? PxU32(iBroken[2] != 0) : 0, residual4PosIter[2]);
-			writeback2->residual = residual4[2];
+			writeback2->broken = header->breakable[2] ? PxU32(iBroken[2] != 0) : 0;
 		}
 		if (writeback3)
 		{
 			V3StoreU(Vec3V_From_Vec4V_WUndefined(lin3), writeback3->linearImpulse);
 			V3StoreU(Vec3V_From_Vec4V_WUndefined(ang3), writeback3->angularImpulse);
-			writeback3->setCombined(header->breakable[3] ? PxU32(iBroken[3] != 0) : 0, residual4PosIter[3]);
-			writeback3->residual = residual4[3];
+			writeback3->broken = header->breakable[3] ? PxU32(iBroken[3] != 0) : 0;
 		}
 	}
 }
@@ -3580,25 +3466,24 @@ static void concludeContact4_Block(const PxSolverConstraintDesc* PX_RESTRICT des
 	//}
 }
 
-static void conclude1DStep4(const PxSolverConstraintDesc* PX_RESTRICT desc, bool isResidualReportingEnabled)
+static void conclude1DStep4(const PxSolverConstraintDesc* PX_RESTRICT desc)
 {
 	PxU8* PX_RESTRICT bPtr = desc->constraint;
 	if (bPtr == NULL)
 		return;
 
 	const SolverConstraint1DHeaderStep4* PX_RESTRICT  header = reinterpret_cast<const SolverConstraint1DHeaderStep4*>(bPtr);
-	PxU8* PX_RESTRICT base = reinterpret_cast<PxU8*>(bPtr + sizeof(SolverConstraint1DHeaderStep4));
-	PxU32 stride = isResidualReportingEnabled ? sizeof(SolverConstraint1DStep4WithResidual) : sizeof(SolverConstraint1DStep4);
+	SolverConstraint1DStep4* PX_RESTRICT base = reinterpret_cast<SolverConstraint1DStep4*>(bPtr + sizeof(SolverConstraint1DHeaderStep4));
 
 	const VecI32V keepBiasMask = I4Load(DY_SC_FLAG_KEEP_BIAS);
 	const VecI32V isSpringMask = I4Load(DY_SC_FLAG_SPRING); 
 	const Vec4V zero = V4Zero();
 
 	const PxU32 count = header->count;
-	for (PxU32 i = 0; i<count; ++i/*, base++*/)
+	for (PxU32 i = 0; i<count; ++i, base++)
 	{
 		PxPrefetchLine(base + 1);
-		SolverConstraint1DStep4& c = reinterpret_cast<SolverConstraint1DStep4&>(*base);
+		SolverConstraint1DStep4& c = *base;
 
 		const VecI32V flags = I4LoadA(reinterpret_cast<PxI32*>(c.flags));
 
@@ -3611,26 +3496,21 @@ static void conclude1DStep4(const PxSolverConstraintDesc* PX_RESTRICT desc, bool
 		c.error = V4Sel(isSpring, zero, c.error);
 		c.velMultiplier = V4Sel(isSpring, zero, c.velMultiplier);
 		c.velTarget = V4Sel(isSpring, zero, c.velTarget);
-
-		base += stride;
 	}
 }
 
 void solveConcludeContact4(DY_TGS_CONCLUDE_METHOD_PARAMS)
 {
 	PX_UNUSED(txInertias);
-	//PX_UNUSED(cache);
 
-	solveContact4_Block(desc + hdr.startIndex, true, -PX_MAX_F32, elapsedTime, cache);
+	solveContact4_Block(desc + hdr.startIndex, true, -PX_MAX_F32, elapsedTime);
 	concludeContact4_Block(desc + hdr.startIndex);
 }
 
 void solveConclude1D4(DY_TGS_CONCLUDE_METHOD_PARAMS)
 {
-	PX_UNUSED(cache);
-
-	solve1DStep4(desc + hdr.startIndex, txInertias, elapsedTime, cache);
-	conclude1DStep4(desc + hdr.startIndex, cache.contactErrorAccumulator != NULL);
+	solve1DStep4(desc + hdr.startIndex, txInertias, elapsedTime);
+	conclude1DStep4(desc + hdr.startIndex);
 }
 
 }

@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef PXG_CUDA_BUFFER_H
 #define PXG_CUDA_BUFFER_H
@@ -40,25 +17,20 @@
 #pragma clang diagnostic pop
 #endif
 
-#include "PxgHeapMemAllocator.h"
+#include "foundation/PxAssert.h"
+#include "foundation/PxAllocator.h"
 #include "PxgDevicePointer.h"
 
 namespace physx
 {
 	class PxCudaContext;
+	class PxgHeapMemoryAllocator;
 	
 	class PxgCudaBuffer
 	{
 		PX_NOCOPY(PxgCudaBuffer)
 	public:
-		PxgCudaBuffer(PxgHeapMemoryAllocatorManager* heapMemoryManager, PxsHeapStats::Enum statGroup)
-			: mPtr(0)
-			, mHeapMemoryAllocator(heapMemoryManager->mDeviceMemoryAllocators)
-			, mSize(0)
-			, mStatGroup(statGroup)
-		{
-		}
-
+		PxgCudaBuffer(PxgHeapMemoryAllocator& deviceAlloc, PxI32 statGroup);
 		~PxgCudaBuffer();
 
 		void allocate(const PxU64 size, const char* filename, PxI32 line);
@@ -71,20 +43,26 @@ namespace physx
 
 		PX_FORCE_INLINE	CUdeviceptr getDevicePtr()				const	{ return (mPtr + 127) & (~127);	}
 		PX_FORCE_INLINE	PxU64		getSize()					const	{ return mSize;					}
-		PX_FORCE_INLINE	void		set(CUdeviceptr ptr, PxU64 size)	{ mPtr = ptr;	mSize = size;	}
 
 		static void swapBuffer(PxgCudaBuffer& buf0, PxgCudaBuffer& buf1)
 		{
-			const CUdeviceptr tempPtr = buf0.getDevicePtr();
-			const PxU64 tempSize = buf0.getSize();
+			//Swap the raw allocation pointers, not getDevicePtr(): the heap allocator keys its lookup table on the
+			//address it handed out, while getDevicePtr() returns the 128-byte aligned version of it. Going through
+			//getDevicePtr() here would silently replace mPtr with an address the allocator does not know about as
+			//soon as a block is less than 128-byte aligned, and the buffer could then not be released anymore.
+			const CUdeviceptr tempPtr = buf0.mPtr;
+			const PxU64 tempSize = buf0.mSize;
 
-			buf0.set(buf1.getDevicePtr(), buf1.getSize());
-			buf1.set(tempPtr, tempSize);
+			buf0.mPtr = buf1.mPtr;
+			buf0.mSize = buf1.mSize;
+
+			buf1.mPtr = tempPtr;
+			buf1.mSize = tempSize;
 		}
 
 		void assign(PxgCudaBuffer& b1)
 		{
-			PX_ASSERT(mHeapMemoryAllocator == b1.mHeapMemoryAllocator);
+			PX_ASSERT(&mDeviceAlloc == &b1.mDeviceAlloc);
 			PX_ASSERT(mStatGroup == b1.mStatGroup);
 
 			deallocate();
@@ -98,17 +76,17 @@ namespace physx
 
 	protected:
 		CUdeviceptr					mPtr;
-		PxgHeapMemoryAllocator*		mHeapMemoryAllocator;
+		PxgHeapMemoryAllocator&		mDeviceAlloc;
 		PxU64						mSize;
-		const PxsHeapStats::Enum	mStatGroup;
+		const PxU32					mStatGroup;
 	};
 
 	template <typename T>
 	class PxgTypedCudaBuffer : public PxgCudaBuffer
 	{
 	public:
-		PxgTypedCudaBuffer(PxgHeapMemoryAllocatorManager* heapMemoryManager, PxsHeapStats::Enum statGroup)
-			: PxgCudaBuffer(heapMemoryManager, statGroup) 
+		PxgTypedCudaBuffer(PxgHeapMemoryAllocator& deviceAlloc, PxI32 statGroup)
+			: PxgCudaBuffer(deviceAlloc, statGroup) 
 		{ }
 
 		PX_FORCE_INLINE	void allocateElements(const PxU64 nbElements, const char* filename, PxI32 line) { allocate(nbElements * sizeof(T), filename, line); }
@@ -125,12 +103,12 @@ namespace physx
 	{
 		PxU8 mCudaArrays[sizeof(PxgCudaBuffer)*NbBuffers];
 	public:
-		PxgCudaBufferN(PxgHeapMemoryAllocatorManager* heapMemoryManager, PxsHeapStats::Enum statGroup)
+		PxgCudaBufferN(PxgHeapMemoryAllocator& deviceAlloc, PxI32 statGroup)
 		{
 			PxgCudaBuffer* buffers = reinterpret_cast<PxgCudaBuffer*>(mCudaArrays);
 			for (PxU32 i = 0; i < NbBuffers; ++i)
 			{
-				PX_PLACEMENT_NEW(&buffers[i], PxgCudaBuffer)(heapMemoryManager, statGroup);
+				PX_PLACEMENT_NEW(&buffers[i], PxgCudaBuffer)(deviceAlloc, statGroup);
 			}
 		}
 

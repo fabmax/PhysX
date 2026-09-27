@@ -1,0 +1,98 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ovphysx"
+dynamic = ["version"]
+description = "PhysX simulation library for ovstage-populated scenes with Warp array interoperability. x86_64 wheels require a CPU with AVX."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "packaging>=20,<24",  # PEP 440 version comparison (Python/native package parity)
+  # ovstage owns scene ingestion and brings its own namespaced USD runtime; it is
+  # the native stage provider ovphysx loads at runtime. Keep the two-wheel release
+  # pair exact: this ovphysx build is validated
+  # against the population/runtime ABI of the pinned ovstage release. This pin is
+  # generated from the OVSTAGE_VERSION constant in scripts/fetch_ovstage_release.py
+  # (the version source of truth); do not edit this line by hand.
+  "ovstage==0.2.0.377349",
+  # Warp is the public CPU/CUDA array frontend for PhysX.read(). Floor is the tested line,
+  # pinned exactly in tests; <2 only guards a major bump (a minor cap collides with IsaacLab).
+  "warp-lang>=1.16,<2",
+]
+license = "LicenseRef-NVIDIA-Omniverse"
+license-files = ["LICENSE.txt", "ovphysx-LICENSES.zip"]
+authors = [{ name = "Omniverse Physics Team" }]
+keywords = ["physics", "simulation", "usd", "openusd", "nvidia", "physx", "reinforcement-learning", "robotics", "warp", "dlpack", "tensor"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Operating System :: POSIX :: Linux",
+  "Operating System :: Microsoft :: Windows",
+  "Topic :: Scientific/Engineering :: Physics",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+  "Intended Audience :: Science/Research",
+  "Development Status :: 3 - Alpha",
+]
+
+[project.urls]
+Homepage = "https://github.com/NVIDIA-Omniverse/PhysX/"
+Documentation = "https://nvidia-omniverse.github.io/PhysX/ovphysx/latest/index.html"
+Repository = "https://github.com/NVIDIA-Omniverse/PhysX"
+Issues = "https://github.com/NVIDIA-Omniverse/PhysX/issues"
+Changelog = "https://nvidia-omniverse.github.io/PhysX/ovphysx/latest/changelog.html"
+
+[dependency-groups]
+dev = [
+  "build>=1.0.0", # for building a wheel
+  "pyright==1.1.411", # pinned; bump intentionally via MR
+  "warp-lang>=1.16,<1.17", # stub types for pyright's no-install-project environment
+]
+
+# uv.lock must resolve ovstage for every CI platform. Locks generated on x86_64
+# alone pin manylinux_2_35_x86_64 and break aarch64 pytest (uv cannot install the
+# locked wheel on manylinux_2_35_aarch64 hosts).
+[tool.uv]
+required-environments = [
+  "sys_platform == 'linux' and platform_machine == 'x86_64'",
+  "sys_platform == 'linux' and platform_machine == 'aarch64'",
+  "sys_platform == 'win32' and platform_machine == 'AMD64'",
+]
+
+[tool.setuptools.dynamic]
+version = {attr = "ovphysx.__version__"}
+
+[tool.setuptools]
+# Mark as platform-specific wheel (contains native binaries)
+# This prevents setuptools from creating a universal "py3-none-any" wheel
+# and instead creates platform-specific wheels like "py3-none-linux_x86_64"
+zip-safe = false
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["ovphysx*"]
+
+[tool.setuptools.package-data]
+# Bundle native libs and all dependencies for self-contained wheel
+# Structure matches _install/: lib/ (main library + config) + plugins/ (all carbonite/physx plugins)
+"ovphysx" = [
+  "lib/**/*",
+  "plugins/**/*",
+  "deps/**/*",  # Extension Python packages (v2/) and kernel/py packages (_kit_py/)
+  "schemas/**/*",  # Codeless PhysX USD schemas for external authoring/validation
+  "SKILLS.md",
+  "skills/**/*",
+  "samples/**/*",
+  "docs/**/*",
+  "py.typed",
+  "*.pyi",
+]
+# `packages.find` treats ovphysx.utils as its own package, so the "*.pyi" glob
+# above is not guaranteed to cross the package boundary. This entry pins the
+# subpackage's stubs into the wheel independently of setuptools' glob handling.
+"ovphysx.utils" = [
+  "*.pyi",
+]

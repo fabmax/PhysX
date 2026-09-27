@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef CM_SPATIAL_VECTOR_H
 #define CM_SPATIAL_VECTOR_H
@@ -50,8 +27,7 @@ public:
 	{}
 
 	//! Construct from two PxcVectors
-	PX_CUDA_CALLABLE PX_FORCE_INLINE SpatialVector(const PxVec3& lin, const PxVec3& ang)
-		: linear(lin), pad0(0.0f), angular(ang), pad1(0.0f)
+	PX_CUDA_CALLABLE PX_FORCE_INLINE SpatialVector(const PxVec3& lin, const PxVec3& ang) : linear(lin), angular(ang)
 	{
 	}
 
@@ -63,9 +39,7 @@ public:
 	PX_CUDA_CALLABLE PX_FORCE_INLINE	void	operator = (const SpatialVector& v)
 	{
 		linear = v.linear;
-		pad0 = 0.0f;
 		angular = v.angular;
-		pad1 = 0.0f;
 	}
 
 	static PX_CUDA_CALLABLE  PX_FORCE_INLINE SpatialVector zero() {	return SpatialVector(PxVec3(0),PxVec3(0)); }
@@ -86,7 +60,7 @@ public:
 	}
 
 	PX_CUDA_CALLABLE PX_FORCE_INLINE SpatialVector operator *(PxReal s) const
-	{	
+	{
 		return SpatialVector(linear*s,angular*s);	
 	}
 		
@@ -122,10 +96,8 @@ public:
 		return Cm::SpatialVector(linear*l, angular*a);
 	}
 
-	PxVec3 linear;
-	PxReal pad0;
-	PxVec3 angular;
-	PxReal pad1;
+	PxVec3Padded linear;
+	PxVec3Padded angular;
 }
 PX_ALIGN_SUFFIX(16);
 
@@ -138,14 +110,12 @@ public:
 	{}
 
 	PX_CUDA_CALLABLE PX_FORCE_INLINE SpatialVectorF(const PxReal* v)
-		: pad0(0.0f), pad1(0.0f)
 	{
 		top.x = v[0]; top.y = v[1]; top.z = v[2];
 		bottom.x = v[3]; bottom.y = v[4]; bottom.z = v[5];
 	}
 	//! Construct from two PxcVectors
-	PX_CUDA_CALLABLE PX_FORCE_INLINE SpatialVectorF(const PxVec3& top_, const PxVec3& bottom_)
-		: top(top_), pad0(0.0f), bottom(bottom_), pad1(0.0f)
+	PX_CUDA_CALLABLE PX_FORCE_INLINE SpatialVectorF(const PxVec3& top_, const PxVec3& bottom_) : top(top_), bottom(bottom_)
 	{
 	}
 
@@ -157,9 +127,7 @@ public:
 	PX_CUDA_CALLABLE PX_FORCE_INLINE	void	operator = (const SpatialVectorF& v)
 	{
 		top = v.top;
-		pad0 = 0.0f;
 		bottom = v.bottom;
-		pad1 = 0.0f;
 	}
 
 	static PX_CUDA_CALLABLE PX_FORCE_INLINE SpatialVectorF Zero() { return SpatialVectorF(PxVec3(0), PxVec3(0)); }
@@ -239,10 +207,8 @@ public:
 
 	PX_CUDA_CALLABLE PX_FORCE_INLINE SpatialVectorF cross(const SpatialVectorF& v) const
 	{
-		SpatialVectorF a;
-		a.top = top.cross(v.top);
-		a.bottom = top.cross(v.bottom) + bottom.cross(v.top);
-		return a;
+		return SpatialVectorF(	top.cross(v.top),
+								top.cross(v.bottom) + bottom.cross(v.top));
 	}
 
 	PX_CUDA_CALLABLE PX_FORCE_INLINE SpatialVectorF abs() const
@@ -300,10 +266,8 @@ public:
 		return bottom[index-3];
 	}
 
-	PxVec3 top;
-	PxReal pad0;
-	PxVec3 bottom;
-	PxReal pad1;
+	PxVec3Padded top;
+	PxVec3Padded bottom;
 } PX_ALIGN_SUFFIX(16);
 
 struct UnAlignedSpatialVector
@@ -417,10 +381,8 @@ public:
 
 	PX_CUDA_CALLABLE PX_FORCE_INLINE UnAlignedSpatialVector cross(const UnAlignedSpatialVector& v) const
 	{
-		UnAlignedSpatialVector a;
-		a.top = top.cross(v.top);
-		a.bottom = top.cross(v.bottom) + bottom.cross(v.top);
-		return a;
+		return UnAlignedSpatialVector(	top.cross(v.top),
+										top.cross(v.bottom) + bottom.cross(v.top));
 	}
 
 	PX_CUDA_CALLABLE PX_FORCE_INLINE UnAlignedSpatialVector abs() const
@@ -486,7 +448,7 @@ struct SpatialVectorV
 
 	PX_FORCE_INLINE SpatialVectorV() {}
 	PX_FORCE_INLINE SpatialVectorV(PxZERO): linear(aos::V3Zero()), angular(aos::V3Zero()) {}
-	PX_FORCE_INLINE SpatialVectorV(const Cm::SpatialVector& v): linear(aos::V3LoadA(&v.linear.x)), angular(aos::V3LoadA(&v.angular.x)) {}
+	PX_FORCE_INLINE explicit SpatialVectorV(const Cm::SpatialVector& v): linear(aos::V3LoadA(&v.linear.x)), angular(aos::V3LoadA(&v.angular.x)) {}
 	PX_FORCE_INLINE SpatialVectorV(const aos::Vec3VArg l, const aos::Vec3VArg a): linear(l), angular(a) {}
 	PX_FORCE_INLINE SpatialVectorV(const SpatialVectorV& other): linear(other.linear), angular(other.angular) {}
 

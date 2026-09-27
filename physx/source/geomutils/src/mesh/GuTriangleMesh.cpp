@@ -1,36 +1,12 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "GuMidphaseInterface.h"
 #include "GuMeshFactory.h"
 #include "GuConvexEdgeFlags.h"
 #include "GuEdgeList.h"
-#include "geometry/PxGeometryInternal.h"
 
 using namespace physx;
 using namespace Gu;
@@ -94,35 +70,6 @@ TriangleMesh::TriangleMesh(MeshFactory* factory, TriangleMeshData& d) :
 	// PT: 'getPaddedBounds()' is only safe if we make sure the bounds member is followed by at least 32bits of data
 	PX_COMPILE_TIME_ASSERT(PX_OFFSET_OF(TriangleMesh, mExtraTrigData)>=PX_OFFSET_OF(TriangleMesh, mAABB)+4);	
 }
-
-// PT: temporary for Kit
-TriangleMesh::TriangleMesh(const PxTriangleMeshInternalData& data) :
-	PxTriangleMesh			(PxConcreteType::eTRIANGLE_MESH_BVH34, PxBaseFlags(0)),
-	mNbVertices				(data.mNbVertices),
-	mNbTriangles			(data.mNbTriangles),
-	mVertices				(data.mVertices),
-	mTriangles				(data.mTriangles),
-	mExtraTrigData			(NULL),
-	mGeomEpsilon			(data.mGeomEpsilon),
-	mFlags					(data.mFlags),
-	mMaterialIndices		(NULL),
-	mFaceRemap				(data.mFaceRemap),
-	mAdjacencies			(NULL),
-	mMeshFactory			(NULL),
-	mEdgeList				(NULL),
-	mGRB_triIndices			(NULL),
-	mGRB_triAdjacencies		(NULL),
-	mGRB_faceRemap			(NULL),
-	mGRB_faceRemapInverse	(NULL),
-	mGRB_BV32Tree			(NULL),
-	mAccumulatedTrianglesRef(NULL),
-	mTrianglesReferences	(NULL),
-	mNbTrianglesReferences	(0)
-{
-	mAABB.mCenter = data.mAABB_Center;
-	mAABB.mExtents = data.mAABB_Extents;
-}
-//~ PT: temporary for Kit
 
 TriangleMesh::~TriangleMesh() 
 { 	

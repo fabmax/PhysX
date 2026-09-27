@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved. 
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "foundation/PxSimpleTypes.h"
 #include "PxgBodySim.h"
@@ -35,7 +12,8 @@
 #include "DySleepingConfigulation.h"
 #include "stdio.h"
 
-using namespace physx;
+namespace physx
+{
 
 static __device__ void updateWakeCounter(bool& freeze, float4& solverBodyLinVel, float4& solverBodyAngVel, const PxAlignedTransform& body2World, 
 	PxgBodySim& bodySim, PxgSolverBodySleepData& sleepData,
@@ -52,7 +30,7 @@ static __device__ void updateWakeCounter(bool& freeze, float4& solverBodyLinVel,
 
 	PxReal wc = freezeThresholdX_wakeCounterY_sleepThresholdZ_bodySimIndex.y; //wakeCounter;
 
-	PxU32 flags = bodySim.internalFlags & (PxsRigidBody::eDISABLE_GRAVITY_GPU | PxsRigidBody::eFROZEN | PxsRigidBody::eENABLE_GYROSCOPIC | PxsRigidBody::eRETAIN_ACCELERATION);
+	PxU32 flags = bodySim.internalFlags & (PxsRigidBody::eFROZEN | PxsRigidBody::eGPU_FLAGS | PxsRigidBody::eFREE_FLAGS);
 	PxReal freezeCount = sleepLinVelAccXYZ_freezeCountW.w;
 	PxReal accelScale = sleepAngVelAccXYZ_accelScaleW.w;
 
@@ -125,18 +103,14 @@ static __device__ void updateWakeCounter(bool& freeze, float4& solverBodyLinVel,
 				bool wasNotFrozen = (flags & PxsRigidBody::eFROZEN) == 0;
 				flags |= PxsRigidBody::eFROZEN;
 				if (wasNotFrozen)
-				{
 					flags |= PxsRigidBody::eFREEZE_THIS_FRAME;
-				}
 			}
 			else
 			{
 				bool wasFrozen = (flags & PxsRigidBody::eFROZEN) != 0;
-				flags &= (PxsRigidBody::eDISABLE_GRAVITY_GPU | PxsRigidBody::eENABLE_GYROSCOPIC | PxsRigidBody::eRETAIN_ACCELERATION);
+				flags &= PxsRigidBody::eGPU_FLAGS | PxsRigidBody::eFREE_FLAGS;
 				if (wasFrozen)
-				{
 					flags |= PxsRigidBody::eUNFREEZE_THIS_FRAME;
-				}
 			}
 
 			/*KS: New algorithm for sleeping when using stabilization:
@@ -267,7 +241,7 @@ static __device__ void updateWakeCounter(bool& freeze, float4& solverBodyLinVel,
 	bodySim.sleepLinVelAccXYZ_freezeCountW = make_float4(sleepLinVelAcc.x, sleepLinVelAcc.y, sleepLinVelAcc.z, freezeCount);
 	bodySim.sleepAngVelAccXYZ_accelScaleW = make_float4(sleepAngVelAcc.x, sleepAngVelAcc.y, sleepAngVelAcc.z, accelScale);
 
-	if (!(flags & PxsRigidBody::eRETAIN_ACCELERATION))
+	if (!(flags & PxsRigidBody::eRETAIN_ACCELERATION_GPU))
 	{
 		bodySim.externalLinearAcceleration = make_float4(0.f, 0.f, 0.f, 0.f);
 		bodySim.externalAngularAcceleration = make_float4(0.f, 0.f, 0.f, 0.f);
@@ -433,3 +407,5 @@ static __device__ void integrateCoreTGS(const float4 motionLinVelXYZW, const flo
 		body2World.q.q.x = q.x; body2World.q.q.y = q.y; body2World.q.q.z = q.z; body2World.q.q.w = q.w;
 	}
 }
+
+} // namespace physx

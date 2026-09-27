@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef OMNI_PVD_RUNTIME_READER_IMPL_H
 #define OMNI_PVD_RUNTIME_READER_IMPL_H
@@ -38,50 +15,53 @@ public:
 	OmniPvdReaderImpl();
 	~OmniPvdReaderImpl();
 
-	void OMNI_PVD_CALL setLogFunction(OmniPvdLogFunction logFunction);
-	void OMNI_PVD_CALL setReadStream(OmniPvdReadStream& stream);
-	bool OMNI_PVD_CALL startReading(OmniPvdVersionType& majorVersion, OmniPvdVersionType& minorVersion, OmniPvdVersionType& patch);
-	OmniPvdCommand::Enum OMNI_PVD_CALL getNextCommand();
+	void OMNI_PVD_CALL setLogFunction(OmniPvdLogFunction logFunction) override;
+	void OMNI_PVD_CALL setReadStream(OmniPvdReadStream& stream) override;
+	bool OMNI_PVD_CALL startReading(OmniPvdVersionType& majorVersion, OmniPvdVersionType& minorVersion, OmniPvdVersionType& patch) override;
+	OmniPvdCommand::Enum OMNI_PVD_CALL getNextCommand() override;
 
-	OmniPvdVersionType OMNI_PVD_CALL getMajorVersion();
-	OmniPvdVersionType OMNI_PVD_CALL getMinorVersion();
-	OmniPvdVersionType OMNI_PVD_CALL getPatch();
+	OmniPvdVersionType OMNI_PVD_CALL getMajorVersion() override;
+	OmniPvdVersionType OMNI_PVD_CALL getMinorVersion() override;
+	OmniPvdVersionType OMNI_PVD_CALL getPatch() override;
 
-	OmniPvdContextHandle OMNI_PVD_CALL getContextHandle();
-	OmniPvdObjectHandle OMNI_PVD_CALL getObjectHandle();
+	OmniPvdContextHandle OMNI_PVD_CALL getContextHandle() override;
+	OmniPvdObjectHandle OMNI_PVD_CALL getObjectHandle() override;
 
-	OmniPvdClassHandle OMNI_PVD_CALL getClassHandle();
-	OmniPvdClassHandle OMNI_PVD_CALL getBaseClassHandle();
-	OmniPvdAttributeHandle OMNI_PVD_CALL getAttributeHandle();
+	OmniPvdClassHandle OMNI_PVD_CALL getClassHandle() override;
+	OmniPvdClassHandle OMNI_PVD_CALL getBaseClassHandle() override;
+	OmniPvdAttributeHandle OMNI_PVD_CALL getAttributeHandle() override;
 
-	const char* OMNI_PVD_CALL getClassName();
-	const char* OMNI_PVD_CALL getAttributeName();
-	const char* OMNI_PVD_CALL getObjectName();
+	const char* OMNI_PVD_CALL getClassName() override;
+	const char* OMNI_PVD_CALL getAttributeName() override;
+	const char* OMNI_PVD_CALL getObjectName() override;
 
-	const uint8_t* OMNI_PVD_CALL getAttributeDataPointer();
-	OmniPvdDataType::Enum OMNI_PVD_CALL getAttributeDataType();
-	uint32_t OMNI_PVD_CALL getAttributeDataLength();
-	uint32_t OMNI_PVD_CALL getAttributeNumberElements();
-	OmniPvdClassHandle OMNI_PVD_CALL getAttributeClassHandle();
+	const uint8_t* OMNI_PVD_CALL getAttributeDataPointer() override;
+	OmniPvdDataType::Enum OMNI_PVD_CALL getAttributeDataType() override;
+	uint32_t OMNI_PVD_CALL getAttributeDataLength() override;
+	uint32_t OMNI_PVD_CALL getAttributeNumberElements() override;
+	OmniPvdClassHandle OMNI_PVD_CALL getAttributeClassHandle() override;
 	
 	uint8_t OMNI_PVD_CALL getAttributeNumberHandles();
 	OmniPvdAttributeHandle* OMNI_PVD_CALL getAttributeHandles();
 
-	uint64_t OMNI_PVD_CALL getFrameTimeStart();
-	uint64_t OMNI_PVD_CALL getFrameTimeStop();
+	uint64_t OMNI_PVD_CALL getFrameTimeStart() override;
+	uint64_t OMNI_PVD_CALL getFrameTimeStop() override;
 
 	bool OMNI_PVD_CALL getMessageData(const char*& message, const char*& file, uint32_t& line, uint32_t& type, OmniPvdClassHandle& handle) override;
 
-	OmniPvdClassHandle OMNI_PVD_CALL getEnumClassHandle();
-	uint32_t OMNI_PVD_CALL getEnumValue();
+	OmniPvdClassHandle OMNI_PVD_CALL getEnumClassHandle() override;
+	uint32_t OMNI_PVD_CALL getEnumValue() override;
 
-	// Internal helper
-	void readLongDataFromStream(uint32_t streamByteLen);
+	// Internal helper. Returns false if the length is implausibly large (a corrupt/truncated
+	// stream, e.g. a live socket FIN mid-command) or the payload read came up short, in which
+	// case the caller must treat the command as invalid rather than trusting the buffer.
+	bool readLongDataFromStream(uint32_t streamByteLen);
 	bool readStringFromStream(char* string, uint16_t& stringLength);
 	void resetCommandParams();
 
 	OmniPvdLog mLog;
 
+	// Borrowed from the caller; the reader never closes or destroys it.
 	OmniPvdReadStream *mStream;
 
 	OmniPvdVersionType mMajorVersion;

@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "foundation/PxIO.h"
 #include "common/PxSerializer.h"
@@ -67,7 +44,7 @@ struct JointConnectionHandler : public PvdClient
 	PvdDataStream*		getDataStream()
 	{
 		return NULL;
-	}	
+	}
 
 	void onPvdConnected()
 	{
@@ -77,7 +54,7 @@ struct JointConnectionHandler : public PvdClient
 			mConnected = true;
 			Ext::Pvd::sendClassDescriptions(*stream);	
 			stream->release();
-		}		
+		}
 	}
 
 	bool isConnected() const
@@ -117,12 +94,22 @@ bool PxInitExtensions(PxPhysics& physics, PxPvd* pvd)
 #endif
 
 #if PX_SUPPORT_OMNI_PVD
-	if (physics.getOmniPvd() && physics.getOmniPvd()->getWriter())
+	// If OmniPVD is bound (it is created up front and passed to PxCreatePhysics), create the
+	// extensions callback, capture the PxPhysics, and register it with the PxOmniPvd. Its
+	// onStartSampling() then fires whenever PxOmniPvd::startSampling() takes a full-state
+	// snapshot, re-emitting the live extension joints onto the bound stream -- including the
+	// late-attach case, where startSampling() runs long after PxInitExtensions.
+	PxOmniPvd* omniPvd = physics.getOmniPvd();
+	if (omniPvd && omniPvd->getWriter())
 	{
-		if (OmniPvdPxExtensionsSampler::createInstance())
+		if (OmniPvdPxExtensionsSampler::createInstance(physics))
 		{
-			OmniPvdPxExtensionsSampler::getInstance()->setOmniPvdInstance(physics.getOmniPvd());
-			OmniPvdPxExtensionsSampler::getInstance()->registerClasses();
+			OmniPvdPxExtensionsSampler* sampler = OmniPvdPxExtensionsSampler::getInstance();
+			sampler->setOmniPvdInstance(omniPvd);
+			// The joint schema is registered lazily in onStartSampling() (via registerClasses()),
+			// matching the core sampler, which registers nothing until startSampling(). Registering
+			// here would run before the core handle re-numbering and emit before recording is on.
+			omniPvd->addEventCallback(*sampler);
 		}
 	}
 #endif
@@ -181,7 +168,7 @@ void PxCloseExtensions()
 
 #if PX_SUPPORT_PVD
 	if(gPvdHandler.mConnected)
-	{	
+	{
 		PX_ASSERT(gPvdHandler.mPvd);
 		gPvdHandler.mPvd->removeClient(&gPvdHandler);
 		gPvdHandler.mPvd = NULL;
@@ -189,8 +176,13 @@ void PxCloseExtensions()
 #endif
 
 #if PX_SUPPORT_OMNI_PVD
-	if (OmniPvdPxExtensionsSampler::getInstance())
+	// Unregister the extensions callback from the PxOmniPvd before destroying it, so a later
+	// startSampling() snapshot cannot call into freed extension state.
+	OmniPvdPxExtensionsSampler* sampler = OmniPvdPxExtensionsSampler::getInstance();
+	if (sampler)
 	{
+		if (PxOmniPvd* omniPvd = sampler->getOmniPvdInstance())
+			omniPvd->removeEventCallback(*sampler);
 		OmniPvdPxExtensionsSampler::destroyInstance();
 	}
 #endif

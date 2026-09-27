@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef SN_SERIALIZATION_CONTEXT_H
 #define SN_SERIALIZATION_CONTEXT_H
@@ -51,7 +28,7 @@ namespace physx
 				PxMarkSerializedMemory(this, sizeof(ManifestEntry));
 				offset = _offset;
 				type = _type;
-			}			
+			}
 			PX_FORCE_INLINE	ManifestEntry() { PxMarkSerializedMemory(this, sizeof(ManifestEntry)); }
 			PX_FORCE_INLINE void operator =(const ManifestEntry& m)
 			{
@@ -186,7 +163,7 @@ namespace physx
 				mExtraDataAddress = extraData;
 			}
 
-			virtual	PxBase*	resolveReference(PxU32 kind, size_t reference) const;
+			virtual	PxBase*	resolveReference(PxU32 kind, size_t reference) const PX_OVERRIDE;
 
 		private:
 			//various pointers to deserialized data
@@ -218,10 +195,10 @@ namespace physx
 				}
 			}
 
-			virtual		void		writeData(const void* buffer, PxU32 size)		{	mMemStream.write(buffer, size);	}
-			virtual		PxU32		getTotalStoredSize()							{	return mMemStream.getSize(); }
-			virtual		void		alignData(PxU32 alignment = PX_SERIAL_ALIGN)		
-			{	
+			virtual		void		writeData(const void* buffer, PxU64 size) PX_OVERRIDE {	mMemStream.write(buffer, size);	}
+			virtual		PxU64		getTotalStoredSize() {	return mMemStream.getSize(); }
+			virtual		void		alignData(PxU32 alignment = PX_SERIAL_ALIGN) PX_OVERRIDE
+			{
 				if(!alignment)
 					return;
 
@@ -237,24 +214,22 @@ namespace physx
 				PX_ASSERT(!getPadding(getTotalStoredSize(), alignment));
 			}
 
-			virtual void writeName(const char*)
+			virtual void writeName(const char*) PX_OVERRIDE
 			{
 				PxGetFoundation().error(physx::PxErrorCode::eINVALID_OPERATION, PX_FL, 
 					"Cannot export names during exportData.");
 			}
 
-			const PxCollection& getCollection() const	{	return mCollection;		}
+			virtual	const PxCollection& getCollection() const	PX_OVERRIDE	{ return mCollection;	}
 
-			virtual void registerReference(PxBase& serializable, PxU32 kind, size_t reference);
+			virtual void registerReference(PxBase& serializable, PxU32 kind, size_t reference) PX_OVERRIDE;
 
 			const PxArray<ImportReference>& getImportReferences() { return mImportReferences; }
 			InternalPtrRefMap& getInternalPtrReferencesMap() { return mInternalPtrReferencesMap; }
 			InternalHandle16RefMap& getInternalHandle16ReferencesMap() { return mInternalHandle16ReferencesMap; }
 
-			PxU32		getSize()	const	{	return mMemStream.getSize(); }
+			PxU64		getSize()	const	{	return mMemStream.getSize(); }
 			PxU8*		getData()	const	{	return mMemStream.getData(); }
-
-
 
 		private:
 			//import reference map for unique registration of import references and corresponding buffer.

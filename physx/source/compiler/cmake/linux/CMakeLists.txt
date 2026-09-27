@@ -1,28 +1,5 @@
-## Redistribution and use in source and binary forms, with or without
-## modification, are permitted provided that the following conditions
-## are met:
-##  * Redistributions of source code must retain the above copyright
-##    notice, this list of conditions and the following disclaimer.
-##  * Redistributions in binary form must reproduce the above copyright
-##    notice, this list of conditions and the following disclaimer in the
-##    documentation and/or other materials provided with the distribution.
-##  * Neither the name of NVIDIA CORPORATION nor the names of its
-##    contributors may be used to endorse or promote products derived
-##    from this software without specific prior written permission.
-##
-## THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-## EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-## IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-## PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-## CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-## EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-## PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-## PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-## OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-## (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-## OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-##
-## Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+## SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+## SPDX-License-Identifier: Apache-2.0
 
 STRING(TOLOWER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_LOWERCASE)
 
@@ -50,7 +27,6 @@ SET(CLANG_WARNINGS "-ferror-limit=0 -Wall -Wextra -Werror -Weverything\
     -Wno-global-constructors \
     -Wno-implicit-fallthrough \
     -Wno-inconsistent-missing-destructor-override \
-    -Wno-inconsistent-missing-override \
     -Wno-missing-noreturn \
     -Wno-missing-prototypes \
     -Wno-missing-variable-declarations \
@@ -159,10 +135,10 @@ ENDIF()
 
 # Controls PX_NVTX for all projects
 SET(NVTX_FLAG "PX_NVTX=0")
-IF(${CMAKE_CROSSCOMPILING} AND CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
-	SET(PX_SUPPORT_OMNI_PVD_FLAG "PX_SUPPORT_OMNI_PVD=0")
-ELSE()
+IF(PX_BUILDPVDRUNTIME)
 	SET(PX_SUPPORT_OMNI_PVD_FLAG "PX_SUPPORT_OMNI_PVD=1")
+ELSE()
+	SET(PX_SUPPORT_OMNI_PVD_FLAG "PX_SUPPORT_OMNI_PVD=0")
 ENDIF()
 
 # Set DISABLE_CUDA_PHYSX when GPU projects are not enabled
@@ -233,7 +209,7 @@ ELSE()
 	SET_PROPERTY(TARGET PhysXCommon PROPERTY FOLDER "PhysX SDK")
 	SET_PROPERTY(TARGET PhysXCooking PROPERTY FOLDER "PhysX SDK")
 	SET_PROPERTY(TARGET PhysXExtensions PROPERTY FOLDER "PhysX SDK")
-	SET_PROPERTY(TARGET PhysXVehicle2 PROPERTY FOLDER "PhysX SDK")
+	SET_PROPERTY(TARGET PhysXVehicle PROPERTY FOLDER "PhysX SDK")
 	SET_PROPERTY(TARGET LowLevel PROPERTY FOLDER "PhysX SDK")
 	SET_PROPERTY(TARGET LowLevelAABB PROPERTY FOLDER "PhysX SDK")
 	SET_PROPERTY(TARGET LowLevelDynamics PROPERTY FOLDER "PhysX SDK")
@@ -244,13 +220,16 @@ ELSE()
 	SET_PROPERTY(TARGET PhysXFoundation PROPERTY FOLDER "PhysX SDK")
 
 
-	SET(PHYSXDISTRO_LIBS PhysXFoundation PhysX PhysXCharacterKinematic PhysXPvdSDK PhysXCommon PhysXCooking PhysXExtensions PhysXVehicle2)
+	SET(PHYSXDISTRO_LIBS PhysXFoundation PhysX PhysXCharacterKinematic PhysXPvdSDK PhysXCommon PhysXCooking PhysXExtensions PhysXVehicle)
 
-
-	INSTALL(
-		TARGETS ${PHYSXDISTRO_LIBS}
-		EXPORT PhysXSDK
-		DESTINATION $<$<CONFIG:debug>:${PX_ROOT_LIB_DIR}/debug>$<$<CONFIG:release>:${PX_ROOT_LIB_DIR}/release>$<$<CONFIG:checked>:${PX_ROOT_LIB_DIR}/checked>$<$<CONFIG:profile>:${PX_ROOT_LIB_DIR}/profile>
-		)
+	# Only install the legacy PhysXSDK export set in standalone mode (PX_ENABLE_INSTALL not defined).
+	# The FetchContent entry point (physx/CMakeLists.txt) uses its own PhysXTargets export set.
+	IF(NOT DEFINED PX_ENABLE_INSTALL)
+		INSTALL(
+			TARGETS ${PHYSXDISTRO_LIBS}
+			EXPORT PhysXSDK
+			DESTINATION $<$<CONFIG:debug>:${PX_ROOT_LIB_DIR}/debug>$<$<CONFIG:release>:${PX_ROOT_LIB_DIR}/release>$<$<CONFIG:checked>:${PX_ROOT_LIB_DIR}/checked>$<$<CONFIG:profile>:${PX_ROOT_LIB_DIR}/profile>
+			)
+	ENDIF()
 
 ENDIF()

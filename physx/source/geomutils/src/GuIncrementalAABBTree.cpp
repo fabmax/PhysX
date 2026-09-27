@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "foundation/PxMemory.h"
 #include "foundation/PxVecMath.h"
@@ -114,7 +91,7 @@ PX_FORCE_INLINE static void updateHierarchyAfterInsert(IncrementalAABBTreeNode* 
 }
 
 // add an index into the leaf indices list and update the node bounds
-PX_FORCE_INLINE static void addPrimitiveIntoNode(IncrementalAABBTreeNode* node, const PoolIndex index, const Vec4V& minV,  const Vec4V& maxV)
+PX_FORCE_INLINE static void addPrimitiveIntoNode(IncrementalAABBTreeNode* node, const PoolIndex index, const Vec4V& minV, const Vec4V& maxV)
 {
 	PX_ASSERT(node->isLeaf());
 	AABBTreeIndices& nodeIndices = *node->mIndices;
@@ -201,9 +178,9 @@ PX_FORCE_INLINE static bool boundsEqual(const Vec4V& testMin, const Vec4V& testM
 // update the node hierarchy bounds when remove happen, we can early exit if the bounds are equal and no bounds update
 // did happen
 PX_FORCE_INLINE static void updateHierarchyAfterRemove(IncrementalAABBTreeNode* node, const PxBounds3* bounds)
-{	
+{
 	if(node->isLeaf())
-	{		
+	{
 		const AABBTreeIndices& indices = *node->mIndices;
 		PX_ASSERT(indices.nbIndices > 0);
 
@@ -245,7 +222,7 @@ PX_FORCE_INLINE static void updateHierarchyAfterRemove(IncrementalAABBTreeNode* 
 }
 
 // split the leaf node along the most significant axis
-IncrementalAABBTreeNode* IncrementalAABBTree::splitLeafNode(IncrementalAABBTreeNode* node, const PoolIndex index, const Vec4V& minV,  const Vec4V& maxV, const PxBounds3* bounds)
+IncrementalAABBTreeNode* IncrementalAABBTree::splitLeafNode(IncrementalAABBTreeNode* node, const PoolIndex index, const Vec4V& minV, const Vec4V& maxV, const PxBounds3* bounds)
 {
 	PX_ASSERT(node->isLeaf());
 
@@ -531,8 +508,8 @@ void IncrementalAABBTree::rotateTree(IncrementalAABBTreeNode* node, NodeList& ch
 
 // insert new bounds into tree
 IncrementalAABBTreeNode* IncrementalAABBTree::insert(const PoolIndex index, const PxBounds3* bounds, NodeList& changedLeaf)
-{	
-	PX_SIMD_GUARD;
+{
+	PX_SIMD_GUARD
 
 	// get the bounds, reset the W value
 	const Vec4V minV = V4ClearW(V4LoadU(&bounds[index].minimum.x));
@@ -664,7 +641,7 @@ IncrementalAABBTreeNode* IncrementalAABBTree::insert(const PoolIndex index, cons
 // update the index, do a full remove/insert update
 IncrementalAABBTreeNode* IncrementalAABBTree::update(IncrementalAABBTreeNode* node, const PoolIndex index, const PxBounds3* bounds, NodeList& changedLeaf)
 {
-	PX_SIMD_GUARD;
+	PX_SIMD_GUARD
 
 	IncrementalAABBTreeNode* removedNode = remove(node, index, bounds);
 	if(removedNode && removedNode->isLeaf())
@@ -677,7 +654,7 @@ IncrementalAABBTreeNode* IncrementalAABBTree::update(IncrementalAABBTreeNode* no
 // update the index, faster version with a lazy update of objects that moved just a bit
 IncrementalAABBTreeNode* IncrementalAABBTree::updateFast(IncrementalAABBTreeNode* node, const PoolIndex index, const PxBounds3* bounds, NodeList& changedLeaf)
 {
-	PX_SIMD_GUARD;
+	PX_SIMD_GUARD
 
 	const Vec4V minV = V4ClearW(V4LoadU(&bounds[index].minimum.x));
 	const Vec4V maxV = V4ClearW(V4LoadU(&bounds[index].maximum.x));
@@ -702,7 +679,7 @@ IncrementalAABBTreeNode* IncrementalAABBTree::updateFast(IncrementalAABBTreeNode
 // remove primitive from the tree, return a node if it moved to its parent
 IncrementalAABBTreeNode* IncrementalAABBTree::remove(IncrementalAABBTreeNode* node, const PoolIndex index, const PxBounds3* bounds)
 {
-	PX_SIMD_GUARD;
+	PX_SIMD_GUARD
 	PX_ASSERT(node->isLeaf());
 	// if we just remove the primitive from the list
 	if(node->getNbPrimitives() > 1)
@@ -786,7 +763,7 @@ void IncrementalAABBTree::fixupTreeIndices(IncrementalAABBTreeNode* node, const 
 			indices.indices[i] = newIndex;
 			return;
 		}
-	}	
+	}
 	PX_ASSERT(0);
 }
 
@@ -871,7 +848,7 @@ void IncrementalAABBTree::hierarchyCheck(PoolIndex maxIndex, const PxBounds3* bo
 		checkNode(mRoot->mChilds[1], mRoot, bounds, maxIndex, numHandles, numNegNodes);
 
 		PX_ASSERT(numHandles == maxIndex);
-	}	
+	}
 }
 
 void IncrementalAABBTree::hierarchyCheck(const PxBounds3* bounds)
@@ -883,7 +860,7 @@ void IncrementalAABBTree::hierarchyCheck(const PxBounds3* bounds)
 	{
 		checkNode(mRoot->mChilds[0], mRoot, bounds, 0xFFFFFFFF, numHandles, numPosNodes);
 		checkNode(mRoot->mChilds[1], mRoot, bounds, 0xFFFFFFFF, numHandles, numNegNodes);
-	}	
+	}
 }
 
 void IncrementalAABBTree::checkTreeLeaf(IncrementalAABBTreeNode* leaf, PoolIndex h)
@@ -946,7 +923,7 @@ bool IncrementalAABBTree::build(const AABBTreeBuildParams& params, PxArray<Incre
 
 // clone the tree, the tree is computed in the NodeAllocator, similar to AABBTree flatten
 void IncrementalAABBTree::clone(PxArray<IncrementalAABBTreeNode*>& mapping, const PxU32* _indices, IncrementalAABBTreeNode** treeNodes)
-{		
+{
 	PxU32 offset = 0;
 	const PxU32 nbSlabs = mNodeAllocator.mSlabs.size();
 	for (PxU32 s = 0; s<nbSlabs; s++)

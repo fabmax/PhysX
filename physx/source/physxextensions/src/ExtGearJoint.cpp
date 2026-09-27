@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "ExtGearJoint.h"
 #include "ExtConstraintHelper.h"
@@ -302,17 +279,28 @@ void GearJoint::resolveReferences(PxDeserializationContext& context)
 
 #if PX_SUPPORT_OMNI_PVD
 
+template<> void physx::Ext::omniPvdInitJoint<GearJoint>(OmniPvdWriter* pvdWriter, const OmniPvdPxExtensionsRegistrationData* pvdRegData, GearJoint& joint); // declared before the wrapper so the wrapper binds the explicit form below instead of implicitly instantiating it
 template<>
 void physx::Ext::omniPvdInitJoint<GearJoint>(GearJoint& joint)
 {
 	OMNI_PVD_WRITE_SCOPE_BEGIN(pvdWriter, pvdRegData)
+	omniPvdInitJoint(pvdWriter, pvdRegData, joint);
+	OMNI_PVD_WRITE_SCOPE_END
+}
 
+template<>
+void physx::Ext::omniPvdInitJoint<GearJoint>(OmniPvdWriter* pvdWriter, const OmniPvdPxExtensionsRegistrationData* pvdRegData, GearJoint& joint)
+{
 	PxGearJoint& j = static_cast<PxGearJoint&>(joint);
 	OMNI_PVD_CREATE_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxGearJoint, j);
-	omniPvdSetBaseJointParams(static_cast<PxJoint&>(joint), PxJointConcreteType::eGEAR);
+	omniPvdSetBaseJointParams(pvdWriter, pvdRegData, static_cast<PxJoint&>(joint), PxJointConcreteType::eGEAR);
 	OMNI_PVD_SET_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxGearJoint, ratio, j , joint.getGearRatio())
 
-	OMNI_PVD_WRITE_SCOPE_END
+	// Re-emit the linked hinge references (set live by setHinges) so a late attach reconstructs them.
+	const PxBase* hinge0 = NULL; const PxBase* hinge1 = NULL;
+	joint.getHinges(hinge0, hinge1);
+	const PxBase* hinges[] = { hinge0, hinge1 };
+	OMNI_PVD_SET_ARRAY_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxGearJoint, hinges, j, hinges, PxU32(sizeof(hinges) / sizeof(hinges[0])))
 }
 
 #endif

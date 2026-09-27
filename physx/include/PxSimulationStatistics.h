@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef PX_SIMULATION_STATISTICS_H
 #define PX_SIMULATION_STATISTICS_H
@@ -322,12 +299,6 @@ public:
 	PxU64	gpuMemDeformableVolumes;
 
 	/**
-	\brief Deprecated
-	\see gpuMemDeformableVolumes
-	*/
-	PX_DEPRECATED PxU64	gpuMemSoftBodies;
-
-	/**
 	\brief GPU device memory in bytes allocated for internal heap allocation
 	*/
 	PxU64	gpuMemHeap;
@@ -378,12 +349,6 @@ public:
 	PxU64	gpuMemHeapSimulationDeformableVolume;
 
 	/**
-	\brief Deprecated
-	\see gpuMemHeapSimulationDeformableVolume
-	*/
-	PX_DEPRECATED PxU64	gpuMemHeapSimulationSoftBody;
-
-	/**
 	\brief GPU device heap memory used for shared buffers in the particles pipeline in bytes
 	*/
 	PxU64	gpuMemHeapParticles;
@@ -397,12 +362,6 @@ public:
 	\brief GPU device heap memory used for shared buffers in the deformable volume pipeline in bytes
 	*/
 	PxU64	gpuMemHeapDeformableVolumes;
-
-	/**
-	\brief Deprecated
-	\see gpuMemHeapDeformableVolumes
-	*/
-	PX_DEPRECATED PxU64	gpuMemHeapSoftBodies;
 
 	/**
 	\brief GPU device heap memory not covered by other stats in bytes
@@ -439,7 +398,6 @@ public:
 		gpuMemParticles							(0),
 		gpuMemDeformableSurfaces				(0),
 		gpuMemDeformableVolumes					(0),
-		gpuMemSoftBodies						(0), // deprecated
 		gpuMemHeap								(0),
 		gpuMemHeapBroadPhase					(0),
 		gpuMemHeapNarrowPhase					(0),
@@ -450,11 +408,9 @@ public:
 		gpuMemHeapSimulationParticles			(0),
 		gpuMemHeapSimulationDeformableSurface	(0),
 		gpuMemHeapSimulationDeformableVolume	(0),
-		gpuMemHeapSimulationSoftBody			(0), // deprecated
 		gpuMemHeapParticles						(0),
 		gpuMemHeapDeformableSurfaces			(0), 
 		gpuMemHeapDeformableVolumes				(0),
-		gpuMemHeapSoftBodies					(0), // deprecated
 		gpuMemHeapOther							(0)
 	{
 		nbBroadPhaseAdds = 0;

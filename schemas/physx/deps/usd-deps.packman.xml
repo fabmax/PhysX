@@ -1,0 +1,19 @@
+<project toolsVersion="5.6">
+  <!-- Stock py312 USD: the codeless schema needs only pxr Python and usdGenSchema.
+       The build/docs scripts read usd_ver from ovruntime's USD pin
+       (ovphysx/ovruntime/deps/usd-deps.packman.xml), keeping schema on the same
+       USD version as ovruntime and ovphysx. -->
+  <dependency name="usd-${config}" linkPath="../_build/target-deps/usd/${config}">
+    <package name="usd.py312.${platform_target_abi}.stock.${config}" version="0.25.11.kit.5-gl.21175" />
+  </dependency>
+  <dependency name="python" linkPath="../_build/target-deps/python">
+    <package name="python" version="3.12.13+nv3-${platform_target_abi}" />
+  </dependency>
+  <dependency name="doxygen" linkPath="../_build/host-deps/doxygen">
+    <package name="doxygen" version="1.8.5-windows-x86_64" platforms="windows-x86_64" />
+    <package name="doxygen" version="1.8.18-linux-x86_64-f7584a5b" platforms="linux-x86_64 manylinux_x86_64 manylinux_2_35_x86_64" />
+  </dependency>
+  <dependency name="graphviz" linkPath="../_build/host-deps/graphviz">
+    <package name="graphviz" version="2.44-win64" platforms="windows-x86_64" />
+  </dependency>
+</project>

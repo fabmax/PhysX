@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef PX_DIRECT_GPU_API_H
 #define PX_DIRECT_GPU_API_H
@@ -148,27 +125,6 @@ public:
 												//!< across all the articulations in the scene, and can be queried by calling PxDirectGPUAPI::getArticulationGPUAPIMaxCounts().
 												//!< The size of the jacobian can vary by articulation, and will be determined using these formulas:
 												//!< nCols = (fixedBase ? 0 : 6) + dofCount, nRows = (fixedBase ? 0 : 6) + (linkCount - 1) * 6. The matrix is indexed [nCols * row + column].
-		eGENERALIZED_MASS_MATRICES PX_DEPRECATED, //!< Deprecated, use PxArticulationGPUAPIComputeType::eMASS_MATRICES instead.
-												//!< Computes the joint-space inertia matrices that maps joint accelerations to joint forces: forces = M * accelerations on the GPU.
-												//!< This is the batched, direct-GPU equivalent of PxArticulationReducedCoordinate::computeGeneralizedMassMatrix().
-												//!< The output buffer is laid out into sequential blocks per articulation, where each block has the size maxDofs * maxDofs * sizeof(float).
-												//!< maxDofs is the maximum dof count across all the articulations in the scene, and can be queried by calling 
-												//!< PxDirectGPUAPI::getArticulationGPUAPIMaxCounts(). The size of the matrix can vary by articulation, and will be dofCount * dofCount.
-												//!< The dof indices will be according to the low-level indexing, we refer to the documentation of PxArticulationCache for an explanation.
-		eGENERALIZED_GRAVITY_FORCES PX_DEPRECATED,	//!< Deprecated, use PxArticulationGPUAPIComputeType::eGRAVITY_COMPENSATION instead.
-												//!< Computes the joint dof forces required to counteract gravitational forces for the given articulation pose. This is the
-												//!< batched, direct-GPU equivalent of PxArticulationReducedCoordinate::computeGeneralizedGravityForce(). The output data
-												//!< buffer is laid out into sequential blocks per articulation, where each block has the size maxDofs * sizeof(float). maxDofs
-												//!< is the maximum dof count across all the articulations in the scene, and can be queried by calling
-												//!< PxDirectGPUAPI::getArticulationGPUAPIMaxCounts(). The data layout within each block follows the PxArticulationCache layout,
-												//!< for which we refer to the user guide. There will be 1 PxReal per articulation dof.
-		eCORIOLIS_AND_CENTRIFUGAL_FORCES PX_DEPRECATED,	//!< Deprecated, use PxArticulationGPUAPIComputeType::eCORIOLIS_AND_CENTRIFUGAL_COMPENSATION instead.
-												//!< Computes the joint dof forces required to counteract Coriolis and centrifugal forces for the given articulation pose.
-												//!< This is the batched, direct-GPU equivalent to PxArticulationReducedCoordinate::computeCoriolisAndCentrifugalForce(). The output data
-												//!< buffer is laid out into sequential blocks per articulation, where each block has the size maxDofs * sizeof(float). maxDofs
-												//!< is the maximum dof count across all the articulations in the scene, and can be queried by calling
-												//!< PxDirectGPUAPI::getArticulationGPUAPIMaxCounts(). The data layout within each block follows the PxArticulationCache layout,
-												//!< for which we refer to the user guide. There will be 1 PxReal per articulation dof.
 		eMASS_MATRICES,							//!< Computes the mass matrices that maps accelerations to forces: forces = M * accelerations on the GPU.
 												//!< This is the batched, direct-GPU equivalent of PxArticulationReducedCoordinate::computeMassMatrix(). The output buffer is laid
 												//!< out into sequential blocks per articulation, where each block has the size (maxDofs + 6) * (maxDofs + 6) * sizeof(float).

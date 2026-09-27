@@ -1,28 +1,5 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "DyConstraintPartition.h"
 #include "foundation/PxHashMap.h"
@@ -91,7 +68,7 @@ public:
 	}
 };
 
-PX_FORCE_INLINE	void initSolverProgress(PxU32 nbBodies, PxU32 stride, PxU8* bodies)
+static PX_FORCE_INLINE void initSolverProgress(PxU32 nbBodies, PxU32 stride, PxU8* bodies)
 {
 	while(nbBodies--)
 	{
@@ -106,7 +83,7 @@ PX_FORCE_INLINE	void initSolverProgress(PxU32 nbBodies, PxU32 stride, PxU8* bodi
 	}
 }
 
-PX_FORCE_INLINE	void resetSolverProgress(PxU32 nbBodies, PxU32 stride, PxU8* bodies)
+static PX_FORCE_INLINE void resetSolverProgress(PxU32 nbBodies, PxU32 stride, PxU8* bodies)
 {
 	while(nbBodies--)
 	{
@@ -124,7 +101,7 @@ PX_FORCE_INLINE	void resetSolverProgress(PxU32 nbBodies, PxU32 stride, PxU8* bod
 // all the time, but it could have a small performance impact, so for now I'll keep both.
 
 // PT: regular version without articulations
-PX_FORCE_INLINE void reserveSpaceForStaticConstraints_(PxArray<PxU32>& numConstraintsPerPartition, PxU32 bodyCount, PxU32 bodyStride, PxU8* bodies)
+static PX_FORCE_INLINE void reserveSpaceForStaticConstraints_(PxArray<PxU32>& numConstraintsPerPartition, PxU32 bodyCount, PxU32 bodyStride, PxU8* bodies)
 {
 	while(bodyCount--)
 	{
@@ -143,22 +120,22 @@ PX_FORCE_INLINE void reserveSpaceForStaticConstraints_(PxArray<PxU32>& numConstr
 }
 
 // PT: "extended" version with articulations
-PX_FORCE_INLINE void reserveSpaceForStaticConstraints_(PxArray<PxU32>& numConstraintsPerPartition, PxU32 bodyCount, PxU32 bodyStride, PxU8* bodies,
-														PxU32 numArticulations, Dy::FeatherstoneArticulation** articulations)
+static PX_FORCE_INLINE void reserveSpaceForStaticConstraints_(PxArray<PxU32>& numConstraintsPerPartition, PxU32 bodyCount, PxU32 bodyStride, PxU8* bodies,
+															PxU32 numArticulations, Dy::FeatherstoneArticulation** articulations)
 {
 	reserveSpaceForStaticConstraints_(numConstraintsPerPartition, bodyCount, bodyStride, bodies);
 
 	while(numArticulations--)
 	{
 		FeatherstoneArticulation* articulation = *articulations++;
-		articulation->solverProgress = 0;
+		articulation->mSolverProgress = 0;
 
-		const PxU32 requiredSize = PxU32(articulation->maxSolverNormalProgress + articulation->maxSolverFrictionProgress);
+		const PxU32 requiredSize = PxU32(articulation->mMaxSolverNormalProgress + articulation->mMaxSolverFrictionProgress);
 		if(requiredSize > numConstraintsPerPartition.size())
 			numConstraintsPerPartition.resize(requiredSize);
 
-		for(PxU32 b=0; b<articulation->maxSolverFrictionProgress; b++)
-			numConstraintsPerPartition[articulation->maxSolverNormalProgress + b]++;
+		for(PxU32 b=0; b<articulation->mMaxSolverFrictionProgress; b++)
+			numConstraintsPerPartition[articulation->mMaxSolverNormalProgress + b]++;
 	}
 }
 
@@ -268,7 +245,7 @@ static PX_FORCE_INLINE PxU32 getArticulationStaticContactWriteIndex(const PxSolv
 	//This acts as an optimization
 	if(!forceStaticCollisionsToSolver && articulation->storeStaticConstraint(desc))
 		return 0xffffffff;
-	return PxU32(articulation->maxSolverNormalProgress + articulation->maxSolverFrictionProgress++);
+	return PxU32(articulation->mMaxSolverNormalProgress + articulation->mMaxSolverFrictionProgress++);
 }
 
 template<const bool a_or_b>
@@ -276,15 +253,15 @@ static PX_FORCE_INLINE void recordArticulationStaticConstraint(const PxSolverCon
 {
 	FeatherstoneArticulation* articulation = a_or_b ? getArticulationB(desc) : getArticulationA(desc);
 	if(!articulation->willStoreStaticConstraint() || forceStaticCollisionsToSolver)
-		articulation->maxSolverFrictionProgress++;
+		articulation->mMaxSolverFrictionProgress++;
 }
 
 template<const bool a_or_b>
 static PX_FORCE_INLINE void storeArticulationProgress(const PxSolverConstraintDesc& desc, PxU32 bodyProgress, PxU16 availablePartition)
 {
 	FeatherstoneArticulation* articulation = a_or_b ? getArticulationB(desc) : getArticulationA(desc);
-	articulation->solverProgress = bodyProgress;
-	articulation->maxSolverNormalProgress = PxMax(articulation->maxSolverNormalProgress, availablePartition);
+	articulation->mSolverProgress = bodyProgress;
+	articulation->mMaxSolverNormalProgress = PxMax(articulation->mMaxSolverNormalProgress, availablePartition);
 }
 
 // PT: "extended" version with articulations
@@ -315,12 +292,12 @@ public:
 		if (desc.linkIndexA == PxSolverConstraintDesc::RIGID_BODY)
 			desc.bodyA->solverProgress = bodyAProgress;
 		else
-			getArticulationA(desc)->solverProgress = bodyAProgress;
+			getArticulationA(desc)->mSolverProgress = bodyAProgress;
 
 		if (desc.linkIndexB == PxSolverConstraintDesc::RIGID_BODY)
 			desc.bodyB->solverProgress = bodyBProgress;
 		else
-			getArticulationB(desc)->solverProgress = bodyBProgress;
+			getArticulationB(desc)->mSolverProgress = bodyBProgress;
 	}
 
 	PX_FORCE_INLINE void clearState()
@@ -329,7 +306,7 @@ public:
 			reinterpret_cast<PxSolverBody*>(mBodies+a)->solverProgress = 0;
 
 		for(PxU32 a = 0; a < mNumArticulations; ++a)
-			mArticulations[a]->solverProgress = 0;
+			mArticulations[a]->mSolverProgress = 0;
 	}
 
 	PX_FORCE_INLINE void zeroBodies()
@@ -339,9 +316,9 @@ public:
 		for(PxU32 a=0; a<mNumArticulations; ++a)
 		{
 			Dy::FeatherstoneArticulation* articulation = mArticulations[a];
-			articulation->solverProgress = 0;
-			articulation->maxSolverFrictionProgress = 0;
-			articulation->maxSolverNormalProgress = 0;
+			articulation->mSolverProgress = 0;
+			articulation->mMaxSolverFrictionProgress = 0;
+			articulation->mMaxSolverNormalProgress = 0;
 		}
 	}
 
@@ -352,8 +329,8 @@ public:
 		for(PxU32 a=0; a<mNumArticulations; ++a)
 		{
 			Dy::FeatherstoneArticulation* articulation = mArticulations[a];
-			articulation->solverProgress = 0;
-			articulation->maxSolverFrictionProgress = 0;
+			articulation->mSolverProgress = 0;
+			articulation->mMaxSolverFrictionProgress = 0;
 		}
 	}
 
@@ -384,7 +361,7 @@ public:
 		{
 			FeatherstoneArticulation* articulationA = getArticulationA(desc);
 			indexA = mBodyCount + articulationA->mArticulationIndex;
-			bodyAProgress = articulationA->solverProgress;
+			bodyAProgress = articulationA->mSolverProgress;
 			activeA = true;
 		}
 
@@ -400,7 +377,7 @@ public:
 			FeatherstoneArticulation* articulationB = getArticulationB(desc);
 			indexB = mBodyCount + articulationB->mArticulationIndex;
 			activeB = true;
-			bodyBProgress = articulationB->solverProgress;
+			bodyBProgress = articulationB->mSolverProgress;
 		}
 		return !hasStatic;
 	}
@@ -499,7 +476,7 @@ static PxU32 classifyConstraintDesc(const PxSolverConstraintDesc* PX_RESTRICT de
 		const bool notContainsStatic = classification.classifyConstraint(*_desc, indexA, indexB, activeA, activeB, partitionsA, partitionsB);
 		
 		if(notContainsStatic)
-		{			
+		{
 			PxU32 availablePartition;
 			if(!computeAvailablePartition(availablePartition, partitionsA, partitionsB, activeA, activeB))
 			{
@@ -939,7 +916,7 @@ static PX_FORCE_INLINE void getProgressRequirementsExtended(const PxSolverConstr
 	if(desc.linkIndexA == PxSolverConstraintDesc::RIGID_BODY)
 		progressA = getRigidBodyProgress<BODYA>(desc, bodyCount, bodyStride, bodies);
 	else
-		progressA = getArticulationA(desc)->maxSolverFrictionProgress++;
+		progressA = getArticulationA(desc)->mMaxSolverFrictionProgress++;
 
 	if(desc.linkIndexB == PxSolverConstraintDesc::RIGID_BODY)
 	{
@@ -948,13 +925,13 @@ static PX_FORCE_INLINE void getProgressRequirementsExtended(const PxSolverConstr
 	else 
 	{
 		if(desc.articulationA != desc.articulationB)
-			progressB = getArticulationB(desc)->maxSolverFrictionProgress++;
+			progressB = getArticulationB(desc)->mMaxSolverFrictionProgress++;
 		else
 			progressB = progressA;
 	}
 }
 
-void processOverflowConstraints(PxU8* bodies, PxU32 bodyStride, PxU32 numBodies, Dy::ArticulationSolverDesc* articulationDescs, PxU32 numArticulations,
+void processOverflowConstraints(PxU8* bodies, PxU32 bodyStride, PxU32 numBodies, Dy::FeatherstoneArticulation** articulations, PxU32 numArticulations,
 	PxSolverConstraintDesc* constraints, PxU32 numConstraints)
 {
 	// PT: TODO: resetSolverProgress + the articulation reset below is the same as afterClassification()
@@ -976,15 +953,12 @@ void processOverflowConstraints(PxU8* bodies, PxU32 bodyStride, PxU32 numBodies,
 	}
 	else
 	{
-		PX_ALLOCA(_eaArticulations, Dy::FeatherstoneArticulation*, numArticulations);
-		Dy::FeatherstoneArticulation** eaArticulations = _eaArticulations;
 		for (PxU32 i = 0; i<numArticulations; i++)
 		{
-			FeatherstoneArticulation* articulation = articulationDescs[i].articulation;
-			eaArticulations[i] = articulation;
-			articulation->solverProgress = 0;
-			articulation->maxSolverFrictionProgress = 0;
-			//articulation->maxSolverNormalProgress = 0;
+			FeatherstoneArticulation* articulation = articulations[i];
+			articulation->mSolverProgress = 0;
+			articulation->mMaxSolverFrictionProgress = 0;
+			//articulation->mMaxSolverNormalProgress = 0;
 		}
 
 		for (PxU32 i = 0; i < numConstraints; ++i)

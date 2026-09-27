@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "NpScene.h"
 #include "NpRigidStatic.h"
@@ -39,7 +16,9 @@
 	#include "NpDeformableSurface.h"
 	#include "NpDeformableVolume.h"
 	#include "cudamanager/PxCudaContextManager.h"
-	#include "cudamanager/PxCudaContext.h"	
+	#include "cudamanager/PxCudaContext.h"
+	#include "geometry/PxTetrahedronMesh.h"
+	#include "geometry/PxTriangleMeshGeometry.h"
 #endif
 #include "ScArticulationSim.h"
 #include "ScArticulationTendonSim.h"
@@ -48,7 +27,10 @@
 #include "common/PxProfileZone.h"
 #include "BpBroadPhase.h"
 #include "BpAABBManagerBase.h"
-#include "omnipvd/NpOmniPvdSetData.h"
+#if PX_SUPPORT_OMNI_PVD
+	#include "omnipvd/NpOmniPvdSetData.h"
+	#include "omnipvd/OmniPvdPxSampler.h"
+#endif
 
 using namespace physx;
 
@@ -89,8 +71,8 @@ bool NpScene::checkResults(bool block)
 
 void NpScene::fetchResultsParticleSystem()
 {
-	if (mCorruptedState) // silent if scene state is corrupted.
-		return;
+	// silent if scene state is corrupted.
+	NP_CHECK_CORRUPTION_AND_RETURN
 
 	if (!mScene.isUsingGpuDynamics()) // particles are only supported with GPU dynamics.
 		return;
@@ -138,53 +120,11 @@ void NpScene::fetchResultsPreContactCallbacks()
 
 void NpScene::fetchResultsPostContactCallbacks()
 {
-	// PT: I put this here for now, as initially we even considered making this a PxExtensions helper. To make it more
-	// efficient / multithread it we could eventually move this deeper in the Sc-level pipeline.
-	if((mScene.getFlags() & PxSceneFlag::eENABLE_BODY_ACCELERATIONS) && !(mScene.getFlags() & PxSceneFlag::eENABLE_DIRECT_GPU_API))
-	{
-		// PT: we store the acceleration data in a separate/dedicated array, so that memory usage doesn't increase for
-		// people who don't use the flag (i.e. most users). The drawback is that there's more cache misses here during the
-		// gather phase (reading velocities) compared to a design where we would compute the accelerations at the same time
-		// these velocities are stored back into the core objects. Pros & cons here. Unrolling that loop and adding some
-		// prefetch calls could help, if needed.
-
-		const float oneOverDt = mElapsedTime != 0.0f ? 1.0f/mElapsedTime : 0.0f;
-
-		// PT: this version assumes we index mRigidDynamicsAccelerations as we do mRigidDynamics (with getRigidActorArrayIndex), i.e. we
-		// need to update that array when objects are removed (see removeFromRigidActorListT)
-
-		// PT: another (archived) version used getRigidActorSceneIndex(). The acceleration array could become larger than necessary,
-		// but the index was constant for the lifetime of the object. At this point we could just have used a hashmap.
-
-		PxU32 size = mRigidDynamics.size();
-		NpRigidDynamic** rigidDynamics = mRigidDynamics.begin();
-
-		if(mRigidDynamicsAccelerations.size()!=size)
-			mRigidDynamicsAccelerations.resize(size);
-
-		Acceleration* accels = mRigidDynamicsAccelerations.begin();
-		while(size--)
-		{
-			const NpRigidDynamic* current = *rigidDynamics++;
-			const Sc::BodyCore&	core = current->getCore();
-
-			const PxVec3 linVel = core.getLinearVelocity();
-			const PxVec3 angVel = core.getAngularVelocity();
-
-			const PxVec3 deltaLinVel = linVel - accels->mPrevLinVel;
-			const PxVec3 deltaAngVel = angVel - accels->mPrevAngVel;
-
-			accels->mLinAccel = deltaLinVel * oneOverDt;
-			accels->mAngAccel = deltaAngVel * oneOverDt;
-
-			accels->mPrevLinVel = linVel;
-			accels->mPrevAngVel = angVel;
-
-			accels++;
-		}
-	}
-
 	mScene.postCallbacksPreSync();
+
+	// Body accelerations are now computed as part of the simulation task graph
+	// (see computeBodyAccelerationsAsync). For GPU dynamics, non-kinematic
+	// GPU accelerations are lazy-copied from the GPU buffer on first getter access.
 
 	syncSQ();
 
@@ -227,54 +167,9 @@ void NpScene::fetchResultsPostContactCallbacks()
 	mCollisionDone.reset();
 }
 
-bool NpScene::fetchResults(bool block, PxU32* errorState)
-{
-	if (mCorruptedState)
-		return true;
-
-	if(getSimulationStage() != Sc::SimulationStage::eADVANCE)
-		return outputError<PxErrorCode::eINVALID_OPERATION>(__LINE__, "PxScene::fetchResults: fetchResults() called illegally! It must be called after advance() or simulate()");
-
-	if(!checkResultsInternal(block)) // this should wait on the mPhysicsDone event, which is set in the SceneCompletion task
-		return false;
-
-
-#if PX_SUPPORT_GPU_PHYSX
-	if (!checkSceneStateAndCudaErrors())
-		return true;
-#endif
-
-	PX_SIMD_GUARD;
-
-	{
-		// take write check *after* simulation has finished, otherwise 
-		// we will block simulation callbacks from using the API
-		// disallow re-entry to detect callbacks making write calls
-		NP_WRITE_CHECK_NOREENTRY(this);
-
-		// we use cross thread profile here, to show the event in cross thread view
-		// PT: TODO: why do we want to show it in the cross thread view?
-		PX_PROFILE_START_CROSSTHREAD("Basic.fetchResults", getContextId());
-		PX_PROFILE_ZONE("Sim.fetchResults", getContextId());
-
-		fetchResultsPreContactCallbacks();
-
-		{
-			// PT: TODO: why a cross-thread event here?
-			PX_PROFILE_START_CROSSTHREAD("Basic.processCallbacks", getContextId());
-			mScene.fireQueuedContactCallbacks();
-			PX_PROFILE_STOP_CROSSTHREAD("Basic.processCallbacks", getContextId());
-		}
-
-		fetchResultsPostContactCallbacks();
-	
-		PX_PROFILE_STOP_CROSSTHREAD("Basic.fetchResults", getContextId());
-		PX_PROFILE_STOP_CROSSTHREAD("Basic.simulate", getContextId());
-
-		if(errorState)
-			*errorState = 0;
-
 #if PX_SUPPORT_OMNI_PVD
+void NpScene::fetchResultsOmniPvd()
+{
 		OmniPvdPxSampler* omniPvdSampler = NpPhysics::getInstance().mOmniPvdSampler;
 		if (omniPvdSampler && omniPvdSampler->isSampling())
 		{
@@ -373,13 +268,12 @@ bool NpScene::fetchResults(bool block, PxU32* errorState)
 			PxArticulationReducedCoordinate*const* articulations = mArticulations.getEntries();
 			const PxU32 nbArticulations = mArticulations.size();
 			for( PxU32 i = 0 ; i < nbArticulations ;i++)
-			{				
+			{
 				PxArticulationReducedCoordinate* articulation = (articulations[i]);
 				OMNI_PVD_SET_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxArticulationReducedCoordinate, wakeCounter, *articulation, articulation->getWakeCounter());
 				const PxBounds3 worldBounds = articulation->getWorldBounds();
 				OMNI_PVD_SET_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxArticulationReducedCoordinate, worldBounds, *articulation, worldBounds);
-				bool isSleeping = articulation->isSleeping();
-				OMNI_PVD_SET_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxArticulationReducedCoordinate, isSleeping, *articulation, isSleeping);
+				OMNI_PVD_SET_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxArticulationReducedCoordinate, isSleeping, *articulation, articulation->isSleeping());
 			}
 			// send contacts info
 			omniPvdSampler->streamSceneContacts(*this);
@@ -429,38 +323,153 @@ bool NpScene::fetchResults(bool block, PxU32* errorState)
 							//TODO add diffuse particles
 						}
 					}
+				}
+
+			}
+
+			// Stream deformable volume mesh positions and velocities to mesh objects
+			if (mDeformableVolumes.size() > 0)
+			{
+				PxDeformableVolume* const* dvEntries = mDeformableVolumes.getEntries();
+				const PxU32 nbDeformableVolumes = mDeformableVolumes.size();
+				for (PxU32 i = 0; i < nbDeformableVolumes; i++)
+				{
+					PxDeformableVolume* dv = dvEntries[i];
+					if (!dv->getShape())
+						continue;
+
+					// Re-stream attributes (shape hierarchy) now that the shape is available.
+					streamDeformableVolumeAttributes(*dv);
+
+					// Stream collision mesh positions
+					PxTetrahedronMesh* collMesh = dv->getCollisionMesh();
+					if (collMesh)
 					{
-						const PxArray<PxsParticleBuffer*>& pxsBuffers = npPs->getCore().getShapeCore().getLLCore().mParticleClothBuffers;
-						const PxArray<NpParticleClothBuffer*>& npBuffers = npPs->mParticleClothBuffers;
-						for (PxU32 b = 0; b < pxsBuffers.size(); ++b)
+						const PxU32 nbVerts = collMesh->getNbVertices();
+						PxVec4* gpuPositions = dv->getPositionInvMassBufferD();
+						if (nbVerts > 0 && gpuPositions)
 						{
-							const PxsParticleBuffer& pxsBuffer = *pxsBuffers[b];
-							if (pxsBuffer.getPositionInvMassesH())
+							const PxU32 bufferSize = nbVerts * sizeof(PxVec4);
+							PxVec4* hostPositions = reinterpret_cast<PxVec4*>(PX_ALLOC(bufferSize, "OmniPvdDeformableVolumeCollPositions"));
+							if (hostPositions)
 							{
-								PxParticleBuffer* pxBuffer = npBuffers[b];
-								PxReal* values = reinterpret_cast<PxReal*>(pxsBuffer.getPositionInvMassesH());
-								PxU32 nbValues = pxsBuffer.getNbActiveParticles() * 4;
-								OMNI_PVD_SET_ARRAY_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxParticleBuffer, positionInvMasses, *pxBuffer, values, nbValues);
+								PxScopedCudaLock lock(*mCudaContextManager);
+								auto copyResult = mCudaContextManager->getCudaContext()->memcpyDtoH(hostPositions, reinterpret_cast<CUdeviceptr>(gpuPositions), bufferSize);
+								if (copyResult.value == 0)
+								{
+									OMNI_PVD_SET_ARRAY_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxTetrahedronMesh, positions, *collMesh, reinterpret_cast<PxReal*>(hostPositions), nbVerts * 4);
+								}
+								PX_FREE(hostPositions);
 							}
 						}
 					}
+
+					// Stream simulation mesh positions and velocities
+					PxTetrahedronMesh* simMesh = dv->getSimulationMesh();
+					if (simMesh)
 					{
-						const PxArray<PxsParticleBuffer*>& pxsBuffers = npPs->getCore().getShapeCore().getLLCore().mParticleRigidBuffers;
-						const PxArray<NpParticleRigidBuffer*>& npBuffers = npPs->mParticleRigidBuffers;
-						for (PxU32 b = 0; b < pxsBuffers.size(); ++b)
+						const PxU32 nbSimVerts = simMesh->getNbVertices();
+
+						// Simulation positions
+						PxVec4* gpuSimPositions = dv->getSimPositionInvMassBufferD();
+						if (nbSimVerts > 0 && gpuSimPositions)
 						{
-							const PxsParticleBuffer& pxsBuffer = *pxsBuffers[b];
-							if (pxsBuffer.getPositionInvMassesH())
+							const PxU32 bufferSize = nbSimVerts * sizeof(PxVec4);
+							PxVec4* hostPositions = reinterpret_cast<PxVec4*>(PX_ALLOC(bufferSize, "OmniPvdDeformableVolumeSimPositions"));
+							if (hostPositions)
 							{
-								PxParticleBuffer* pxBuffer = npBuffers[b];
-								PxReal* values = reinterpret_cast<PxReal*>(pxsBuffer.getPositionInvMassesH());
-								PxU32 nbValues = pxsBuffer.getNbActiveParticles() * 4;
-								OMNI_PVD_SET_ARRAY_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxParticleBuffer, positionInvMasses, *pxBuffer, values, nbValues);
+								PxScopedCudaLock lock(*mCudaContextManager);
+								auto copyResult = mCudaContextManager->getCudaContext()->memcpyDtoH(hostPositions, reinterpret_cast<CUdeviceptr>(gpuSimPositions), bufferSize);
+								if (copyResult.value == 0)
+								{
+									OMNI_PVD_SET_ARRAY_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxTetrahedronMesh, positions, *simMesh, reinterpret_cast<PxReal*>(hostPositions), nbSimVerts * 4);
+								}
+								PX_FREE(hostPositions);
+							}
+						}
+
+						// Simulation velocities
+						PxVec4* gpuSimVelocities = dv->getSimVelocityBufferD();
+						if (nbSimVerts > 0 && gpuSimVelocities)
+						{
+							const PxU32 bufferSize = nbSimVerts * sizeof(PxVec4);
+							PxVec4* hostVelocities = reinterpret_cast<PxVec4*>(PX_ALLOC(bufferSize, "OmniPvdDeformableVolumeSimVelocities"));
+							if (hostVelocities)
+							{
+								PxScopedCudaLock lock(*mCudaContextManager);
+								auto copyResult = mCudaContextManager->getCudaContext()->memcpyDtoH(hostVelocities, reinterpret_cast<CUdeviceptr>(gpuSimVelocities), bufferSize);
+								if (copyResult.value == 0)
+								{
+									OMNI_PVD_SET_ARRAY_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxTetrahedronMesh, velocities, *simMesh, reinterpret_cast<PxReal*>(hostVelocities), nbSimVerts * 4);
+								}
+								PX_FREE(hostVelocities);
 							}
 						}
 					}
 				}
+			}
 
+			// Stream deformable surface mesh positions and velocities to mesh objects
+			if (mDeformableSurfaces.size() > 0)
+			{
+				PxDeformableSurface* const* dsEntries = mDeformableSurfaces.getEntries();
+				const PxU32 nbDeformableSurfaces = mDeformableSurfaces.size();
+				for (PxU32 i = 0; i < nbDeformableSurfaces; i++)
+				{
+					PxDeformableSurface* ds = dsEntries[i];
+					if (!ds->getShape())
+						continue;
+
+					// Re-stream attributes (shape hierarchy) now that the shape is available.
+					streamDeformableSurfaceAttributes(*ds);
+
+					const PxGeometry& geom = ds->getShape()->getGeometry();
+					if (geom.getType() != PxGeometryType::eTRIANGLEMESH)
+						continue;
+					const PxTriangleMeshGeometry& triGeom = static_cast<const PxTriangleMeshGeometry&>(geom);
+					if (!triGeom.triangleMesh)
+						continue;
+					PxTriangleMesh* triMesh = const_cast<PxTriangleMesh*>(triGeom.triangleMesh);
+					const PxU32 nbVerts = triMesh->getNbVertices();
+					if (nbVerts == 0)
+						continue;
+
+					// Surface positions
+					PxVec4* gpuPositions = ds->getPositionInvMassBufferD();
+					if (gpuPositions)
+					{
+						const PxU32 bufferSize = nbVerts * sizeof(PxVec4);
+						PxVec4* hostPositions = reinterpret_cast<PxVec4*>(PX_ALLOC(bufferSize, "OmniPvdDeformableSurfacePositions"));
+						if (hostPositions)
+						{
+							PxScopedCudaLock lock(*mCudaContextManager);
+							auto copyResult = mCudaContextManager->getCudaContext()->memcpyDtoH(hostPositions, reinterpret_cast<CUdeviceptr>(gpuPositions), bufferSize);
+							if (copyResult.value == 0)
+							{
+								OMNI_PVD_SET_ARRAY_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxTriangleMesh, positions, *triMesh, reinterpret_cast<PxReal*>(hostPositions), nbVerts * 4);
+							}
+							PX_FREE(hostPositions);
+						}
+					}
+
+					// Surface velocities
+					PxVec4* gpuVelocities = ds->getVelocityBufferD();
+					if (gpuVelocities)
+					{
+						const PxU32 bufferSize = nbVerts * sizeof(PxVec4);
+						PxVec4* hostVelocities = reinterpret_cast<PxVec4*>(PX_ALLOC(bufferSize, "OmniPvdDeformableSurfaceVelocities"));
+						if (hostVelocities)
+						{
+							PxScopedCudaLock lock(*mCudaContextManager);
+							auto copyResult = mCudaContextManager->getCudaContext()->memcpyDtoH(hostVelocities, reinterpret_cast<CUdeviceptr>(gpuVelocities), bufferSize);
+							if (copyResult.value == 0)
+							{
+								OMNI_PVD_SET_ARRAY_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxTriangleMesh, velocities, *triMesh, reinterpret_cast<PxReal*>(hostVelocities), nbVerts * 4);
+							}
+							PX_FREE(hostVelocities);
+						}
+					}
+				}
 			}
 #endif
 
@@ -469,6 +478,57 @@ bool NpScene::fetchResults(bool block, PxU32* errorState)
 			ovdClient.incrementFrame(*pvdWriter, true);
 			OMNI_PVD_WRITE_SCOPE_END
 		}
+}
+#endif
+
+bool NpScene::fetchResults(bool block, PxU32* errorState)
+{
+	NP_CHECK_CORRUPTION_AND_RETURN_VAL(true)
+
+	if(getSimulationStage() != Sc::SimulationStage::eADVANCE)
+		return outputError<PxErrorCode::eINVALID_OPERATION>(__LINE__, "PxScene::fetchResults: fetchResults() called illegally! It must be called after advance() or simulate()");
+
+	if(!checkResultsInternal(block)) // this should wait on the mPhysicsDone event, which is set in the SceneCompletion task
+		return false;
+
+
+#if PX_SUPPORT_GPU_PHYSX
+	if (!checkSceneStateAndCudaErrors())
+		return true;
+#endif
+
+	PX_SIMD_GUARD
+
+	{
+		// take write check *after* simulation has finished, otherwise
+		// we will block simulation callbacks from using the API
+		// disallow re-entry to detect callbacks making write calls
+		NP_WRITE_CHECK_NOREENTRY(this);
+
+		// we use cross thread profile here, to show the event in cross thread view
+		// PT: TODO: why do we want to show it in the cross thread view?
+		PX_PROFILE_START_CROSSTHREAD("Basic.fetchResults", getContextId());
+		PX_PROFILE_ZONE("Sim.fetchResults", getContextId());
+
+		fetchResultsPreContactCallbacks();
+
+		{
+			// PT: TODO: why a cross-thread event here?
+			PX_PROFILE_START_CROSSTHREAD("Basic.processCallbacks", getContextId());
+			mScene.fireQueuedContactCallbacks();
+			PX_PROFILE_STOP_CROSSTHREAD("Basic.processCallbacks", getContextId());
+		}
+
+		fetchResultsPostContactCallbacks();
+
+		PX_PROFILE_STOP_CROSSTHREAD("Basic.fetchResults", getContextId());
+		PX_PROFILE_STOP_CROSSTHREAD("Basic.simulate", getContextId());
+
+		if(errorState)
+			*errorState = 0;
+
+#if PX_SUPPORT_OMNI_PVD
+		fetchResultsOmniPvd();
 #endif
 	}
 
@@ -480,8 +540,7 @@ bool NpScene::fetchResults(bool block, PxU32* errorState)
 
 bool NpScene::fetchResultsStart(const PxContactPairHeader*& contactPairs, PxU32& nbContactPairs, bool block)
 {
-	if (mCorruptedState)
-		return true;
+	NP_CHECK_CORRUPTION_AND_RETURN_VAL(true)
 
 	if (getSimulationStage() != Sc::SimulationStage::eADVANCE)
 		return outputError<PxErrorCode::eINVALID_OPERATION>(__LINE__, "PxScene::fetchResultsStart: fetchResultsStart() called illegally! It must be called after advance() or simulate()");
@@ -494,7 +553,7 @@ bool NpScene::fetchResultsStart(const PxContactPairHeader*& contactPairs, PxU32&
 		return true;
 #endif
 
-	PX_SIMD_GUARD;
+	PX_SIMD_GUARD
 	NP_WRITE_CHECK(this);
 
 	// we use cross thread profile here, to show the event in cross thread view
@@ -577,13 +636,14 @@ void NpScene::processCallbacks(PxBaseTask* continuation)
 
 void NpScene::fetchResultsFinish(PxU32* errorState)
 {
-	if (mCorruptedState)
+	NP_CHECK_CORRUPTION_AND_RETURN
+
+	// fetchResultsStart() sets this only after CUDA validation and pre-contact processing succeed.
+	if (!mBetweenFetchResults)
 		return;
 
-	// AD: we already checked the cuda error state in fetchResultsStart, there is no GPU work going on in-between.
-
 	{
-		PX_SIMD_GUARD;
+		PX_SIMD_GUARD
 		PX_PROFILE_STOP_CROSSTHREAD("Basic.processCallbacks", getContextId());
 		PX_PROFILE_ZONE("Basic.fetchResultsFinish", getContextId());
 
@@ -598,17 +658,7 @@ void NpScene::fetchResultsFinish(PxU32* errorState)
 		PX_PROFILE_STOP_CROSSTHREAD("Basic.fetchResults", getContextId());
 		PX_PROFILE_STOP_CROSSTHREAD("Basic.simulate", getContextId());
 #if PX_SUPPORT_OMNI_PVD
-		OmniPvdPxSampler* omniPvdSampler = NpPhysics::getInstance().mOmniPvdSampler;
-		if (omniPvdSampler && omniPvdSampler->isSampling())
-		{
-			OMNI_PVD_GET_WRITER(pvdWriter)
-			if (pvdWriter)
-			{
-				NpOmniPvdSceneClient& ovdClient = getSceneOvdClientInternal();
-				ovdClient.resetForces();
-				ovdClient.incrementFrame(*pvdWriter, true);
-			}
-		}
+		fetchResultsOmniPvd();
 #endif
 	}
 

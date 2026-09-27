@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef SN_XML_VISITOR_READER_H
 #define SN_XML_VISITOR_READER_H
@@ -167,7 +144,7 @@ namespace physx { namespace Sn {
 	
 	template<typename TReaderType, typename TGeomType>
 	inline PxGeometry* parseGeometry( TReaderType& reader, TGeomType& /*inGeom*/)
-	{	
+	{
 		PxAllocatorCallback& inAllocator = reader.mAllocator.getAllocator();
 		
 		TGeomType* shape = PX_PLACEMENT_NEW((inAllocator.allocate(sizeof(TGeomType), "parseGeometry", PX_FL)), TGeomType);
@@ -317,9 +294,9 @@ namespace physx { namespace Sn {
 					case PxGeometryType::eGEOMETRY_COUNT:
 					case PxGeometryType::eINVALID:
 						PX_ASSERT(0);			
-					}		
+					}
 					visitor.mAllocator.getAllocator().deallocate(geometry);
-				}				
+				}
 			}
 		}
 		visitor.popCurrentContext();
@@ -630,7 +607,7 @@ namespace physx { namespace Sn {
 					TPropertyType propVal;
 					readComplexObj( *this, &propVal, inInfo );
 					theData.pushBack(propVal);
-				}	
+				}
 			}
 			this->popCurrentContext();
 
@@ -654,7 +631,7 @@ namespace physx { namespace Sn {
 					readComplexObj( *this, &propVal, inInfo );
 					inProp.set(mObj, index, propVal);
 					++index;
-				}	
+				}
 			}
 			this->popCurrentContext();
 		}
@@ -679,8 +656,8 @@ namespace physx { namespace Sn {
 						TPropertyType propYVal;
 						readComplexObj( *this, &propYVal, inInfo );
 						const_cast<TAccessorType&>(inProp).addPair(mObj, propXVal, propYVal);
-					}					
-				}	
+					}
+				}
 			}
 			this->popCurrentContext();
 		}
@@ -741,7 +718,7 @@ namespace physx { namespace Sn {
 				if (parentReader->read( "RigidBodyFlags", value ))
 				{
 					if(strstr(value, "eKINEMATIC"))
-					{						
+					{
 						mObj->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, true);
 					}
 				}
@@ -767,7 +744,7 @@ namespace physx { namespace Sn {
 			}
 		}
 	private:		
-		RepXVisitorReader<PxRigidDynamic>& operator=(const  RepXVisitorReader<PxRigidDynamic>&);			
+		RepXVisitorReader<PxRigidDynamic>& operator=(const RepXVisitorReader<PxRigidDynamic>&);			
 	};
 	
 	template<>
@@ -789,7 +766,7 @@ namespace physx { namespace Sn {
 		{
 		}
 	private:
-		 RepXVisitorReader<PxShape>& operator=(const  RepXVisitorReader<PxShape>&);
+		 RepXVisitorReader<PxShape>& operator=(const RepXVisitorReader<PxShape>&);
 	};
 
 	template<>
@@ -888,43 +865,6 @@ namespace physx { namespace Sn {
 		info.visitInstanceProperties( theOp );
 		return !hadError;
 	}
-
-	//
-	// Setting the angular drive config has to happen before setting any drive (because it resets drive parameters
-	// for angular drives). However, when the angular drive config feature got introduced, binary compatibility
-	// requirements did not allow to place the corresponding setter/getter in front of the drive param setter/getter.
-	// Thus this ugly temporary workaround to hardcode the desired order of operations. With the next major release,
-	// the public API methods can be re-arranged and then it should be possible to undo this sad workaround.
-	//
-	template<>
-	inline bool readAllProperties( PxRepXInstantiationArgs args, TReaderNameStack& names, PxProfileArray<PxU32>& contexts, XmlReader& reader, PxD6Joint* obj, XmlMemoryAllocator& alloc, PxCollection& collection, PxD6JointGeneratedInfo& info )
-	{
-		bool hadError = false;
-		RepXVisitorReader<PxD6Joint> theReader( names, contexts, args, reader, obj, alloc, collection, hadError);
-		RepXPropertyFilter<RepXVisitorReader<PxD6Joint> > theOp( theReader );
-		info.visitBaseProperties( theOp );
-
-		{
-			PxU32 inStartIndex = 0;
-			theOp( info.Motion, inStartIndex + 0 );
-			theOp( info.TwistAngle, inStartIndex + 1 );
-			theOp( info.Twist, inStartIndex + 2 );
-			theOp( info.SwingYAngle, inStartIndex + 3 );
-			theOp( info.SwingZAngle, inStartIndex + 4 );
-			theOp( info.DistanceLimit, inStartIndex + 5 );
-			theOp( info.LinearLimit, inStartIndex + 6 );
-			theOp( info.TwistLimit, inStartIndex + 7 );
-			theOp( info.SwingLimit, inStartIndex + 8 );
-			theOp( info.PyramidSwingLimit, inStartIndex + 9 );
-			theOp( info.AngularDriveConfig, inStartIndex + 10 );
-			theOp( info.Drive, inStartIndex + 11 );
-			theOp( info.DrivePosition, inStartIndex + 12 );
-			theOp( info.ConcreteTypeName, inStartIndex + 13 );
-		}
-
-		return !hadError;
-	}
-
 	
 	template<typename TObjType>
 	inline bool readAllProperties( PxRepXInstantiationArgs args, XmlReader& reader, TObjType* obj, XmlMemoryAllocator& alloc, PxCollection& collection )

@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 // Declare OMNI_PVD Types and Attributes here!
 // The last two attribute parameters could now be derived from the other data, so could be removed in a refactor, 
@@ -93,7 +70,6 @@ OMNI_PVD_ENUM_END		(PxD6Motion)
 OMNI_PVD_ENUM_BEGIN		(PxD6AngularDriveConfig)
 OMNI_PVD_ENUM_VALUE		(PxD6AngularDriveConfig,	eSWING_TWIST)
 OMNI_PVD_ENUM_VALUE		(PxD6AngularDriveConfig,	eSLERP)
-OMNI_PVD_ENUM_VALUE		(PxD6AngularDriveConfig,	eLEGACY)
 OMNI_PVD_ENUM_END		(PxD6AngularDriveConfig)
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -257,11 +233,10 @@ OMNI_PVD_ATTRIBUTE						(PxD6Joint,	pyramidSwingLimitDamping,			PxReal, OmniPvdD
 OMNI_PVD_ATTRIBUTE						(PxD6Joint,	driveX,								PxD6JointDrive* const, OmniPvdDataType::eOBJECT_HANDLE)
 OMNI_PVD_ATTRIBUTE						(PxD6Joint,	driveY,								PxD6JointDrive* const, OmniPvdDataType::eOBJECT_HANDLE)
 OMNI_PVD_ATTRIBUTE						(PxD6Joint,	driveZ,								PxD6JointDrive* const, OmniPvdDataType::eOBJECT_HANDLE)
-OMNI_PVD_ATTRIBUTE						(PxD6Joint,	driveSwing,							PxD6JointDrive* const, OmniPvdDataType::eOBJECT_HANDLE)
 OMNI_PVD_ATTRIBUTE						(PxD6Joint,	driveTwist,							PxD6JointDrive* const, OmniPvdDataType::eOBJECT_HANDLE)
-OMNI_PVD_ATTRIBUTE						(PxD6Joint,	driveSlerp,							PxD6JointDrive* const, OmniPvdDataType::eOBJECT_HANDLE)
 OMNI_PVD_ATTRIBUTE						(PxD6Joint,	driveSwing1,						PxD6JointDrive* const, OmniPvdDataType::eOBJECT_HANDLE)
 OMNI_PVD_ATTRIBUTE						(PxD6Joint,	driveSwing2,						PxD6JointDrive* const, OmniPvdDataType::eOBJECT_HANDLE)
+OMNI_PVD_ATTRIBUTE						(PxD6Joint,	driveSlerp,							PxD6JointDrive* const, OmniPvdDataType::eOBJECT_HANDLE)
 OMNI_PVD_ATTRIBUTE_ARRAY_FIXED_SIZE		(PxD6Joint,	drivePosition,						PxTransform, OmniPvdDataType::eFLOAT32, 7)
 OMNI_PVD_ATTRIBUTE_ARRAY_FIXED_SIZE		(PxD6Joint,	driveLinVelocity,					PxVec3, OmniPvdDataType::eFLOAT32, 3)
 OMNI_PVD_ATTRIBUTE_ARRAY_FIXED_SIZE		(PxD6Joint,	driveAngVelocity,					PxVec3, OmniPvdDataType::eFLOAT32, 3)

@@ -1,28 +1,5 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "ExtMeshSimplificator.h"
 #include "foundation/PxSort.h"
@@ -197,7 +174,7 @@ PxI32 MeshSimplificator::getEdgeId(PxI32 triNr, PxI32 edgeNr)
 				return 3 * n + i;
 		}
 	}
-	return 0;
+	return 3 * triNr + edgeNr;
 }
 
 inline PxVec3Ex MeshSimplificator::projectPoint(const PxVec3& p)
@@ -249,7 +226,7 @@ PxVec3Ex MeshSimplificator::evalEdgeCost(PxI32 triNr, PxI32 edgeNr, PxReal &cost
 		if (projector)
 			pos = projectPoint(pos.p);
 		cost = q.outerProduct(pos.p) + edgeLengthCostWeight * edgeLength;
-	}			
+	}
 	return pos;
 }
 
@@ -263,6 +240,9 @@ bool MeshSimplificator::collapseEdge(PxI32 triNr, PxI32 edgeNr)
 	PxI32 id1 = triIds[3 * triNr + (edgeNr + 1) % 3];
 	PxI32 id2 = triIds[3 * triNr + (edgeNr + 2) % 3];
 	PxI32 id3 = -1;
+
+	if (borderVertices[id0] && borderVertices[id1])
+		return false;
 
 	PxI32 n = triNeighbors[3 * triNr + edgeNr];
 	PxI32 nEdgeNr = 0;
@@ -359,9 +339,13 @@ bool MeshSimplificator::collapseEdge(PxI32 triNr, PxI32 edgeNr)
 
 	// move vertex
 
-	if (id0 > id1) {
-		int id = id0; id0 = id1; id1 = id;
+	if (borderVertices[id1] || (!borderVertices[id0] && id0 > id1))
+	{
+		PxI32 tmp = id0; id0 = id1; id1 = tmp;
 	}
+
+	if (borderVertices[id0])
+		newPos = vertices[id0];
 
 	vertices[id0] = newPos;
 	quadrics[id0] += quadrics[id1];
@@ -571,6 +555,21 @@ void MeshSimplificator::init()
 	currentVertMark = 0;
 
 	findTriNeighbors();
+
+	// init border vertices
+	borderVertices.clear();
+	borderVertices.resize(vertices.size(), 0);
+	for (PxI32 i = 0; i < PxI32(triIds.size()) / 3; i++)
+	{
+		for (PxI32 j = 0; j < 3; j++)
+		{
+			if (triNeighbors[3 * i + j] < 0)
+			{
+				borderVertices[triIds[3 * i + j]] = 1;
+				borderVertices[triIds[3 * i + (j + 1) % 3]] = 1;
+			}
+		}
+	}
 
 	// init vertex quadrics
 

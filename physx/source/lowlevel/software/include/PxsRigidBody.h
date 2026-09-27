@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef PXS_RIGID_BODY_H
 #define PXS_RIGID_BODY_H
@@ -32,6 +9,7 @@
 #include "PxvDynamics.h"
 #include "CmSpatialVector.h"
 #include "foundation/PxMutex.h"
+#include "foundation/PxArray.h"
 
 namespace physx
 {
@@ -44,35 +22,43 @@ class PxsRigidBody
 
 	enum PxsRigidBodyFlag
 	{
-		eFROZEN					=	1 << 0,		//This flag indicates that the stabilization is enabled and the body is
-												//"frozen". By "frozen", we mean that the body's transform is unchanged
-												//from the previous frame. This permits various optimizations.
-		eFREEZE_THIS_FRAME		=	1 << 1,
-		eUNFREEZE_THIS_FRAME	=	1 << 2,
-		eACTIVATE_THIS_FRAME	=	1 << 3,
-		eDEACTIVATE_THIS_FRAME	=	1 << 4,
-		// PT: this flag is now only used on the GPU. For the CPU the data is now stored directly in PxsBodyCore.
-		eDISABLE_GRAVITY_GPU	=	1 << 5,
-		eSPECULATIVE_CCD		=	1 << 6,
-		eENABLE_GYROSCOPIC		=	1 << 7,
-		eRETAIN_ACCELERATION	=	1 << 8,
-		eFIRST_BODY_COPY_GPU	=	1 << 9, // Flag to raise to indicate that the body is DMA'd to the GPU for the first time
-		eVELOCITY_COPY_GPU		=	1 << 10	 // Flag to raise to indicate that linear and angular velocities should be  DMA'd to the GPU
+		eFROZEN					= 1 << 0,	//This flag indicates that the stabilization is enabled and the body is
+											//"frozen". By "frozen", we mean that the body's transform is unchanged
+											//from the previous frame. This permits various optimizations.
+		eFREEZE_THIS_FRAME		= 1 << 1,
+		eUNFREEZE_THIS_FRAME	= 1 << 2,
+		eACTIVATE_THIS_FRAME	= 1 << 3,
+		eDEACTIVATE_THIS_FRAME	= 1 << 4,
+		eSLEEPING_FLAGS			= eFROZEN | eFREEZE_THIS_FRAME | eUNFREEZE_THIS_FRAME | eACTIVATE_THIS_FRAME | eDEACTIVATE_THIS_FRAME,
+
+		eSPECULATIVE_CCD_GPU	= 1 << 6,
+		eENABLE_GYROSCOPIC_GPU	= 1 << 7,
+		eRETAIN_ACCELERATION_GPU= 1 << 8,
+		eFIRST_BODY_COPY_GPU	= 1 << 9,	// Flag to raise to indicate that the body is DMA'd to the GPU for the first time
+		eVELOCITY_COPY_GPU		= 1 << 10,	// Flag to raise to indicate that linear and angular velocities should be  DMA'd to the GPU
+		eGPU_FLAGS				= eSPECULATIVE_CCD_GPU | eENABLE_GYROSCOPIC_GPU | eRETAIN_ACCELERATION_GPU | eFIRST_BODY_COPY_GPU | eVELOCITY_COPY_GPU,
+
+		// PT: these free slots can be reused by higher levels (to save memory)
+		eFREE_FLAG_1			= 1 << 11,
+		eFREE_FLAG_2			= 1 << 12,
+		eFREE_FLAG_3			= 1 << 13,
+		eFREE_FLAG_4			= 1 << 14,
+		eFREE_FLAG_5			= 1 << 15,
+		eFREE_FLAGS				= eFREE_FLAG_1 | eFREE_FLAG_2 | eFREE_FLAG_3 | eFREE_FLAG_4 | eFREE_FLAG_5
 	};
 
 	PX_FORCE_INLINE						PxsRigidBody(PxsBodyCore* core, PxReal freeze_count) :
-											mLastTransform			(core->body2World),
-											mInternalFlags			(0),
-											mSolverIterationCounts	(core->solverIterationCounts),
-											mCCD					(NULL),
-											mCore					(core),
-											mSleepLinVelAcc			(PxVec3(0.0f)),
-											mFreezeCount			(freeze_count),
-											mSleepAngVelAcc			(PxVec3(0.0f)),
-											mAccelScale				(1.0f)
-																	{}
+											mLastTransform	(core->body2World),
+											mInternalFlags	(0),
+											mCCD			(NULL),
+											mCore			(core),
+											mSleepLinVelAcc	(PxVec3(0.0f)),
+											mFreezeCount	(freeze_count),
+											mSleepAngVelAcc	(PxVec3(0.0f)),
+											mAccelScale		(1.0f)
+															{}
 
-	PX_FORCE_INLINE						~PxsRigidBody()																			{}
+	PX_FORCE_INLINE						~PxsRigidBody()		{}
 
 	PX_FORCE_INLINE	const PxTransform&	getPose()							const	{ PX_ASSERT(mCore->body2World.isSane()); return mCore->body2World;				}
 
@@ -121,23 +107,22 @@ class PxsRigidBody
 	// PT: implemented in PxsCCD.cpp:
 					void				advanceToToi(PxReal toi, PxReal dt, bool clip);
 					void				advancePrevPoseToToi(PxReal toi);
-//					PxTransform			getAdvancedTransform(PxReal toi) const;
 					Cm::SpatialVector	getPreSolverVelocities() const;
 
-					PxTransform			mLastTransform;			//28
+					PxTransform			mLastTransform;
 
-					PxU16				mInternalFlags;			//30
-					PxU16				mSolverIterationCounts;	//32
+					PxU16				mInternalFlags;			// PT: PxsRigidBodyFlags
+					PxU16				mPadding16;				// PT: free space here
 
-					PxsCCDBody*			mCCD;					//40	// only valid during CCD	
+					PxsCCDBody*			mCCD;					// only valid during CCD	
 
-					PxsBodyCore*		mCore;					//48
+					PxsBodyCore*		mCore;
 
-					PxVec3				mSleepLinVelAcc;		//60
-					PxReal				mFreezeCount;			//64
+					PxVec3				mSleepLinVelAcc;
+					PxReal				mFreezeCount;
 	   
-					PxVec3				mSleepAngVelAcc;		//76
-					PxReal				mAccelScale;			//80
+					PxVec3				mSleepAngVelAcc;
+					PxReal				mAccelScale;
 }
 PX_ALIGN_SUFFIX(16);
 PX_COMPILE_TIME_ASSERT(0 == (sizeof(PxsRigidBody) & 0x0f));
@@ -169,7 +154,6 @@ void PxsRigidBody::constrainAngularVelocity()
 			mCore->angularVelocity.z = 0.0f;
 	}
 }
-
 
 struct PxsRigidBodyExternalAcceleration
 {

@@ -1,30 +1,9 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved. 
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
+
+#include "GuBV4Build.h"
 
 #include "foundation/PxVec4.h"
 #include "foundation/PxMemory.h"
@@ -32,7 +11,6 @@
 #include "GuAABBTree.h"
 #include "GuSAH.h"
 #include "GuBounds.h"
-#include "GuBV4Build.h"
 #include "GuBV4.h"
 #include <stdio.h>
 
@@ -43,6 +21,8 @@ using namespace Gu;
 using namespace aos;
 
 #define GU_BV4_USE_NODE_POOLS
+
+PX_IMPLEMENT_OUTPUT_ERROR
 
 static PX_FORCE_INLINE PxU32 largestAxis(const PxVec4& v)
 {
@@ -167,7 +147,7 @@ static bool local_Subdivide(AABBTreeNode* PX_RESTRICT node, BuildStats& stats, c
 			centerV = V4Mul(centerV, centerV);
 			varsV = V4Add(varsV, centerV);
 		}
-		const float coeffNb1 = 1.0f/float(nb-1);
+		const float coeffNb1 = nb>1 ? 1.0f/float(nb-1) : 0.0f;
 		varsV = V4Scale(varsV, FLoad(coeffNb1));
 
 //		BV4_ALIGN16(PxVec4 vars);
@@ -363,6 +343,8 @@ bool BV4_AABBTree::buildFromMesh(SourceMeshBase& mesh, PxU32 limit, BV4_BuildStr
 		// Allocate a pool of nodes
 		// PT: TODO: optimize memory here (TA34704)
 		mPool = PX_NEW(AABBTreeNode)[nbBoxes * 2 - 1];
+		if(!mPool)
+			return false;	// PT: OMPE-68715
 
 		// Setup initial node. Here we have a complete permutation of the app's primitives.
 		mPool->mNodePrimitives = mIndices;
@@ -1173,9 +1155,14 @@ static PX_FORCE_INLINE bool processNode(T* PX_RESTRICT data, const BV4Node* PX_R
 	const PxU32 childType = (childNode->getType() - 2) << 1;
 	const PxU64 data64 = size_t(childType + (nextID << GU_BV4_CHILD_OFFSET_SHIFT_COUNT));
 	if(data64 <= 0xffffffff)
+    {
 		data[i].mData = PxU32(data64);
+    }
 	else
+    {
+        outputError<PxErrorCode::eINTERNAL_ERROR>(__LINE__, "Too many child nodes.  Adjust PxMidphaseDesc::mBVH34Desc::numPrimsPerLeaf or reduce the number of triangles in the mesh.");
 		return false;
+    }
 
 	//PX_ASSERT(data[i].mData == size_t(childType+(nextID<<3)));
 
@@ -1407,9 +1394,9 @@ static bool flattenNQ(BVDataPackedNQ* const dest, const PxU64 box_id, PxU64& cur
 	return true;
 }
 
-static bool BuildBV4FromRoot(BV4Tree& tree, BV4Node* Root, BV4BuildParams& Params, bool quantized, float epsilon)
+static bool buildBV4FromRoot(BV4Tree& tree, BV4Node* Root, BV4BuildParams& Params, bool quantized, float epsilon)
 {
-	GU_PROFILE_ZONE("....BuildBV4FromRoot")
+	GU_PROFILE_ZONE("....buildBV4FromRoot")
 
 	BV4Tree* T = &tree;
 
@@ -1714,9 +1701,9 @@ static bool BuildBV4FromRoot(BV4Tree& tree, BV4Node* Root, BV4BuildParams& Param
 	return true;
 }
 
-static bool BuildBV4Internal(BV4Tree& tree, const BV4_AABBTree& source, SourceMeshBase* mesh, float epsilon, bool quantized)
+static bool buildBV4Internal(BV4Tree& tree, const BV4_AABBTree& source, SourceMeshBase* mesh, float epsilon, bool quantized)
 {
-	GU_PROFILE_ZONE("..BuildBV4Internal")
+	GU_PROFILE_ZONE("..buildBV4Internal")
 
 	if(mesh->getNbPrimitives()<=4)
 		return tree.init(mesh, source.getBV());
@@ -1785,7 +1772,7 @@ static bool BuildBV4Internal(BV4Tree& tree, const BV4_AABBTree& source, SourceMe
 	if(!tree.init(mesh, source.getBV()))
 		return false;
 	
-	return BuildBV4FromRoot(tree, Root, Params, quantized, epsilon);
+	return buildBV4FromRoot(tree, Root, Params, quantized, epsilon);
 }
 
 /////
@@ -1824,7 +1811,7 @@ static bool gReorderCallback(const AABBTreeNode* current, PxU32 /*depth*/, void*
 	return true;
 }
 
-bool physx::Gu::BuildBV4Ex(BV4Tree& tree, SourceMeshBase& mesh, float epsilon, PxU32 nbPrimitivePerLeaf, bool quantized, BV4_BuildStrategy strategy)
+bool physx::Gu::buildBV4Ex(BV4Tree& tree, SourceMeshBase& mesh, float epsilon, PxU32 nbPrimitivePerLeaf, bool quantized, BV4_BuildStrategy strategy)
 {
 	//either number of triangle or number of tetrahedron
 	const PxU32 nbPrimitives = mesh.getNbPrimitives();
@@ -1858,6 +1845,6 @@ bool physx::Gu::BuildBV4Ex(BV4Tree& tree, SourceMeshBase& mesh, float epsilon, P
 	if(mesh.getNbPrimitives() <= nbPrimitivePerLeaf)
 		return tree.init(&mesh, Source.getBV());
 
-	return BuildBV4Internal(tree, Source, &mesh, epsilon, quantized);
+	return buildBV4Internal(tree, Source, &mesh, epsilon, quantized);
 }
 

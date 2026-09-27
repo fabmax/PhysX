@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "NpOmniPvdSimulationControllerCallbacks.h"
 
@@ -55,10 +32,7 @@ const PxRigidDynamic* NpOmniPvdSimulationControllerCallbacks::castPxsRigidBodyTo
 
 const NpArticulationReducedCoordinate* NpOmniPvdSimulationControllerCallbacks::castFeatherstoneToNpArticulation(const Dy::FeatherstoneArticulation* const featherstone)
 {
-	// Dy::FeatherstoneArticulation's constructor takes a void pointer argument, which is stored as userData in the
-	// object. This userData argument is the Sc::ArticulationSim pointer for the purpose of the PxgArticulationCore
-	// See Sc::ArticulationSim constructor
-	Sc::ArticulationSim* articulationSim = (Sc::ArticulationSim*)(featherstone->getUserData());
+	const Sc::ArticulationSim* articulationSim = static_cast<const Sc::ArticulationSim*>(featherstone);
 	Sc::ArticulationCore& articulationCore = articulationSim->getCore();
 	NpArticulationReducedCoordinate* npArticulation = static_cast<NpArticulationReducedCoordinate*>(Sc::gOffsetTable.convertScArticulation2Px(&articulationCore));
 	PX_ASSERT(npArticulation->getConcreteType() == PxConcreteType::eARTICULATION_REDUCED_COORDINATE);
@@ -103,7 +77,7 @@ void NpOmniPvdSimulationControllerCallbacks::processRigidDynamicSet(const PxsRig
 		break;
 	}
 	case PxRigidDynamicGPUAPIWriteType::eLINEAR_VELOCITY:
-	{	
+	{
 		SET_RIGID_DYNAMIC_ATTRIBUTES(rigids, dataVec, gpuIndices, nbElements, PxRigidBody, PxVec3, linearVelocity)
 		break;
 	}
@@ -305,5 +279,5 @@ void NpOmniPvdSimulationControllerCallbacks::processArticulationSet(const Dy::Fe
 		default:
 			PX_ALWAYS_ASSERT();
 	}
-}	
+}
 #endif

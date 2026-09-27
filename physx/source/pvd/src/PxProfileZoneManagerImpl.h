@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef PX_PROFILE_ZONE_MANAGER_IMPL_H
 #define PX_PROFILE_ZONE_MANAGER_IMPL_H
@@ -41,7 +18,7 @@ namespace physx { namespace profile {
 
 	struct NullEventNameProvider : public PxProfileNameProvider
 	{
-		virtual PxProfileNames getProfileNames() const { return PxProfileNames( 0, 0 ); }
+		virtual PxProfileNames getProfileNames() const PX_OVERRIDE { return PxProfileNames( 0, 0 ); }
 	};
 
 	class ZoneManagerImpl : public PxProfileZoneManager
@@ -72,7 +49,7 @@ namespace physx { namespace profile {
 				removeProfileZone( *mZones.back() );
 		}
 
-		virtual void addProfileZone( PxProfileZone& inSDK )
+		virtual void addProfileZone( PxProfileZone& inSDK ) PX_OVERRIDE
 		{
 			TScopedLockType lock( &mMutex );
 			
@@ -92,7 +69,7 @@ namespace physx { namespace profile {
 				mHandlers[idx]->onZoneAdded( inSDK );
 		}
 
-		virtual void removeProfileZone( PxProfileZone& inSDK )
+		virtual void removeProfileZone( PxProfileZone& inSDK ) PX_OVERRIDE
 		{
 			TScopedLockType lock( &mMutex );
 			if ( inSDK.getProfileZoneManager() == NULL )
@@ -117,14 +94,14 @@ namespace physx { namespace profile {
 			}
 		}
 
-		virtual void flushProfileEvents()
+		virtual void flushProfileEvents() PX_OVERRIDE
 		{
 			uint32_t sdkCount = mZones.size();
 			for ( uint32_t idx = 0; idx < sdkCount; ++idx )
 				mZones[idx]->flushProfileEvents();
 		}
 
-		virtual void addProfileZoneHandler( PxProfileZoneHandler& inHandler )
+		virtual void addProfileZoneHandler( PxProfileZoneHandler& inHandler ) PX_OVERRIDE
 		{
 			TScopedLockType lock( &mMutex );
 			mHandlers.pushBack( &inHandler );
@@ -132,7 +109,7 @@ namespace physx { namespace profile {
 				inHandler.onZoneAdded( *mZones[idx] );
 		}
 
-		virtual void removeProfileZoneHandler( PxProfileZoneHandler& inHandler )
+		virtual void removeProfileZoneHandler( PxProfileZoneHandler& inHandler ) PX_OVERRIDE
 		{
 			TScopedLockType lock( &mMutex );
 			for( uint32_t idx = 0; idx < mZones.size(); ++idx )
@@ -153,14 +130,14 @@ namespace physx { namespace profile {
 		}
 		
 		
-		virtual PxProfileZone& createProfileZone( const char* inSDKName, PxProfileNames inNames, uint32_t inEventBufferByteSize )
+		virtual PxProfileZone& createProfileZone( const char* inSDKName, PxProfileNames inNames, uint32_t inEventBufferByteSize ) PX_OVERRIDE
 		{
 			PxProfileZone& retval( PxProfileZone::createProfileZone( &mWrapper.getAllocator(), inSDKName, inNames, inEventBufferByteSize ) );
 			addProfileZone( retval );
 			return retval;
 		}
 
-		virtual void release() 
+		virtual void release() PX_OVERRIDE
 		{  
 			PX_PROFILE_DELETE( mWrapper.getAllocator(), this );
 		}

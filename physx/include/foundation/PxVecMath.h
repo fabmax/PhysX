@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
-// Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
+// Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef PX_VEC_MATH_H
 #define PX_VEC_MATH_H
@@ -40,7 +17,7 @@
 // It will also be useful for benchmarking and testing.
 // NEVER submit with vector intrinsics deactivated without good reason.
 // AM: deactivating SIMD for debug win64 just so autobuild will also exercise
-// non-SIMD path, until a dedicated non-SIMD platform sich as Arm comes online.
+// non-SIMD path, until a dedicated non-SIMD platform such as Arm comes online.
 // TODO: dima: reference all platforms with SIMD support here,
 // all unknown/experimental cases should better default to NO SIMD.
 
@@ -122,7 +99,7 @@ PX_FORCE_INLINE Vec4V V4LoadU(const PxF32* const f);
 //(f[0],f[1],f[2],f[3]), f must be 16-byte aligned
 PX_FORCE_INLINE Vec4V V4LoadA(const PxF32* const f);
 //(x,y,z,w)
-PX_FORCE_INLINE Vec4V V4LoadXYZW(const PxF32& x, const PxF32& y, const PxF32& z, const PxF32& w);
+PX_FORCE_INLINE Vec4V V4LoadXYZW(PxF32 x, PxF32 y, PxF32 z, PxF32 w);
 
 // BoolV
 //(f,f,f,f)
@@ -1258,7 +1235,7 @@ PX_FORCE_INLINE const PxVec3& V4ReadXYZ(const Vec4V& v)
 	return reinterpret_cast<const PxVec3&>(v);
 }
 
-// this macro transposes 4 Vec4V into 3 Vec4V (assuming that the W component can be ignored
+// this macro transposes 4 Vec4V into 3 Vec4V (assuming that the W component can be ignored)
 //inA:  1   2   3   4
 //inB:  5   6   7   8
 //inC:  9  10  11  12

@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "GuPCMContactGen.h"
 #include "GuPCMShapeConvex.h"
@@ -92,7 +69,7 @@ static bool testPolyDataAxis(const CapsuleV& capsule, const PolygonalData& polyD
 	minOverlap = _minOverlap;
 
 	return true;
-}  
+}
 
 //ML: this function is shared by sphere/capsule. Point a and direction d need to be in the local space of polyData
 static bool intersectRayPolyhedron(const Vec3VArg a, const Vec3VArg dir, const PolygonalData& polyData, FloatV& tEnter, FloatV& tExit)
@@ -306,7 +283,7 @@ static void generatedFaceContacts(const CapsuleV& capsule, const PolygonalData& 
 		manifoldContacts[numContacts].mLocalPointA = aToB.transformInv(capsule.p1);
 		manifoldContacts[numContacts].mLocalPointB = V3ScaleAdd(dir, tEnter, capsule.p1);
 		manifoldContacts[numContacts++].mLocalNormalPen = V4SetW(Vec4V_From_Vec3V(normal), tEnter);
-	}	
+	}
 }
 
 static void generateEE(const Vec3VArg p, const Vec3VArg q, const Vec3VArg normal, const Vec3VArg a, const Vec3VArg b, const PxMatTransformV& aToB, 
@@ -428,7 +405,7 @@ bool Gu::generateFullContactManifold(const CapsuleV& capsule, const PolygonalDat
 	Vec3V tNormal = normal;
 	
 	if(doOverlapTest)
-	{	
+	{
 		FloatV minOverlap;
 			
 		//overwrite the normal with the sperating axis
@@ -471,7 +448,7 @@ bool Gu::generateSphereFullContactManifold(const CapsuleV& capsule, const Polygo
 	const FloatVArg contactDist, Vec3V& normal, bool doOverlapTest)
 {
 	if(doOverlapTest)
-	{	
+	{
 		FloatV minOverlap;
 		//overwrite the normal with the sperating axis
 		if(!testPolyDataAxis(capsule, polyData, map, contactDist, minOverlap, normal))

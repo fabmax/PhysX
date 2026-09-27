@@ -1,37 +1,16 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "NpShape.h"
 #include "NpRigidStatic.h"
 #include "NpRigidDynamic.h"
 #include "NpArticulationLink.h"
-#include "NpDeformableSurface.h"
-#include "NpDeformableVolume.h"
+#if PX_SUPPORT_GPU_PHYSX
+	#include "NpDeformableSurface.h"
+	#include "NpDeformableVolume.h"
+#endif
 
 #include "omnipvd/NpOmniPvdSetData.h"
 
@@ -80,26 +59,38 @@ NpShape::~NpShape()
 	decMeshRefCount();
 
 	const PxU32 nbMaterials = scGetNbMaterials();
-	PxShapeCoreFlags flags = mCore.getCore().mShapeCoreFlags;
+	const PxShapeCoreFlags flags = mCore.mShapeCoreFlags;
 
 	if (flags & PxShapeCoreFlag::eDEFORMABLE_SURFACE_SHAPE)
 	{
 #if PX_SUPPORT_GPU_PHYSX
 		for (PxU32 i = 0; i < nbMaterials; i++)
-			RefCountable_decRefCount(*scGetMaterial<NpDeformableSurfaceMaterial>(i));
+		{
+			NpDeformableSurfaceMaterial* material = scGetMaterial<NpDeformableSurfaceMaterial>(i);
+			if(material)
+				RefCountable_decRefCount(*material);
+		}
 #endif
 	}
 	else if(flags & PxShapeCoreFlag::eDEFORMABLE_VOLUME_SHAPE)
 	{ 
 #if PX_SUPPORT_GPU_PHYSX
 		for (PxU32 i = 0; i < nbMaterials; i++)
-			RefCountable_decRefCount(*scGetMaterial<NpDeformableVolumeMaterial>(i));
+		{
+			NpDeformableVolumeMaterial* material = scGetMaterial<NpDeformableVolumeMaterial>(i);
+			if(material)
+				RefCountable_decRefCount(*material);
+		}
 #endif
 	}
 	else
 	{
 		for (PxU32 i = 0; i < nbMaterials; i++)
-			RefCountable_decRefCount(*scGetMaterial<NpMaterial>(i));
+		{
+			NpMaterial* material = scGetMaterial<NpMaterial>(i);
+			if(material)
+				RefCountable_decRefCount(*material);
+		}
 	}
 }
 
@@ -124,7 +115,7 @@ void NpShape::preExportDataReset()
 }
 
 void NpShape::exportExtraData(PxSerializationContext& context)
-{	
+{
 	mCore.exportExtraData(context);
 	context.writeName(mCore.mName);
 }
@@ -161,7 +152,7 @@ void NpShape::requiresObjects(PxProcessPxBaseCallback& c)
 }
 
 void NpShape::resolveReferences(PxDeserializationContext& context)
-{	
+{
 	// getMaterials() only works after material indices have been patched. 
 	// in order to get to the new material indices, we need access to the new materials.
 	// this only leaves us with the option of acquiring the material through the context given an old material index (we do have the mapping)
@@ -284,7 +275,9 @@ void NpShape::setGeometry(const PxGeometry& g)
 		return;
 	}
 
-	PX_SIMD_GUARD;
+	NP_CHECK_SCENE_CORRUPTION_AND_RETURN(ownerScene)
+
+	PX_SIMD_GUARD
 
 	//Do not decrement ref count here, but instead cache the refcountable mesh pointer if we had one.
 	//We instead decrement the ref counter after incrementing the ref counter on the new geometry.
@@ -298,7 +291,7 @@ void NpShape::setGeometry(const PxGeometry& g)
 		if(rigidCore)
 			rigidCore->unregisterShapeFromNphase(mCore);
 
-		mCore.setGeometry(g);	
+		mCore.setGeometry(g);
 
 		if (rigidCore)
 		{
@@ -311,6 +304,10 @@ void NpShape::setGeometry(const PxGeometry& g)
 		if(npScene)
 			npScene->getScenePvdClientInternal().releaseAndRecreateGeometry(this);
 #endif
+
+#if PX_SUPPORT_OMNI_PVD
+		streamShapeUpdateGeometry(static_cast<PxShape&>(*this));
+#endif
 	}
 
 	incMeshRefCount();
@@ -319,6 +316,8 @@ void NpShape::setGeometry(const PxGeometry& g)
 		RefCountable_decRefCount(*mesh);
 
 	updateSQ("PxShape::setGeometry: Shape is a part of pruning structure, pruning structure is now invalid!");
+
+	NP_CHECK_SCENE_CUDA_ABORT_AND_SET_CORRUPTION(ownerScene)
 }
 
 const PxGeometry& NpShape::getGeometry() const
@@ -437,6 +436,8 @@ void NpShape::setMaterialsInternal(PxMaterialType* const * materials, PxU16 mate
 		return;
 #endif
 
+	NP_CHECK_SCENE_CORRUPTION_AND_RETURN(getNpScene())
+
 	const PxU32 oldMaterialCount = scGetNbMaterials();
 	PX_ALLOCA(oldMaterials, PxMaterialType*, oldMaterialCount);
 	PxU32 tmp = scGetMaterials<PxMaterialType, NpMaterialType>(mCore, oldMaterials, oldMaterialCount);
@@ -461,14 +462,16 @@ void NpShape::setMaterialsInternal(PxMaterialType* const * materials, PxU16 mate
 		for (PxU32 i = 0; i < oldMaterialCount; i++)
 			RefCountable_decRefCount(*oldMaterials[i]);
 	}
+
+	NP_CHECK_SCENE_CUDA_ABORT_AND_SET_CORRUPTION(npScene)
 }
 
 void NpShape::setMaterials(PxMaterial*const* materials, PxU16 materialCount)
 {
-	PX_CHECK_AND_RETURN(!(mCore.getCore().mShapeCoreFlags & PxShapeCoreFlag::eDEFORMABLE_SURFACE_SHAPE),
+	PX_CHECK_AND_RETURN(!(mCore.mShapeCoreFlags & PxShapeCoreFlag::eDEFORMABLE_SURFACE_SHAPE),
 		"NpShape::setMaterials: cannot set rigid body materials to a deformable surface shape!");
 
-	PX_CHECK_AND_RETURN(!(mCore.getCore().mShapeCoreFlags & PxShapeCoreFlag::eDEFORMABLE_VOLUME_SHAPE),
+	PX_CHECK_AND_RETURN(!(mCore.mShapeCoreFlags & PxShapeCoreFlag::eDEFORMABLE_VOLUME_SHAPE),
 		"NpShape::setMaterials: cannot set rigid body materials to a deformable volume shape!");
 
 	setMaterialsInternal<PxMaterial, NpMaterial>(materials, materialCount);
@@ -477,10 +480,13 @@ void NpShape::setMaterials(PxMaterial*const* materials, PxU16 materialCount)
 void NpShape::setDeformableSurfaceMaterials(PxDeformableSurfaceMaterial*const* materials, PxU16 materialCount)
 {
 #if PX_SUPPORT_GPU_PHYSX
-	PX_CHECK_AND_RETURN((mCore.getCore().mShapeCoreFlags & PxShapeCoreFlag::eDEFORMABLE_SURFACE_SHAPE),
+	PX_CHECK_AND_RETURN((mCore.mShapeCoreFlags & PxShapeCoreFlag::eDEFORMABLE_SURFACE_SHAPE),
 		"NpShape::setMaterials: can only apply deformable surface materials to a deformable surface shape!");
 
 	setMaterialsInternal<PxDeformableSurfaceMaterial, NpDeformableSurfaceMaterial>(materials, materialCount);
+
+	NP_CHECK_SCENE_CORRUPTION_AND_RETURN(getNpScene())
+
 	if (mExclusiveShapeActor)
 		static_cast<NpDeformableSurface*>(mExclusiveShapeActor)->updateMaterials();
 #else
@@ -492,10 +498,13 @@ void NpShape::setDeformableSurfaceMaterials(PxDeformableSurfaceMaterial*const* m
 void NpShape::setDeformableVolumeMaterials(PxDeformableVolumeMaterial* const* materials, PxU16 materialCount)
 {
 #if PX_SUPPORT_GPU_PHYSX
-	PX_CHECK_AND_RETURN((mCore.getCore().mShapeCoreFlags & PxShapeCoreFlag::eDEFORMABLE_VOLUME_SHAPE),
+	PX_CHECK_AND_RETURN((mCore.mShapeCoreFlags & PxShapeCoreFlag::eDEFORMABLE_VOLUME_SHAPE),
 		"NpShape::setMaterials: can only apply deformable volume materials to a deformable volume shape!");
 
 	setMaterialsInternal<PxDeformableVolumeMaterial, NpDeformableVolumeMaterial>(materials, materialCount);
+
+	NP_CHECK_SCENE_CORRUPTION_AND_RETURN(getNpScene())
+
 	if (mExclusiveShapeActor)
 		static_cast<NpDeformableVolume*>(mExclusiveShapeActor)->updateMaterials();
 #else
@@ -718,7 +727,13 @@ PxShapeGPUIndex NpShape::getGPUIndex() const
 	{
 		PxsSimulationController* simulationController = getNpScene()->getSimulationController();
 		if(simulationController)
-			return simulationController->getInternalShapeIndex(mCore.getCore());
+		{
+			const PxU32 shapeIndex = simulationController->getInternalShapeIndex(mCore);
+			// invalid shape index is PX_INVALID_U32, invalid GPU index is PX_INVALID_NODE
+			// but are the same value, TODO use PX_INVALID_NODE for both.
+			PX_COMPILE_TIME_ASSERT(PX_INVALID_U32 == PX_INVALID_NODE);
+			return shapeIndex;
+		}
 	}
 	return PX_INVALID_NODE;
 }
@@ -809,7 +824,9 @@ void NpShape::setFlag(PxShapeFlag::Enum flag, bool value)
 
 	PX_CHECK_SCENE_API_WRITE_FORBIDDEN(npScene, "PxShape::setFlag() not allowed while simulation is running. Call will be ignored.")
 
-	PX_SIMD_GUARD;
+	NP_CHECK_SCENE_CORRUPTION_AND_RETURN(npScene)
+
+	PX_SIMD_GUARD
 
 	PxShapeFlags shapeFlags = mCore.getFlags();
 	shapeFlags = value ? shapeFlags | flag : shapeFlags & ~flag;
@@ -817,6 +834,8 @@ void NpShape::setFlag(PxShapeFlag::Enum flag, bool value)
 	setFlagsInternal(shapeFlags);
 
 	OMNI_PVD_SET(OMNI_PVD_CONTEXT_HANDLE, PxShape, shapeFlags, static_cast<PxShape&>(*this), shapeFlags);
+
+	NP_CHECK_SCENE_CUDA_ABORT_AND_SET_CORRUPTION(npScene)
 }
 
 void NpShape::setFlags(PxShapeFlags inFlags)
@@ -827,11 +846,13 @@ void NpShape::setFlags(PxShapeFlags inFlags)
 
 	PX_CHECK_SCENE_API_WRITE_FORBIDDEN(npScene, "PxShape::setFlags() not allowed while simulation is running. Call will be ignored.")
 
-	PX_SIMD_GUARD;
+	PX_SIMD_GUARD
 
 	setFlagsInternal(inFlags);
 
 	OMNI_PVD_SET(OMNI_PVD_CONTEXT_HANDLE, PxShape, shapeFlags, static_cast<PxShape&>(*this), inFlags);
+
+	NP_CHECK_SCENE_CUDA_ABORT_AND_SET_CORRUPTION(npScene)
 }
 
 PxShapeFlags NpShape::getFlags() const

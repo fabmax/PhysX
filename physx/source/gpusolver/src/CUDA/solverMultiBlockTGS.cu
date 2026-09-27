@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "PxgCommonDefines.h"
 #include "common/PxPhysXCommonConfig.h"
@@ -36,7 +13,6 @@
 #include "PxgConstraint.h"
 #include "PxgConstraintBlock.h"
 #include "PxgIslandContext.h"
-#include "PxgSolverContext.h"
 #include "cutil_math.h"
 #include "PxgSolverCoreDesc.h"
 #include "solverBlockTGS.cuh"
@@ -102,7 +78,7 @@ extern "C" __global__ void ZeroBodiesTGS(const PxgSolverCoreDesc* constraintPrep
 extern "C" __global__ void writebackBlocksTGS(
 	PxgSolverCoreDesc* constraintPrepDesc,
 	const PxgSolverSharedDesc<IterativeSolveDataTGS>* sharedDesc, const PxU32 islandIndex)
-{	
+{
 	PxgIslandContext& island = constraintPrepDesc->islandContextPool[islandIndex];
 
 	const PxU32 startIndex = island.mBatchStartIndex;
@@ -203,7 +179,7 @@ extern "C" __global__ void writebackBlocksTGS(
 extern "C" __global__ void concludeBlocksTGS(
 	const PxgSolverCoreDesc* constraintPrepDesc,
 	const PxgSolverSharedDesc<IterativeSolveDataTGS>* sharedDesc, const PxU32 islandIndex)
-{	
+{
 	PxgIslandContext& island = constraintPrepDesc->islandContextPool[islandIndex];
 
 	const PxU32 startIndex = island.mBatchStartIndex;
@@ -255,7 +231,7 @@ extern "C" __global__ void concludeBlocksTGS(
 extern "C" __global__ void writeBackBodiesTGS(
 	const PxgSolverCoreDesc* solverCoreDesc ,
 	const PxgSolverSharedDesc<IterativeSolveDataTGS>* sharedDesc, const PxU32 islandIndex)
-{	
+{
 	__shared__ float4* bodyVelocities;
 	__shared__ float4* motionVelocities;
 	__shared__ PxU32 bodyOffset;
@@ -420,8 +396,7 @@ extern "C" __global__ void computeAverageSolverBodyVelocityTGS(
 	
 extern "C" __global__ void propagateAverageSolverBodyVelocityTGS(
 	const PxgSolverCoreDesc* solverDesc,
-	const PxgSolverSharedDesc<IterativeSolveDataTGS>* sharedDesc, bool isVelocityIteration, bool isLastPosIteration,
-	PxReal biasCoefficient)
+	const PxgSolverSharedDesc<IterativeSolveDataTGS>* sharedDesc, bool isVelocityIteration, bool isLastPosIteration)
 {
 	//Buffer to store read data in. We then add on first 6 words to 2nd 6 words
 
@@ -708,7 +683,7 @@ extern "C" __global__ void initializeSolverVelocitiesTGS(
 	const PxU32 outputOffset = solverDesc->accumulatedBodyDeltaVOffset;
 
 	if (bodyId < allBodiesCount)
-	{		
+	{
 		float4 linVel = velocities[bodyId];
 		float4 angVel = velocities[bodyId + allBodiesCount];
 
@@ -792,9 +767,6 @@ __device__ void artiSolveBlockPartitionTGSInternal(
 	uint k = startIndex + globalWarpIndex + articulationBatchOffset;
 
 	const PxgSolverTxIData* PX_RESTRICT iData = solverDesc->solverBodyTxIDataPool;
-
-	PxgErrorAccumulator error;
-	const bool accumulateError = solverDesc->contactErrorAccumulator.mCounter >= 0;
 
 	if (k < endIndex)
 	{
@@ -921,13 +893,13 @@ __device__ void artiSolveBlockPartitionTGSInternal(
 			solveExtContactBlockTGS(batch, vel0, vel1, delta0, delta1, threadIndexInWarp,
 				msIterativeData.blockContactHeaders, msIterativeData.blockFrictionHeaders, msIterativeData.blockContactPoints,
 				msIterativeData.blockFrictions, msIterativeData.artiResponse, elapsedTime, minPen, impulse0, impulse1, 
-				accumulateError ? &error : NULL, curRef0, curRef1);
+				curRef0, curRef1);
 		}
 		else
 		{
 			solveExt1DBlockTGS(batch, vel0, vel1, delta0, delta1, threadIndexInWarp, msIterativeData.blockJointConstraintHeaders,
 				msIterativeData.blockJointConstraintRowsCon, msIterativeData.artiResponse, deltaQ0, deltaQ1, elapsedTime, impulse0, impulse1,
-				solverDesc->contactErrorAccumulator.mCounter >= 0, curRef0, curRef1);
+				curRef0, curRef1);
 		}
 
 		//Pull impulse from threads 6-12
@@ -990,9 +962,6 @@ __device__ void artiSolveBlockPartitionTGSInternal(
 			//	impulse1.top.x, impulse1.top.y, impulse1.top.z, impulse1.bottom.x, impulse1.bottom.y, impulse1.bottom.z);
 		}
 	}
-
-	if (accumulateError)
-		error.accumulateErrorGlobalFullWarp(solverDesc->contactErrorAccumulator, threadIndexInWarp);
 }
 
 __device__ void solveBlockPartitionTGSInternal(
@@ -1022,9 +991,6 @@ __device__ void solveBlockPartitionTGSInternal(
 	//}
 
 	//__syncthreads();
-
-	bool residualAccumulationEnabled = solverDesc->contactErrorAccumulator.mCounter >= 0;
-	PxgErrorAccumulator error;
 
 	const IterativeSolveDataTGS& iterativeData = sharedDesc->iterativeData;
 
@@ -1105,10 +1071,10 @@ __device__ void solveBlockPartitionTGSInternal(
 			if (batch.constraintType == PxgSolverConstraintDesc::eCONTACT)
 				solveContactBlockTGS(batch, linVel0, angVel0, linVel1, angVel1, linDelta0, angDelta0, linDelta1, angDelta1, threadIndexInWarp,
 					iterativeData.blockContactHeaders, iterativeData.blockFrictionHeaders, iterativeData.blockContactPoints,
-					iterativeData.blockFrictions, elapsedTime, minPen, residualAccumulationEnabled ? &error : NULL, curRef0, curRef1);
+					iterativeData.blockFrictions, elapsedTime, minPen, curRef0, curRef1);
 			else
 				solve1DBlockTGS(batch, linVel0, angVel0, linVel1, angVel1, linDelta0, angDelta0, linDelta1, angDelta1, threadIndexInWarp, iterativeData.blockJointConstraintHeaders, iterativeData.blockJointConstraintRowsCon,
-					iData0, iData1, elapsedTime, solverDesc->contactErrorAccumulator.mCounter >= 0, curRef0, curRef1);
+					iData0, iData1, elapsedTime, curRef0, curRef1);
 
 			vec0 = make_float4(linVel0.x, linVel0.y, linVel0.z, angVel0.x);
 			vec1 = make_float4(angVel0.y, angVel0.z, linDelta0.x, linDelta0.y);
@@ -1129,11 +1095,6 @@ __device__ void solveBlockPartitionTGSInternal(
 			Pxstcs(&iterativeData.solverBodyVelPool[outputB + 32], vec4);
 			Pxstcs(&iterativeData.solverBodyVelPool[outputB + 64], vec5);
 		}
-	}
-
-	if (residualAccumulationEnabled)
-	{
-		error.accumulateErrorGlobalFullWarp(solverDesc->contactErrorAccumulator, threadIndexInWarp);
 	}
 }
 
@@ -1463,9 +1424,6 @@ void solveStaticBlockTGS(
 
 	PxgSolverTxIData iData1;
 
-	bool residualAccumulationEnabled = solverDesc->contactErrorAccumulator.mCounter >= 0;
-	PxgErrorAccumulator error;
-
 	PxU32 contactCount = 0, jointCount = 0;
 
 	const PxgSolverTxIData* PX_RESTRICT iData = solverDesc->solverBodyTxIDataPool;
@@ -1524,7 +1482,7 @@ void solveStaticBlockTGS(
 
 					// For interaction with static objects, mass-splitting is not used; thus, reference counts are 1 (default).
 					solve1DBlockTGS(batch, lv0, av0, lv1, av1, ld0, ad0, ld1, ad1, idx, iterativeData.blockJointConstraintHeaders, iterativeData.blockJointConstraintRowsCon,
-						iData0, iData1, elapsedTime, solverDesc->contactErrorAccumulator.mCounter >= 0);
+						iData0, iData1, elapsedTime);
 				}
 
 				for (PxU32 i = 0; i < contactCount; ++i)
@@ -1540,7 +1498,7 @@ void solveStaticBlockTGS(
 					// For interaction with static objects, mass-splitting is not used; thus, reference counts are 1 (default).
 					solveContactBlockTGS(batch, lv0, av0, lv1, av1, ld0, ad0, ld1, ad1, idx,
 						iterativeData.blockContactHeaders, iterativeData.blockFrictionHeaders, iterativeData.blockContactPoints,
-						iterativeData.blockFrictions, elapsedTime, minPen, residualAccumulationEnabled ? &error : NULL);
+						iterativeData.blockFrictions, elapsedTime, minPen);
 				}
 
 				//if (globalThreadIdx == 33)
@@ -1561,11 +1519,6 @@ void solveStaticBlockTGS(
 				bodyOutVelocities[bodyIndex + outputBody + totalBodiesIncKinematics] = vel1;
 			}
 		}
-	}
-
-	if (residualAccumulationEnabled)
-	{
-		error.accumulateErrorGlobalFullWarp(solverDesc->contactErrorAccumulator, threadIndexInWarp);
 	}
 }
 
@@ -1741,9 +1694,6 @@ void solveWholeIslandTGS(
 
 	__syncthreads();
 
-	bool residualAccumulationEnabled = solverDesc->contactErrorAccumulator.mCounter >= 0;
-	PxgErrorAccumulator error;
-
 	for (PxU32 partitionIndex = 0; partitionIndex < island.mNumPartitions; ++partitionIndex)
 	{
 		 PxU32 endIndex = solverDesc->constraintsPerPartition[partitionIndex + startPartitionIndex];
@@ -1771,7 +1721,7 @@ void solveWholeIslandTGS(
 
 			 //Pull out shared memory into float4 format in registers to solve constraints
 			 if (threadIndexInWarp < batch.mDescStride)
-			 {			
+			 {
 				 const PxU32 readIndexA = bodyAIndex + slabId * totalBodiesIncKinematics;
 				 const PxU32 readIndexB = bodyBIndex + slabId * totalBodiesIncKinematics;
 
@@ -1813,11 +1763,11 @@ void solveWholeIslandTGS(
 					 solveContactBlockTGS(batch, linVel0, angVel0, linVel1, angVel1, linDelta0, angDelta0, linDelta1, angDelta1,
 										  threadIndexInWarp, iterativeData.blockContactHeaders, iterativeData.blockFrictionHeaders,
 										  iterativeData.blockContactPoints, iterativeData.blockFrictions, elapsedTime, minPen,
-										  residualAccumulationEnabled ? &error : NULL, curRef0, curRef1);
+										  curRef0, curRef1);
 				 else
 					 solve1DBlockTGS(batch, linVel0, angVel0, linVel1, angVel1, linDelta0, angDelta0, linDelta1, angDelta1,
 									 threadIndexInWarp, iterativeData.blockJointConstraintHeaders, iterativeData.blockJointConstraintRowsCon,
-									 iData0, iData1, elapsedTime, solverDesc->contactErrorAccumulator.mCounter >= 0, curRef0, curRef1);
+									 iData0, iData1, elapsedTime, curRef0, curRef1);
 
 				 shLinVel[readIndexA] = linVel0;
 				 shAngVel[readIndexA] = angVel0;
@@ -1862,11 +1812,6 @@ void solveWholeIslandTGS(
 			iterativeData.solverBodyVelPool[velIndex + 32] = make_float4(angVel0.y, angVel0.z, linDelta0.x, linDelta0.y);
 			iterativeData.solverBodyVelPool[velIndex + 64] = make_float4(linDelta0.z, angDelta0.x, angDelta0.y, angDelta0.z);
 		}
-	}
-
-	if (residualAccumulationEnabled)
-	{
-		error.accumulateErrorGlobalFullWarp(solverDesc->contactErrorAccumulator, threadIndexInWarp);
 	}
 }
 

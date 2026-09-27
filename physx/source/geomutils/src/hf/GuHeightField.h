@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef GU_HEIGHTFIELD_H
 #define GU_HEIGHTFIELD_H
@@ -64,55 +41,55 @@ public:
 		PX_PHYSX_COMMON_API	static		HeightField*				createObject(PxU8*& address, PxDeserializationContext& context);
 										void						resolveReferences(PxDeserializationContext&) {}
 
-							virtual		void						requiresObjects(PxProcessPxBaseCallback&){}
+							virtual		void						requiresObjects(PxProcessPxBaseCallback&) {}
 //~PX_SERIALIZATION
 		 															HeightField(MeshFactory* factory);
 																	HeightField(MeshFactory* factory, Gu::HeightFieldData& data);
 		// PxHeightField
-							 virtual	void						release();
-							 virtual	PxU32						saveCells(void* destBuffer, PxU32 destBufferSize) const;
-							 virtual	bool						modifySamples(PxI32 startCol, PxI32 startRow, const PxHeightFieldDesc& subfieldDesc, bool shrinkBounds);
-							 virtual	PxU32						getNbRows()						const	{ return mData.rows;					}
-							 virtual	PxU32						getNbColumns()					const	{ return mData.columns;					}
-							 virtual	PxHeightFieldFormat::Enum	getFormat()						const	{ return mData.format;					}
-							 virtual	PxU32						getSampleStride()				const	{ return sizeof(PxHeightFieldSample);	}
-							 virtual	PxReal						getConvexEdgeThreshold()		const	{ return mData.convexEdgeThreshold;		}
-							 virtual	PxHeightFieldFlags			getFlags()						const	{ return mData.flags;					}
-							 virtual	PxReal						getHeight(PxReal x, PxReal z)	const	{ return getHeightInternal(x, z);		}
-							 virtual	PxMaterialTableIndex		getTriangleMaterialIndex(PxTriangleID triangleIndex)	const
+							 virtual	void						release() PX_OVERRIDE;
+							 virtual	PxU32						saveCells(void* destBuffer, PxU32 destBufferSize) const PX_OVERRIDE;
+							 virtual	bool						modifySamples(PxI32 startCol, PxI32 startRow, const PxHeightFieldDesc& subfieldDesc, bool shrinkBounds) PX_OVERRIDE;
+							 virtual	PxU32						getNbRows()						const PX_OVERRIDE { return mData.rows;						}
+							 virtual	PxU32						getNbColumns()					const PX_OVERRIDE { return mData.columns;					}
+							 virtual	PxHeightFieldFormat::Enum	getFormat()						const PX_OVERRIDE { return mData.format;					}
+							 virtual	PxU32						getSampleStride()				const PX_OVERRIDE { return sizeof(PxHeightFieldSample);		}
+							 virtual	PxReal						getConvexEdgeThreshold()		const PX_OVERRIDE { return mData.convexEdgeThreshold;		}
+							 virtual	PxHeightFieldFlags			getFlags()						const PX_OVERRIDE { return mData.flags;						}
+							 virtual	PxReal						getHeight(PxReal x, PxReal z)	const PX_OVERRIDE { return getHeightInternal(x, z);			}
+							 virtual	PxMaterialTableIndex		getTriangleMaterialIndex(PxTriangleID triangleIndex)	const PX_OVERRIDE
 																	{
 																		return getTriangleMaterial(triangleIndex);
 																	}
 
-							 virtual	PxVec3						getTriangleNormal(PxTriangleID triangleIndex)	const
+							 virtual	PxVec3						getTriangleNormal(PxTriangleID triangleIndex)	const PX_OVERRIDE
 																	{
 																		return getTriangleNormalInternal(triangleIndex);
 																	}
 
-							 virtual	const PxHeightFieldSample&	getSample(PxU32 row, PxU32 column) const
+							 virtual	const PxHeightFieldSample&	getSample(PxU32 row, PxU32 column) const PX_OVERRIDE
 																	{
 																		const PxU32 cell = row * getNbColumnsFast() + column;
 																		return getSample(cell);
 																	}
-							 virtual	PxU32						getTimestamp()					const	{ return mModifyCount;	}
+							 virtual	PxU32						getTimestamp()	const PX_OVERRIDE { return mModifyCount;	}
 		//~PxHeightField
 
 		// PxRefCounted
-							 virtual	void						acquireReference();
-							 virtual	PxU32						getReferenceCount()				const;
+							 virtual	void						acquireReference() PX_OVERRIDE;
+							 virtual	PxU32						getReferenceCount()	const PX_OVERRIDE;
 		//~PxRefCounted
 
 		// PxBase
-							 virtual	void						onRefCountZero();
+							 virtual	void						onRefCountZero() PX_OVERRIDE;
 		//~PxBase
 										 bool						loadFromDesc(const PxHeightFieldDesc&);
 										 bool						load(PxInputStream&);
 										 bool						save(PxOutputStream& stream, bool endianSwap);
 
-	PX_CUDA_CALLABLE	PX_FORCE_INLINE	PxU32						getNbRowsFast()					const	{ return mData.rows;	}
-	PX_CUDA_CALLABLE	PX_FORCE_INLINE	PxU32						getNbColumnsFast()				const	{ return mData.columns;	}
-						PX_FORCE_INLINE	PxHeightFieldFormat::Enum	getFormatFast()					const	{ return mData.format;	}
-						PX_FORCE_INLINE	PxU32						getFlagsFast()					const	{ return mData.flags;	}
+	PX_CUDA_CALLABLE	PX_FORCE_INLINE	PxU32						getNbRowsFast()		const	{ return mData.rows;	}
+	PX_CUDA_CALLABLE	PX_FORCE_INLINE	PxU32						getNbColumnsFast()	const	{ return mData.columns;	}
+						PX_FORCE_INLINE	PxHeightFieldFormat::Enum	getFormatFast()		const	{ return mData.format;	}
+						PX_FORCE_INLINE	PxU32						getFlagsFast()		const	{ return mData.flags;	}
 
 	PX_CUDA_CALLABLE	PX_FORCE_INLINE	bool						isZerothVertexShared(PxU32 vertexIndex) const
 																	{

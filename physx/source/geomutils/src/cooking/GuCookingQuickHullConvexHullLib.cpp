@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "GuCookingQuickHullConvexHullLib.h"
 #include "GuCookingConvexHullUtils.h"
@@ -43,7 +20,7 @@
 using namespace physx;
 
 namespace local
-{		
+{
 	//////////////////////////////////////////////////////////////////////////
 	static const float MIN_ADJACENT_ANGLE = 3.0f;  // in degrees  - result wont have two adjacent facets within this angle of each other.
 	static const float PLANE_THICKNES = 3.0f * PX_EPS_F32;  // points within this distance are considered on a plane	
@@ -76,8 +53,17 @@ namespace local
 		void init(PxU32 preallocateSize)
 		{
 			PX_ASSERT(preallocateSize);
-			mPreallocateSize = preallocateSize;
 			T* block = PX_ALLOCATE(T, preallocateSize, "Quickhull MemBlock");
+			// ### DEFENSIVE
+			// PT: this is for OMPE-99344, not much we can do unfortunately
+			if(!block)
+			{
+				PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "MemBlock::init - out of memory in QuickHull library\n");
+				return;
+			}
+
+			mPreallocateSize = preallocateSize;
+
 			if(useIndexing)
 			{
 				for (PxU32 i = 0; i < mPreallocateSize; i++)
@@ -766,7 +752,7 @@ namespace local
 		{
 			const local::QuickHullFace& face = *mHullFaces[i];
 			if (face.state == local::QuickHullFace::eVISIBLE)
-			{								
+			{
 				if (face.numEdges > maxVerts)
 					maxVerts = face.numEdges;
 			}
@@ -1225,7 +1211,7 @@ namespace local
 	// finds the best point to add to the hull
 	// go through the faces conflict list and pick the global maximum
 	QuickHullVertex* QuickHull::nextPointToAdd(QuickHullFace*& eyeFace)
-	{	
+	{
 		QuickHullVertex* eyeVtx = NULL;
 		QuickHullFace* eyeF = NULL;
 		float maxDist = mPlaneTolerance;
@@ -1749,7 +1735,7 @@ namespace local
 				return true;
 			else
 				return false;
-}	
+}
 	};
 
 //////////////////////////////////////////////////////////////////////////
@@ -1816,7 +1802,7 @@ namespace local
 		PxVec3 b(p0.d, p1.d, p2.d);
 		return -mi.transform(b);
 	}
-}	
+}
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -2046,7 +2032,7 @@ bool QuickHullConvexHullLib::cleanupForSimplex(PxVec3* vertices, PxU32 vertexCou
 	u01.normalize();
 
 	for (PxU32 i = 0; i < vertexCount; i++)
-	{		
+	{
 		const PxVec3& testPoint = vertices[i];
 		const PxVec3 diff = testPoint - simplex[0];
 		const PxVec3 xprod = u01.cross(diff);
@@ -2081,7 +2067,7 @@ bool QuickHullConvexHullLib::cleanupForSimplex(PxVec3* vertices, PxU32 vertexCou
 	maxDist = 0.0f;
 	imax = 0;
 	for (PxU32 i = 0; i < vertexCount; i++)
-	{		
+	{
 		const PxVec3& testPoint = vertices[i];
 		float dist = PxAbs(testPoint.dot(normal) - d0);
 		if (dist > maxDist)
@@ -2114,7 +2100,7 @@ bool QuickHullConvexHullLib::cleanupForSimplex(PxVec3* vertices, PxU32 vertexCou
 //  3. compute new points by 3 adjacency planes intersections
 //  4. take those points and create the hull from them
 PxConvexMeshCookingResult::Enum QuickHullConvexHullLib::expandHull()
-{	
+{
 	PxArray<local::ExpandPoint> expandPoints;	
 	expandPoints.reserve(mQuickHull->mNumVertices);
 
@@ -2148,14 +2134,14 @@ PxConvexMeshCookingResult::Enum QuickHullConvexHullLib::expandHull()
 		{
 			local::QuickHullFace& face = *mQuickHull->mHullFaces[i];
 			if(face.state == local::QuickHullFace::eVISIBLE)
-			{				
+			{
 				const float dist = face.distanceToPlane(vertex.point);
 				if(dist > 0 && dist > face.expandOffset)
 				{
 					face.expandOffset = dist;
 				}
 			}
-		}	
+		}
 	}
 
 	// fill the expand points planes
@@ -2172,8 +2158,8 @@ PxConvexMeshCookingResult::Enum QuickHullConvexHullLib::expandHull()
 			if(face.expandOffset > 0.0f)
 				plane.d -= face.expandOffset;
 			expandPoint.plane[k] = plane;
-		}		
-	}	
+		}
+	}
 
 	// now find the plane intersection
 	PX_ALLOCA(vertices,PxVec3,expandPoints.size());
@@ -2196,7 +2182,7 @@ PxConvexMeshCookingResult::Enum QuickHullConvexHullLib::expandHull()
 			newHull->releaseHull();
 			PX_DELETE(newHull);
 			return PxConvexMeshCookingResult::eZERO_AREA_TEST_FAILED;
-		}		
+		}
 	case local::QuickHullResult::eSUCCESS:
 	case local::QuickHullResult::eVERTEX_LIMIT_REACHED:
 	case local::QuickHullResult::ePOLYGONS_LIMIT_REACHED:
@@ -2224,7 +2210,7 @@ PxConvexMeshCookingResult::Enum QuickHullConvexHullLib::expandHull()
 // 3. slice the OBB with the planes
 // 5. iterate till vlimit is reached
 PxConvexMeshCookingResult::Enum QuickHullConvexHullLib::expandHullOBB()
-{	
+{
 	PxArray<PxPlane> expandPlanes;
 	expandPlanes.reserve(mQuickHull->mHullFaces.size());	
 
@@ -2470,7 +2456,7 @@ void QuickHullConvexHullLib::fillConvexMeshDescFromQuickHull(PxConvexMeshDesc& d
 	PxU16 indexOffset = 0;
 	numFacesOut = 0;
 	for (PxU32 i = 0; i < numFaces; i++)
-	{	
+	{
 		// faceIndex - store the largest face first then the rest
 		PxU32 faceIndex;
 		if(i == 0)

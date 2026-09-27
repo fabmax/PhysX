@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef NP_ARTICULATION_RC_H
 #define NP_ARTICULATION_RC_H
@@ -113,18 +90,15 @@ namespace physx
 		virtual	void					packJointData(const PxReal* maximum, PxReal* reduced) const	PX_OVERRIDE	PX_FINAL;
 		virtual	void					unpackJointData(const PxReal* reduced, PxReal* maximum) const	PX_OVERRIDE	PX_FINAL;
 		virtual	void					commonInit() const	PX_OVERRIDE	PX_FINAL;
-		PX_DEPRECATED	virtual	void	computeGeneralizedGravityForce(PxArticulationCache& cache) const	PX_OVERRIDE	PX_FINAL;
 		virtual	void					computeGravityCompensation(PxArticulationCache& cache) const	PX_OVERRIDE	PX_FINAL;
-		PX_DEPRECATED	virtual	void	computeCoriolisAndCentrifugalForce(PxArticulationCache& cache) const	PX_OVERRIDE	PX_FINAL;
 		virtual	void					computeCoriolisCompensation(PxArticulationCache& cache) const	PX_OVERRIDE	PX_FINAL;
 		virtual	void					computeGeneralizedExternalForce(PxArticulationCache& cache) const	PX_OVERRIDE	PX_FINAL;
 		virtual	void					computeJointAcceleration(PxArticulationCache& cache) const	PX_OVERRIDE	PX_FINAL;
 		virtual	void					computeJointForce(PxArticulationCache& cache) const	PX_OVERRIDE	PX_FINAL;
 		virtual	void					computeDenseJacobian(PxArticulationCache& cache, PxU32& nRows, PxU32& nCols) const	PX_OVERRIDE	PX_FINAL;
-		virtual	void					computeCoefficientMatrix(PxArticulationCache& cache) const	PX_OVERRIDE	PX_FINAL;
-		virtual	bool					computeLambda(PxArticulationCache& cache, PxArticulationCache& rollBackCache, const PxReal* const jointTorque, const PxU32 maxIter) const	PX_OVERRIDE	PX_FINAL;
+		PX_DEPRECATED virtual	void	computeCoefficientMatrix(PxArticulationCache& cache) const	PX_OVERRIDE	PX_FINAL;
+		PX_DEPRECATED virtual	bool	computeLambda(PxArticulationCache& cache, PxArticulationCache& rollBackCache, const PxReal* const jointTorque, const PxU32 maxIter) const	PX_OVERRIDE	PX_FINAL;
 		virtual	void					computeMassMatrix(PxArticulationCache& cache) const	PX_OVERRIDE	PX_FINAL;
-		PX_DEPRECATED	virtual	void	computeGeneralizedMassMatrix(PxArticulationCache& cache) const	PX_OVERRIDE	PX_FINAL;
 		virtual	void					computeCentroidalMomentumMatrix(PxArticulationCache& cache) const	PX_OVERRIDE	PX_FINAL;
 		PX_DEPRECATED	virtual	void	addLoopJoint(PxConstraint* joint)	PX_OVERRIDE	PX_FINAL;
 		PX_DEPRECATED	virtual	void	removeLoopJoint(PxConstraint* constraint)	PX_OVERRIDE	PX_FINAL;
@@ -149,7 +123,6 @@ namespace physx
 		virtual	PxU32					getMimicJoints(PxArticulationMimicJoint** userBuffer, PxU32 bufferSize, PxU32 startIndex) const	PX_OVERRIDE	PX_FINAL;
 		virtual	PxU32					getNbMimicJoints() const	PX_OVERRIDE	PX_FINAL;
 		virtual	void					updateKinematic(PxArticulationKinematicFlags flags) PX_OVERRIDE PX_FINAL;
-		virtual PxArticulationResidual	getSolverResidual() const	PX_OVERRIDE PX_FINAL;
 		//~PxArticulationReducedCoordinate
 
 		NpArticulationSpatialTendon*					getSpatialTendon(const PxU32 index) const;

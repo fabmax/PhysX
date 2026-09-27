@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
-// Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
+// Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef	__JOINT_CONSTRAINT_BLOCK_PREP_CUH__
 #define	__JOINT_CONSTRAINT_BLOCK_PREP_CUH__
@@ -36,35 +13,31 @@
 #include "PxgSolverBody.h"
 #include "PxgConstraint.h"
 #include "PxgSolverConstraintBlock1D.h"
-#include "PxgCudaMemoryAllocator.h"
 #include "PxgSolverConstraintDesc.h"
 #include "PxgConstraintPrep.h"
 #include "foundation/PxVec4.h"
 #include "MemoryAllocator.cuh"
 #include "PxgSolverKernelIndices.h"
 
-using namespace physx;
-
 namespace physx
 {
-	struct PxgMassProps
+
+struct PxgMassProps
+{
+	float invMass0;
+	float invMass1;
+	float invInertiaScale0;
+	float invInertiaScale1;
+
+	__device__ PxgMassProps(const PxReal iMass0, const PxReal iMass1, 
+		const float4 lin0_ang0_lin1_ang1)
 	{
-		float invMass0;
-		float invMass1;
-		float invInertiaScale0;
-		float invInertiaScale1;
-
-		__device__ PxgMassProps(const PxReal iMass0, const PxReal iMass1, 
-			const float4 lin0_ang0_lin1_ang1)
-		{
-			invMass0 = iMass0 * lin0_ang0_lin1_ang1.x;
-			invMass1 = iMass1 * lin0_ang0_lin1_ang1.z;
-			invInertiaScale0 = lin0_ang0_lin1_ang1.y;
-			invInertiaScale1 = lin0_ang0_lin1_ang1.w;
-		}
-
-	};
-}
+		invMass0 = iMass0 * lin0_ang0_lin1_ang1.x;
+		invMass1 = iMass1 * lin0_ang0_lin1_ang1.z;
+		invInertiaScale0 = lin0_ang0_lin1_ang1.y;
+		invInertiaScale1 = lin0_ang0_lin1_ang1.w;
+	}
+};
 
 
 //
@@ -75,11 +48,9 @@ static __device__ void orthogonalize( PxU32* sortedRowIndices, PxgBlockConstrain
 										PxVec3* angSqrtInvInertia1,
 										PxU32 rowCount, 
 										PxU32 eqRowCount,
-										const physx::PxgMassProps* m,
+										const PxgMassProps* m,
 										const PxU32 threadIndex)
 {
-	using namespace physx;
-
 	assert(eqRowCount<=6);
 
 	PxVec3 lin1m[6], ang1m[6], lin1[6], ang1[6];	
@@ -170,12 +141,10 @@ static __device__ void orthogonalize( PxU32* sortedRowIndices, PxgBlockConstrain
 static __device__ void preprocessRows(PxU32* sortedRowIndices, PxgBlockConstraint1DData* constraintData, 
 									  PxgBlockConstraint1DVelocities* rowVelocities, PxgBlockConstraint1DParameters* rowParameters,
 									  PxVec3* angSqrtInvInertia0, PxVec3* angSqrtInvInertia1,
-									  const physx::PxgSolverBodyPrepData* bd0, const physx::PxgSolverBodyPrepData* bd1,
+									  const PxgSolverBodyPrepData* bd0, const PxgSolverBodyPrepData* bd1,
 									  PxgSolverTxIData* txIData0, PxgSolverTxIData* txIData1,
 									  const PxU32 threadIndex, bool disablePreprocessing)
 {
-	using namespace physx;
-
 	//Px1DConstraint* sorted[MAX_CONSTRAINTS];
 	// j is maxed at 12, typically around 7, so insertion sort is fine
 
@@ -241,8 +210,8 @@ static __device__ void preprocessRows(PxU32* sortedRowIndices, PxgBlockConstrain
 	}
 }
   
-static __device__ void intializeBlock1D(const physx::PxgBlockConstraint1DVelocities& rv,
-										const physx::PxgBlockConstraint1DParameters& rp,
+static __device__ void intializeBlock1D(const PxgBlockConstraint1DVelocities& rv,
+										const PxgBlockConstraint1DParameters& rp,
 											float jointSpeedForRestitutionBounce,
 											float initJointSpeed,
 											float resp0,
@@ -259,8 +228,6 @@ static __device__ void intializeBlock1D(const physx::PxgBlockConstraint1DVelocit
 											const PxU32 threadIndex
 											)
 {
-	using namespace physx;
-	
 	{
 		const PxU16 flags = rp.flags[threadIndex];
 		const PxReal springStiffness = rp.mods.spring.stiffness[threadIndex];
@@ -284,7 +251,6 @@ static __device__ void intializeBlock1D(const physx::PxgBlockConstraint1DVelocit
 		smod.coeff1[threadIndex] = coeff1;
 
 		smod.appliedForce[threadIndex] = 0;
-		smod.residual[threadIndex] = 0;
 
 		// Instead of setting the flag to zero as in the previous implementation, the flag is used to mark spring and
 		// acceleration spring.
@@ -299,14 +265,12 @@ static __device__ void intializeBlock1D(const physx::PxgBlockConstraint1DVelocit
 
 static __device__ void setUp1DConstraintBlock(PxU32* sortedRowIndices, PxgBlockConstraint1DData* constraintData, PxgBlockConstraint1DVelocities* rowVelocities, PxgBlockConstraint1DParameters* rowParameters, 
 								  PxVec3* angSqrtInvInertia0, PxVec3* angSqrtInvInertia1, PxgBlockSolverConstraint1DCon* constraintsCon, PxgBlockSolverConstraint1DMod* constraintsMod,
-									float dt, float recipdt, const physx::PxgSolverBodyPrepData* sBodyData0, const physx::PxgSolverBodyPrepData* sBodyData1,
+									float dt, float recipdt, float biasCoefficient, const PxgSolverBodyPrepData* sBodyData0, const PxgSolverBodyPrepData* sBodyData1,
 									const PxU32 threadIndex)
 {
-	using namespace physx;
-
 	//PxU32 stride = sizeof(PxgSolverConstraint1D);
 
-	const PxReal erp = 1.0f;
+	const PxReal erp = biasCoefficient;
 	const float4 sBodyData0_initialLinVelXYZ_invMassW0 = sBodyData0->initialLinVelXYZ_invMassW;
 	const float4 sBodyData1_initialLinVelXYZ_invMassW1 = sBodyData1->initialLinVelXYZ_invMassW;
 
@@ -343,7 +307,7 @@ static __device__ void setUp1DConstraintBlock(PxU32* sortedRowIndices, PxgBlockC
 				c_linear1XYZ_minImpulseW.w, c_angular1XYZ_maxImpulseW.w,
 				hasDriveLimit, driveLimitsAreForces, dt,
 				minImpulse, maxImpulse);
-		}	
+		}
 	
 		cmod.ang0Writeback[threadIndex] = cang0;
 
@@ -365,13 +329,11 @@ static __device__ void setUp1DConstraintBlock(PxU32* sortedRowIndices, PxgBlockC
 
 template<int NbThreads>
 static __device__ void setupSolverConstraintBlockGPU(PxgBlockConstraint1DData* constraintData, PxgBlockConstraint1DVelocities* rowVelocities, PxgBlockConstraint1DParameters* rowParameters, 
-													 const physx::PxgSolverBodyPrepData* sBodyData0, const physx::PxgSolverBodyPrepData* sBodyData1, PxgSolverTxIData* txIData0, PxgSolverTxIData* txIData1,
-													float dt, float recipdt, PxgBlockConstraintBatch& batch, 
+													 const PxgSolverBodyPrepData* sBodyData0, const PxgSolverBodyPrepData* sBodyData1, PxgSolverTxIData* txIData0, PxgSolverTxIData* txIData1,
+													float dt, float recipdt, float biasCoefficient, PxgBlockConstraintBatch& batch, 
 													 const PxU32 threadIndex, PxgBlockSolverConstraint1DHeader* header, PxgBlockSolverConstraint1DCon* rowsCon, PxgBlockSolverConstraint1DMod* rowsMod,
 													 const PxgSolverConstraintManagerConstants& managerConstants)
 {
-	using namespace physx;
-
 	//distance constraint might have zero number of rows	
 	header->rowCounts[threadIndex] = PxU8(constraintData->mNumRows[threadIndex]);
 
@@ -402,8 +364,10 @@ static __device__ void setupSolverConstraintBlockGPU(PxgBlockConstraint1DData* c
 	__shared__ PxVec3 angSqrtInvInertia1[NbThreads][Dy::MAX_CONSTRAINT_ROWS];
 	
 	preprocessRows(sortedRowIndices[threadIdx.x], constraintData, rowVelocities, rowParameters, angSqrtInvInertia0[threadIdx.x], angSqrtInvInertia1[threadIdx.x], sBodyData0, sBodyData1, txIData0, txIData1, threadIndex, !!(constraintData->mFlags[threadIndex] & PxConstraintFlag::eDISABLE_PREPROCESSING));
-	setUp1DConstraintBlock(sortedRowIndices[threadIdx.x], constraintData, rowVelocities, rowParameters, angSqrtInvInertia0[threadIdx.x], angSqrtInvInertia1[threadIdx.x], rowsCon, rowsMod, dt, recipdt, sBodyData0, sBodyData1, threadIndex);
+	setUp1DConstraintBlock(sortedRowIndices[threadIdx.x], constraintData, rowVelocities, rowParameters, angSqrtInvInertia0[threadIdx.x], angSqrtInvInertia1[threadIdx.x], rowsCon, rowsMod, dt, recipdt, biasCoefficient, sBodyData0, sBodyData1, threadIndex);
 }
 
+
+} // namespace physx
 
 #endif

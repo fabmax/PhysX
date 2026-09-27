@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
-// Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
+// Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef PX_VEC_MATH_AOS_SCALAR_INLINE_H
 #define PX_VEC_MATH_AOS_SCALAR_INLINE_H
@@ -1276,14 +1253,14 @@ PX_FORCE_INLINE Vec4V V4Min(const Vec4V a, const Vec4V b)
 PX_FORCE_INLINE FloatV V4ExtractMax(const Vec4V a)
 {
 	const PxF32 t0 = (a.x >= a.y) ? a.x : a.y;
-	const PxF32 t1 = (a.z >= a.w) ? a.x : a.w;
+	const PxF32 t1 = (a.z >= a.w) ? a.z : a.w;
 	return t0 >= t1 ? t0 : t1;
 }
 
 PX_FORCE_INLINE FloatV V4ExtractMin(const Vec4V a)
 {
 	const PxF32 t0 = (a.x <= a.y) ? a.x : a.y;
-	const PxF32 t1 = (a.z <= a.w) ? a.x : a.w;
+	const PxF32 t1 = (a.z <= a.w) ? a.z : a.w;
 	return t0 <= t1 ? t0 : t1;
 }
 
@@ -1823,7 +1800,7 @@ PX_FORCE_INLINE Mat44V M44Trnsps(const Mat44V& a)
 	              Vec4V(a.col0.z, a.col1.z, a.col2.z, a.col3.z), Vec4V(a.col0.w, a.col1.w, a.col2.w, a.col3.w));
 }
 
-PX_FORCE_INLINE Vec4V V4LoadXYZW(const PxF32& x, const PxF32& y, const PxF32& z, const PxF32& w)
+PX_FORCE_INLINE Vec4V V4LoadXYZW(PxF32 x, PxF32 y, PxF32 z, PxF32 w)
 {
 	return Vec4V(x, y, z, w);
 }

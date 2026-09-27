@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef GU_SWEEP_MESH_H
 #define GU_SWEEP_MESH_H
@@ -52,7 +29,7 @@ namespace Gu
 	};
 
 	struct SweepCapsuleMeshHitCallback : SweepShapeMeshHitCallback
-	{		
+	{
 		PxGeomSweepHit&		mSweepHit;
 		const PxMat34&		mVertexToWorldSkew;		
 		const PxReal		mTrueSweepDistance;		// max sweep distance that can be used
@@ -66,7 +43,7 @@ namespace Gu
 		SweepCapsuleMeshHitCallback(PxGeomSweepHit& sweepHit, const PxMat34& worldMatrix, PxReal distance, bool meshDoubleSided,
 									const Capsule& capsule, const PxVec3& unitDir, const PxHitFlags& hitFlags, bool flipNormal, float distCoef);
 
-		virtual PxAgain processHit(const PxGeomRaycastHit& aHit, const PxVec3& v0, const PxVec3& v1, const PxVec3& v2, PxReal& shrunkMaxT, const PxU32*);
+		virtual PxAgain processHit(const PxGeomRaycastHit& aHit, const PxVec3& v0, const PxVec3& v1, const PxVec3& v2, PxReal& shrunkMaxT, const PxU32*) PX_OVERRIDE;
 
 		// PT: TODO: unify these operators
 		void operator=(const SweepCapsuleMeshHitCallback&) {}
@@ -81,7 +58,7 @@ namespace Gu
 #endif
 
 	struct SweepBoxMeshHitCallback : SweepShapeMeshHitCallback
-	{		
+	{
 		const PxMat34Padded&	mMeshToBox;
 		PxReal					mDist, mDist0;
 		physx::aos::FloatV		mDistV;
@@ -103,7 +80,7 @@ namespace Gu
 
 		virtual ~SweepBoxMeshHitCallback() {}
 
-		virtual PxAgain processHit(const PxGeomRaycastHit& meshHit, const PxVec3& lp0, const PxVec3& lp1, const PxVec3& lp2, PxReal& shrinkMaxT, const PxU32*);
+		virtual PxAgain processHit(const PxGeomRaycastHit& meshHit, const PxVec3& lp0, const PxVec3& lp1, const PxVec3& lp2, PxReal& shrinkMaxT, const PxU32*) PX_OVERRIDE;
 
 		bool	finalizeHit(	PxGeomSweepHit& sweepHit, const PxTriangleMeshGeometry& triMeshGeom, const PxTransform& pose,
 								const PxTransform& boxTransform, const PxVec3& localDir,
@@ -136,7 +113,7 @@ namespace Gu
 
 		virtual ~SweepConvexMeshHitCallback()	{}
 
-		virtual PxAgain processHit(const PxGeomRaycastHit& hit, const PxVec3& av0, const PxVec3& av1, const PxVec3& av2, PxReal& shrunkMaxT, const PxU32*);
+		virtual PxAgain processHit(const PxGeomRaycastHit& hit, const PxVec3& av0, const PxVec3& av1, const PxVec3& av2, PxReal& shrunkMaxT, const PxU32*) PX_OVERRIDE;
 
 		bool	finalizeHit(PxGeomSweepHit& sweepHit, const PxTriangleMeshGeometry& meshGeom, const PxTransform& pose,
 							const PxConvexMeshGeometry& convexGeom, const PxTransform& convexPose,

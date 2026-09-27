@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
-// Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
+// Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef PX_PVD_IMPL_H
 #define PX_PVD_IMPL_H
@@ -72,12 +49,12 @@ struct MetaDataProvider : public PvdOMMetaDataProvider, public PxUserAllocated
 		mMetaData.release();
 	}
 
-	virtual void addRef()
+	virtual void addRef() PX_OVERRIDE
 	{
 		TScopedLockType locker(mMutex);
 		++mRefCount;
 	}
-	virtual void release()
+	virtual void release() PX_OVERRIDE
 	{
 		{
 			TScopedLockType locker(mMutex);
@@ -87,17 +64,17 @@ struct MetaDataProvider : public PvdOMMetaDataProvider, public PxUserAllocated
 		if(!mRefCount)
 			PVD_DELETE(this);
 	}
-	virtual PvdObjectModelMetaData& lock()
+	virtual PvdObjectModelMetaData& lock() PX_OVERRIDE
 	{
 		mMutex.lock();
 		return mMetaData;
 	}
-	virtual void unlock()
+	virtual void unlock() PX_OVERRIDE
 	{
 		mMutex.unlock();
 	}
 
-	virtual bool createInstance(const NamespacedName& clsName, const void* instance)
+	virtual bool createInstance(const NamespacedName& clsName, const void* instance) PX_OVERRIDE
 	{
 		TScopedLockType locker(mMutex);
 		Option<ClassDescription> cls(mMetaData.findClass(clsName));
@@ -107,7 +84,7 @@ struct MetaDataProvider : public PvdOMMetaDataProvider, public PxUserAllocated
 		mTypeMap.insert(instance, instType);
 		return true;
 	}
-	virtual bool isInstanceValid(const void* instance)
+	virtual bool isInstanceValid(const void* instance) PX_OVERRIDE
 	{
 		TScopedLockType locker(mMutex);
 		ClassDescription classDesc;
@@ -118,14 +95,14 @@ struct MetaDataProvider : public PvdOMMetaDataProvider, public PxUserAllocated
 #endif
 		return retval;
 	}
-	virtual void destroyInstance(const void* instance)
+	virtual void destroyInstance(const void* instance) PX_OVERRIDE
 	{
 		{
 			TScopedLockType locker(mMutex);
 			mTypeMap.erase(instance);
 		}
 	}
-	virtual int32_t getInstanceClassType(const void* instance)
+	virtual int32_t getInstanceClassType(const void* instance) PX_OVERRIDE
 	{
 		TScopedLockType locker(mMutex);
 		const TInstTypeMap::Entry* entry = mTypeMap.find(instance);
@@ -158,38 +135,38 @@ class PvdImpl : public PsPvd, public PxUserAllocated
   public:
 	PvdImpl();
 	virtual ~PvdImpl();
-	void release();
+	virtual	void release()	PX_OVERRIDE;
 
-	bool connect(PxPvdTransport& transport, PxPvdInstrumentationFlags flags);
-	void disconnect();
-	bool isConnected(bool useCachedStatus = true);
-	void flush();
+	virtual	bool connect(PxPvdTransport& transport, PxPvdInstrumentationFlags flags)	PX_OVERRIDE;
+	virtual	void disconnect()	PX_OVERRIDE;
+	virtual	bool isConnected(bool useCachedStatus = true)	PX_OVERRIDE;
+	virtual	void flush()	PX_OVERRIDE;
 
-	PxPvdTransport* getTransport();
-	PxPvdInstrumentationFlags getInstrumentationFlags();
+	virtual	PxPvdTransport* getTransport()	PX_OVERRIDE;
+	virtual	PxPvdInstrumentationFlags getInstrumentationFlags()	PX_OVERRIDE;
 
-	void addClient(PvdClient* client);
-	void removeClient(PvdClient* client);
+	virtual	void addClient(PvdClient* client)	PX_OVERRIDE;
+	virtual	void removeClient(PvdClient* client)	PX_OVERRIDE;
 
-	PvdOMMetaDataProvider& getMetaDataProvider();
+	virtual	PvdOMMetaDataProvider& getMetaDataProvider()	PX_OVERRIDE;
 
-	bool registerObject(const void* inItem);
-	bool unRegisterObject(const void* inItem);
+	virtual	bool registerObject(const void* inItem)	PX_OVERRIDE;
+	virtual	bool unRegisterObject(const void* inItem)	PX_OVERRIDE;
 
 	//AllocationListener
-	void onAllocation(size_t size, const char* typeName, const char* filename, int line, void* allocatedMemory);
-	void onDeallocation(void* addr);
+	virtual void onAllocation(size_t size, const char* typeName, const char* filename, int line, void* allocatedMemory)	PX_OVERRIDE;
+	virtual void onDeallocation(void* addr)	PX_OVERRIDE;
 
-	uint64_t getNextStreamId();
+	virtual	uint64_t getNextStreamId()	PX_OVERRIDE;
 
 	static bool initialize();
 	static PvdImpl* getInstance();
 
 	// Profiling
 
-	virtual void* zoneStart(const char* eventName, bool detached, uint64_t contextId);
+	virtual void* zoneStart(const char* eventName, bool detached, uint64_t contextId) PX_OVERRIDE;
 
-	virtual void zoneEnd(void* profilerData, const char *eventName, bool detached, uint64_t contextId);
+	virtual void zoneEnd(void* profilerData, const char *eventName, bool detached, uint64_t contextId) PX_OVERRIDE;
 
   private:
 	void sendTransportInitialization();

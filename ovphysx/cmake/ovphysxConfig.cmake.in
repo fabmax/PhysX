@@ -1,0 +1,184 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+@PACKAGE_INIT@
+
+# ovphysx CMake Configuration File
+# This file provides configuration for projects that consume ovphysx via find_package()
+
+# Check if the package has already been found
+if(ovphysx_FOUND)
+    return()
+endif()
+
+# Set version information
+set(ovphysx_VERSION "@PROJECT_VERSION@")
+
+# Include the targets file
+include("${CMAKE_CURRENT_LIST_DIR}/ovphysxTargets.cmake")
+
+# Resolve package prefix from install lib dir (relocatable)
+set(ovphysx_LIB_DIR "@PACKAGE_CMAKE_INSTALL_LIBDIR@")
+get_filename_component(OVPHYSX_PACKAGE_PREFIX "${ovphysx_LIB_DIR}/.." ABSOLUTE)
+
+# Set up variables that consuming projects might need
+get_target_property(ovphysx_INCLUDE_DIRS ovphysx::ovphysx INTERFACE_INCLUDE_DIRECTORIES)
+
+# PhysX SDK headers for physx pointer interop (headers only, no linking needed)
+set(ovphysx_PHYSX_INCLUDE_DIR "${OVPHYSX_PACKAGE_PREFIX}/include/physx")
+
+# ovstage: consumer-supplied, not part of this package.
+#
+# This package ships no ovstage headers, library, or runtime. Download the
+# matching native package from the OVStage GitHub release; its CMake package
+# config resolves from the normal search path:
+#
+#   cmake -DCMAKE_PREFIX_PATH="/path/to/ovphysx;/path/to/ovstage" ...
+#
+# Required even if you never call ovstage: public headers include ovstage headers,
+# and libovphysx has a runtime dependency on libovstage.
+include(CMakeFindDependencyMacro)
+find_dependency(ovstage 0.2 CONFIG)
+
+# Capability gate: the bundled samples and test helpers call
+# ovstage_population_register_usd_schemas(), added in ovstage 0.2.0.374259. Both
+# 0.2.0.372377 and 0.2.0.374259 advertise CMake version 0.2.0, so find_dependency
+# cannot tell them apart and a consumer resolving 372377 would fail to compile the
+# samples. Checking the header declaration fails configuration early instead.
+get_target_property(_ovphysx_ovstage_incdirs ovstage::ovstage INTERFACE_INCLUDE_DIRECTORIES)
+find_file(_ovphysx_ovstage_population_h ovstage/ovstage_population.h
+    PATHS ${_ovphysx_ovstage_incdirs} ${ovstage_INCLUDE_DIRS} NO_DEFAULT_PATH)
+if(_ovphysx_ovstage_population_h)
+    file(READ "${_ovphysx_ovstage_population_h}" _ovphysx_ovstage_population_src)
+    if(NOT _ovphysx_ovstage_population_src MATCHES "ovstage_population_register_usd_schemas")
+        message(FATAL_ERROR
+            "ovphysx requires ovstage >= 0.2.0.374259: its samples register the codeless PhysX "
+            "schemas with ovstage_population_register_usd_schemas(), which the resolved ovstage package "
+            "does not provide. Download the matching ovstage native package (v0.2.0 build "
+            "374259 or newer) and point CMAKE_PREFIX_PATH at it.")
+    endif()
+endif()
+
+set_property(TARGET ovphysx::ovphysx APPEND PROPERTY
+    INTERFACE_LINK_LIBRARIES ovstage::ovstage
+)
+list(APPEND ovphysx_INCLUDE_DIRS ${ovstage_INCLUDE_DIRS})
+
+# Companion target kept for source compatibility with ovstage::ovstage.
+if(NOT TARGET ovphysx::ovstage)
+    add_library(ovphysx::ovstage INTERFACE IMPORTED)
+    set_property(TARGET ovphysx::ovstage PROPERTY
+        INTERFACE_LINK_LIBRARIES ovstage::ovstage
+    )
+endif()
+
+# For legacy projects that use variables instead of targets
+# Modern CMake projects should just use: target_link_libraries(myapp ovphysx::ovphysx)
+set(ovphysx_LIBRARIES ovphysx::ovphysx)
+
+# Add plugins directory to link search path for plugin-side runtime dependencies.
+set(ovphysx_PLUGINS_DIR "@PACKAGE_OVPHYSX_PLUGINSDIR@")
+if(EXISTS "${ovphysx_PLUGINS_DIR}")
+    set_property(TARGET ovphysx::ovphysx APPEND PROPERTY
+        INTERFACE_LINK_DIRECTORIES "${ovphysx_PLUGINS_DIR}"
+    )
+endif()
+
+# Runtime search paths for consumers (no PATH/LD_LIBRARY_PATH required)
+if(UNIX AND NOT APPLE)
+    set(_ovphysx_runtime_rpath
+        "@PACKAGE_CMAKE_INSTALL_LIBDIR@"
+        "${ovphysx_PLUGINS_DIR}"
+    )
+    foreach(_dir IN LISTS _ovphysx_runtime_rpath)
+        set_property(TARGET ovphysx::ovphysx APPEND PROPERTY
+            INTERFACE_LINK_OPTIONS "-Wl,-rpath,${_dir}"
+        )
+    endforeach()
+
+    # libovphysx carries only an $ORIGIN RPATH and relies on the consumer's
+    # search list to find libovstage.so and other transitive libraries. The
+    # default DT_RUNPATH resolves only an object's own NEEDED entries, so the
+    # consumer needs old-style DT_RPATH to reach dependencies of dependencies.
+    # Same fix as tests/c_unittests/CMakeLists.txt.
+    # @implements REQ-PACKAGING-RPATH-001
+    set_property(TARGET ovphysx::ovphysx APPEND PROPERTY
+        INTERFACE_LINK_OPTIONS "LINKER:--disable-new-dtags"
+    )
+endif()
+
+# Windows: helper to copy runtime DLLs next to a target
+if(WIN32)
+    function(ovphysx_copy_runtime_dlls target)
+        if(NOT TARGET ${target})
+            message(FATAL_ERROR "ovphysx_copy_runtime_dlls: target not found: ${target}")
+        endif()
+
+        # Runtime layout (Windows SDK):
+        # - Core ovphysx DLLs and config live in <prefix>/bin.
+        # - ovstage is NOT part of the package. The application supplies and
+        #   deploys its own ovstage runtime.
+        # - Some third-party runtime deps may live under <prefix>/plugins/bin/deps.
+        # - The codeless PhysX USD schemas live under <prefix>/schemas/physx and
+        #   are copied next to the executable so ovphysx_get_codeless_schema_root()
+        #   resolves them in the copied layout (REQ-CAPI-OVSTAGE-SCHEMA-001).
+        file(GLOB _ovphysx_bin_entries "${OVPHYSX_PACKAGE_PREFIX}/bin/*")
+        foreach(_entry IN LISTS _ovphysx_bin_entries)
+            if(NOT IS_DIRECTORY "${_entry}")
+                get_filename_component(_entry_name "${_entry}" NAME)
+                if(NOT _entry_name STREQUAL "ovstage.dll")
+                    add_custom_command(TARGET ${target} POST_BUILD
+                        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                            "${_entry}" "$<TARGET_FILE_DIR:${target}>"
+                        COMMENT "ovphysx: copy runtime file ${_entry_name}"
+                    )
+                endif()
+            endif()
+        endforeach()
+
+        if(EXISTS "${ovphysx_PLUGINS_DIR}")
+            # Keep the installed plugins/ layout next to the consumer
+            # executable so Carbonite can discover plugins the same way
+            # ovphysx expects them in the packaged SDK.
+            add_custom_command(TARGET ${target} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E make_directory
+                    "$<TARGET_FILE_DIR:${target}>/plugins"
+                COMMAND ${CMAKE_COMMAND} -E copy_directory
+                    "${ovphysx_PLUGINS_DIR}" "$<TARGET_FILE_DIR:${target}>/plugins"
+                COMMENT "ovphysx: copy plugins from ${ovphysx_PLUGINS_DIR}"
+            )
+        endif()
+
+        if(EXISTS "${ovphysx_PLUGINS_DIR}/bin/deps")
+            add_custom_command(TARGET ${target} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_directory
+                    "${ovphysx_PLUGINS_DIR}/bin/deps" "$<TARGET_FILE_DIR:${target}>"
+                COMMENT "ovphysx: copy runtime deps from ${ovphysx_PLUGINS_DIR}/bin/deps"
+            )
+        endif()
+
+        if(EXISTS "${OVPHYSX_PACKAGE_PREFIX}/schemas/physx")
+            add_custom_command(TARGET ${target} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E make_directory
+                    "$<TARGET_FILE_DIR:${target}>/schemas"
+                COMMAND ${CMAKE_COMMAND} -E copy_directory
+                    "${OVPHYSX_PACKAGE_PREFIX}/schemas" "$<TARGET_FILE_DIR:${target}>/schemas"
+                COMMENT "ovphysx: copy codeless schemas from ${OVPHYSX_PACKAGE_PREFIX}/schemas"
+            )
+        endif()
+    endfunction()
+endif()
+
+set(ovphysx_FOUND TRUE)
+
+# Provide information about what was found
+if(NOT ovphysx_FIND_QUIETLY)
+    message(STATUS "Found ovphysx: ${ovphysx_VERSION}")
+    message(STATUS "  Include directories: ${ovphysx_INCLUDE_DIRS}")
+    message(STATUS "  Libraries: ${ovphysx_LIBRARIES}")
+    message(STATUS "  Plugins directory: ${ovphysx_PLUGINS_DIR}")
+    message(STATUS "  PhysX include directory: ${ovphysx_PHYSX_INCLUDE_DIR}")
+endif()
+
+# Handle required/optional components
+check_required_components(ovphysx)

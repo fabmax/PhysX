@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
-// Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
+// Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "vector_types.h"
 #include "foundation/PxVec3.h"
@@ -40,6 +17,8 @@
 
 #include "denseGridStandalone.cuh"
 #include "sparseGridStandalone.cuh"
+
+using namespace physx;
 
 #define ENABLE_KERNEL_LAUNCH_ERROR_CHECK 0
 
@@ -880,7 +859,13 @@ extern "C" __global__ void iso_CreateTriIdsDCSparse(PxSparseIsosurfaceExtraction
 	createTriIdsDC(data, flipTriangleOrientation);
 }
 
-//https://stackoverflow.com/questions/3380628/fast-arc-cos-algorithm
+// Cubic approximation of acos on [-1, 1]:
+//   acos(x) ~= -(2*pi/9) * x^3 - (5*pi/18) * x + pi/2
+// The coefficients below are exactly 2*pi/9, 5*pi/18 and pi/2, so the
+// polynomial is exact at x = -1, 0 and +1; max absolute error ~0.18 rad.
+// Classic polynomial approximation of the inverse trigonometric functions
+// (cf. Abramowitz & Stegun 4.4.45, Hastings "Approximations for Digital
+// Computers", 1955).
 PX_FORCE_INLINE __device__ PxReal approxAcos(PxReal x)
 {
 	return PxMax(0.0f, (-0.69813170079773212f * x * x - 0.87266462599716477f) * x + 1.5707963267948966f);

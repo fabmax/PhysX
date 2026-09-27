@@ -1,35 +1,11 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
-// Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
+// Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "PxgIsosurfaceExtraction.h"
 
 #include "foundation/PxUserAllocated.h"
-#include "PxgCudaMemoryAllocator.h"
 
 #include "PxPhysXGpu.h"
 #include "PxgKernelWrangler.h"
@@ -41,7 +17,7 @@
 namespace physx
 {
 #if ENABLE_KERNEL_LAUNCH_ERROR_CHECK
-#define checkCudaError() { cudaError_t err = cudaDeviceSynchronize(); if (err != 0) printf("Cuda error file: %s, line: %i, error: %i\n", PX_FL, err); }	
+#define checkCudaError() { cudaError_t err = cudaDeviceSynchronize(); if (err != 0) printf("Cuda error file: %s, line: %i, error: %i\n", PX_FL, err); }
 #else
 #define checkCudaError() { }
 #endif
@@ -354,7 +330,13 @@ namespace physx
 
 		bool ownsGpuBuffers = mShared.mOwnsOutputGPUBuffers;
 		mShared.mOwnsOutputGPUBuffers = false; //The following call to initialize will release all existing owned memory. If the output buffers are marked as not-owned, they will persist.
-		initialize(mShared.mKernelLauncher, sparseGridParams, mShared.mIsosurfaceParams, maxParticles, mData.maxVerts, mData.maxTriIds / 3);
+		if (!initialize(mShared.mKernelLauncher, sparseGridParams, mShared.mIsosurfaceParams, maxParticles, mData.maxVerts, mData.maxTriIds / 3))
+		{
+			mShared.mEnabled = false;
+			PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "PxSparseGridIsosurfaceExtractor::setMaxParticles failed!"
+																		"Disabled isosurface extractor.");
+			mShared.mKernelLauncher.getCudaContextManager()->getCudaContext()->setAbortMode(true);
+		}
 		mShared.mOwnsOutputGPUBuffers = ownsGpuBuffers;
 	}
 
@@ -457,7 +439,7 @@ namespace physx
 		mData.threshold = -marginFactor * mData.getSpacing();
 	}
 
-	void PxgDenseGridIsosurfaceExtractor::initialize(PxgKernelLauncher& cudaContextManager, const PxBounds3& worldBounds,
+	bool PxgDenseGridIsosurfaceExtractor::initialize(PxgKernelLauncher& kernelLauncher, const PxBounds3& worldBounds,
 		PxReal cellSize, const PxIsosurfaceParams& isosurfaceParams, PxU32 maxNumParticles, PxU32 maxNumVertices, PxU32 maxNumTriangles)
 	{
 		release();
@@ -465,7 +447,7 @@ namespace physx
 		mMaxParticles = maxNumParticles;
 		mShared.mIsosurfaceParams = isosurfaceParams;
 		mData.mGrid.mGridParams.gridSpacing = cellSize;
-		mShared.mKernelLauncher = cudaContextManager;
+		mShared.mKernelLauncher = kernelLauncher;
 
 		paramsToMCData();
 
@@ -480,20 +462,27 @@ namespace physx
 
 		mShared.mScan.initialize(&mShared.mKernelLauncher, numCells);
 
-		mData.buffer[0] = PX_DEVICE_MEMORY_ALLOC(PxReal, *cudaContextManager.getCudaContextManager(), numCells);
-		mData.firstCellVert = PX_DEVICE_MEMORY_ALLOC(PxU32, *cudaContextManager.getCudaContextManager(), numCells);
-		mData.buffer[1] = PX_DEVICE_MEMORY_ALLOC(PxReal, *cudaContextManager.getCudaContextManager(), numCells);
+		mData.buffer[0] = PX_DEVICE_MEMORY_ALLOC(PxReal, *kernelLauncher.getCudaContextManager(), numCells);
+		mData.firstCellVert = PX_DEVICE_MEMORY_ALLOC(PxU32, *kernelLauncher.getCudaContextManager(), numCells);
+		mData.buffer[1] = PX_DEVICE_MEMORY_ALLOC(PxReal, *kernelLauncher.getCudaContextManager(), numCells);
 
 		mData.maxVerts = maxNumVertices;
 		mData.maxTriIds = maxNumTriangles * 3;
 
-		mData.numVerticesNumIndices = PX_DEVICE_MEMORY_ALLOC(PxU32, *cudaContextManager.getCudaContextManager(), 2);
+		mData.numVerticesNumIndices = PX_DEVICE_MEMORY_ALLOC(PxU32, *kernelLauncher.getCudaContextManager(), 2);
 
-		mShared.mNumVerticesNumIndices = PX_PINNED_MEMORY_ALLOC(PxU32, *cudaContextManager.getCudaContextManager(), 2);
+		mShared.mNumVerticesNumIndices = PX_PINNED_MEMORY_ALLOC_FLAGS(PxU32, *kernelLauncher.getCudaContextManager(), 2, CU_MEMHOSTALLOC_PORTABLE);
+		if(!mShared.mNumVerticesNumIndices)
+		{
+			PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL,
+									"PxgDenseGridIsosurfaceExtractor::initialize: failed to allocate host buffer mNumVerticesNumIndices");
+			return false;
+		}
 		mShared.mNumVerticesNumIndices[0] = 0;
 		mShared.mNumVerticesNumIndices[1] = 0;
 
-		mData.smoothingBuffer = PX_DEVICE_MEMORY_ALLOC(PxVec4, *cudaContextManager.getCudaContextManager(), maxNumVertices);
+		mData.smoothingBuffer = PX_DEVICE_MEMORY_ALLOC(PxVec4, *kernelLauncher.getCudaContextManager(), maxNumVertices);
+		return true;
 	}
 
 	void PxgDenseGridIsosurfaceExtractor::release()
@@ -542,12 +531,12 @@ namespace physx
 	}
 
 
-	void PxgSparseGridIsosurfaceExtractor::initialize(PxgKernelLauncher& cudaContextManager, const PxSparseGridParams sparseGridParams,
+	bool PxgSparseGridIsosurfaceExtractor::initialize(PxgKernelLauncher& kernelLauncher, const PxSparseGridParams sparseGridParams,
 		const PxIsosurfaceParams& isosurfaceParams, PxU32 maxNumParticles, PxU32 maxNumVertices, PxU32 maxNumTriangles)
 	{
 		release();
 
-		mShared.mKernelLauncher = cudaContextManager;
+		mShared.mKernelLauncher = kernelLauncher;
 
 		mData.restDensity = 1.0f;
 		mData.mGrid.mGridParams.gridSpacing = sparseGridParams.gridSpacing;
@@ -567,16 +556,22 @@ namespace physx
 		mSparseGrid.initialize(&mShared.mKernelLauncher, mData.mGrid.mGridParams, maxNumParticles, neighborhoodSize);
 		mShared.mScan.initialize(&mShared.mKernelLauncher, numCells);
 
-		mData.buffer[0] = PX_DEVICE_MEMORY_ALLOC(PxReal, *cudaContextManager.getCudaContextManager(), numCells);
-		mData.firstCellVert = PX_DEVICE_MEMORY_ALLOC(PxU32, *cudaContextManager.getCudaContextManager(), numCells);
-		mData.buffer[1] = PX_DEVICE_MEMORY_ALLOC(PxReal, *cudaContextManager.getCudaContextManager(), numCells);
+		mData.buffer[0] = PX_DEVICE_MEMORY_ALLOC(PxReal, *kernelLauncher.getCudaContextManager(), numCells);
+		mData.firstCellVert = PX_DEVICE_MEMORY_ALLOC(PxU32, *kernelLauncher.getCudaContextManager(), numCells);
+		mData.buffer[1] = PX_DEVICE_MEMORY_ALLOC(PxReal, *kernelLauncher.getCudaContextManager(), numCells);
 
 		mData.maxVerts = maxNumVertices;
 		mData.maxTriIds = maxNumTriangles * 3;
 
-		mData.numVerticesNumIndices = PX_DEVICE_MEMORY_ALLOC(PxU32, *cudaContextManager.getCudaContextManager(), 2);
+		mData.numVerticesNumIndices = PX_DEVICE_MEMORY_ALLOC(PxU32, *kernelLauncher.getCudaContextManager(), 2);
 
-		mShared.mNumVerticesNumIndices = PX_PINNED_MEMORY_ALLOC(PxU32, *cudaContextManager.getCudaContextManager(), 2);
+		mShared.mNumVerticesNumIndices = PX_PINNED_MEMORY_ALLOC_FLAGS(PxU32, *kernelLauncher.getCudaContextManager(), 2, CU_MEMHOSTALLOC_PORTABLE);
+		if(!mShared.mNumVerticesNumIndices)
+		{
+			PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL,
+									"PxgSparseGridIsosurfaceExtractor::initialize: failed to allocate host buffer mNumVerticesNumIndices");
+			return false;
+		}
 		mShared.mNumVerticesNumIndices[0] = 0;
 		mShared.mNumVerticesNumIndices[1] = 0;
 
@@ -584,7 +579,8 @@ namespace physx
 		mData.mGrid.mUniqueHashkeyPerSubgrid = mSparseGrid.getUniqueHashkeysPerSubgrid();
 		mData.mGrid.mSubgridNeighbors = mSparseGrid.getSubgridNeighborLookup();
 
-		mData.smoothingBuffer = PX_DEVICE_MEMORY_ALLOC(PxVec4, *cudaContextManager.getCudaContextManager(), maxNumVertices);
+		mData.smoothingBuffer = PX_DEVICE_MEMORY_ALLOC(PxVec4, *kernelLauncher.getCudaContextManager(), maxNumVertices);
+		return true;
 	}
 
 	void PxgSparseGridIsosurfaceExtractor::release()
@@ -699,7 +695,7 @@ namespace physx
 		{
 			smoothNormalsLaunch(mKernelLauncher, mData, stream);
 			smoothNormalsNormalizeLaunch(mKernelLauncher, mData, stream);
-		}			
+		}
 
 		if (mVertices)
 			cudaContext->memcpyDtoHAsync(mVertices, CUdeviceptr(mData.verts), mData.maxVerts * sizeof(PxVec4), stream);
@@ -743,15 +739,15 @@ namespace physx
 			mIsosurfaceExtractor = isosurfaceExtractor;
 		}
 
-		virtual void onPostSolve(const PxGpuMirroredPointer<PxGpuParticleSystem>& gpuParticleSystem, CUstream stream)
+		virtual void onPostSolve(const PxGpuMirroredPointer<PxGpuParticleSystem>& gpuParticleSystem, CUstream stream) PX_OVERRIDE
 		{
 			mIsosurfaceExtractor->extractIsosurface(reinterpret_cast<PxVec4*>(gpuParticleSystem.mHostPtr->mUnsortedPositions_InvMass), 
 				gpuParticleSystem.mHostPtr->mCommonData.mNumParticles, stream, gpuParticleSystem.mHostPtr->mUnsortedPhaseArray, 
 				PxParticlePhaseFlag::eParticlePhaseFluid, /*gpuParticleSystem.mHostPtr->mActiveArray*/NULL);
 		}
 
-		virtual void onBegin(const PxGpuMirroredPointer<PxGpuParticleSystem>& /*gpuParticleSystem*/, CUstream /*stream*/) { }
+		virtual void onBegin(const PxGpuMirroredPointer<PxGpuParticleSystem>& /*gpuParticleSystem*/, CUstream /*stream*/) PX_OVERRIDE { }
 
-		virtual void onAdvance(const PxGpuMirroredPointer<PxGpuParticleSystem>& /*gpuParticleSystem*/, CUstream /*stream*/) { }
+		virtual void onAdvance(const PxGpuMirroredPointer<PxGpuParticleSystem>& /*gpuParticleSystem*/, CUstream /*stream*/) PX_OVERRIDE { }
 	};		
 }

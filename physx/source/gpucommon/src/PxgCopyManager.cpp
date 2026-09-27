@@ -1,53 +1,30 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
-// Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
+// Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include <stdio.h>
 #include "CudaKernelWrangler.h"
 #include "PxgCopyManager.h"
 #include "cudamanager/PxCudaContextManager.h"
 #include "PxgKernelIndices.h"
-#include "PxgHeapMemAllocator.h"
 #include "PxgCudaUtils.h"
 #include "PxgCommonDefines.h"
+#include "PxsHeapStats.h"
 
 #include "cudamanager/PxCudaContext.h"
+#include "foundation/PxMath.h"
 
 #define DEBUG_COPY_MANAGER 0
 
 using namespace physx;
 
-PxgCopyManager::PxgCopyManager(PxgHeapMemoryAllocatorManager* heapMemoryManager) :
-						mDescriptorsQueue(PxVirtualAllocator(heapMemoryManager->mMappedMemoryAllocators)),
+PxgCopyManager::PxgCopyManager(Cm::VirtualAllocatorCallback& hostMappedAlloc) :
+						mAllocFailed(false),
+						mDescriptorsQueueMapped(hostMappedAlloc, PxsHeapStats::eOTHER, Cm::PinnableAllocatorFallback::eDISABLED),
 						mNumDescriptors(0),
 						mFinishedEvent(0),
-						mEventRecorded(false),
-						mHeapMemoryManager(heapMemoryManager)
-
+						mEventRecorded(false)
 {
 }
 
@@ -61,18 +38,24 @@ void PxgCopyManager::destroyFinishedEvent(PxCudaContext* cudaContext)
 	cudaContext->eventDestroy(mFinishedEvent);
 }
 							
-void PxgCopyManager::pushDeferredHtoD(const CopyDesc& desc)
+void PxgCopyManager::pushDeferredHtoD(const PxgCopyDesc& desc)
 {
-	PxU32 newSize = (mNumDescriptors + 1) * sizeof(CopyDesc);
+	PxU32 newSize = (mNumDescriptors + 1) * sizeof(PxgCopyDesc);
 	newSize = (newSize + 255) & ~255; //round up to ensure 256-bytes alignment of the following array
 	newSize += (mNumDescriptors + 1) * sizeof(PxU32); //run-sum array
 
-	if (newSize > mDescriptorsQueue.size())
+	if (newSize > mDescriptorsQueueMapped.size())
 	{
-		mDescriptorsQueue.resize(newSize * 2);
+		newSize = PxMax<PxU32>(newSize * 2, 256u);
+		if(!mDescriptorsQueueMapped.resize(newSize))
+		{
+			PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "PxgCopyManager: failed to allocate pinned host buffer for descriptors queue");
+			mAllocFailed = true;
+			return;
+		}
 	}
 
-	CopyDesc* descsCPU = reinterpret_cast<CopyDesc*>(mDescriptorsQueue.begin());
+	PxgCopyDesc* descsCPU = reinterpret_cast<PxgCopyDesc*>(mDescriptorsQueueMapped.begin());
 	descsCPU[mNumDescriptors++] = desc;
 }
 
@@ -101,6 +84,13 @@ void PxgCopyManager::dispatchCopy(CUstream stream, PxCudaContextManager* cudaCon
 {
 	PxCudaContext* cudaContext = cudaContextManager->getCudaContext();
 
+	if (mAllocFailed)
+	{
+		cudaContext->setAbortMode(true);
+		resetUnsafe();
+		return;
+	}
+
 	PX_ASSERT(hasFinishedCopying(cudaContext));
 
 	PxU32 numDescs = mNumDescriptors;
@@ -115,8 +105,8 @@ void PxgCopyManager::dispatchCopy(CUstream stream, PxCudaContextManager* cudaCon
 
 	CUfunction kernelFunction = kernelWrangler->getCuFunction(PxgKernelIds::MEM_COPY_BALANCED_KERNEL);
 
-	{						
-		CopyDesc* descsGPU = reinterpret_cast<CopyDesc*>(getMappedDevicePtr(cudaContext, mDescriptorsQueue.begin()));
+	{
+		PxgCopyDesc* descsGPU = reinterpret_cast<PxgCopyDesc*>(getMappedDevicePtr(cudaContext, mDescriptorsQueueMapped.begin()));
 				
 		PxCudaKernelParam kernelParams[] =
 		{

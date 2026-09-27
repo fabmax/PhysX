@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef NP_FACTORY_H
 #define NP_FACTORY_H
@@ -40,7 +17,9 @@
 #include "PxvGeometry.h"
 #include "solver/PxSolverDefs.h"
 
-#include "NpDeformableSurface.h"  // to be deleted
+#if PX_SUPPORT_GPU_PHYSX
+	#include "NpDeformableSurface.h"  // to be deleted
+#endif
 
 namespace physx
 {
@@ -82,9 +61,6 @@ class NpDeformableVolume;
 class NpPBDParticleSystem;
 class NpParticleBuffer;
 class NpParticleAndDiffuseBuffer;
-class NpParticleClothBuffer;
-class NpParticleRigidBuffer;
-
 class NpDeformableAttachment;
 class NpDeformableElementFilter;
 
@@ -143,17 +119,29 @@ public:
 				PxRigidDynamic*							createRigidDynamic(const PxTransform& pose);
 				void									addRigidDynamic(PxRigidDynamic*, bool lock=true);
 				void									releaseRigidDynamicToPool(NpRigidDynamic&);
-// PT: TODO: add missing functions
-//				PxU32									getNbRigidDynamics() const;
-//				PxU32									getRigidDynamics(PxRigidDynamic** userBuffer, PxU32 bufferSize, PxU32 startIndex)	const;
+				// The rigid dynamics the factory tracks, regardless of scene membership. Used by the
+				// full-state OmniPVD snapshot.
+				PxU32									getNbRigidDynamics() const;
+				PxU32									getRigidDynamics(PxRigidDynamic** userBuffer, PxU32 bufferSize, PxU32 startIndex)	const;
 
 				// Rigid static
 				PxRigidStatic*							createRigidStatic(const PxTransform& pose);
 				void									addRigidStatic(PxRigidStatic*, bool lock=true);
 				void									releaseRigidStaticToPool(NpRigidStatic&);
-// PT: TODO: add missing functions
-//				PxU32									getNbRigidStatics() const;
-//				PxU32									getRigidStatics(PxRigidStatic** userBuffer, PxU32 bufferSize, PxU32 startIndex)	const;
+				// The rigid statics the factory tracks, regardless of scene membership. Used by the
+				// full-state OmniPVD snapshot.
+				PxU32									getNbRigidStatics() const;
+				PxU32									getRigidStatics(PxRigidStatic** userBuffer, PxU32 bufferSize, PxU32 startIndex)	const;
+
+				// Deformable surfaces, deformable volumes and PBD particle systems the factory tracks.
+				// Kept in their own sets (GPU-only object types) so the rigid-actor set above stays
+				// homogeneous. Used by the full-state OmniPVD snapshot.
+				PxU32 getNbDeformableSurfaces() const;
+				PxU32 getDeformableSurfaces(PxActor** userBuffer, PxU32 bufferSize, PxU32 startIndex) const;
+				PxU32 getNbDeformableVolumes() const;
+				PxU32 getDeformableVolumes(PxActor** userBuffer, PxU32 bufferSize, PxU32 startIndex) const;
+				PxU32 getNbPBDParticleSystems() const;
+				PxU32 getPBDParticleSystems(PxActor** userBuffer, PxU32 bufferSize, PxU32 startIndex) const;
 
 				// Shapes
 				NpShape*								createShape(const PxGeometry& geometry, PxShapeFlags shapeFlags, PxMaterial*const* materials, PxU16 materialCount, bool isExclusive);
@@ -168,15 +156,15 @@ public:
 				PxConstraint*							createConstraint(PxRigidActor* actor0, PxRigidActor* actor1, PxConstraintConnector& connector, const PxConstraintShaderTable& shaders, PxU32 dataSize);
 				void									addConstraint(PxConstraint*, bool lock=true);
 				void									releaseConstraintToPool(NpConstraint&);
-// PT: TODO: add missing functions
 				PxU32									getNbConstraints() const;
-//				PxU32									getConstraints(PxConstraint** userBuffer, PxU32 bufferSize, PxU32 startIndex)	const;
+				PxU32									getConstraints(PxConstraint** userBuffer, PxU32 bufferSize, PxU32 startIndex)	const;
 
 				// Articulations
 				void									addArticulation(PxArticulationReducedCoordinate*, bool lock=true);
 				void									releaseArticulationToPool(PxArticulationReducedCoordinate& articulation);
 				PxArticulationReducedCoordinate*		createArticulationRC();
 				PxU32									getNbArticulations() const;
+				PxU32									getArticulations(PxArticulationReducedCoordinate** userBuffer, PxU32 bufferSize, PxU32 startIndex) const;
 
 				// Articulation links
 				NpArticulationLink*						createNpArticulationLink(NpArticulationReducedCoordinate& root, NpArticulationLink* parent, const PxTransform& pose);
@@ -219,23 +207,22 @@ public:
 				void									releasePBDParticleSystemToPool(PxPBDParticleSystem& particleSystem);
 
 				//Particle buffers
-				PxParticleBuffer*						createParticleBuffer(PxU32 maxParticles, PxU32 maxVolumes, PxCudaContextManager& cudaContextManager);
-				PxParticleAndDiffuseBuffer*				createParticleAndDiffuseBuffer(PxU32 maxParticles, PxU32 maxVolumes, PxU32 maxDiffuseParticles, PxCudaContextManager& cudaContextManager);
-				PxParticleClothBuffer*					createParticleClothBuffer(PxU32 maxParticles, PxU32 maxNumVolumes, PxU32 maxNumCloths, PxU32 maxNumTriangles, PxU32 maxNumSprings, PxCudaContextManager& cudaContextManager);
-				PxParticleRigidBuffer*					createParticleRigidBuffer(PxU32 maxParticles, PxU32 maxNumVolumes, PxU32 maxNumRigids, PxCudaContextManager& cudaContextManager);
+				PxParticleBuffer*						createParticleBuffer(PxU32 maxParticles, PxCudaContextManager& cudaContextManager);
+				PxParticleAndDiffuseBuffer*				createParticleAndDiffuseBuffer(PxU32 maxParticles, PxU32 maxDiffuseParticles, PxCudaContextManager& cudaContextManager);
 				void									addParticleBuffer(PxParticleBuffer* buffer, bool lock = true);
 				void									releaseParticleBufferToPool(PxParticleBuffer& particleBuffer);
 				void									releaseParticleAndDiffuseBufferToPool(PxParticleAndDiffuseBuffer& particleBuffer);
-				void									releaseParticleClothBufferToPool(PxParticleClothBuffer& particleBuffer);
-				void									releaseParticleRigidBufferToPool(PxParticleRigidBuffer& particleBuffer);
+
+				// All particle buffers the factory tracks, whether or not they are attached to a system.
+				PxU32									getNbParticleBuffers() const;
+				PxU32									getParticleBuffers(PxParticleBuffer** userBuffer, PxU32 bufferSize, PxU32 startIndex) const;
 #endif
 				// Aggregates
 				PxAggregate*							createAggregate(PxU32 maxActors, PxU32 maxShapes, PxAggregateFilterHint filterHint);
 				void									addAggregate(PxAggregate*, bool lock=true);
 				void									releaseAggregateToPool(NpAggregate&);
-// PT: TODO: add missing functions
 				PxU32									getNbAggregates() const;
-//				PxU32									getAggregates(PxAggregate** userBuffer, PxU32 bufferSize, PxU32 startIndex)	const;
+				PxU32									getAggregates(PxAggregate** userBuffer, PxU32 bufferSize, PxU32 startIndex) const;
 
 				// Materials
 				PxMaterial*								createMaterial(PxReal staticFriction, PxReal dynamicFriction, PxReal restitution);
@@ -277,15 +264,22 @@ private:
 
 				NpPtrTableStorageManager*				mPtrTableStorageManager;
 
-				PxHashSet<PxAggregate*>							mAggregateTracking;
-				PxHashSet<PxArticulationReducedCoordinate*>		mArticulationTracking;
-				PxHashSet<PxConstraint*>						mConstraintTracking;
-				PxHashSet<PxActor*>								mActorTracking;				
-				PxCoalescedHashSet<PxShape*>					mShapeTracking;
+				// The tracking sets a full-state snapshot enumerates are coalesced so their getters can
+				// hand getEntries() straight to getArrayOfPointers() (see getShapes). mAttachmentTracking
+				// and mElementFilterTracking are not snapshot-enumerated, so they stay plain hash sets.
+				PxCoalescedHashSet<PxAggregate*>						mAggregateTracking;
+				PxCoalescedHashSet<PxArticulationReducedCoordinate*>	mArticulationTracking;
+				PxCoalescedHashSet<PxConstraint*>						mConstraintTracking;
+				PxCoalescedHashSet<PxRigidStatic*>						mRigidStaticTracking;
+				PxCoalescedHashSet<PxRigidDynamic*>						mRigidDynamicTracking;
+				PxCoalescedHashSet<PxShape*>							mShapeTracking;
 #if PX_SUPPORT_GPU_PHYSX
 				PxHashSet<PxDeformableAttachment*>		mAttachmentTracking;
 				PxHashSet<PxDeformableElementFilter*>	mElementFilterTracking;
-				PxHashSet<PxParticleBuffer*>			mParticleBufferTracking;
+				PxCoalescedHashSet<PxParticleBuffer*>	mParticleBufferTracking;
+				PxCoalescedHashSet<PxActor*>			mDeformableSurfaceTracking;
+				PxCoalescedHashSet<PxActor*>			mDeformableVolumeTracking;
+				PxCoalescedHashSet<PxActor*>			mPBDParticleSystemTracking;
 #endif
 				PxPool2<NpRigidDynamic, 4096>			mRigidDynamicPool;
 				PxMutex									mRigidDynamicPoolLock;
@@ -339,12 +333,6 @@ private:
 				PxPool2<NpParticleAndDiffuseBuffer, 1024> mParticleAndDiffuseBufferPool;
 				PxMutex									mParticleAndDiffuseBufferPoolLock;
 
-				PxPool2<NpParticleClothBuffer, 1024>	mParticleClothBufferPool;
-				PxMutex									mParticleClothBufferPoolLock;
-
-				PxPool2<NpParticleRigidBuffer, 1024>	mParticleRigidBufferPool;
-				PxMutex									mParticleRigidBufferPoolLock;
-
 				PxPool2<NpDeformableSurfaceMaterial, 1024>	mDeformableSurfaceMaterialPool;
 				PxMutex										mDeformableSurfaceMaterialPoolLock;
 
@@ -380,8 +368,6 @@ private:
 	void	NpDestroyParticleSystem(NpPBDParticleSystem* particleSystem);
 	void	NpDestroyParticleBuffer(NpParticleBuffer* particleBuffer);
 	void	NpDestroyParticleBuffer(NpParticleAndDiffuseBuffer* particleBuffer);
-	void	NpDestroyParticleBuffer(NpParticleClothBuffer* particleBuffer);
-	void	NpDestroyParticleBuffer(NpParticleRigidBuffer* particleBuffer);
 #endif
 }
 

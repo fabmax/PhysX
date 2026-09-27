@@ -1,0 +1,278 @@
+// SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
+
+// NOTE: This file is included in the documentation via literalinclude.
+// The tutorial marker comments below define the included range.
+
+#include <ovphysx/ovphysx.h>
+#include <ovphysx/ovphysx_types.h>
+#include "ovstage_sample.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#ifdef __cplusplus
+#error "This file must be compiled as C, not C++"
+#endif
+
+static int check_result(ovphysx_result_t r, const char* ctx)
+{
+    if (r.status != OVPHYSX_API_SUCCESS) {
+        fprintf(stderr, "ERROR in %s: ", ctx);
+        ovphysx_string_t err = ovphysx_get_last_error();
+        if (err.ptr && err.length > 0)
+            fprintf(stderr, "%.*s\n", (int)err.length, err.ptr);
+        else
+            fprintf(stderr, "status=%d\n", (int)r.status);
+        return 0;
+    }
+    return 1;
+}
+
+static int check_enqueue(ovphysx_enqueue_result_t r, const char* ctx)
+{
+    if (r.status != OVPHYSX_API_SUCCESS) {
+        fprintf(stderr, "ERROR in %s: ", ctx);
+        ovphysx_string_t err = ovphysx_get_last_error();
+        if (err.ptr && err.length > 0)
+            fprintf(stderr, "%.*s\n", (int)err.length, err.ptr);
+        else
+            fprintf(stderr, "status=%d\n", (int)r.status);
+        return 0;
+    }
+    return 1;
+}
+
+static int wait_op(ovphysx_handle_t handle, ovphysx_op_index_t op_index, const char* ctx)
+{
+    ovphysx_op_wait_result_t wait_result = {0};
+    ovphysx_result_t r = ovphysx_wait_op(
+        handle, op_index, OVPHYSX_TIMEOUT_INFINITE, &wait_result);
+    int has_errors = (wait_result.num_errors > 0);
+    ovphysx_destroy_wait_result(&wait_result);
+    if (has_errors) {
+        fprintf(stderr, "ERROR in %s: async operation failed\n", ctx);
+        return 0;
+    }
+    if (r.status != OVPHYSX_API_SUCCESS) {
+        fprintf(stderr, "ERROR in %s: wait failed (status=%d)\n", ctx, (int)r.status);
+        return 0;
+    }
+    return 1;
+}
+
+/* Allocate a 2-D float32 DLTensor on the CPU. Caller frees data and shape. */
+static DLTensor make_tensor_f32_2d(size_t rows, size_t cols, float** out_data, int64_t** out_shape)
+{
+    DLTensor t;
+    memset(&t, 0, sizeof(DLTensor));
+    *out_data  = (float*)calloc(rows * cols, sizeof(float));
+    *out_shape = (int64_t*)malloc(2 * sizeof(int64_t));
+    (*out_shape)[0] = (int64_t)rows;
+    (*out_shape)[1] = (int64_t)cols;
+    t.data         = *out_data;
+    t.ndim         = 2;
+    t.shape        = *out_shape;
+    t.strides      = NULL;
+    t.byte_offset  = 0;
+    t.dtype.code   = kDLFloat;
+    t.dtype.bits   = 32;
+    t.dtype.lanes  = 1;
+    t.device.device_type = kDLCPU;
+    t.device.device_id   = 0;
+    return t;
+}
+
+/* Allocate a 3-D float32 DLTensor on the CPU. Caller frees data and shape. */
+static DLTensor make_tensor_f32_3d(size_t d0, size_t d1, size_t d2,
+                                   float** out_data, int64_t** out_shape)
+{
+    DLTensor t;
+    memset(&t, 0, sizeof(DLTensor));
+    *out_data  = (float*)calloc(d0 * d1 * d2, sizeof(float));
+    *out_shape = (int64_t*)malloc(3 * sizeof(int64_t));
+    (*out_shape)[0] = (int64_t)d0;
+    (*out_shape)[1] = (int64_t)d1;
+    (*out_shape)[2] = (int64_t)d2;
+    t.data         = *out_data;
+    t.ndim         = 3;
+    t.shape        = *out_shape;
+    t.strides      = NULL;
+    t.byte_offset  = 0;
+    t.dtype.code   = kDLFloat;
+    t.dtype.bits   = 32;
+    t.dtype.lanes  = 1;
+    t.device.device_type = kDLCPU;
+    t.device.device_id   = 0;
+    return t;
+}
+
+static int run(void)
+{
+    ovphysx_result_t r;
+    ovphysx_enqueue_result_t er;
+
+    // [tutorial-start]
+    /* 1. Initialize SDK */
+    r = ovphysx_initialize();
+    if (!check_result(r, "ovphysx_initialize")) return 1;
+
+    ovphysx_create_args args = OVPHYSX_CREATE_ARGS_DEFAULT;
+
+    ovphysx_handle_t handle = 0;
+    r = ovphysx_create_instance(&args, &handle);
+    if (!check_result(r, "ovphysx_create_instance")) { ovphysx_shutdown(); return 1; }
+
+    /* 2. Populate ovstage from USD and attach it */
+    ovphysx_sample_stage_attachment_t stage_attachment = {0};
+    if (!ovphysx_sample_attach_usd_with_ovstage(
+            handle, OVPHYSX_TEST_DATA "/boxes_falling_on_groundplane.usda", &stage_attachment)) {
+        ovphysx_destroy_instance(handle); ovphysx_shutdown(); return 1;
+    }
+
+    /* 3. Create the contact binding before the first step. The sensor is the
+     *    falling box. The filter is BigBase, the static collider it lands on,
+     *    rather than the ground plane at z=0. */
+    ovphysx_string_t sensors[1];
+    sensors[0] = ovphysx_cstr("/World/Cube1");
+
+    ovphysx_string_t filters[1];
+    filters[0] = ovphysx_cstr("/World/BigBase");
+
+    ovphysx_contact_binding_handle_t cb = 0;
+    r = ovphysx_create_contact_binding(
+        handle,
+        sensors, 1,     /* 1 sensor pattern */
+        filters, 1,     /* 1 filter pattern per sensor */
+        256,            /* max raw contact pairs */
+        &cb);
+    if (!check_result(r, "ovphysx_create_contact_binding")) {
+        ovphysx_sample_destroy_stage(handle, &stage_attachment);
+        ovphysx_destroy_instance(handle); ovphysx_shutdown(); return 1;
+    }
+
+    /* 4. Query matched sensor / filter counts */
+    int32_t sensor_count = 0, filter_count = 0;
+    r = ovphysx_get_contact_binding_spec(handle, cb, &sensor_count, &filter_count);
+    if (!check_result(r, "ovphysx_get_contact_binding_spec")) {
+        ovphysx_destroy_contact_binding(handle, cb);
+        ovphysx_sample_destroy_stage(handle, &stage_attachment);
+        ovphysx_destroy_instance(handle);
+        ovphysx_shutdown();
+        return 1;
+    }
+    printf("Sensors: %d  Filters per sensor: %d\n", sensor_count, filter_count);
+
+    /* 5. Simulate until the box lands */
+    for (int i = 0; i < 120; i++) {
+        er = ovphysx_step(handle, 1.0f / 60.0f);
+        if (!check_enqueue(er, "ovphysx_step")) {
+            ovphysx_destroy_contact_binding(handle, cb);
+            ovphysx_sample_destroy_stage(handle, &stage_attachment);
+            ovphysx_destroy_instance(handle);
+            ovphysx_shutdown();
+            return 1;
+        }
+    }
+    if (!wait_op(handle, er.op_index, "step")) {
+        ovphysx_destroy_contact_binding(handle, cb);
+        ovphysx_sample_destroy_stage(handle, &stage_attachment);
+        ovphysx_destroy_instance(handle);
+        ovphysx_shutdown();
+        return 1;
+    }
+
+    /* 6. Read the net contact forces, shape [S, 3].
+     *    dt is taken from the last successful stepping call. */
+    float* net_data   = NULL;
+    int64_t* net_shp  = NULL;
+    DLTensor net_tensor = make_tensor_f32_2d(
+        (size_t)sensor_count, 3, &net_data, &net_shp);
+
+    r = ovphysx_read_contact_net_forces(handle, cb, &net_tensor);
+    if (!check_result(r, "ovphysx_read_contact_net_forces")) {
+        free(net_data); free(net_shp);
+        ovphysx_destroy_contact_binding(handle, cb);
+        ovphysx_sample_destroy_stage(handle, &stage_attachment);
+        ovphysx_destroy_instance(handle);
+        ovphysx_shutdown();
+        return 1;
+    }
+    printf("Net contact forces [%d, 3]:\n", sensor_count);
+    for (int s = 0; s < sensor_count; s++) {
+        printf("  sensor %d: fx=%.3f  fy=%.3f  fz=%.3f\n",
+               s,
+               net_data[s * 3 + 0],
+               net_data[s * 3 + 1],
+               net_data[s * 3 + 2]);
+    }
+    free(net_data); free(net_shp);
+
+    /* 7. Read the contact force matrix, shape [S, F, 3]. */
+    float* mat_data   = NULL;
+    int64_t* mat_shp  = NULL;
+    DLTensor mat_tensor = make_tensor_f32_3d(
+        (size_t)sensor_count, (size_t)filter_count, 3,
+        &mat_data, &mat_shp);
+
+    r = ovphysx_read_contact_force_matrix(handle, cb, &mat_tensor);
+    if (!check_result(r, "ovphysx_read_contact_force_matrix")) {
+        free(mat_data); free(mat_shp);
+        ovphysx_destroy_contact_binding(handle, cb);
+        ovphysx_sample_destroy_stage(handle, &stage_attachment);
+        ovphysx_destroy_instance(handle);
+        ovphysx_shutdown();
+        return 1;
+    }
+    printf("Contact force matrix [%d, %d, 3]:\n", sensor_count, filter_count);
+    for (int s = 0; s < sensor_count; s++) {
+        for (int f = 0; f < filter_count; f++) {
+            int base = (s * filter_count + f) * 3;
+            printf("  [%d][%d]: fx=%.3f  fy=%.3f  fz=%.3f\n",
+                   s, f,
+                   mat_data[base + 0],
+                   mat_data[base + 1],
+                   mat_data[base + 2]);
+        }
+    }
+    /* Cube1 rests on BigBase, so the 1x1 matrix has to hold a real contact force.
+     * The max-abs norm avoids libm, which the CI sample link does not pass with -lm. */
+    if (sensor_count >= 1 && filter_count >= 1) {
+        float ax = mat_data[0] < 0.f ? -mat_data[0] : mat_data[0];
+        float ay = mat_data[1] < 0.f ? -mat_data[1] : mat_data[1];
+        float az = mat_data[2] < 0.f ? -mat_data[2] : mat_data[2];
+        float mag = ax > ay ? ax : ay;
+        if (az > mag) mag = az;
+        if (!(mag > 1.0f)) {
+            fprintf(stderr,
+                    "ERROR: expected Cube1 vs BigBase contact after 120 steps; "
+                    "force matrix mag=%f (fx=%f fy=%f fz=%f)\n",
+                    mag, mat_data[0], mat_data[1], mat_data[2]);
+            free(mat_data); free(mat_shp);
+            ovphysx_destroy_contact_binding(handle, cb);
+            ovphysx_sample_destroy_stage(handle, &stage_attachment);
+            ovphysx_destroy_instance(handle);
+            ovphysx_shutdown();
+            return 1;
+        }
+    }
+    free(mat_data); free(mat_shp);
+
+    printf("Contact binding sample completed successfully\n");
+
+    /* 8. Destroy the contact binding. */
+    ovphysx_destroy_contact_binding(handle, cb);
+    // [tutorial-end]
+
+    ovphysx_sample_destroy_stage(handle, &stage_attachment);
+    ovphysx_destroy_instance(handle);
+    ovphysx_shutdown();
+    printf("Cleanup complete\n");
+
+    return 0;
+}
+
+int main(void) {
+    int rc = run();
+    return rc;
+}

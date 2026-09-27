@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "common/PxPhysXCommonConfig.h"
 #include <cuda.h>
@@ -35,7 +12,6 @@
 #include "PxgConstraint.h"
 #include "PxgConstraintBlock.h"
 #include "PxgIslandContext.h"
-#include "PxgSolverContext.h"
 #include "cutil_math.h"
 #include "PxgSolverCoreDesc.h"
 #include "solverBlock.cuh"
@@ -373,8 +349,10 @@ extern "C" __global__
 void solveBlockPartition(
 	PxgSolverCoreDesc* PX_RESTRICT solverDesc, const PxgSolverSharedDesc<IterativeSolveData>* PX_RESTRICT sharedDesc,
 	const PxU32 islandIndex, const PxU32 partitionIndex, bool doFriction)
-{	
+{
 	const PxgIslandContext& island = solverDesc->islandContextPool[islandIndex];
+
+	const PxReal rigidContactBiasCoefficient = island.mBiasCoefficients.rigidContact;
 
 	const PxU32 startPartitionIndex = island.mStartPartitionIndex;
 
@@ -404,9 +382,6 @@ void solveBlockPartition(
 	}
 
 	__syncthreads();
-
-	bool residualAccumulationEnabled = solverDesc->contactErrorAccumulator.mCounter >= 0;
-	PxgErrorAccumulator error;
 
 	//for(uint k = startIndex + warpIndex; k < endIndex; k+=blockStride)
 	uint k = startIndex + warpIndex;
@@ -467,11 +442,11 @@ void solveBlockPartition(
 
 			if (batch.constraintType == PxgSolverConstraintDesc::eCONTACT)
 				solveContactBlock(batch, lv0, av0, lv1, av1, doFriction, threadIndexInWarp, iterativeData.blockContactHeaders, iterativeData.blockFrictionHeaders,
-					iterativeData.blockContactPoints, iterativeData.blockFrictions, residualAccumulationEnabled ? &error : NULL, 
+					iterativeData.blockContactPoints, iterativeData.blockFrictions, rigidContactBiasCoefficient,
 					curRef0, curRef1);
 			else
 				solve1DBlock(batch, lv0, av0, lv1, av1, threadIndexInWarp, iterativeData.blockJointConstraintHeaders, iterativeData.blockJointConstraintRowsCon,
-					iterativeData.blockJointConstraintRowsMod, solverDesc->contactErrorAccumulator.mCounter >= 0, curRef0, curRef1);
+					iterativeData.blockJointConstraintRowsMod, curRef0, curRef1);
 
 
 			const PxU32 remapA = batch.remappedBodyAIndex[threadIndexInWarp];
@@ -520,17 +495,12 @@ void solveBlockPartition(
 
 #endif
 	}
-
-	if (residualAccumulationEnabled)
-	{
-		error.accumulateErrorGlobalFullWarp(solverDesc->contactErrorAccumulator, threadIndexInWarp);
-	}
 }
 
 extern "C" __global__ void writebackBlocks(
 	PxgSolverCoreDesc* constraintPrepDesc, 
 	PxgSolverSharedDesc<IterativeSolveData>* sharedDesc, const PxU32 islandIndex)
-{	
+{
 	PxgIslandContext& island = constraintPrepDesc->islandContextPool[islandIndex];
 
 	const PxU32 startIndex = island.mBatchStartIndex;
@@ -630,7 +600,7 @@ extern "C" __global__ void writebackBlocks(
 extern "C" __global__ void concludeBlocks(
 	PxgSolverCoreDesc* constraintPrepDesc,
 	PxgSolverSharedDesc<IterativeSolveData>* sharedDesc, const PxU32 islandIndex)
-{	
+{
 	PxgIslandContext& island = constraintPrepDesc->islandContextPool[islandIndex];
 
 	const PxU32 startIndex = island.mBatchStartIndex;
@@ -683,7 +653,7 @@ extern "C" __global__ void concludeBlocks(
 extern "C" __global__ void writeBackBodies(
 	const PxgSolverCoreDesc* constraintPrepDesc,
 	const PxgSolverSharedDesc<IterativeSolveData>* sharedDesc, const PxU32 islandIndex)
-{	
+{
 	__shared__ float4* bodyVelocities;
 	__shared__ float4* motionVelocities;
 	__shared__ PxU32 bodyStartIndex;
@@ -906,16 +876,6 @@ extern "C" __global__ void dmaBackChangedElems(const PxgSolverCoreDesc* solverDe
 	}
 }
 
-extern "C" __global__ void dmaConstraintResidual(const PxgConstraintWriteback* writebacks, PxReal* residuals, PxU32 count)
-{
-	PxU32 globalThreadIdx = threadIdx.x + blockIdx.x * blockDim.x;
-
-	if (globalThreadIdx < count)
-	{
-		residuals[globalThreadIdx] = writebacks[globalThreadIdx].angularImpulse_residual.w;
-	}
-}
-
 extern "C" __global__
 //__launch_bounds__(PxgKernelBlockDim::SOLVE_BLOCK_PARTITION, 16)
 void solveStaticBlock(
@@ -923,6 +883,7 @@ void solveStaticBlock(
 	const PxU32 islandIndex, const PxU32 nbStaticSlabs, const PxU32 maxStaticPartitions, bool doFriction)
 {
 	const PxgIslandContext& island = solverDesc->islandContextPool[islandIndex];
+	const PxReal rigidContactBiasCoefficient = island.mBiasCoefficients.rigidContact;
 	const IterativeSolveData& iterativeData = sharedDesc->iterativeData;
 
 	float4* PX_RESTRICT bodyVelocities = iterativeData.solverBodyVelPool;
@@ -947,9 +908,6 @@ void solveStaticBlock(
 	const uint bodyIndex = globalThreadIdx % numDynamicBodiesRounded;
 	const PxU32 slabIdx = (globalThreadIdx / numDynamicBodiesRounded);
 	const PxU32 startIndex = slabIdx * maxStaticPartitions;
-
-	bool residualAccumulationEnabled = solverDesc->contactErrorAccumulator.mCounter >= 0;
-	PxgErrorAccumulator error;
 
 	if (globalThreadIdx < nbDynamicBodiesToSolve)
 	{
@@ -993,7 +951,7 @@ void solveStaticBlock(
 
 					// For interaction with static objects, mass-splitting is not used; thus, reference counts are 1.
 					solve1DBlock(batch, lv0, av0, lv1, av1, idx, iterativeData.blockJointConstraintHeaders, iterativeData.blockJointConstraintRowsCon,
-						iterativeData.blockJointConstraintRowsMod, solverDesc->contactErrorAccumulator.mCounter >= 0, 1.f, 1.f);
+						iterativeData.blockJointConstraintRowsMod, 1.f, 1.f);
 				}
 
 				for (PxU32 i = 0; i < contactCount; ++i)
@@ -1006,7 +964,7 @@ void solveStaticBlock(
 
 					// For interaction with static objects, mass-splitting is not used; thus, reference counts are 1.
 					solveContactBlock(batch, lv0, av0, lv1, av1, doFriction, idx, iterativeData.blockContactHeaders, iterativeData.blockFrictionHeaders,
-						iterativeData.blockContactPoints, iterativeData.blockFrictions, residualAccumulationEnabled ? &error : NULL, 
+						iterativeData.blockContactPoints, iterativeData.blockFrictions, rigidContactBiasCoefficient,
 						1.f, 1.f);
 				}
 
@@ -1030,10 +988,6 @@ void solveStaticBlock(
 
 			}
 		}
-	}
-	if (residualAccumulationEnabled)
-	{
-		error.accumulateErrorGlobalFullWarp(solverDesc->contactErrorAccumulator, threadIndexInWarp);
 	}
 }
 

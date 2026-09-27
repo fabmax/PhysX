@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef PX_ARTICULATION_LINK_H
 #define PX_ARTICULATION_LINK_H
@@ -60,7 +37,7 @@ public:
 
 	\see PxArticulationReducedCoordinate::createLink()
 	*/
-	virtual		void						release() = 0;
+	virtual		void						release() PX_OVERRIDE = 0;
 
 	/**
 	\brief Gets the articulation that the link is a part of.
@@ -172,7 +149,7 @@ public:
 
 	\see PxRigidBody::getCMassLocalPose
 	*/
-	virtual		PxVec3						getLinearVelocity() const = 0;
+	virtual		PxVec3						getLinearVelocity() const PX_OVERRIDE = 0;
 
 	/**
 	\brief Get the angular velocity of the link.
@@ -185,7 +162,7 @@ public:
 	\note This call is not allowed while the simulation is running except in a split simulation during #PxScene::collide() and up to #PxScene::advance(),
 	and in PxContactModifyCallback or in contact report callbacks.
 	*/
-	virtual		PxVec3						getAngularVelocity() const = 0;
+	virtual		PxVec3						getAngularVelocity() const PX_OVERRIDE = 0;
 
 	/**
 	\brief Returns the string name of the dynamic type.
@@ -198,7 +175,7 @@ protected:
 	PX_INLINE								PxArticulationLink(PxType concreteType, PxBaseFlags baseFlags) : PxRigidBody(concreteType, baseFlags) {}
 	PX_INLINE								PxArticulationLink(PxBaseFlags baseFlags) : PxRigidBody(baseFlags)	{}
 	virtual									~PxArticulationLink()	{}
-	virtual		bool						isKindOf(const char* name)	const		{ PX_IS_KIND_OF(name, "PxArticulationLink", PxRigidBody);	}
+	virtual		bool						isKindOf(const char* name)	const PX_OVERRIDE		{ PX_IS_KIND_OF(name, "PxArticulationLink", PxRigidBody);	}
 };
 
 #if !PX_DOXYGEN

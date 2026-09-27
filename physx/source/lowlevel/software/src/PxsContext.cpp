@@ -1,38 +1,15 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "common/PxProfileZone.h"
-#include "PxvConfig.h"
+#include "foundation/PxFoundation.h"
+#include "PxPhysXConfig.h"
 #include "PxcContactCache.h"
 #include "PxsRigidBody.h"
 #include "PxsContactManager.h"
 #include "PxsContext.h"
-#include "PxPhysXConfig.h"
 
 #include "foundation/PxBitMap.h"
 #include "CmFlushPool.h"
@@ -67,6 +44,7 @@ PxsContext::PxsContext(const PxSceneDesc& desc, PxTaskManager* taskManager, Cm::
 	mPCM							(desc.flags & PxSceneFlag::eENABLE_PCM),
 	mContactCache					(false),
 	mCreateAveragePoint				(desc.flags & PxSceneFlag::eENABLE_AVERAGE_POINT),
+	mCCD							(desc.flags & PxSceneFlag::eENABLE_CCD),
 	mContextID						(contextID)
 {
 	clearManagerTouchEvents();
@@ -256,9 +234,9 @@ namespace physx
 	PX_COMPILE_TIME_ASSERT(sizeof(gEnablePCMCaching) / sizeof(gEnablePCMCaching[0]) == PxGeometryType::eGEOMETRY_COUNT);
 }
 
-void PxsContext::createTransformCache(PxVirtualAllocatorCallback& allocatorCallback)
+void PxsContext::createTransformCache(Cm::VirtualAllocatorCallback& allocator, Cm::PinnableAllocatorFallback::Enum fallback)
 {
-	mTransformCache = PX_NEW(PxsTransformCache)(allocatorCallback);
+	mTransformCache = PX_NEW(PxsTransformCache)(allocator, fallback);
 }
 
 PxsContactManager* PxsContext::createContactManager(PxsContactManager* contactManager, bool useCCD)
@@ -314,7 +292,7 @@ void PxsContext::createCache(Gu::Cache& cache, PxGeometryType::Enum geomType0, P
 			//cache.manifold =  0;
 			cache.mCachedData = NULL;
 			cache.mManifoldFlags = 0;
-		}			
+		}
 	}
 }
 
@@ -481,8 +459,7 @@ void PxsContext::updateContactManager(PxReal dt, bool hasContactDistanceChanged,
 	Cm::FanoutTask* updateBoundAndShapeTask)
 {
 	PX_ASSERT(mNpImplementationContext);
-	return mNpImplementationContext->updateContactManager(dt, hasContactDistanceChanged, continuation, 
-		firstPassContinuation, updateBoundAndShapeTask);
+	mNpImplementationContext->updateContactManager(dt, hasContactDistanceChanged, continuation, firstPassContinuation, updateBoundAndShapeTask);
 }
 
 void PxsContext::secondPassUpdateContactManager(PxReal dt, PxBaseTask* continuation)
@@ -525,23 +502,18 @@ bool PxsContext::getManagerTouchEventCount(PxU32* newTouch, PxU32* lostTouch, Px
 	return true;
 }
 
-void PxsContext::fillManagerTouchEvents(PxvContactManagerTouchEvent* newTouch, PxU32& newTouchCount,
-										PxvContactManagerTouchEvent* lostTouch, PxU32& lostTouchCount,
-										PxvContactManagerTouchEvent* ccdTouch, PxU32& ccdTouchCount)
+void PxsContext::fillManagerTouchEvents(PxArray<PxvContactManagerTouchEvent>& newTouchEvents,
+										PxArray<PxvContactManagerTouchEvent>& lostTouchEvents,
+										PxArray<PxvContactManagerTouchEvent>* ccdTouchEvents)
 {
 	PX_PROFILE_ZONE("PxsContext::fillManagerTouchEvents", mContextID);
 
-	const PxvContactManagerTouchEvent* newTouchStart = newTouch;
-	const PxvContactManagerTouchEvent* lostTouchStart = lostTouch;
-	const PxvContactManagerTouchEvent* ccdTouchStart = ccdTouch;
-
-	const PxvContactManagerTouchEvent* newTouchEnd = newTouch + newTouchCount;
-	const PxvContactManagerTouchEvent* lostTouchEnd = lostTouch + lostTouchCount;
-	const PxvContactManagerTouchEvent* ccdTouchEnd = ccdTouch + ccdTouchCount;
-
-	PX_UNUSED(newTouchEnd);
-	PX_UNUSED(lostTouchEnd);
-	PX_UNUSED(ccdTouchEnd);
+	// Save initial capacities (set by caller via reserve based on cached counters).
+	// If the bitmap contains more events than the counters indicated, PxArray will
+	// grow dynamically. We detect this after the loop and emit a diagnostic warning.
+	const PxU32 expectedNewCapacity = newTouchEvents.capacity();
+	const PxU32 expectedLostCapacity = lostTouchEvents.capacity();
+	const PxU32 expectedCcdCapacity = ccdTouchEvents ? ccdTouchEvents->capacity() : 0;
 
 	const PxU32* bits = mContactManagerTouchEvent.getWords();
 	if(bits)
@@ -556,36 +528,43 @@ void PxsContext::fillManagerTouchEvents(PxvContactManagerTouchEvent* newTouch, P
 
 				PxsContactManager* cm = mContactManagerPool.findByIndexFast(index);
 
+				PxvContactManagerTouchEvent evt;
+				evt.setCMTouchEventUserData(cm->getShapeInteraction());
+
 				if(cm->getTouchStatus())
 				{
 					if(!cm->getHasCCDRetouch())
 					{
-						PX_ASSERT(newTouch < newTouchEnd);
-						newTouch->setCMTouchEventUserData(cm->getShapeInteraction());
-						newTouch++;
+						newTouchEvents.pushBack(evt);
 					}
 					else
 					{
-						PX_ASSERT(ccdTouch);
-						PX_ASSERT(ccdTouch < ccdTouchEnd);
-						ccdTouch->setCMTouchEventUserData(cm->getShapeInteraction());
+						PX_ASSERT(ccdTouchEvents);
+						ccdTouchEvents->pushBack(evt);
 						cm->clearCCDRetouch();
-						ccdTouch++;
 					}
 				}
 				else
 				{
-					PX_ASSERT(lostTouch < lostTouchEnd);
-					lostTouch->setCMTouchEventUserData(cm->getShapeInteraction());
-					lostTouch++;
+					lostTouchEvents.pushBack(evt);
 				}
 			}
 		}
 	}
 
-	newTouchCount = PxU32(newTouch - newTouchStart);
-	lostTouchCount = PxU32(lostTouch - lostTouchStart);
-	ccdTouchCount = PxU32(ccdTouch - ccdTouchStart);
+	// Detect counter/bitmap desynchronization. In rare scenarios (e.g. large heightfields on GPU),
+	// the cached touch event counters can undercount the actual bitmap events. The arrays grew
+	// dynamically to handle the overflow, but we emit a warning so the root cause can be investigated.
+	if(newTouchEvents.size() > expectedNewCapacity || lostTouchEvents.size() > expectedLostCapacity
+		|| (ccdTouchEvents && ccdTouchEvents->size() > expectedCcdCapacity))
+	{
+		PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
+			"PxsContext::fillManagerTouchEvents: touch event bitmap contains more events than cached counters indicated "
+			"(new: %u vs %u, lost: %u vs %u, ccd: %u vs %u). Counters may be out of sync.",
+			newTouchEvents.size(), expectedNewCapacity,
+			lostTouchEvents.size(), expectedLostCapacity,
+			ccdTouchEvents ? ccdTouchEvents->size() : 0, expectedCcdCapacity);
+	}
 }
 
 void PxsContext::beginUpdate()

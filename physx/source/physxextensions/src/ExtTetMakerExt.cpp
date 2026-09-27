@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
-// Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
+// Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "tet/ExtDelaunayBoundaryInserter.h"
 #include "extensions/PxTetMakerExt.h"
@@ -299,6 +276,28 @@ void PxTetMaker::simplifyTriangleMesh(const PxArray<PxVec3>& inputVertices, cons
 	PxArray<PxU32> *vertexMap, PxReal edgeLengthCostWeight, PxReal flatnessDetectionThreshold,
 	bool projectSimplifiedPointsOnInputMeshSurface, PxArray<PxU32>* outputVertexToInputTriangle, bool removeDisconnectedPatches)
 {
+	// MeshSimplificator indexes its per-vertex arrays with the triangle indices without any bounds
+	// check, so an out-of-range vertex index causes an out-of-bounds access and crashes. Reject
+	// malformed input here instead of dereferencing it.
+	const PxU32 numVertices = inputVertices.size();
+	bool validInput = numVertices > 0 && inputIndices.size() > 0 && (inputIndices.size() % 3 == 0);
+	for (PxU32 i = 0; validInput && i < inputIndices.size(); ++i)
+		validInput = inputIndices[i] < numVertices;
+
+	if (!validInput)
+	{
+		PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL,
+			"PxTetMaker::simplifyTriangleMesh(): input mesh is empty or has a triangle index count "
+			"that is not a multiple of 3 or a vertex index out of range; aborting simplification.");
+		outputVertices.clear();
+		outputIndices.clear();
+		if (vertexMap)
+			vertexMap->clear();
+		if (outputVertexToInputTriangle)
+			outputVertexToInputTriangle->clear();
+		return;
+	}
+
 	Ext::MeshSimplificator ms;
 
 	PxArray<PxU32> indexMapToFullTriangleSet;

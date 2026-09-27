@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 
 #include "cooking/PxCooking.h"
@@ -103,7 +80,7 @@ bool BigConvexDataBuilder::save(PxOutputStream& stream, bool platformMismatch) c
 // compute valencies for each vertex
 // we dont compute the edges again here, we have them temporary stored in mHullDataFacesByAllEdges8 structure
 bool BigConvexDataBuilder::computeValencies(const ConvexHullBuilder& meshBuilder)
-{	
+{
 	// Create valencies
 	const PxU32 numVertices = meshBuilder.mHull->mNbHullVertices;
 	mSVM->mData.mNbVerts = numVertices;
@@ -125,7 +102,7 @@ bool BigConvexDataBuilder::computeValencies(const ConvexHullBuilder& meshBuilder
 		const PxU32 numVerts = meshBuilder.mHullDataPolygons[i].mNbVerts;
 		const PxU8* Data = meshBuilder.mHullDataVertexData8 + meshBuilder.mHullDataPolygons[i].mVRef8;
 		for (PxU32 j = 0; j < numVerts; j++)
-		{			
+		{
 			mSVM->mData.mValencies[Data[j]].mCount++;
 			PX_ASSERT(mSVM->mData.mValencies[Data[j]].mCount != 0xffff);
 		}
@@ -229,7 +206,7 @@ void BigConvexDataBuilder::precomputeSample(const PxVec3& dir, PxU8& startIndex_
 		const PxU32 offset = valency[startIndex].mOffset;
 
 		for (PxU32 a = 0; a < numNeighbours; ++a)
-		{			
+		{
 			const PxU8 neighbourIndex = adjacentVerts[offset + a];			
 			const float dist = negativeDir * verts[neighbourIndex].dot(dir);
 			if (dist < minimum)
@@ -302,7 +279,7 @@ bool BigConvexDataBuilder::precompute(PxU32 subdiv)
 			{
 				precomputeSample(dirs[dStep], startIndex[dStep], 1.0f);
 				precomputeSample(dirs[dStep], startIndex2[dStep], -1.0f);
-			}			
+			}
 
 			// decompose the vector results into face directions
 			for (PxU32 k = 0; k < 6; k++)

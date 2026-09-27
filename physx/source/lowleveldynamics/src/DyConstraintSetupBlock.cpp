@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "foundation/PxMemory.h"
 #include "DyConstraintPrep.h"
@@ -46,15 +23,14 @@ namespace Dy
 
 SolverConstraintPrepState::Enum setupSolverConstraint4
 		(PxSolverConstraintPrepDesc* PX_RESTRICT constraintDescs,
-		const PxReal dt, const PxReal recipdt, PxU32& totalRows,
-		PxConstraintAllocator& allocator, PxU32 maxRows, bool residualReportingEnabled);
+		const PxReal dt, const PxReal recipdt, const PxReal biasCoefficient, PxU32& totalRows,
+		PxConstraintAllocator& allocator, PxU32 maxRows);
 
 SolverConstraintPrepState::Enum setupSolverConstraint4
 (SolverConstraintShaderPrepDesc* PX_RESTRICT constraintShaderDescs,
 PxSolverConstraintPrepDesc* PX_RESTRICT constraintDescs,
-const PxReal dt, const PxReal recipdt, PxU32& totalRows,
-PxConstraintAllocator& allocator, bool residualReportingEnabled)
-
+const PxReal dt, const PxReal recipdt, const PxReal biasCoefficient, PxU32& totalRows,
+PxConstraintAllocator& allocator)
 {
 	//KS - we will never get here with constraints involving articulations so we don't need to stress about those in here
 
@@ -103,13 +79,13 @@ PxConstraintAllocator& allocator, bool residualReportingEnabled)
 		rows += constraintCount;
 	}
 
-	return setupSolverConstraint4(constraintDescs, dt, recipdt, totalRows, allocator, maxRows, residualReportingEnabled);
+	return setupSolverConstraint4(constraintDescs, dt, recipdt, biasCoefficient, totalRows, allocator, maxRows);
 }
 
 SolverConstraintPrepState::Enum setupSolverConstraint4
 (PxSolverConstraintPrepDesc* PX_RESTRICT constraintDescs,
-const PxReal simDt, const PxReal recipSimDt, PxU32& totalRows,
-PxConstraintAllocator& allocator, PxU32 maxRows, bool residualReportingEnabled)
+const PxReal simDt, const PxReal recipSimDt, const PxReal biasCoefficient, PxU32& totalRows,
+PxConstraintAllocator& allocator, PxU32 maxRows)
 {
 	const Vec4V zero = V4Zero();
 	Px1DConstraint* allSorted[MAX_CONSTRAINT_ROWS * 4];
@@ -132,7 +108,7 @@ PxConstraintAllocator& allocator, PxU32 maxRows, bool residualReportingEnabled)
 		numRows += desc.numRows;
 	}
 
-	const PxU32 stride = residualReportingEnabled ? sizeof(SolverConstraint1DDynamic4WithResidual) : sizeof(SolverConstraint1DDynamic4);
+	const PxU32 stride = sizeof(SolverConstraint1DDynamic4);
 
 	const PxU32 constraintLength = sizeof(SolverConstraint1DHeader4) + stride * maxRows;
 
@@ -164,7 +140,7 @@ PxConstraintAllocator& allocator, PxU32 maxRows, bool residualReportingEnabled)
 		desc.desc->writeBack = desc.writeback;
 	}
 
-	const PxReal erp[4] = { 1.0f, 1.0f, 1.0f, 1.0f};
+	const PxReal erp[4] = { biasCoefficient, biasCoefficient, biasCoefficient, biasCoefficient };
 	//OK, now we build all 4 constraints into a single set of rows
 
 	{
@@ -284,7 +260,7 @@ PxConstraintAllocator& allocator, PxU32 maxRows, bool residualReportingEnabled)
 		PxU32 endIndex3 = index3 + constraintDescs[3].numRows - 1;
 
 		for(PxU32 a = 0; a < maxRows; ++a)
-		{	
+		{
 			SolverConstraint1DDynamic4* c = reinterpret_cast<SolverConstraint1DDynamic4*>(currPtr);
 			currPtr += stride;
 
@@ -308,24 +284,33 @@ PxConstraintAllocator& allocator, PxU32 maxRows, bool residualReportingEnabled)
 			index2 = index2 == endIndex2 ? index2 : index2 + 1;
 			index3 = index3 == endIndex3 ? index3 : index3 + 1;
 
-			PxReal minImpulse0, minImpulse1, minImpulse2, minImpulse3;
-			PxReal maxImpulse0, maxImpulse1, maxImpulse2, maxImpulse3;
-			Dy::computeMinMaxImpulseOrForceAsImpulse(
-				con0->minImpulse, con0->maxImpulse,		
-				con0->flags & Px1DConstraintFlag::eHAS_DRIVE_LIMIT, constraintDescs[0].driveLimitsAreForces, simDt,
-				minImpulse0, maxImpulse0);
-			Dy::computeMinMaxImpulseOrForceAsImpulse(
-				con1->minImpulse, con1->maxImpulse,		
-				con1->flags & Px1DConstraintFlag::eHAS_DRIVE_LIMIT, constraintDescs[1].driveLimitsAreForces, simDt,
-				minImpulse1, maxImpulse1);
-			Dy::computeMinMaxImpulseOrForceAsImpulse(
-				con2->minImpulse, con2->maxImpulse,		
-				con2->flags & Px1DConstraintFlag::eHAS_DRIVE_LIMIT, constraintDescs[2].driveLimitsAreForces, simDt,
-				minImpulse2, maxImpulse2);
-			Dy::computeMinMaxImpulseOrForceAsImpulse(
-				con3->minImpulse, con3->maxImpulse,		
-				con3->flags & Px1DConstraintFlag::eHAS_DRIVE_LIMIT, constraintDescs[3].driveLimitsAreForces, simDt,
-				minImpulse3, maxImpulse3);
+			//#4 lanes with fewer rows than the batch max repeat their last row with zeroed
+			// constants/multipliers, so a padding row's unclamped force is always zero. Keep its
+			// impulse limits at zero too: a limit range excluding zero (legal for custom constraint
+			// shaders) would otherwise clamp that zero into a spurious impulse along the repeated
+			// row's Jacobian, which the scalar path (that only solves real rows) never applies.
+			PxReal minImpulse0 = 0.0f, minImpulse1 = 0.0f, minImpulse2 = 0.0f, minImpulse3 = 0.0f;
+			PxReal maxImpulse0 = 0.0f, maxImpulse1 = 0.0f, maxImpulse2 = 0.0f, maxImpulse3 = 0.0f;
+			if(a < constraintDescs[0].numRows)
+				Dy::computeMinMaxImpulseOrForceAsImpulse(
+					con0->minImpulse, con0->maxImpulse,
+					con0->flags & Px1DConstraintFlag::eHAS_DRIVE_LIMIT, constraintDescs[0].driveLimitsAreForces, simDt,
+					minImpulse0, maxImpulse0);
+			if(a < constraintDescs[1].numRows)
+				Dy::computeMinMaxImpulseOrForceAsImpulse(
+					con1->minImpulse, con1->maxImpulse,
+					con1->flags & Px1DConstraintFlag::eHAS_DRIVE_LIMIT, constraintDescs[1].driveLimitsAreForces, simDt,
+					minImpulse1, maxImpulse1);
+			if(a < constraintDescs[2].numRows)
+				Dy::computeMinMaxImpulseOrForceAsImpulse(
+					con2->minImpulse, con2->maxImpulse,
+					con2->flags & Px1DConstraintFlag::eHAS_DRIVE_LIMIT, constraintDescs[2].driveLimitsAreForces, simDt,
+					minImpulse2, maxImpulse2);
+			if(a < constraintDescs[3].numRows)
+				Dy::computeMinMaxImpulseOrForceAsImpulse(
+					con3->minImpulse, con3->maxImpulse,
+					con3->flags & Px1DConstraintFlag::eHAS_DRIVE_LIMIT, constraintDescs[3].driveLimitsAreForces, simDt,
+					minImpulse3, maxImpulse3);
 			const Vec4V minImpulse = V4LoadXYZW(minImpulse0, minImpulse1, minImpulse2, minImpulse3);
 			const Vec4V maxImpulse = V4LoadXYZW(maxImpulse0, maxImpulse1, maxImpulse2, maxImpulse3);
 			
@@ -367,12 +352,6 @@ PxConstraintAllocator& allocator, PxU32 maxRows, bool residualReportingEnabled)
 			c->minImpulse = minImpulse;
 			c->maxImpulse = maxImpulse;
 			c->appliedForce = zero;
-			if (residualReportingEnabled) 
-			{
-				SolverConstraint1DDynamic4WithResidual* cc = static_cast<SolverConstraint1DDynamic4WithResidual*>(c);
-				cc->residualPosIter = zero;
-				cc->residualVelIter = zero;
-			}
 
 			const Vec4V lin0MagSq = V4MulAdd(clin0Z, clin0Z, V4MulAdd(clin0Y, clin0Y, V4Mul(clin0X, clin0X)));
 			const Vec4V cang0DotAngDelta = V4MulAdd(angDelta0Z, angDelta0Z, V4MulAdd(angDelta0Y, angDelta0Y, V4Mul(angDelta0X, angDelta0X)));
@@ -492,13 +471,15 @@ PxConstraintAllocator& allocator, PxU32 maxRows, bool residualReportingEnabled)
 				}
 			}
 
-			if(con0->flags & Px1DConstraintFlag::eOUTPUT_FORCE)
+			//#4 padding rows never carry eOUTPUT_FORCE, so they cannot contribute to the reported
+			// constraint force or the breakage test
+			if((con0->flags & Px1DConstraintFlag::eOUTPUT_FORCE) && a < constraintDescs[0].numRows)
 				c->flags[0] |= DY_SC_FLAG_OUTPUT_FORCE;
-			if(con1->flags & Px1DConstraintFlag::eOUTPUT_FORCE)
+			if((con1->flags & Px1DConstraintFlag::eOUTPUT_FORCE) && a < constraintDescs[1].numRows)
 				c->flags[1] |= DY_SC_FLAG_OUTPUT_FORCE;
-			if(con2->flags & Px1DConstraintFlag::eOUTPUT_FORCE)
+			if((con2->flags & Px1DConstraintFlag::eOUTPUT_FORCE) && a < constraintDescs[2].numRows)
 				c->flags[2] |= DY_SC_FLAG_OUTPUT_FORCE;
-			if(con3->flags & Px1DConstraintFlag::eOUTPUT_FORCE)
+			if((con3->flags & Px1DConstraintFlag::eOUTPUT_FORCE) && a < constraintDescs[3].numRows)
 				c->flags[3] |= DY_SC_FLAG_OUTPUT_FORCE;
 		}
 		*(reinterpret_cast<PxU32*>(currPtr)) = 0;

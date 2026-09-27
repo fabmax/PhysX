@@ -1,36 +1,12 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef PXG_D6_JOINT_H
 #define PXG_D6_JOINT_H
 
 #include "PxConstraintDesc.h"
-#include "PxgD6JointLimit.h"
 
 namespace physx
 {
@@ -41,11 +17,10 @@ namespace physx
 			eX			= 0,		//!< drive along the X-axis
 			eY			= 1,		//!< drive along the Y-axis
 			eZ			= 2,		//!< drive along the Z-axis
-			eSWING		= 3,		//!< drive of displacement from the X-axis
-			eTWIST		= 4,		//!< drive of the displacement around the X-axis
-			eSLERP		= 5,		//!< drive of all three angular degrees along a SLERP-path
-			eSWING1		= 6,
-			eSWING2		= 7,
+			eTWIST		= 3,		//!< drive of the displacement around the X-axis
+			eSWING1		= 4,		//!< drive of the displacement around the Y-axis
+			eSWING2		= 5,		//!< drive of the displacement around the Z-axis
+			eSLERP		= 6,		//!< drive of all three angular degrees along a SLERP-path
 			eCOUNT
 		};
 	};

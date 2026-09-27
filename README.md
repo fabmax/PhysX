@@ -1,5 +1,8 @@
 # NVIDIA PhysX
 
+<details>
+<summary>Copyright & License</summary>
+
 Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -26,27 +29,45 @@ OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-## Introduction
+</details>
 
-Welcome to the NVIDIA PhysX source code repository.
+Please also see license files in the root folder and in the respective subfolders.
 
-This repository contains source releases of the PhysX, Flow and Blast SDKs and Omniverse PhysX extensions used in NVIDIA Omniverse.
+## Content
 
-## Documentation
+This repo contains:
 
-The user guide and API documentation are available on [GitHub Pages](https://nvidia-omniverse.github.io/PhysX). Please create an [Issue](https://github.com/NVIDIA-Omniverse/PhysX/issues/) if you find a documentation issue.
+| Directory | Description |
+|---|---|
+| [`ovphysx/`](ovphysx/) | ovphysx — C API with Python bindings for USD physics simulation with DLPack tensor interop (`pip install ovphysx`) |
+| [`physx/`](physx/) | PhysX SDK — real-time physics simulation engine |
+| [`omni/`](omni/) | Omniverse PhysX extensions for Kit-based applications |
 
-## Licenses
+### ovphysx
 
-Please see license files in the root folder and in the respective subfolders.
+| Release | Compatibility |
+|---|---|
+| [0.6](https://github.com/NVIDIA-Omniverse/PhysX/tree/ovphysx-0.6.3) | PhysX SDK 5.11.0 |
+| [0.5](https://github.com/NVIDIA-Omniverse/PhysX/tree/ovphysx-0.5.11) | PhysX SDK 5.10.0 |
+| [0.4](https://github.com/NVIDIA-Omniverse/PhysX/tree/ovphysx-0.4.13) | PhysX SDK 5.9.0 |
+| [0.3](https://github.com/NVIDIA-Omniverse/PhysX/tree/ovphysx-0.3.7) | PhysX SDK 5.9.0 |
+| [0.2](https://github.com/NVIDIA-Omniverse/PhysX/tree/ovphysx-0.2.9) | PhysX SDK 5.8.0 |
 
-## Instructions
+### Omniverse PhysX Extensions and PhysX SDK
 
-Please see instructions specific to each of the libraries in the respective subfolder.
+| Release | Compatibility |
+|---|---|
+| [110.1 and 5.9.0](https://github.com/NVIDIA-Omniverse/PhysX/tree/110.1-omni-and-physx-5.9.0) | [IsaacSim 6.0.0](https://github.com/isaac-sim/IsaacSim/tree/v6.0.0) |
+| [110.0 and 5.8.0](https://github.com/NVIDIA-Omniverse/PhysX/tree/110.0-omni-and-physx-5.8.0) | [IsaacSim 6.0.0-dev2](https://github.com/isaac-sim/IsaacSim/tree/v6.0.0-dev2) |
+| [109.0 and 5.7.0](https://github.com/NVIDIA-Omniverse/PhysX/tree/109.0-omni-and-physx-5.7.0) | [IsaacSim 6.0.0-dev](https://github.com/isaac-sim/IsaacSim/tree/v6.0.0-dev) |
+| [107.3 and 5.6.1](https://github.com/NVIDIA-Omniverse/PhysX/tree/107.3-omni-and-physx-5.6.1) | [IsaacSim 5.1.0](https://github.com/isaac-sim/IsaacSim/tree/v5.1.0) |
 
-## Community-Maintained Build Configuration Fork
+Additional simulation libraries:
 
-Please see [the O3DE Fork](https://github.com/o3de/PhysX) for community-maintained additional build configurations.
+| Directory | Description |
+|---|---|
+| [`blast/`](blast/) | Blast SDK — destruction and fracture simulation |
+| [`flow/`](flow/) | Flow SDK — fluid and fire simulation |
 
 ## Support
 

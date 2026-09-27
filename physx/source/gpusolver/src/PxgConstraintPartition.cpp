@@ -1,28 +1,5 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "common/PxProfileZone.h"
 
@@ -130,7 +107,7 @@ PX_FORCE_INLINE void PartitionEdgeManager::putEdge(PartitionEdge* edge)
 
 /////
 
-static PX_FORCE_INLINE void increaseNodeInteractionCounts(PxInt32ArrayPinned& nodeInteractionCountArray, PxNodeIndex nodeIndex1, PxNodeIndex nodeIndex2)
+static PX_FORCE_INLINE void increaseNodeInteractionCounts(Cm::PinnableArray<PxU32>& nodeInteractionCountArray, PxNodeIndex nodeIndex1, PxNodeIndex nodeIndex2)
 {
 	if(nodeIndex1.isValid())
 		nodeInteractionCountArray[nodeIndex1.index()]++;
@@ -138,7 +115,7 @@ static PX_FORCE_INLINE void increaseNodeInteractionCounts(PxInt32ArrayPinned& no
 		nodeInteractionCountArray[nodeIndex2.index()]++;
 }
 
-static PX_FORCE_INLINE void increaseNodeInteractionCountsMT(PxInt32ArrayPinned& nodeInteractionCountArray, PxNodeIndex nodeIndex1, PxNodeIndex nodeIndex2)
+static PX_FORCE_INLINE void increaseNodeInteractionCountsMT(Cm::PinnableArray<PxU32>& nodeInteractionCountArray, PxNodeIndex nodeIndex1, PxNodeIndex nodeIndex2)
 {
 	if(nodeIndex1.isValid())
 		PxAtomicIncrement(reinterpret_cast<volatile PxI32*>(&nodeInteractionCountArray[nodeIndex1.index()]));
@@ -146,7 +123,7 @@ static PX_FORCE_INLINE void increaseNodeInteractionCountsMT(PxInt32ArrayPinned& 
 		PxAtomicIncrement(reinterpret_cast<volatile PxI32*>(&nodeInteractionCountArray[nodeIndex2.index()]));
 }
 
-static PX_FORCE_INLINE void decreaseNodeInteractionCounts(PxInt32ArrayPinned& nodeInteractionCountArray, PxNodeIndex nodeIndex1, PxNodeIndex nodeIndex2)
+static PX_FORCE_INLINE void decreaseNodeInteractionCounts(Cm::PinnableArray<PxU32>& nodeInteractionCountArray, PxNodeIndex nodeIndex1, PxNodeIndex nodeIndex2)
 {
 	if(nodeIndex1.isValid())
 		nodeInteractionCountArray[nodeIndex1.index()]--;
@@ -154,7 +131,7 @@ static PX_FORCE_INLINE void decreaseNodeInteractionCounts(PxInt32ArrayPinned& no
 		nodeInteractionCountArray[nodeIndex2.index()]--;
 }
 
-static PX_FORCE_INLINE void decreaseNodeInteractionCountsMT(PxInt32ArrayPinned& nodeInteractionCountArray, PxNodeIndex nodeIndex1, PxNodeIndex nodeIndex2)
+static PX_FORCE_INLINE void decreaseNodeInteractionCountsMT(Cm::PinnableArray<PxU32>& nodeInteractionCountArray, PxNodeIndex nodeIndex1, PxNodeIndex nodeIndex2)
 {
 	if(nodeIndex1.isValid())
 		PxAtomicDecrement(reinterpret_cast<volatile PxI32*>(&nodeInteractionCountArray[nodeIndex1.index()]));
@@ -193,13 +170,20 @@ static PX_FORCE_INLINE void decreaseForceThresholds(const PartitionEdge* edge, P
 
 /////
 
-PxgIncrementalPartition::PxgIncrementalPartition(const PxVirtualAllocator& allocator, PxU32 maxNumPartitions, PxU64 contextID) :
+PxgIncrementalPartition::PxgIncrementalPartition(Cm::VirtualAllocatorCallback& hostAlloc, PxU32 maxNumPartitions, PxU64 contextID) :
 	mNodeCount(0), mNbContactBatches(0), mNbConstraintBatches(0), mNbPartitions(0), mTotalContacts(0), mTotalConstraints(0), 
 	mTotalArticulationContacts(0), mTotalArticulationConstraints(0), 
-	mMaxSlabCount(0), mNbForceThresholds(0), mPartitionIndexArray(allocator), mPartitionNodeArray(allocator), 
-	mSolverConstants(allocator), mNodeInteractionCountArray(allocator),	mDestroyedContactEdgeIndices(allocator), 
-	mStartSlabPerPartition(allocator), mArticStartSlabPerPartition(allocator), mNbJointsPerPartition(allocator), 
-	mNbArtiJointsPerPartition(allocator), mCSlab(maxNumPartitions), mContextID(contextID)
+	mMaxSlabCount(0), mNbForceThresholds(0),
+	mPartitionIndexArray(hostAlloc, PxsHeapStats::eSOLVER),
+	mPartitionNodeArray(hostAlloc, PxsHeapStats::eSOLVER),
+	mSolverConstants(hostAlloc, PxsHeapStats::eSOLVER),
+	mNodeInteractionCountArray(hostAlloc, PxsHeapStats::eSOLVER),
+	mDestroyedContactEdgeIndices(hostAlloc, PxsHeapStats::eSOLVER), 
+	mStartSlabPerPartition(hostAlloc, PxsHeapStats::eSOLVER),
+	mArticStartSlabPerPartition(hostAlloc, PxsHeapStats::eSOLVER),
+	mNbJointsPerPartition(hostAlloc, PxsHeapStats::eSOLVER), 
+	mNbArtiJointsPerPartition(hostAlloc, PxsHeapStats::eSOLVER),
+	mCSlab(maxNumPartitions), mContextID(contextID)
 {
 	mPartitionSlabs.pushBack(PX_NEW(PartitionSlab));
 }
@@ -1134,9 +1118,9 @@ namespace
 			const PxsContactManagerOutputCounts* PX_RESTRICT lostFoundPairOutputs = mContext.mLostFoundPairOutputs;
 			const PxsContactManager*const* PX_RESTRICT lostFoundPatchManagers = mContext.mLostFoundPatchManagers;
 
-			PxInt32ArrayPinned& PX_RESTRICT nodeInteractionCountArray = mContext.mIP.mNodeInteractionCountArray;
+			Cm::PinnableArray<PxU32>& PX_RESTRICT nodeInteractionCountArray = mContext.mIP.mNodeInteractionCountArray;
 			PxU32* PX_RESTRICT dirtyMap = mContext.mIP.mIsDirtyNode.getWords();
-			const PxPinnedArray<PartitionIndexData>& PX_RESTRICT partitionIndexArray = mContext.mIP.mPartitionIndexArray;
+			const Cm::PinnableArray<PartitionIndexData>& PX_RESTRICT partitionIndexArray = mContext.mIP.mPartitionIndexArray;
 			PxArray<PartitionSlab*>& PX_RESTRICT partitionSlabs = mContext.mIP.mPartitionSlabs;
 
 			const PxU32 startIndex = mStartIndex;
@@ -1154,6 +1138,11 @@ namespace
 					continue;
 
 				const PxsContactManager* contactManager = lostFoundPatchManagers[a];
+
+				// Fix OMPE-72553 by checking for NULL ptr
+				if (!contactManager)
+					continue;
+
 				const PxcNpWorkUnit& unit = contactManager->getWorkUnit();
 
 				if(unit.mFlags & PxcNpWorkUnitFlag::eDISABLE_RESPONSE)
@@ -1376,8 +1365,8 @@ namespace
 			const PxsContactManagerOutputCounts* PX_RESTRICT lostFoundPairOutputs = mContext.mLostFoundPairOutputs;
 			const PxsContactManager*const* PX_RESTRICT lostFoundPatchManagers = mContext.mLostFoundPatchManagers;
 
-			PxPinnedArray<PartitionIndexData>& PX_RESTRICT partitionIndexArray = mContext.mIP.mPartitionIndexArray;
-			PxPinnedArray<PartitionNodeData>& PX_RESTRICT partitionNodeArray = mContext.mIP.mPartitionNodeArray;
+			Cm::PinnableArray<PartitionIndexData>& PX_RESTRICT partitionIndexArray = mContext.mIP.mPartitionIndexArray;
+			Cm::PinnableArray<PartitionNodeData>& PX_RESTRICT partitionNodeArray = mContext.mIP.mPartitionNodeArray;
 			PxArray<PartitionSlab*>& PX_RESTRICT partitionSlabs = mContext.mIP.mPartitionSlabs;
 
 			// PT: TODO: unfortunately for now we do parse the full input array again. Would be great to avoid that.
@@ -2263,7 +2252,7 @@ void PxgIncrementalPartition::updateIncrementalIslands_Part2_0(IG::IslandSim& is
 
 						for (PxU32 b = 0; b < output.nbPatches; ++b)
 						{
-							Part2WorkItem& item = mPart2WorkItems.insert();
+							Part2WorkItem& item = *mPart2WorkItems.insert();
 							item.mEdgeID		= edgeId;
 							item.mPatchIndex	= PxU16(b);
 							item.mPartitionEdge	= mEdgeManager.getEdge(edgeId);		// PT: TODO: batch
@@ -2691,10 +2680,10 @@ void PxgIncrementalPartition::updateIncrementalIslands_Part3(IG::IslandSim& isla
 	nbArtiContactBatches = 0;
 	nbArtiConstraintBatches = 0;
 
-	PxInt32ArrayPinned& startSlabIter = mStartSlabPerPartition;
-	PxInt32ArrayPinned& articStartSlabIter = mArticStartSlabPerPartition;
-	PxInt32ArrayPinned& jointPerPartitionIter = mNbJointsPerPartition;
-	PxInt32ArrayPinned& artiJointPerPartitionIter = mNbArtiJointsPerPartition;
+	Cm::PinnableArray<PxU32>& startSlabIter = mStartSlabPerPartition;
+	Cm::PinnableArray<PxU32>& articStartSlabIter = mArticStartSlabPerPartition;
+	Cm::PinnableArray<PxU32>& jointPerPartitionIter = mNbJointsPerPartition;
+	Cm::PinnableArray<PxU32>& artiJointPerPartitionIter = mNbArtiJointsPerPartition;
 
 	startSlabIter.forceSize_Unsafe(0);
 	startSlabIter.reserve(nbPartitions);

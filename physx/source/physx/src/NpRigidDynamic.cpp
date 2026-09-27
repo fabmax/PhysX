@@ -1,33 +1,11 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "NpRigidDynamic.h"
 #include "NpRigidActorTemplateInternal.h"
+#include "NpScene.h"
 #include "omnipvd/NpOmniPvdSetData.h"
 
 using namespace physx;
@@ -206,12 +184,30 @@ static PX_FORCE_INLINE PxVec3 getAcceleration(const NpRigidDynamic& dynamic)
 	if(!npScene || !(npScene->getFlagsFast() & PxSceneFlag::eENABLE_BODY_ACCELERATIONS))
 		return PxVec3(0.0f);
 
+#if PX_SUPPORT_GPU_PHYSX
+	// PdHC: For DirectGPU API mode, accelerations are only available via PxDirectGPUAPI.
+	// Emit a one-time warning to help users discover they should use PxDirectGPUAPI instead.
+	if(npScene->getFlagsFast() & PxSceneFlag::eENABLE_DIRECT_GPU_API)
+	{
+		if(npScene->warnOnceDirectGpuAccelGetter())
+			outputError<PxErrorCode::eDEBUG_WARNING>(__LINE__, "PxRigidDynamic::getLinearAcceleration/getAngularAcceleration: "
+				"These methods return zero when PxSceneFlag::eENABLE_DIRECT_GPU_API is enabled. "
+				"Use PxDirectGPUAPI::getRigidDynamicData() instead. This warning is issued once per scene.");
+		return PxVec3(0.0f);
+	}
+	// Lazy GPU acceleration copy - on first getter access after fetchResults,
+	// bulk copy GPU accelerations from DMA buffer to the contiguous acceleration array
+	if(npScene->isGpuAccelerationsCopyPending())
+		npScene->ensureGpuAccelerationsCopied();
+#endif
+
 	const PxU32 index = dynamic.getRigidActorArrayIndex();
-	if(index>=npScene->mRigidDynamicsAccelerations.size())
+	const PxArray<NpRigidDynamicAcceleration>& accels = npScene->getRigidDynamicsAccelerations();
+	if(index >= accels.size())
 		return PxVec3(0.0f);
 
-	return linear ?	npScene->mRigidDynamicsAccelerations[index].mLinAccel
-				:	npScene->mRigidDynamicsAccelerations[index].mAngAccel;
+	return linear ?	accels[index].mLinAccel
+				:	accels[index].mAngAccel;
 }
 
 PxVec3 NpRigidDynamic::getLinearAcceleration() const
@@ -242,14 +238,13 @@ void NpRigidDynamic::setLinearVelocity(const PxVec3& velocity, bool autowake)
 
 	scSetLinearVelocity(velocity);
 
+	// Update prev velocity in acceleration array for correct acceleration computation next frame
 	if(npScene && npScene->getFlagsFast() & PxSceneFlag::eENABLE_BODY_ACCELERATIONS)
 	{
+		PxArray<NpRigidDynamicAcceleration>& accels = npScene->getRigidDynamicsAccelerations();
 		const PxU32 index = getRigidActorArrayIndex();
-
-		if(index>=npScene->mRigidDynamicsAccelerations.size())
-			npScene->mRigidDynamicsAccelerations.resize(index+1);
-
-		npScene->mRigidDynamicsAccelerations[index].mPrevLinVel = velocity;
+		if(index < accels.size())
+			accels[index].mPrevLinVel = velocity;
 	}
 
 	OMNI_PVD_SET(OMNI_PVD_CONTEXT_HANDLE, PxRigidBody, linearVelocity, *static_cast<PxRigidBody*>(this), velocity);
@@ -270,14 +265,13 @@ void NpRigidDynamic::setAngularVelocity(const PxVec3& velocity, bool autowake)
 
 	scSetAngularVelocity(velocity);
 
+	// Update prev velocity in acceleration array for correct acceleration computation next frame
 	if(npScene && npScene->getFlagsFast() & PxSceneFlag::eENABLE_BODY_ACCELERATIONS)
 	{
+		PxArray<NpRigidDynamicAcceleration>& accels = npScene->getRigidDynamicsAccelerations();
 		const PxU32 index = getRigidActorArrayIndex();
-
-		if(index>=npScene->mRigidDynamicsAccelerations.size())
-			npScene->mRigidDynamicsAccelerations.resize(index+1);
-
-		npScene->mRigidDynamicsAccelerations[index].mPrevAngVel = velocity;
+		if(index < accels.size())
+			accels[index].mPrevAngVel = velocity;
 	}
 
 	OMNI_PVD_SET(OMNI_PVD_CONTEXT_HANDLE, PxRigidBody, angularVelocity, *static_cast<PxRigidBody*>(this), velocity);
@@ -427,7 +421,11 @@ bool NpRigidDynamic::isSleeping() const
 	NP_READ_CHECK(getNpScene());
 	PX_CHECK_AND_RETURN_VAL(getNpScene(), "PxRigidDynamic::isSleeping: Body must be in a scene.", true);
 
-	PX_CHECK_SCENE_API_READ_FORBIDDEN_AND_RETURN_VAL(getNpScene(), "PxRigidDynamic::isSleeping() not allowed while simulation is running.", true);
+	NpScene* npScene = getNpScene();
+	if (npScene->getFlags() & PxSceneFlag::eDISABLE_SLEEPING)
+		return false;
+
+	PX_CHECK_SCENE_API_READ_FORBIDDEN_AND_RETURN_VAL(npScene, "PxRigidDynamic::isSleeping() not allowed while simulation is running.", true);
 
 	return mCore.isSleeping();
 }
@@ -505,6 +503,7 @@ void NpRigidDynamic::wakeUp()
 {
 	NpScene* npScene = getNpScene();
 	NP_WRITE_CHECK(npScene);
+
 	PX_CHECK_AND_RETURN(npScene, "PxRigidDynamic::wakeUp: Body must be in a scene.");
 	PX_CHECK_AND_RETURN(!(mCore.getFlags() & PxRigidBodyFlag::eKINEMATIC), "PxRigidDynamic::wakeUp: Body must be non-kinematic!");
 	PX_CHECK_AND_RETURN(!(mCore.getActorFlags().isSet(PxActorFlag::eDISABLE_SIMULATION)), "PxRigidDynamic::wakeUp: Not allowed if PxActorFlag::eDISABLE_SIMULATION is set!");
@@ -518,6 +517,13 @@ void NpRigidDynamic::putToSleep()
 {
 	NpScene* npScene = getNpScene();
 	NP_WRITE_CHECK(npScene);
+
+	if (npScene && (npScene->getFlags() & PxSceneFlag::eDISABLE_SLEEPING))
+	{
+		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxRigidDynamic::putToSleep(): sleeping is not supported when PxSceneFlag::eDISABLE_SLEEPING is enabled. Call ignored.");
+		return;
+	}
+
 	PX_CHECK_AND_RETURN(npScene, "PxRigidDynamic::putToSleep: Body must be in a scene.");
 	PX_CHECK_AND_RETURN(!(mCore.getFlags() & PxRigidBodyFlag::eKINEMATIC), "PxRigidDynamic::putToSleep: Body must be non-kinematic!");
 	PX_CHECK_AND_RETURN(!(mCore.getActorFlags().isSet(PxActorFlag::eDISABLE_SIMULATION)), "PxRigidDynamic::putToSleep: Not allowed if PxActorFlag::eDISABLE_SIMULATION is set!");

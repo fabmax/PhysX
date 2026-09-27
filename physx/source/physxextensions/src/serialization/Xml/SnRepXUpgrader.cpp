@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved. 
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "foundation/PxMemory.h"
 #include "SnXmlImpl.h" 
@@ -53,7 +30,7 @@ namespace physx { namespace Sn {
 	#include "SnRepX3_2Defaults.h"
 	};
 	static PxU32 gNumRepX3_2Defaults = sizeof( gRepX3_2Defaults ) / sizeof ( *gRepX3_2Defaults );
-	
+
 	inline const char* nextPeriod( const char* str )
 	{
 		for( ++str; str && *str && *str != '.'; ++str ); //empty loop intentional
@@ -73,9 +50,9 @@ namespace physx { namespace Sn {
 
 		return ::strcmp(lhs, rhs) == 0;
 	}
-	
+
 	typedef PxProfileHashMap<const char*, PxU32> TNameOffsetMap;
-	
+
 	void setMissingPropertiesToDefault( XmlNode* topNode, XmlReaderWriter& editor, const RepXDefaultEntry* defaults, PxU32 numDefaults, TNameOffsetMap& map )
 	{
 		for ( XmlNode* child = topNode->mFirstChild; child != NULL; child = child->mNextSibling )
@@ -87,7 +64,7 @@ namespace physx { namespace Sn {
 			XmlReaderWriter& theReader( editor );
 			theReader.setNode( *topNode );
 			char nameBuffer[512] = {0};
-			size_t nameLen = strlen( topNode->mName );
+			size_t nameLen = strnlen( topNode->mName, UINT64_MAX - 1 );
 			//For each default property entry for this node type.
 			for ( const RepXDefaultEntry* item = defaults + entry->second; Pxstrncmp( item->name, topNode->mName, nameLen ) == 0; ++item )
 			{
@@ -119,7 +96,7 @@ namespace physx { namespace Sn {
 		}
 	}
 
-	
+
 	static void setMissingPropertiesToDefault( RepXCollection& collection, XmlReaderWriter& editor, const RepXDefaultEntry* defaults, PxU32 numDefaults )
 	{
 		PxProfileAllocatorWrapper wrapper( collection.getAllocator() );
@@ -138,7 +115,7 @@ namespace physx { namespace Sn {
 			char* newMem = reinterpret_cast<char*>(alloc.allocate( PxU32(nameLen + 1) ));
 			PxMemCopy( newMem, item.name, PxU32(nameLen) );
 			newMem[nameLen] = 0;
-		
+
 			if ( nameOffsets.find( newMem ) )
 				alloc.deallocate( reinterpret_cast<PxU8*>(newMem) );
 			else
@@ -178,9 +155,9 @@ namespace physx { namespace Sn {
 		XmlReaderWriter& editor( src.createNodeEditor() );
 		setMissingPropertiesToDefault(src, editor, gRepX1_0Defaults, gNumRepX1_0Default );
 
-		
+
 		RepXCollection* dest = &src.createCollection("3.1.1");
-		
+
 		for ( const RepXCollectionItem* item = src.begin(), *end = src.end(); item != end; ++ item )
 		{
 			//either src or dest could do the copy operation, it doesn't matter who does it.
@@ -211,7 +188,7 @@ namespace physx { namespace Sn {
 				*/
 				const char* actor0, *actor1, *lp0, *lp1;
 				editor.readAndRemoveProperty( "Actor0", actor0 );
-				editor.readAndRemoveProperty( "Actor1", actor1 ); 
+				editor.readAndRemoveProperty( "Actor1", actor1 );
 				editor.readAndRemoveProperty( "LocalPose0", lp0 );
 				editor.readAndRemoveProperty( "LocalPose1", lp1 );
 
@@ -237,7 +214,7 @@ namespace physx { namespace Sn {
 		src.destroy();
 		return *dest;
 	}
-	
+
 	RepXCollection& RepXUpgrader::upgrade3_1CollectionTo3_2Collection(RepXCollection& src)
 	{
 		XmlReaderWriter& editor( src.createNodeEditor() );
@@ -250,12 +227,12 @@ namespace physx { namespace Sn {
 			//either src or dest could do the copy operation, it doesn't matter who does it.
 			RepXCollectionItem newItem( item->liveObject, src.copyRepXNode( item->descriptor ) );
 			editor.setNode( *const_cast<XmlNode*>( newItem.descriptor ) );
-			
+
 			if ( strstr( newItem.liveObject.typeName, "PxMaterial" ) )
 			{
 				editor.removeChild( "DynamicFrictionV" );
 				editor.removeChild( "StaticFrictionV" );
-				editor.removeChild( "dirOfAnisotropy" );	
+				editor.removeChild( "dirOfAnisotropy" );
 			}
 			//now desc owns the new node.  Collections share a single allocation pool, however,
 			//which will get destroyed when all the collections referencing it are destroyed themselves.
@@ -266,7 +243,7 @@ namespace physx { namespace Sn {
 		src.destroy();
 		return *dest;
 	}
-	
+
 	RepXCollection& RepXUpgrader::upgrade3_2CollectionTo3_3Collection(RepXCollection& src)
 	{
 		XmlReaderWriter& editor( src.createNodeEditor() );
@@ -274,12 +251,12 @@ namespace physx { namespace Sn {
 
 		RepXCollection* dest = &src.createCollection("3.3.0");
 
-		
+
 
 		struct RenameSpringToStiffness : public RecursiveTraversal
 		{
 			RenameSpringToStiffness(XmlReaderWriter& editor_): RecursiveTraversal(editor_) {}
-		
+
 			void updateNode()
 			{
 				mEditor.renameProperty("Spring", "Stiffness");
@@ -291,7 +268,7 @@ namespace physx { namespace Sn {
 		struct UpdateArticulationSwingLimit : public RecursiveTraversal
 		{
 			UpdateArticulationSwingLimit(XmlReaderWriter& editor_): RecursiveTraversal(editor_) {}
-		
+
 			void updateNode()
 			{
 				if(!Pxstricmp(mEditor.getCurrentItemName(), "yLimit") && !Pxstricmp(mEditor.getCurrentItemValue(), "0"))
@@ -320,10 +297,10 @@ namespace physx { namespace Sn {
 		for ( const RepXCollectionItem* item = src.begin(), *end = src.end(); item != end; ++ item )
 		{
 			//either src or dest could do the copy operation, it doesn't matter who does it.
-			RepXCollectionItem newItem( item->liveObject, src.copyRepXNode( item->descriptor ) );	
+			RepXCollectionItem newItem( item->liveObject, src.copyRepXNode( item->descriptor ) );
 
 			if ( strstr( newItem.liveObject.typeName, "PxCloth" ) || strstr( newItem.liveObject.typeName, "PxClothFabric" ) )
-			{  
+			{
 				PxGetFoundation().error(PxErrorCode::eDEBUG_WARNING, PX_FL, "Didn't suppot PxCloth upgrate from 3.2 to 3.3! ");
 				continue;
 			}
@@ -335,8 +312,8 @@ namespace physx { namespace Sn {
 				editor.renameProperty( "VelocityBuffer", "Velocities" );
 				editor.renameProperty( "RestOffsetBuffer", "RestOffsets" );
 			}
-			
-			if(strstr(newItem.liveObject.typeName, "PxPrismaticJoint" ) 
+
+			if(strstr(newItem.liveObject.typeName, "PxPrismaticJoint" )
 			|| strstr(newItem.liveObject.typeName, "PxRevoluteJoint")
 			|| strstr(newItem.liveObject.typeName, "PxSphericalJoint")
 			|| strstr(newItem.liveObject.typeName, "PxD6Joint")
@@ -357,13 +334,13 @@ namespace physx { namespace Sn {
 			//now dest owns the new node.  Collections share a single allocation pool, however,
 			//which will get destroyed when all the collections referencing it are destroyed themselves.
 			//Data on nodes is shared between nodes, but the node structure itself is allocated.
-			
+
 			dest->addCollectionItem( newItem );
-			
+
 		}
 		editor.release();
 		src.destroy();
-		
+
 		return *dest;
 	}
 
@@ -375,7 +352,7 @@ namespace physx { namespace Sn {
 		{
 			if(strstr(item->liveObject.typeName, "PxTriangleMesh"))
 			{
-				PxRepXObject newMeshRepXObj("PxBVH33TriangleMesh", item->liveObject.serializable, item->liveObject.id);                      
+				PxRepXObject newMeshRepXObj("PxBVH33TriangleMesh", item->liveObject.serializable, item->liveObject.id);
 				XmlNode* newMeshNode = src.copyRepXNode( item->descriptor );
 				newMeshNode->mName = "PxBVH33TriangleMesh";
 				RepXCollectionItem newMeshItem(newMeshRepXObj, newMeshNode);
@@ -383,10 +360,10 @@ namespace physx { namespace Sn {
 				continue;
 			}
 
-			RepXCollectionItem newItem( item->liveObject, src.copyRepXNode( item->descriptor ) );	
+			RepXCollectionItem newItem( item->liveObject, src.copyRepXNode( item->descriptor ) );
 			dest->addCollectionItem( newItem );
 		}
-		src.destroy();		
+		src.destroy();
 		return *dest;
 	}
 
@@ -396,7 +373,7 @@ namespace physx { namespace Sn {
 
 		for (const RepXCollectionItem* item = src.begin(), *end = src.end(); item != end; ++item)
 		{
-			if (strstr(item->liveObject.typeName, "PxParticleFluid") || 
+			if (strstr(item->liveObject.typeName, "PxParticleFluid") ||
 				strstr(item->liveObject.typeName, "PxParticleSystem") ||
 				strstr(item->liveObject.typeName, "PxClothFabric") ||
 				strstr(item->liveObject.typeName, "PxCloth"))
@@ -415,12 +392,12 @@ namespace physx { namespace Sn {
 	{
 		const char* srcVersion = src.getVersion();
 		if( safeStrEq( srcVersion, RepXCollection::getLatestVersion() ))
-           return src;		
+           return src;
 
 		typedef RepXCollection& (*UPGRADE_FUNCTION)(RepXCollection& src);
 
 		struct Upgrade { const char* versionString; UPGRADE_FUNCTION upgradeFunction; };
-		
+
 		static const Upgrade upgradeTable[] =
 		{
 			{   "1.0", upgrade10CollectionTo3_1Collection	},
@@ -436,11 +413,11 @@ namespace physx { namespace Sn {
 			{ "3.4.1", NULL									},
 			{ "3.4.2", upgrade3_4CollectionTo4_0Collection	}
 		}; //increasing order and complete
-		
+
 		const PxU32 upgradeTableSize = sizeof(upgradeTable)/sizeof(upgradeTable[0]);
 
 		PxU32 repxVersion = UINT16_MAX;
-		
+
 		for (PxU32 i=0; i<upgradeTableSize; i++)
 	    {
 			if( safeStrEq( srcVersion, upgradeTable[i].versionString ))

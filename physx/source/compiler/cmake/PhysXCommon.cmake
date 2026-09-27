@@ -1,28 +1,5 @@
-## Redistribution and use in source and binary forms, with or without
-## modification, are permitted provided that the following conditions
-## are met:
-##  * Redistributions of source code must retain the above copyright
-##    notice, this list of conditions and the following disclaimer.
-##  * Redistributions in binary form must reproduce the above copyright
-##    notice, this list of conditions and the following disclaimer in the
-##    documentation and/or other materials provided with the distribution.
-##  * Neither the name of NVIDIA CORPORATION nor the names of its
-##    contributors may be used to endorse or promote products derived
-##    from this software without specific prior written permission.
-##
-## THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-## EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-## IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-## PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-## CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-## EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-## PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-## PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-## OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-## (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-## OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-##
-## Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+## SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+## SPDX-License-Identifier: Apache-2.0
 
 #
 # Build PhysXCommon common
@@ -52,6 +29,10 @@ SET(PHYSX_COMMON_SOURCE
 	${COMMON_SRC_DIR}/CmFlushPool.h
 	${COMMON_SRC_DIR}/CmIDPool.h
 	${COMMON_SRC_DIR}/CmMatrix34.h
+	${COMMON_SRC_DIR}/CmPinnableAllocator.h
+	${COMMON_SRC_DIR}/CmPinnableArray.h
+	${COMMON_SRC_DIR}/CmPinnableBitMap.h
+	${COMMON_SRC_DIR}/CmPinnableObject.h
 	${COMMON_SRC_DIR}/CmPool.h
 	${COMMON_SRC_DIR}/CmPreallocatingPool.h
 	${COMMON_SRC_DIR}/CmPriorityQueue.h
@@ -67,6 +48,7 @@ SET(PHYSX_COMMON_SOURCE
 	${COMMON_SRC_DIR}/CmTask.h
 	${COMMON_SRC_DIR}/CmTransformUtils.h
 	${COMMON_SRC_DIR}/CmUtils.h
+	${COMMON_SRC_DIR}/CmVirtualAllocatorCallback.h
 	${COMMON_SRC_DIR}/CmVisualization.h
 	${COMMON_SRC_DIR}/CmVisualization.cpp
 )
@@ -105,7 +87,6 @@ SET(PHYSXCOMMON_GEOMETRY_HEADERS
 	${PHYSX_ROOT_DIR}/include/geometry/PxCustomGeometry.h
 	${PHYSX_ROOT_DIR}/include/geometry/PxConvexCoreGeometry.h
 	${PHYSX_ROOT_DIR}/include/geometry/PxGeometry.h
-	${PHYSX_ROOT_DIR}/include/geometry/PxGeometryInternal.h
 	${PHYSX_ROOT_DIR}/include/geometry/PxGeometryHelpers.h
 	${PHYSX_ROOT_DIR}/include/geometry/PxGeometryHit.h
 	${PHYSX_ROOT_DIR}/include/geometry/PxGeometryQuery.h
@@ -179,6 +160,8 @@ SET(PHYSXCOMMON_GU_HEADERS
 	${GU_SOURCE_DIR}/include/GuConvexSupport.h
 	${GU_SOURCE_DIR}/include/GuConvexGeometry.h
 	${GU_SOURCE_DIR}/include/GuRefGjkEpa.h
+	${GU_SOURCE_DIR}/include/GuMeshDepenetration.h
+	${GU_SOURCE_DIR}/include/GuLocalCluster.h
 )
 SOURCE_GROUP(geomutils\\include FILES ${PHYSXCOMMON_GU_HEADERS})
 
@@ -450,6 +433,7 @@ SET(PHYSXCOMMON_GU_MESH_SOURCE
 	${GU_SOURCE_DIR}/src/mesh/GuTetrahedronMesh.h
 	${GU_SOURCE_DIR}/src/mesh/GuTetrahedronMeshUtils.h
 	${GU_SOURCE_DIR}/src/mesh/GuTriangleRefinement.h
+	${GU_SOURCE_DIR}/src/mesh/GuMeshDepenetration.cpp
 )
 SOURCE_GROUP(geomutils\\src\\mesh FILES ${PHYSXCOMMON_GU_MESH_SOURCE})
 
@@ -622,13 +606,17 @@ ADD_LIBRARY(PhysXCommon ${PHYSXCOMMON_LIBTYPE}
 	${PHYSXCOMMON_GU_COOKING_SOURCE}
 )
 
-INSTALL(FILES ${PHYSXCOMMON_GEOMETRY_HEADERS} DESTINATION include/geometry)
-INSTALL(FILES ${PHYSXCOMMON_GEOMUTILS_HEADERS} DESTINATION include/geomutils)
+IF(NOT DEFINED PX_ENABLE_INSTALL OR PX_ENABLE_INSTALL)
+	INSTALL(FILES ${PHYSXCOMMON_GEOMETRY_HEADERS} DESTINATION include/geometry)
+	INSTALL(FILES ${PHYSXCOMMON_GEOMUTILS_HEADERS} DESTINATION include/geomutils)
+ENDIF()
 
 TARGET_INCLUDE_DIRECTORIES(PhysXCommon 
 	PRIVATE ${PXCOMMON_PLATFORM_INCLUDES}
 
-	PUBLIC ${PHYSX_ROOT_DIR}/include
+	PUBLIC 
+		$<BUILD_INTERFACE:${PHYSX_ROOT_DIR}/include>
+		$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 
 	PRIVATE ${PHYSX_SOURCE_DIR}/common/include
 	PRIVATE ${PHYSX_SOURCE_DIR}/common/src

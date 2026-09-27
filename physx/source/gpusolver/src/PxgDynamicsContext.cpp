@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "PxgDynamicsContext.h"
 #include "PxgKernelWrangler.h"
@@ -35,12 +12,10 @@ namespace physx
 {
 	PxgDynamicsContext::PxgDynamicsContext(Cm::FlushPool& flushPool, PxsKernelWranglerManager* gpuKernelWrangler, PxCudaContextManager* cudaContextManager,
 		const PxGpuDynamicsMemoryConfig& config, IG::SimpleIslandManager& islandManager, PxU32 maxNumPartitions, PxU32 maxNumStaticPartitions,
-		bool enableStabilization, bool useEnhancedDeterminism, bool solveArticulationContactLast,
-		PxReal maxBiasCoefficient,
-		PxvSimStats& simStats, PxgHeapMemoryAllocatorManager* heapMemoryManager,
-		bool frictionEveryIteration, PxReal lengthScale, bool enableDirectGPUAPI, PxU64 contextID, bool isResidualReportingEnabled)
-		:
-		PxgGpuContext(flushPool, islandManager, maxNumPartitions, maxNumStaticPartitions, enableStabilization, useEnhancedDeterminism, solveArticulationContactLast, maxBiasCoefficient, simStats, heapMemoryManager, lengthScale, enableDirectGPUAPI, contextID, isResidualReportingEnabled, false)
+		PxReal maxBiasCoefficient, PxvSimStats& simStats, PxgAllocatorDesc& allocDesc,
+		PxReal lengthScale, PxU64 contextID, PxSceneFlags sceneFlags)
+	:
+	PxgGpuContext(flushPool, islandManager, maxNumPartitions, maxNumStaticPartitions, maxBiasCoefficient, simStats, allocDesc, lengthScale, contextID, false, sceneFlags)
 	{
 		mWorldSolverBody.linearVelocity = PxVec3(0);
 		mWorldSolverBody.angularVelocity = PxVec3(0);
@@ -52,14 +27,15 @@ namespace physx
 		mWorldSolverBodyData.body2World = PxAlignedTransform(PxIdentity);
 		mWorldSolverBodyData.islandNodeIndex = PxNodeIndex(PX_INVALID_NODE);
 		mWorldSolverBodyData.offsetSlop = 0.f;
+		mWorldSolverBodyData.flags = 0;
 
 		mWorldTxIData.sqrtInvInertia = PxMat33(PxZero);
 		mWorldTxIData.deltaBody2World = PxTransform(PxIdentity);
 
 		{
-			mGpuArticulationCore = PX_NEW(PxgArticulationCore)(static_cast<PxgCudaKernelWranglerManager*>(gpuKernelWrangler), cudaContextManager, heapMemoryManager);
+			mGpuArticulationCore = PX_NEW(PxgArticulationCore)(static_cast<PxgCudaKernelWranglerManager*>(gpuKernelWrangler), cudaContextManager, allocDesc);
 
-			mGpuSolverCore = PX_NEW(PxgCudaSolverCore)(static_cast<PxgCudaKernelWranglerManager*>(gpuKernelWrangler), cudaContextManager, this, heapMemoryManager, config, frictionEveryIteration);
+			mGpuSolverCore = PX_NEW(PxgCudaSolverCore)(static_cast<PxgCudaKernelWranglerManager*>(gpuKernelWrangler), cudaContextManager, this, allocDesc, config, sceneFlags & PxSceneFlag::eENABLE_FRICTION_EVERY_ITERATION);
 
 			mGpuArticulationCore->setGpuContext(this);
 		}
@@ -67,9 +43,6 @@ namespace physx
 		mGpuSolverCore->acquireContext();
 
 		mGpuSolverCore->createStreams();
-
-		createThresholdStream(*heapMemoryManager->mMappedMemoryAllocators);
-		createForceChangeThresholdStream(*heapMemoryManager->mMappedMemoryAllocators);
 
 		mPinnedMemoryAllocator = PX_NEW(PxgPinnedHostLinearMemoryAllocator)(cudaContextManager, config.tempBufferCapacity);
 

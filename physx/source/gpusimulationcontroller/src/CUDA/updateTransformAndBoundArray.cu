@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "foundation/PxPreprocessor.h"
 
@@ -41,7 +18,7 @@
 #include "PxsRigidBody.h"
 #include "PxgArticulation.h"
 #include "PxgAggregate.h"
-#include "PxgAABBManager.h"
+#include "PxgBoundTransformUpdate.h"
 #include <assert.h>
 #include <stdio.h>
 
@@ -52,9 +29,10 @@ extern "C" __host__ void initSimulationControllerKernels1() {}
 extern "C" __global__ void mergeTransformCacheAndBoundArrayChanges(
     PxBounds3* PX_RESTRICT deviceBounds,
     PxsCachedTransform* PX_RESTRICT deviceTransforms,
+	PxgUpdateActorDataDesc* updateActorDesc,
     const PxBounds3* PX_RESTRICT boundsArray,
     const PxsCachedTransform* PX_RESTRICT transformsArray,
-    const PxBoundTransformUpdate* PX_RESTRICT changes,
+    const PxgBoundTransformUpdate* PX_RESTRICT changes,
     const PxU32 numChanges
 ) {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -68,6 +46,12 @@ extern "C" __global__ void mergeTransformCacheAndBoundArrayChanges(
         } else {
             deviceBounds[indexTo] = deviceBounds[indexFrom];
             deviceTransforms[indexTo] = deviceTransforms[indexFrom];
+            // Handle cases where bounds are reinserted (e.g., during kinematic/dynamic switch).
+            // In such cases, DirectGPUAPI indexing within updateActorDesc becomes invalid.
+            // To maintain consistency, transfer the mUpdated flag from indexFrom to indexTo,
+            // and reset the source flag to 0.
+            updateActorDesc->mUpdated[indexTo] = updateActorDesc->mUpdated[indexFrom];
+            updateActorDesc->mUpdated[indexFrom] = 0;
         }
     }
 }
@@ -143,7 +127,7 @@ extern "C" __global__ void updateTransformCacheAndBoundArrayLaunch(const PxgSimu
 					}
 
 					if (!(internalFlags & PxsRigidBody::eFROZEN) || (internalFlags & PxsRigidBody::eFREEZE_THIS_FRAME))
-					{					
+					{
 						if (isBP)
 							updated[elementIndex] = 1;
 
@@ -159,7 +143,7 @@ extern "C" __global__ void updateTransformCacheAndBoundArrayLaunch(const PxgSimu
 				}
 			}
 			else
-			{			
+			{
 				//This is articulation
 				const PxU32 articulationId = bodySim.articulationRemapId;
 				const PxgArticulation& articulation = gArticulations[articulationId];

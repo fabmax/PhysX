@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "ExtDistanceJoint.h"
 #include "ExtConstraintHelper.h"
@@ -307,14 +284,21 @@ void DistanceJoint::updateOmniPvdProperties() const
 	OMNI_PVD_SET(OMNI_PVD_CONTEXT_HANDLE, PxDistanceJoint, distance, j, getDistance())
 }
 
+template<> void physx::Ext::omniPvdInitJoint<DistanceJoint>(OmniPvdWriter* pvdWriter, const OmniPvdPxExtensionsRegistrationData* pvdRegData, DistanceJoint& joint); // declared before the wrapper so the wrapper binds the explicit form below instead of implicitly instantiating it
 template<>
 void physx::Ext::omniPvdInitJoint<DistanceJoint>(DistanceJoint& joint)
 {
 	OMNI_PVD_WRITE_SCOPE_BEGIN(pvdWriter, pvdRegData)
+	omniPvdInitJoint(pvdWriter, pvdRegData, joint);
+	OMNI_PVD_WRITE_SCOPE_END
+}
 
+template<>
+void physx::Ext::omniPvdInitJoint<DistanceJoint>(OmniPvdWriter* pvdWriter, const OmniPvdPxExtensionsRegistrationData* pvdRegData, DistanceJoint& joint)
+{
 	PxDistanceJoint& j = static_cast<PxDistanceJoint&>(joint);
 	OMNI_PVD_CREATE_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxDistanceJoint, j);
-	omniPvdSetBaseJointParams(static_cast<PxJoint&>(joint), PxJointConcreteType::eDISTANCE);
+	omniPvdSetBaseJointParams(pvdWriter, pvdRegData, static_cast<PxJoint&>(joint), PxJointConcreteType::eDISTANCE);
 
 	OMNI_PVD_SET_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxDistanceJoint, minDistance, j, joint.getMinDistance())
 	OMNI_PVD_SET_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxDistanceJoint, maxDistance, j, joint.getMaxDistance())
@@ -323,8 +307,6 @@ void physx::Ext::omniPvdInitJoint<DistanceJoint>(DistanceJoint& joint)
 	OMNI_PVD_SET_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxDistanceJoint, damping, j, joint.getDamping())
 	OMNI_PVD_SET_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxDistanceJoint, jointFlags, j, joint.getDistanceJointFlags())
 	OMNI_PVD_SET_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxDistanceJoint, distance, j, joint.getDistance())
-
-	OMNI_PVD_WRITE_SCOPE_END
 }
 
 #endif

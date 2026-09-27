@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
-// Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
+// Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef PX_ALLOCATOR_H
 #define PX_ALLOCATOR_H
@@ -139,64 +116,6 @@ namespace physx
 			// free(0) is guaranteed to have no side effect, no need to check
 			::free(ptr);
 		}
-	};
-
-	/**
-	\brief	Virtual allocator callback used to provide run-time defined allocators to foundation types like Array or Bitmap.
-	This is used by VirtualAllocator
-	*/
-	class PxVirtualAllocatorCallback
-	{
-	public:
-		PxVirtualAllocatorCallback()			{}
-		virtual ~PxVirtualAllocatorCallback()	{}
-
-		virtual void*	allocate(size_t size, int group, const char* file, int line) = 0;
-		virtual void	deallocate(void* ptr) = 0;
-	};
-
-	/**
-	\brief Virtual allocator to be used by foundation types to provide run-time defined allocators.
-	Due to the fact that Array extends its allocator, rather than contains a reference/pointer to it, the VirtualAllocator must
-	be a concrete type containing a pointer to a virtual callback. The callback may not be available at instantiation time,
-	therefore methods are provided to set the callback later.
-	*/
-	class PxVirtualAllocator
-	{
-	public:
-		PxVirtualAllocator(PxVirtualAllocatorCallback* callback = NULL, int group = 0) : mCallback(callback), mGroup(group)	{}
-
-		PX_FORCE_INLINE	void* allocate(size_t size, const char* file, int line, uint32_t* cookie=NULL)
-		{
-			PX_UNUSED(cookie);
-			PX_ASSERT(mCallback);
-			if (size)
-				return mCallback->allocate(size, mGroup, file, line);
-			return NULL;
-		}
-
-		PX_FORCE_INLINE	void deallocate(void* ptr, uint32_t* cookie=NULL)
-		{
-			PX_UNUSED(cookie);
-			PX_ASSERT(mCallback);
-			if (ptr)
-				mCallback->deallocate(ptr);
-		}
-
-		PX_FORCE_INLINE	void setCallback(PxVirtualAllocatorCallback* callback)
-		{
-			mCallback = callback;
-		}
-
-		PX_FORCE_INLINE	PxVirtualAllocatorCallback* getCallback()
-		{
-			return mCallback;
-		}
-
-	private:
-		PxVirtualAllocatorCallback* mCallback;
-		const int mGroup;
-		PxVirtualAllocator& operator=(const PxVirtualAllocator&);
 	};
 
 	/**

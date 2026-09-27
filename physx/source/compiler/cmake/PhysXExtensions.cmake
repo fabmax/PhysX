@@ -1,28 +1,5 @@
-## Redistribution and use in source and binary forms, with or without
-## modification, are permitted provided that the following conditions
-## are met:
-##  * Redistributions of source code must retain the above copyright
-##    notice, this list of conditions and the following disclaimer.
-##  * Redistributions in binary form must reproduce the above copyright
-##    notice, this list of conditions and the following disclaimer in the
-##    documentation and/or other materials provided with the distribution.
-##  * Neither the name of NVIDIA CORPORATION nor the names of its
-##    contributors may be used to endorse or promote products derived
-##    from this software without specific prior written permission.
-##
-## THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-## EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-## IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-## PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-## CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-## EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-## PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-## PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-## OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-## (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-## OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-##
-## Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+## SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+## SPDX-License-Identifier: Apache-2.0
 
 #
 # Build PhysXExtensions common
@@ -68,7 +45,6 @@ SET(PHYSX_EXTENSIONS_SOURCE
 	${LL_SOURCE_DIR}/ExtDefaultCpuDispatcher.h
 	${LL_SOURCE_DIR}/ExtDefaultProfiler.h
 	${LL_SOURCE_DIR}/ExtInertiaTensor.h
-	${LL_SOURCE_DIR}/ExtPlatform.h
 	${LL_SOURCE_DIR}/ExtPvd.h
 	${LL_SOURCE_DIR}/ExtSerialization.h
 	${LL_SOURCE_DIR}/ExtSharedQueueEntryPool.h
@@ -86,7 +62,6 @@ if (PX_GENERATE_GPU_PROJECTS AND
     (TARGET_BUILD_PLATFORM STREQUAL "windows" OR TARGET_BUILD_PLATFORM STREQUAL "linux" OR TARGET_BUILD_PLATFORM STREQUAL "jni-windows" OR TARGET_BUILD_PLATFORM STREQUAL "jni-linux"))
 	LIST(APPEND PHYSX_EXTENSIONS_SOURCE "${LL_SOURCE_DIR}/ExtDeformableSkinning.cpp")
 	LIST(APPEND PHYSX_EXTENSIONS_SOURCE "${LL_SOURCE_DIR}/ExtParticleExt.cpp")
-	LIST(APPEND PHYSX_EXTENSIONS_SOURCE "${LL_SOURCE_DIR}/ExtParticleClothCooker.cpp")
 ENDIF()
 
 SOURCE_GROUP(src FILES ${PHYSX_EXTENSIONS_SOURCE})
@@ -129,7 +104,6 @@ SET(PHYSX_EXTENSIONS_TET_SOURCE
 	${LL_SOURCE_DIR}/tet/ExtVec3.h
 	${LL_SOURCE_DIR}/tet/ExtTetSplitting.cpp
 	${LL_SOURCE_DIR}/tet/ExtTetSplitting.h
-	${LL_SOURCE_DIR}/tet/ExtTetTetraMesh.h
 	${LL_SOURCE_DIR}/tet/ExtFastWindingNumber.cpp
 	${LL_SOURCE_DIR}/tet/ExtFastWindingNumber.h
 	${LL_SOURCE_DIR}/tet/ExtRandomAccessHeap.h
@@ -196,7 +170,6 @@ SET(PHYSX_EXTENSIONS_HEADERS
 	${PHYSX_ROOT_DIR}/include/extensions/PxShapeExt.h
 	${PHYSX_ROOT_DIR}/include/extensions/PxSimpleFactory.h
 	${PHYSX_ROOT_DIR}/include/extensions/PxSmoothNormals.h
-	${PHYSX_ROOT_DIR}/include/extensions/PxSoftBodyExt.h #deprecated
 	${PHYSX_ROOT_DIR}/include/extensions/PxStringTableExt.h
 	${PHYSX_ROOT_DIR}/include/extensions/PxTriangleMeshExt.h
 	${PHYSX_ROOT_DIR}/include/extensions/PxTetrahedronMeshExt.h
@@ -217,7 +190,6 @@ IF (PX_GENERATE_GPU_PROJECTS AND
     (NOT (CMAKE_CROSSCOMPILING OR CMAKE_GENERATOR_PLATFORM STREQUAL "NX64")) AND
     (TARGET_BUILD_PLATFORM STREQUAL "windows" OR TARGET_BUILD_PLATFORM STREQUAL "linux"))
 	LIST(APPEND PHYSX_EXTENSIONS_HEADERS "${PHYSX_ROOT_DIR}/include/extensions/PxDeformableSkinningExt.h")
-	LIST(APPEND PHYSX_EXTENSIONS_HEADERS "${PHYSX_ROOT_DIR}/include/extensions/PxParticleClothCooker.h")
 	LIST(APPEND PHYSX_EXTENSIONS_HEADERS "${PHYSX_ROOT_DIR}/include/extensions/PxParticleExt.h")
 ENDIF()
 
@@ -239,11 +211,6 @@ SET(PHYSX_JOINT_HEADERS
 	${PHYSX_ROOT_DIR}/include/extensions/PxSphericalJoint.h
 )
 SOURCE_GROUP(include\\joints FILES ${PHYSX_JOINT_HEADERS})
-
-SET(PHYSX_FILEBUF_HEADERS
-	${PHYSX_ROOT_DIR}/include/filebuf/PxFileBuf.h
-)
-SOURCE_GROUP(include\\filebuf FILES ${PHYSX_FILEBUF_HEADERS})
 
 SET(PHYSX_EXTENSIONS_SERIALIZATION_SOURCE
 	${LL_SOURCE_DIR}/serialization/SnSerialization.cpp
@@ -310,7 +277,6 @@ ADD_LIBRARY(PhysXExtensions ${PHYSXEXTENSIONS_LIBTYPE}
 	
 	${PHYSX_EXTENSIONS_HEADERS}
 	${PHYSX_JOINT_HEADERS}	
-	${PHYSX_FILEBUF_HEADERS}
 	
 	${PHYSX_EXTENSIONS_SERIALIZATION_SOURCE}
 	${PHYSX_EXTENSIONS_SERIALIZATION_XML_SOURCE}
@@ -318,9 +284,10 @@ ADD_LIBRARY(PhysXExtensions ${PHYSXEXTENSIONS_LIBTYPE}
 	${PHYSX_EXTENSIONS_SERIALIZATION_BINARY_SOURCE}
 )
 
-INSTALL(FILES ${PHYSX_EXTENSIONS_HEADERS} DESTINATION include/extensions)
-INSTALL(FILES ${PHYSX_JOINT_HEADERS} DESTINATION include/extensions)
-INSTALL(FILES ${PHYSX_FILEBUF_HEADERS} DESTINATION include/filebuf)
+IF(NOT DEFINED PX_ENABLE_INSTALL OR PX_ENABLE_INSTALL)
+	INSTALL(FILES ${PHYSX_EXTENSIONS_HEADERS} DESTINATION include/extensions)
+	INSTALL(FILES ${PHYSX_JOINT_HEADERS} DESTINATION include/extensions)
+ENDIF()
 
 TARGET_INCLUDE_DIRECTORIES(PhysXExtensions 
 
@@ -396,7 +363,6 @@ IF(PX_GENERATE_SOURCE_DISTRO)
 	LIST(APPEND SOURCE_DISTRO_FILE_LIST ${PHYSX_EXTENSIONS_OMNIPVD_SOURCE})
 	LIST(APPEND SOURCE_DISTRO_FILE_LIST ${PHYSX_EXTENSIONS_HEADERS})
 	LIST(APPEND SOURCE_DISTRO_FILE_LIST ${PHYSX_JOINT_HEADERS})
-	LIST(APPEND SOURCE_DISTRO_FILE_LIST ${PHYSX_FILEBUF_HEADERS})
 	LIST(APPEND SOURCE_DISTRO_FILE_LIST ${PHYSX_EXTENSIONS_SERIALIZATION_SOURCE})
 	LIST(APPEND SOURCE_DISTRO_FILE_LIST ${PHYSX_EXTENSIONS_SERIALIZATION_XML_SOURCE})
 	LIST(APPEND SOURCE_DISTRO_FILE_LIST ${PHYSX_EXTENSIONS_SERIALIZATION_FILE_SOURCE})

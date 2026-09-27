@@ -1,0 +1,171 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+# DEPRECATED (tensor-binding-deprecation): a tensor-binding sample. It is removed with the binding.
+
+"""
+Sample: lightweight view wrappers built on TensorBindingsAPI (ctypes).
+
+.. deprecated:: 0.6.0
+    Built on the deprecated tensor-binding API. The view-wrapper pattern will be
+    re-provided on the session read/write API (``PhysX.read`` / ``PhysX.write``).
+    Until then this remains as the deprecated-API showcase.
+
+Purpose
+-------
+This file is intentionally copy/paste-friendly for downstream users (e.g. IsaacLab)
+who want convenient SimulationView/ArticulationView-style helpers on top of the
+official TensorBindingsAPI, without depending on any CPython-minor-specific
+pybind11 bindings.
+
+This is *not* an ovphysx-maintained library module. It is a sample that shows
+how to build these helpers on top of the official TensorBindingsAPI.
+"""
+
+from __future__ import annotations
+
+import sys
+from dataclasses import dataclass
+from pathlib import Path
+
+import numpy as np
+import ovphysx
+from ovphysx import PhysX
+from ovphysx.types import TensorType
+
+
+def _find_usd_path() -> str:
+    script_dir = Path(__file__).resolve().parent
+    candidates = [
+        script_dir.parent.parent / "tests" / "data" / "links_chain_sample.usda",
+        script_dir / "links_chain_sample.usda",
+        script_dir.parent.parent.parent / "ovphysx" / "tests" / "data" / "links_chain_sample.usda",
+    ]
+    for c in candidates:
+        if c.exists():
+            return str(c)
+    raise RuntimeError(f"Test data not found. Tried: {candidates}")
+
+
+_physx_schemas_registered = False
+
+
+def attach_scene(physx: PhysX, usd_path: str, stage_name: str):
+    import ovstage
+
+    if not ovstage.population.available():
+        raise RuntimeError("ovstage population bridge is unavailable")
+
+    # ovphysx ships its PhysX USD schemas as codeless resources and does not register
+    # them itself. Register them with ovstage once, before the first population
+    # call in the process.
+    global _physx_schemas_registered
+    if not _physx_schemas_registered:
+        ovstage.population.register_usd_schemas([str(ovphysx.codeless_schema_root())])
+        _physx_schemas_registered = True
+    stage = ovstage.Stage(stage_name)
+    ordinal = 1
+    try:
+        ovstage.population.open_usd(stage, usd_path, ordinal=ordinal, domains=ovstage.PopulationDomain.PHYSICS)
+        stage.advance_write_floor(ordinal=ordinal).wait()
+        physx.attach_ovstage(stage, read_ordinal=ordinal)
+        return stage
+    except Exception:
+        stage.destroy()
+        raise
+
+
+@dataclass(frozen=True)
+class ArticulationView:
+    """Minimal "view" wrapper around a couple of tensor bindings."""
+
+    dof_positions: object
+    dof_position_targets: object
+
+    @property
+    def count(self) -> int:
+        return int(self.dof_positions.count)
+
+    @property
+    def shape(self) -> tuple[int, ...]:
+        return tuple(self.dof_positions.shape)
+
+    def get_dof_positions(self) -> np.ndarray:
+        out = np.zeros(self.shape, dtype=np.float32)
+        self.dof_positions.read(out)
+        return out
+
+    def set_dof_position_targets(self, targets: np.ndarray) -> None:
+        if targets.shape != self.shape:
+            raise ValueError(f"targets shape mismatch: expected {self.shape}, got {targets.shape}")
+        self.dof_position_targets.write(targets.astype(np.float32, copy=False))
+
+
+@dataclass(frozen=True)
+class SimulationView:
+    """Minimal simulation view that can manufacture other views."""
+
+    physx: PhysX
+
+    def create_articulation_view(self, pattern: str) -> ArticulationView:
+        dof_pos = self.physx.create_tensor_binding(
+            pattern=pattern,
+            tensor_type=TensorType.ARTICULATION_DOF_POSITION,
+        )
+        dof_targets = self.physx.create_tensor_binding(
+            pattern=pattern,
+            tensor_type=TensorType.ARTICULATION_DOF_POSITION_TARGET,
+        )
+        return ArticulationView(dof_positions=dof_pos, dof_position_targets=dof_targets)
+
+
+def create_simulation_view(physx: PhysX) -> SimulationView:
+    return SimulationView(physx=physx)
+
+
+if __name__ == "__main__":
+    print("=" * 60)
+    print("SAMPLE: TensorBindingsAPI views helper (ctypes)")
+    print("=" * 60)
+
+    PhysX.set_cpu_mode(True)
+    physx = PhysX()
+    stage = None
+    art_view = None
+    usd_path = _find_usd_path()
+    try:
+        print(f"Loading USD scene through ovstage: {usd_path}")
+        stage = attach_scene(physx, usd_path, "ovphysx-tensor-views-sample")
+        physx.wait_all()
+
+        sim_view = create_simulation_view(physx)
+        art_view = sim_view.create_articulation_view("/World/articulation/articulationLink*")
+        print(f"Found {art_view.count} articulations, shape={art_view.shape}")
+        if art_view.count == 0:
+            print("No articulations found in scene")
+            sys.exit(1)
+
+        pos0 = art_view.get_dof_positions()
+        print(f"Initial DOF positions (first row): {pos0[0][:5]}...")
+
+        art_view.set_dof_position_targets(pos0)
+        print("Position targets set (echoing current positions)")
+
+        for i in range(5):
+            physx.step(1.0 / 60.0)
+        physx.wait_all()
+
+        pos1 = art_view.get_dof_positions()
+        delta = float(np.abs(pos1 - pos0).max())
+        print(f"Max DOF position change after 5 steps: {delta:.6f}")
+
+        print("Tensor bindings views sample completed successfully")
+    finally:
+        if art_view is not None:
+            art_view.dof_positions.destroy()
+            art_view.dof_position_targets.destroy()
+        if stage is not None:
+            physx.detach_ovstage()
+            stage.destroy()
+        physx.destroy()
+        print("Cleanup complete")

@@ -1,28 +1,5 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "PxPvdObjectModelInternalTypes.h"
 #include "PxPvdObjectModelMetaData.h"
@@ -157,11 +134,11 @@ class StringTableImpl : public StringTable, public PxUserAllocated
 			PX_FREE(iter->second);
 		mStrings.clear();
 	}
-	virtual uint32_t getNbStrs()
+	virtual uint32_t getNbStrs() PX_OVERRIDE
 	{
 		return mStrings.size();
 	}
-	virtual uint32_t getStrs(const char** outStrs, uint32_t bufLen, uint32_t startIdx = 0)
+	virtual uint32_t getStrs(const char** outStrs, uint32_t bufLen, uint32_t startIdx = 0) PX_OVERRIDE
 	{
 		startIdx = PxMin(getNbStrs(), startIdx);
 		uint32_t numStrs(PxMin(getNbStrs() - startIdx, bufLen));
@@ -197,7 +174,7 @@ class StringTableImpl : public StringTable, public PxUserAllocated
 		}
 		return entry->second;
 	}
-	virtual const char* registerStr(const char* str, bool& outAdded)
+	virtual const char* registerStr(const char* str, bool& outAdded) PX_OVERRIDE
 	{
 		outAdded = false;
 		if(isMeaningful(str) == false)
@@ -218,7 +195,7 @@ class StringTableImpl : public StringTable, public PxUserAllocated
 		return registerStr(str, ignored);
 	}
 
-	virtual StringHandle strToHandle(const char* str)
+	virtual StringHandle strToHandle(const char* str) PX_OVERRIDE
 	{
 		if(isMeaningful(str) == false)
 			return 0;
@@ -233,7 +210,7 @@ class StringTableImpl : public StringTable, public PxUserAllocated
 		return theNewHandle;
 	}
 
-	virtual const char* handleToStr(uint32_t hdl)
+	virtual const char* handleToStr(uint32_t hdl) PX_OVERRIDE
 	{
 		if(hdl == 0)
 			return "";
@@ -252,7 +229,7 @@ class StringTableImpl : public StringTable, public PxUserAllocated
 		for(PxHashMap<uint32_t, char*>::Iterator iter = mHandleToStr.getIterator(); !iter.done(); ++iter)
 		{
 			stream << iter->first;
-			uint32_t len = static_cast<uint32_t>(strlen(iter->second) + 1);
+			uint32_t len = static_cast<uint32_t>(strnlen(iter->second, UINT32_MAX - 1) + 1);
 			stream << len;
 			stream.write(reinterpret_cast<uint8_t*>(iter->second), len);
 		}
@@ -284,7 +261,7 @@ class StringTableImpl : public StringTable, public PxUserAllocated
 		}
 	}
 
-	virtual void release()
+	virtual void release() PX_OVERRIDE
 	{
 		PVD_DELETE(this);
 	}
@@ -667,12 +644,12 @@ struct PvdObjectModelMetaDataImpl : public PvdObjectModelMetaData, public PxUser
 			return *retval;
 		return getOrCreateClassImpl(nm, nextClassId());
 	}
-	virtual ClassDescription getOrCreateClass(const NamespacedName& nm)
+	virtual ClassDescription getOrCreateClass(const NamespacedName& nm) PX_OVERRIDE
 	{
 		return getOrCreateClassImpl(nm);
 	}
 	// get or create parent, lock parent. deriveFrom getOrCreatechild.
-	virtual bool deriveClass(const NamespacedName& parent, const NamespacedName& child)
+	virtual bool deriveClass(const NamespacedName& parent, const NamespacedName& child) PX_OVERRIDE
 	{
 		ClassDescImpl& p(getOrCreateClassImpl(parent));
 		ClassDescImpl& c(getOrCreateClassImpl(child));
@@ -710,7 +687,7 @@ struct PvdObjectModelMetaDataImpl : public PvdObjectModelMetaData, public PxUser
 			return entry->second;
 		return NULL;
 	}
-	virtual Option<ClassDescription> findClass(const NamespacedName& nm) const
+	virtual Option<ClassDescription> findClass(const NamespacedName& nm) const PX_OVERRIDE
 	{
 		ClassDescImpl* retval = findClassImpl(nm);
 		if(retval)
@@ -728,7 +705,7 @@ struct PvdObjectModelMetaDataImpl : public PvdObjectModelMetaData, public PxUser
         return NULL;
 	}
 
-	virtual Option<ClassDescription> getClass(int32_t classId) const
+	virtual Option<ClassDescription> getClass(int32_t classId) const PX_OVERRIDE
 	{
 		ClassDescImpl* impl(getClassImpl(classId));
 		if(impl)
@@ -736,12 +713,12 @@ struct PvdObjectModelMetaDataImpl : public PvdObjectModelMetaData, public PxUser
 		return None();
 	}
 
-	virtual ClassDescription* getClassPtr(int32_t classId) const
+	virtual ClassDescription* getClassPtr(int32_t classId) const PX_OVERRIDE
 	{
 		return getClassImpl(classId);
 	}
 
-	virtual Option<ClassDescription> getParentClass(int32_t classId) const
+	virtual Option<ClassDescription> getParentClass(int32_t classId) const PX_OVERRIDE
 	{
 		ClassDescImpl* impl(getClassImpl(classId));
 		if(impl == NULL)
@@ -749,21 +726,21 @@ struct PvdObjectModelMetaDataImpl : public PvdObjectModelMetaData, public PxUser
 		return getClass(impl->mBaseClass);
 	}
 
-	virtual void lockClass(int32_t classId)
+	virtual void lockClass(int32_t classId) PX_OVERRIDE
 	{
 		ClassDescImpl* impl(getClassImpl(classId));
 		PX_ASSERT(impl);
 		if(impl)
 			impl->mLocked = true;
 	}
-	virtual uint32_t getNbClasses() const
+	virtual uint32_t getNbClasses() const PX_OVERRIDE
 	{
 		uint32_t total = 0;
 		PVD_FOREACH(idx, mClasses.size()) if(mClasses[idx])++ total;
 		return total;
 	}
 
-	virtual uint32_t getClasses(ClassDescription* outClasses, uint32_t requestCount, uint32_t startIndex = 0) const
+	virtual uint32_t getClasses(ClassDescription* outClasses, uint32_t requestCount, uint32_t startIndex = 0) const PX_OVERRIDE
 	{
 		uint32_t classCount(getNbClasses());
 		startIndex = PxMin(classCount, startIndex);
@@ -810,7 +787,7 @@ struct PvdObjectModelMetaDataImpl : public PvdObjectModelMetaData, public PxUser
 	}
 
 	virtual Option<PropertyDescription> createProperty(int32_t classId, String name, String semantic, int32_t datatype,
-	                                                   PropertyType::Enum propertyType)
+	                                                   PropertyType::Enum propertyType) PX_OVERRIDE
 	{
 		ClassDescImpl* cls(getClassImpl(classId));
 		PX_ASSERT(cls);
@@ -917,7 +894,7 @@ struct PvdObjectModelMetaDataImpl : public PvdObjectModelMetaData, public PxUser
 			return entry->second;
 		return NULL;
 	}
-	virtual Option<PropertyDescription> findProperty(const NamespacedName& cls, String propName) const
+	virtual Option<PropertyDescription> findProperty(const NamespacedName& cls, String propName) const PX_OVERRIDE
 	{
 		PropDescImpl* prop(findPropImpl(cls, propName));
 		if(prop)
@@ -925,7 +902,7 @@ struct PvdObjectModelMetaDataImpl : public PvdObjectModelMetaData, public PxUser
 		return None();
 	}
 
-	virtual Option<PropertyDescription> findProperty(int32_t clsId, String propName) const
+	virtual Option<PropertyDescription> findProperty(int32_t clsId, String propName) const PX_OVERRIDE
 	{
 		ClassDescImpl* cls(getClassImpl(clsId));
 		PX_ASSERT(cls);
@@ -951,7 +928,7 @@ struct PvdObjectModelMetaDataImpl : public PvdObjectModelMetaData, public PxUser
 		return mProperties[val];
 	}
 
-	virtual Option<PropertyDescription> getProperty(int32_t propId) const
+	virtual Option<PropertyDescription> getProperty(int32_t propId) const PX_OVERRIDE
 	{
 		PropDescImpl* impl(getPropertyImpl(propId));
 		if(impl)
@@ -959,7 +936,7 @@ struct PvdObjectModelMetaDataImpl : public PvdObjectModelMetaData, public PxUser
 		return None();
 	}
 
-	virtual void setNamedPropertyValues(DataRef<NamedValue> values, int32_t propId)
+	virtual void setNamedPropertyValues(DataRef<NamedValue> values, int32_t propId) PX_OVERRIDE
 	{
 		PropDescImpl* impl(getPropertyImpl(propId));
 		if(impl)
@@ -969,7 +946,7 @@ struct PvdObjectModelMetaDataImpl : public PvdObjectModelMetaData, public PxUser
 		}
 	}
 
-	virtual DataRef<NamedValue> getNamedPropertyValues(int32_t propId) const
+	virtual DataRef<NamedValue> getNamedPropertyValues(int32_t propId) const PX_OVERRIDE
 	{
 		PropDescImpl* impl(getPropertyImpl(propId));
 		if(impl)
@@ -979,7 +956,7 @@ struct PvdObjectModelMetaDataImpl : public PvdObjectModelMetaData, public PxUser
 		return DataRef<NamedValue>();
 	}
 
-	virtual uint32_t getNbProperties(int32_t classId) const
+	virtual uint32_t getNbProperties(int32_t classId) const PX_OVERRIDE
 	{
 		uint32_t retval = 0;
 		for(ClassDescImpl* impl(getClassImpl(classId)); impl; impl = getClassImpl(impl->mBaseClass))
@@ -1018,12 +995,12 @@ struct PvdObjectModelMetaDataImpl : public PvdObjectModelMetaData, public PxUser
 	}
 
 	virtual uint32_t getProperties(int32_t classId, PropertyDescription* outBuffer, uint32_t numItems,
-	                               uint32_t startIdx) const
+	                               uint32_t startIdx) const PX_OVERRIDE
 	{
 		return getPropertiesImpl(classId, outBuffer, numItems, startIdx);
 	}
 
-	virtual MarshalQueryResult checkMarshalling(int32_t srcClsId, int32_t dstClsId) const
+	virtual MarshalQueryResult checkMarshalling(int32_t srcClsId, int32_t dstClsId) const PX_OVERRIDE
 	{
 		Option<ClassDescription> propTypeOpt(getClass(dstClsId));
 		if(propTypeOpt.hasValue() == false)
@@ -1098,7 +1075,7 @@ struct PvdObjectModelMetaDataImpl : public PvdObjectModelMetaData, public PxUser
 	virtual Option<PropertyMessageDescription> createPropertyMessage(const NamespacedName& clsName,
 	                                                                 const NamespacedName& messageName,
 	                                                                 DataRef<PropertyMessageArg> entries,
-	                                                                 uint32_t messageSize)
+	                                                                 uint32_t messageSize) PX_OVERRIDE
 	{
 		PropertyMessageDescriptionImpl* existing(findPropertyMessageImpl(messageName));
 		if(existing)
@@ -1187,7 +1164,7 @@ struct PvdObjectModelMetaDataImpl : public PvdObjectModelMetaData, public PxUser
 
 		return None();
 	}
-	virtual Option<PropertyMessageDescription> findPropertyMessage(const NamespacedName& msgName) const
+	virtual Option<PropertyMessageDescription> findPropertyMessage(const NamespacedName& msgName) const PX_OVERRIDE
 	{
 		PropertyMessageDescriptionImpl* desc(findPropertyMessageImpl(msgName));
 		if(desc)
@@ -1195,7 +1172,7 @@ struct PvdObjectModelMetaDataImpl : public PvdObjectModelMetaData, public PxUser
 		return None();
 	}
 
-	virtual Option<PropertyMessageDescription> getPropertyMessage(int32_t msgId) const
+	virtual Option<PropertyMessageDescription> getPropertyMessage(int32_t msgId) const PX_OVERRIDE
 	{
 		PropertyMessageDescriptionImpl* desc(getPropertyMessageImpl(msgId));
 		if(desc)
@@ -1203,12 +1180,12 @@ struct PvdObjectModelMetaDataImpl : public PvdObjectModelMetaData, public PxUser
 		return None();
 	}
 
-	virtual uint32_t getNbPropertyMessages() const
+	virtual uint32_t getNbPropertyMessages() const PX_OVERRIDE
 	{
 		return mPropertyMessages.size();
 	}
 
-	virtual uint32_t getPropertyMessages(PropertyMessageDescription* msgBuf, uint32_t bufLen, uint32_t startIdx = 0) const
+	virtual uint32_t getPropertyMessages(PropertyMessageDescription* msgBuf, uint32_t bufLen, uint32_t startIdx = 0) const PX_OVERRIDE
 	{
 		startIdx = PxMin(startIdx, getNbPropertyMessages());
 		bufLen = PxMin(bufLen, getNbPropertyMessages() - startIdx);
@@ -1407,7 +1384,7 @@ struct PvdObjectModelMetaDataImpl : public PvdObjectModelMetaData, public PxUser
 		MetaDataReader& operator=(const MetaDataReader&);
 	};
 
-	virtual void write(PvdOutputStream& stream) const
+	virtual void write(PvdOutputStream& stream) const PX_OVERRIDE
 	{
 		stream << getCurrentPvdObjectModelVersion();
 		stream << mNextClassId;
@@ -1458,15 +1435,15 @@ struct PvdObjectModelMetaDataImpl : public PvdObjectModelMetaData, public PxUser
 		mPropertyMessageMap.insert(mPropertyMessages[idx]->mMessageName, mPropertyMessages[idx]);
 	}
 
-	virtual StringTable& getStringTable() const
+	virtual StringTable& getStringTable() const PX_OVERRIDE
 	{
         return *mStringTable;
 	}
-	virtual void addRef()
+	virtual void addRef() PX_OVERRIDE
 	{
 		++mRefCount;
 	}
-	virtual void release()
+	virtual void release() PX_OVERRIDE
 	{
 		if(mRefCount)
 			--mRefCount;

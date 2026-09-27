@@ -1,30 +1,7 @@
-## Redistribution and use in source and binary forms, with or without
-## modification, are permitted provided that the following conditions
-## are met:
-##  * Redistributions of source code must retain the above copyright
-##    notice, this list of conditions and the following disclaimer.
-##  * Redistributions in binary form must reproduce the above copyright
-##    notice, this list of conditions and the following disclaimer in the
-##    documentation and/or other materials provided with the distribution.
-##  * Neither the name of NVIDIA CORPORATION nor the names of its
-##    contributors may be used to endorse or promote products derived
-##    from this software without specific prior written permission.
-##
-## THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-## EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-## IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-## PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-## CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-## EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-## PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-## PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-## OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-## (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-## OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-##
-## Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+## SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+## SPDX-License-Identifier: Apache-2.0
 
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.21)
 project(Snippets C CXX)
 
 # This is required to be defined by external callers!
@@ -69,7 +46,7 @@ SET(SOURCE_DISTRO_FILE_LIST "")
 # Include all of the projects
 SET(SNIPPETS_LIST ArticulationRC BVHStructure CCD ContactModification ContactReport ContactReportCCD ConvexMeshCreate
 	CustomJoint CustomProfiler DeformableMesh FrustumQuery GearJoint GeometryQuery Gyroscopic HelloWorld ImmediateArticulation ImmediateMode Joint JointDrive MassProperties
-	MBP MimicJoint MultiPruners MultiThreading OmniPvd PathTracing PointDistanceQuery ProfilerConverter PrunerSerialization QuerySystemAllQueries QuerySystemCustomCompound RackJoint Serialization SplitFetchResults
+	MBP MimicJoint MultiPruners MultiThreading OmniPvd OmniPvdMesh OmniPvdNet PathTracing PointDistanceQuery ProfilerConverter PrunerSerialization QuerySystemAllQueries QuerySystemCustomCompound RackJoint Serialization SplitFetchResults
 	SplitSim StandaloneBVH StandaloneBroadphase StandaloneQuerySystem Stepper ToleranceScale TriangleMeshCreate Triggers CustomGeometry CustomConvex CustomGeometryCollision CustomGeometryQueries FixedTendon SpatialTendon)
 LIST(APPEND SNIPPETS_LIST ${PLATFORM_SNIPPETS_LIST})
 
@@ -77,7 +54,8 @@ LIST(APPEND SNIPPETS_LIST ${PLATFORM_SNIPPETS_LIST})
 # These are separate because we don't ship CUDA in the public release yet.
 # To be changed if we decide otherwise.
 SET(GPU_SNIPPET_LIST
-	HelloGRB DeformableSurface DeformableVolume DeformableVolumeAttachment DeformableVolumeKinematic DeformableSurfaceSkinning DeformableVolumeSkinning SDF PBF PBFMultiMat PBDCloth PBDInflatable Isosurface
+	HelloGRB DeformableSurface DeformableVolume DeformableVolumeAttachment DeformableVolumeKinematic DeformableSurfaceSkinning DeformableVolumeSkinning SDF PBF PBFMultiMat Isosurface
+	OmniPvdMultiGeom
 	RBDirectGPUAPI DirectGPUAPIArticulation)
 
 #TODO, create a propper define for whether GPU features are enabled or not!
@@ -97,11 +75,45 @@ ENDIF()
 INCLUDE(SnippetUtils.cmake)
 SET_PROPERTY(TARGET SnippetUtils PROPERTY FOLDER "Snippets/Libraries only")
 
+# SnippetOmniPvd / SnippetOmniPvdMesh / SnippetOmniPvdMultiGeom are
+# non-functional in release (PX_SUPPORT_OMNI_PVD=0), producing a stub binary.
+# Exclude them from release builds in two parts:
+# Part 1: Single-config generators (Ninja, Make) - remove from list before the loop.
+# Part 2: Multi-config generators (Visual Studio) - see below after the FOREACH.
+#
+# OmniPvdMultiGeom lives in GPU_SNIPPET_LIST (gets APPENDed into SNIPPETS_LIST
+# at the IF(PX_GENERATE_GPU_PROJECTS) block above). We have to scrub it from
+# BOTH lists in the single-config case: removing from SNIPPETS_LIST stops the
+# FOREACH below from compiling it, and removing from GPU_SNIPPET_LIST stops
+# the later ADD_DEPENDENCIES(...PhysXGpu) loop from referencing a target that
+# no longer exists.
+IF(NOT CMAKE_CONFIGURATION_TYPES)
+	STRING(TOLOWER "${CMAKE_BUILD_TYPE}" _BUILD_TYPE_LOWER)
+	IF(_BUILD_TYPE_LOWER STREQUAL "release")
+		LIST(REMOVE_ITEM SNIPPETS_LIST OmniPvd OmniPvdMesh OmniPvdNet OmniPvdMultiGeom)
+		LIST(REMOVE_ITEM GPU_SNIPPET_LIST OmniPvdMultiGeom)
+	ENDIF()
+ENDIF()
+
 # Compile snippets
 FOREACH(SNIPPET_NAME ${SNIPPETS_LIST})
 	INCLUDE(SnippetTemplate.cmake)
 	SET_PROPERTY(TARGET Snippet${SNIPPET_NAME} PROPERTY FOLDER "Snippets")
 ENDFOREACH()
+
+# Part 2: Multi-config generators (Visual Studio) - exclude OmniPvd snippets from Release.
+IF(CMAKE_CONFIGURATION_TYPES AND TARGET SnippetOmniPvd)
+	SET_TARGET_PROPERTIES(SnippetOmniPvd PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD_RELEASE TRUE)
+ENDIF()
+IF(CMAKE_CONFIGURATION_TYPES AND TARGET SnippetOmniPvdMesh)
+	SET_TARGET_PROPERTIES(SnippetOmniPvdMesh PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD_RELEASE TRUE)
+ENDIF()
+IF(CMAKE_CONFIGURATION_TYPES AND TARGET SnippetOmniPvdNet)
+	SET_TARGET_PROPERTIES(SnippetOmniPvdNet PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD_RELEASE TRUE)
+ENDIF()
+IF(CMAKE_CONFIGURATION_TYPES AND TARGET SnippetOmniPvdMultiGeom)
+	SET_TARGET_PROPERTIES(SnippetOmniPvdMultiGeom PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD_RELEASE TRUE)
+ENDIF()
 
 # Compile vehicle snippets
 FOREACH(SNIPPET_NAME ${SNIPPETS_VEHICLE_LIST})

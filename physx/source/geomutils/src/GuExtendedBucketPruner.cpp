@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "foundation/PxBitMap.h"
 #include "GuExtendedBucketPruner.h"
@@ -92,7 +69,7 @@ ExtendedBucketPruner::~ExtendedBucketPruner()
 //////////////////////////////////////////////////////////////////////////
 // release all objects in bucket pruner
 void ExtendedBucketPruner::release()
-{	
+{
 	if(mCompanion)
 		mCompanion->release();
 
@@ -211,7 +188,7 @@ void ExtendedBucketPruner::resize(PxU32 size)
 //////////////////////////////////////////////////////////////////////////
 // Update object
 bool ExtendedBucketPruner::updateObject(const PxBounds3& worldAABB, const PxTransform& transform, const PrunerPayload& object, PrunerHandle handle, const PoolIndex poolIndex)
-{	
+{
 	const ExtendedBucketPrunerMap::Entry* extendedPrunerEntry = mExtendedBucketPrunerMap.find(object);
 
 	// if object is not in tree of trees, it is in bucket pruner core
@@ -264,7 +241,7 @@ void ExtendedBucketPruner::refitMarkedNodes(const PxBounds3* boxes)
 		// check if bounds are valid, if all objects of the tree were released, the bounds 
 		// will be invalid, in that case we cannot use this tree anymore.
 		if(bounds.isValid())
-		{			
+		{
 			nbValidTrees++;
 		}
 		mBounds.getBounds()[i] = bounds;
@@ -276,7 +253,7 @@ void ExtendedBucketPruner::refitMarkedNodes(const PxBounds3* boxes)
 		mMainTree->refitMarkedNodes(mBounds.getBounds());
 	}
 	else
-	{	
+	{
 		// edge case path, tree does not have a valid root node bounds - all objects from the tree were released
 		// we might even fire perf warning
 		// compact the tree array - no holes in the array, remember the swap position
@@ -309,7 +286,7 @@ void ExtendedBucketPruner::refitMarkedNodes(const PxBounds3* boxes)
 
 			// remember the swap
 			swapMap[mCurrentTreeIndex] = i;
-		}		
+		}
 
 		PX_ASSERT(writeIndex == nbValidTrees);
 
@@ -323,7 +300,7 @@ void ExtendedBucketPruner::refitMarkedNodes(const PxBounds3* boxes)
 
 			// fixup the object entries, the merge index has changed	
 			for (ExtendedBucketPrunerMap::Iterator iter = mExtendedBucketPrunerMap.getIterator(); !iter.done(); ++iter)
-			{			
+			{
 				ExtendedBucketPrunerData& data = iter->second;
 				PX_ASSERT(swapMap[data.mMergeIndex] < nbValidTrees);
 				data.mMergeIndex = swapMap[data.mMergeIndex];
@@ -359,7 +336,7 @@ bool ExtendedBucketPruner::removeObject(const PrunerPayload& object, PrunerHandl
 		return mCompanion ? mCompanion->removeObject(object, handle, objectIndex, swapObjectIndex) : true;
 	}
 	else
-	{	
+	{
 		const ExtendedBucketPrunerData& data = dataEntry.second;
 
 		// mark tree nodes where objects belongs to
@@ -767,7 +744,7 @@ void ExtendedBucketPruner::getGlobalBounds(PxBounds3& bounds) const
 //////////////////////////////////////////////////////////////////////////
 
 void ExtendedBucketPruner::visualize(PxRenderOutput& out, PxU32 color) const
-{	
+{
 	visualizeTree(out, color, mMainTree);
 
 	for(PxU32 i=0; i<mCurrentTreeIndex; i++)
@@ -795,7 +772,7 @@ bool ExtendedBucketPruner::checkValidity()
 			
 			const PxU32* primitives = node.getPrimitives(mMainTree->getIndices());
 			for (PxU32 j = 0; j < nbPrims; j++)
-			{				
+			{
 				const PxU32 index = primitives[j];
 				// check if index is correct
 				PX_ASSERT(index < mCurrentTreeIndex);
@@ -858,7 +835,7 @@ bool ExtendedBucketPruner::checkValidity()
 	}
 #if PX_ENABLE_ASSERTS
 	for (ExtendedBucketPrunerMap::Iterator iter = mExtendedBucketPrunerMap.getIterator(); !iter.done(); ++iter)
-	{		
+	{
 		const ExtendedBucketPrunerData& data = iter->second;
 		PX_ASSERT(mMainTreeUpdateMap[data.mMergeIndex] < mMainTree->getNbNodes());
 		PX_ASSERT(data.mMergeIndex < mCurrentTreeIndex);

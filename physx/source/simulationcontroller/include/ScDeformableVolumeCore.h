@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef SC_DEFORMABLE_VOLUME_CORE_H
 #define SC_DEFORMABLE_VOLUME_CORE_H
@@ -47,7 +24,6 @@ namespace Sc
 class DeformableVolumeSim;
 class BodyCore;
 class DeformableSurfaceCore;
-class ParticleSystemCore;
 
 class DeformableVolumeCore : public ActorCore
 {
@@ -114,23 +90,14 @@ public:
 
 	PxU32						getGpuIndex()	const;
 
-	void						addParticleFilter(Sc::ParticleSystemCore* core, PxU32 particleId, PxU32 userBufferId, PxU32 tetId);
-	void						removeParticleFilter(Sc::ParticleSystemCore* core, PxU32 particleId, PxU32 userBufferId, PxU32 tetId);
-
-	PxU32						addParticleAttachment(Sc::ParticleSystemCore* core, PxU32 particleId, PxU32 userBufferId, PxU32 tetId, const PxVec4& barycentric);
-	void						removeParticleAttachment(Sc::ParticleSystemCore* core, PxU32 handle);
-
-	void						addRigidFilter(Sc::BodyCore* core, PxU32 vertId);
-	void						removeRigidFilter(Sc::BodyCore* core, PxU32 vertId);
-
-	PxU32						addRigidAttachment(Sc::BodyCore* core, PxU32 vertId, const PxVec3& actorSpacePose, PxConeLimitedConstraint* constraint, bool doConversion);
+	PxU32						addRigidAttachment(Sc::BodyCore* core, PxU32 vertId, const PxVec3& actorSpacePose, bool doConversion);
 	void						removeRigidAttachment(Sc::BodyCore* core, PxU32 handle);
 
 	void						addTetRigidFilter(Sc::BodyCore* core, PxU32 tetIdx);
 	void						removeTetRigidFilter(Sc::BodyCore* core, PxU32 tetIdx);
 
 	PxU32						addTetRigidAttachment(Sc::BodyCore* core, PxU32 tetIdx, const PxVec4& barycentric, const PxVec3& actorSpacePose,
-									PxConeLimitedConstraint* constraint, bool doConversion);
+									bool doConversion);
 
 	void						addSoftBodyFilter(Sc::DeformableVolumeCore& core, PxU32 tetIdx0, PxU32 tetIdx1);
 	void						removeSoftBodyFilter(Sc::DeformableVolumeCore& core, PxU32 tetIdx0, PxU32 tetIdx1);
@@ -138,14 +105,14 @@ public:
 	void						removeSoftBodyFilters(Sc::DeformableVolumeCore& core, PxU32* tetIndices0, PxU32* tetIndices1, PxU32 tetIndicesSize);
 
 	PxU32						addSoftBodyAttachment(Sc::DeformableVolumeCore& core, PxU32 tetIdx0, const PxVec4& triBarycentric0, PxU32 tetIdx1, const PxVec4& tetBarycentric1,
-									PxConeLimitedConstraint* constraint, PxReal constraintOffset, bool doConversion);
+									bool doConversion);
 	void						removeSoftBodyAttachment(Sc::DeformableVolumeCore& core, PxU32 handle);
 
 	void						addClothFilter(Sc::DeformableSurfaceCore& core, PxU32 triIdx, PxU32 tetIdx);
 	void						removeClothFilter(Sc::DeformableSurfaceCore& core, PxU32 triIdx, PxU32 tetIdx);
 
 	PxU32						addClothAttachment(Sc::DeformableSurfaceCore& core, PxU32 triIdx, const PxVec4& triBarycentric, PxU32 tetIdx, const PxVec4& tetBarycentric,
-									PxConeLimitedConstraint* constraint, PxReal constraintOffset, bool doConversion);
+									bool doConversion);
 	void						removeClothAttachment(Sc::DeformableSurfaceCore& core, PxU32 handle);
 
 	//---------------------------------------------------------------------------------

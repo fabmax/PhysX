@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
-// Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
+// Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef PX_PROFILE_ZONE_IMPL_H
 #define PX_PROFILE_ZONE_IMPL_H
@@ -78,7 +55,7 @@ namespace physx { namespace profile {
 		PxProfileArray<PxProfileZoneClient*>			mZoneClients;
 		volatile bool									mEventsActive;
 
-		PX_NOCOPY(ZoneImpl<TNameProvider>)
+		PX_NOCOPY(ZoneImpl)
 	public:
 		ZoneImpl( PxAllocatorCallback* inAllocator, const char* inName, uint32_t bufferSize = 0x10000 /*64k*/, const TNameProvider& inProvider = TNameProvider() )
 			: TZoneEventBufferType( inAllocator, bufferSize, PxDefaultContextProvider(), NULL, PxProfileNullEventFilter() )
@@ -119,7 +96,7 @@ namespace physx { namespace profile {
 			mEventNames.pushBack( PxProfileEventName( inName, PxProfileEventId( inEventId, inCompileTimeEnabled ) ) );
 		}
 
-		virtual void flushEventIdNameMap()
+		virtual void flushEventIdNameMap() PX_OVERRIDE
 		{
 			// copy the RW map into R map
 			if (mNameToEvtIndexMapRW.size())
@@ -132,12 +109,12 @@ namespace physx { namespace profile {
 			}
 		}
 
-		virtual uint16_t getEventIdForName( const char* inName )
+		virtual uint16_t getEventIdForName( const char* inName ) PX_OVERRIDE
 		{
 			return getEventIdsForNames( &inName, 1 );
 		}
 
-		virtual uint16_t getEventIdsForNames( const char** inNames, uint32_t inLen )
+		virtual uint16_t getEventIdsForNames( const char** inNames, uint32_t inLen ) PX_OVERRIDE
 		{
 			if ( inLen == 0 )
 				return 0;
@@ -180,32 +157,30 @@ namespace physx { namespace profile {
 			return eventId;
 		}
 
-		virtual void setProfileZoneManager(PxProfileZoneManager* inMgr)
+		virtual void setProfileZoneManager(PxProfileZoneManager* inMgr) PX_OVERRIDE
 		{
 			mProfileZoneManager = inMgr;
 		}
 
-		virtual PxProfileZoneManager* getProfileZoneManager()
+		virtual PxProfileZoneManager* getProfileZoneManager() PX_OVERRIDE
 		{
 			return mProfileZoneManager;
 		}
 
-
-
-		const char* getName() { return mName; }
+		virtual	const char* getName()	PX_OVERRIDE	{ return mName; }
 
 		PxProfileEventBufferClient* getEventBufferClient() { return this; }
 
 		//SDK implementation
 
-		void addClient( PxProfileZoneClient& inClient )
+		virtual	void addClient( PxProfileZoneClient& inClient )	PX_OVERRIDE
 		{
 			TLockType lock( mMutex );
 			mZoneClients.pushBack( &inClient );
 			mEventsActive = true;
 		}
 
-		void removeClient( PxProfileZoneClient& inClient )
+		virtual	void removeClient( PxProfileZoneClient& inClient )	PX_OVERRIDE
 		{
 			TLockType lock( mMutex );
 			for ( uint32_t idx =0; idx < mZoneClients.size(); ++idx )
@@ -220,12 +195,12 @@ namespace physx { namespace profile {
 			mEventsActive = mZoneClients.size() != 0;
 		}
 
-		virtual bool hasClients() const
+		virtual bool hasClients() const PX_OVERRIDE
 		{
 			return mEventsActive;
 		}
 
-		virtual PxProfileNames getProfileNames() const
+		virtual PxProfileNames getProfileNames() const PX_OVERRIDE
 		{
 			TLockType theLocker( mMutex );
 			const PxProfileEventName* theNames = mEventNames.begin();
@@ -233,13 +208,13 @@ namespace physx { namespace profile {
 			return PxProfileNames( theEventCount, theNames );
 		}
 
-		virtual void release()
+		virtual void release() PX_OVERRIDE
 		{
 			PX_PROFILE_DELETE( mWrapper.getAllocator(), this );
 		}
 
 		//Implementation chaining the buffer flush to our clients
-		virtual void handleBufferFlush( const uint8_t* inData, uint32_t inLength )
+		virtual void handleBufferFlush( const uint8_t* inData, uint32_t inLength ) PX_OVERRIDE
 		{
 			TLockType theLocker( mMutex );
 
@@ -248,18 +223,18 @@ namespace physx { namespace profile {
 				mZoneClients[idx]->handleBufferFlush( inData, inLength );
 		}
 		//Happens if something removes all the clients from the manager.
-		virtual void handleClientRemoved() {}
+		virtual void handleClientRemoved() PX_OVERRIDE {}
 
 		//Send a profile event, optionally with a context.  Events are sorted by thread
 		//and context in the client side.
-		virtual void startEvent( uint16_t inId, uint64_t contextId)
+		virtual void startEvent( uint16_t inId, uint64_t contextId) PX_OVERRIDE
 		{
 			if( mEventsActive )
 			{
 				TZoneEventBufferType::startEvent( inId, contextId );
 			}
 		}
-		virtual void stopEvent( uint16_t inId, uint64_t contextId)
+		virtual void stopEvent( uint16_t inId, uint64_t contextId) PX_OVERRIDE
 		{
 			if( mEventsActive )
 			{
@@ -267,14 +242,14 @@ namespace physx { namespace profile {
 			}
 		}
 
-		virtual void startEvent( uint16_t inId, uint64_t contextId, uint32_t threadId)
+		virtual void startEvent( uint16_t inId, uint64_t contextId, uint32_t threadId) PX_OVERRIDE
 		{
 			if( mEventsActive )
 			{
 				TZoneEventBufferType::startEvent( inId, contextId, threadId );
 			}
 		}
-		virtual void stopEvent( uint16_t inId, uint64_t contextId, uint32_t threadId )
+		virtual void stopEvent( uint16_t inId, uint64_t contextId, uint32_t threadId ) PX_OVERRIDE
 		{
 			if( mEventsActive )
 			{
@@ -282,7 +257,7 @@ namespace physx { namespace profile {
 			}
 		}
 
-		virtual void atEvent(uint16_t inId, uint64_t contextId, uint32_t threadId, uint64_t start, uint64_t stop)
+		virtual void atEvent(uint16_t inId, uint64_t contextId, uint32_t threadId, uint64_t start, uint64_t stop) PX_OVERRIDE
 		{
 			if (mEventsActive)
 			{
@@ -296,14 +271,14 @@ namespace physx { namespace profile {
 		 *	for the event; it is a value recorded and kept around without a timestamp associated
 		 *	with it.  This value is displayed when the event itself is processed.
 		 */
-		virtual void eventValue( uint16_t inId, uint64_t contextId, int64_t inValue )
+		virtual void eventValue( uint16_t inId, uint64_t contextId, int64_t inValue ) PX_OVERRIDE
 		{
 			if( mEventsActive )
 			{
 				TZoneEventBufferType::eventValue( inId, contextId, inValue );
 			}
 		}
-		virtual void flushProfileEvents()
+		virtual void flushProfileEvents() PX_OVERRIDE
 		{
 			TZoneEventBufferType::flushProfileEvents();
 		}

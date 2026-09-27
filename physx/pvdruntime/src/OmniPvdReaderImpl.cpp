@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "OmniPvdDefinesInternal.h"
 #include "OmniPvdReaderImpl.h"
@@ -37,6 +14,7 @@ OmniPvdReaderImpl::OmniPvdReaderImpl()
 	mMajorVersion = OMNI_PVD_VERSION_MAJOR;
 	mMinorVersion = OMNI_PVD_VERSION_MINOR;
 	mPatch = OMNI_PVD_VERSION_PATCH;
+	mStream = 0;
 	mDataBuffer = 0;
 	mDataBuffAllocatedLen = 0;
 	mCmdAttributeDataPtr = 0;
@@ -60,65 +38,58 @@ void OMNI_PVD_CALL OmniPvdReaderImpl::setLogFunction(OmniPvdLogFunction logFunct
 void OMNI_PVD_CALL OmniPvdReaderImpl::setReadStream(OmniPvdReadStream& stream)
 {
 	mStream = &stream;
-	mStream->openStream();
 }
 
 bool OMNI_PVD_CALL OmniPvdReaderImpl::startReading(OmniPvdVersionType& majorVersion, OmniPvdVersionType& minorVersion, OmniPvdVersionType& patch)
 {
+	if (!mStream || !mStream->openStream())
+		return false;
+
 	if (mIsReadingStarted)
 	{
 		return true;
 	}
-	if (mStream)
+
+	OmniPvdVersionType streamMajor = 0;
+	OmniPvdVersionType streamMinor = 0;
+	OmniPvdVersionType streamPatch = 0;
+	if (mStream->readBytes(reinterpret_cast<uint8_t*>(&streamMajor), sizeof(streamMajor)) != sizeof(streamMajor) ||
+		mStream->readBytes(reinterpret_cast<uint8_t*>(&streamMinor), sizeof(streamMinor)) != sizeof(streamMinor) ||
+		mStream->readBytes(reinterpret_cast<uint8_t*>(&streamPatch), sizeof(streamPatch)) != sizeof(streamPatch))
 	{
-		mStream->readBytes((uint8_t*)&majorVersion, sizeof(OmniPvdVersionType));
-		mStream->readBytes((uint8_t*)&minorVersion, sizeof(OmniPvdVersionType));
-		mStream->readBytes((uint8_t*)&patch, sizeof(OmniPvdVersionType));
-
-		mCmdMajorVersion = majorVersion;
-		mCmdMinorVersion = minorVersion;
-		mCmdPatch = patch;
-
-		if ((mCmdMajorVersion == 0) && (mCmdMinorVersion < 3))
-		{
-			mCmdBaseClassHandle = 0;
-			mReadBaseClassHandle = 0;
-		}
-		else
-		{
-			mCmdBaseClassHandle = 0;
-			mReadBaseClassHandle = 1;
-		}
-
-		mLog.outputLine("OmniPvdRuntimeReaderImpl::startReading majorVersion(%lu), minorVersion(%lu), patch(%lu)", static_cast<unsigned long>(majorVersion), static_cast<unsigned long>(minorVersion), static_cast<unsigned long>(patch));
-		if (majorVersion > mMajorVersion)
-		{
-			mLog.outputLine("[parser] major version too new\n");
-			return false;
-		}
-		else if (majorVersion == mMajorVersion)
-		{
-			if (minorVersion > mMinorVersion)
-			{				
-				mLog.outputLine("[parser] minor version too new\n");
-				return false;
-			}
-			else if (minorVersion == mMinorVersion)
-			{
-				if (patch > mPatch)
-				{
-					mLog.outputLine("[parser] patch too new\n");
-					return false;
-				}
-			}			
-		}
-		mIsReadingStarted = true;
-		return true;
-	}
-	else {
+		mLog.outputLine("[parser] ERROR: failed to read complete version header\n");
 		return false;
 	}
-	
+
+	majorVersion = streamMajor;
+	minorVersion = streamMinor;
+	patch = streamPatch;
+	mLog.outputLine("OmniPvdRuntimeReaderImpl::startReading majorVersion(%lu), minorVersion(%lu), patch(%lu)",
+		static_cast<unsigned long>(streamMajor), static_cast<unsigned long>(streamMinor),
+		static_cast<unsigned long>(streamPatch));
+	if (streamMajor > mMajorVersion)
+	{
+		mLog.outputLine("[parser] major version too new\n");
+		return false;
+	}
+	if (streamMajor == mMajorVersion && streamMinor > mMinorVersion)
+	{
+		mLog.outputLine("[parser] minor version too new\n");
+		return false;
+	}
+	if (streamMajor == mMajorVersion && streamMinor == mMinorVersion && streamPatch > mPatch)
+	{
+		mLog.outputLine("[parser] patch too new\n");
+		return false;
+	}
+
+	mCmdMajorVersion = streamMajor;
+	mCmdMinorVersion = streamMinor;
+	mCmdPatch = streamPatch;
+	mCmdBaseClassHandle = 0;
+	mReadBaseClassHandle = (streamMajor == 0 && streamMinor < 3) ? 0 : 1;
+	mIsReadingStarted = true;
+	return true;
 }
 
 static OmniPvdDataType::Enum readDataType(OmniPvdReadStream& stream)
@@ -162,7 +133,7 @@ OmniPvdCommand::Enum OMNI_PVD_CALL OmniPvdReaderImpl::getNextCommand()
 		{
 			return cmdType;
 		}
-	}	
+	}
 	if (mStream) {
 		OmniPvdCommandStorageType command;
 		if (mStream->readBytes(&command, sizeof(OmniPvdCommandStorageType)))
@@ -244,7 +215,11 @@ OmniPvdCommand::Enum OMNI_PVD_CALL OmniPvdReaderImpl::getNextCommand()
 						attributeHandleStack++;
 					}
 					mStream->readBytes((uint8_t*)&mCmdAttributeDataLen, sizeof(uint32_t));
-					readLongDataFromStream(mCmdAttributeDataLen);
+					if (!readLongDataFromStream(mCmdAttributeDataLen))
+					{
+						cmdType = OmniPvdCommand::eINVALID;
+						break;
+					}
 					mLog.outputLine("[parser] set attribute (contextHandle:%d, objectHandle: %d, attributeHandle: %d, dataLen: %d)\n", mCmdContextHandle, mCmdObjectHandle, mCmdAttributeHandle, mCmdAttributeDataLen);
 				}
 				break;
@@ -260,7 +235,11 @@ OmniPvdCommand::Enum OMNI_PVD_CALL OmniPvdReaderImpl::getNextCommand()
 						attributeHandleStack++;
 					}
 					mStream->readBytes((uint8_t*)&mCmdAttributeDataLen, sizeof(uint32_t));
-					readLongDataFromStream(mCmdAttributeDataLen);
+					if (!readLongDataFromStream(mCmdAttributeDataLen))
+					{
+						cmdType = OmniPvdCommand::eINVALID;
+						break;
+					}
 					mLog.outputLine("[parser] add to attributeSet (contextHandle:%d, objectHandle: %d, attributeHandle: %d, dataLen: %d)\n", mCmdContextHandle, mCmdObjectHandle, mCmdAttributeHandle, mCmdAttributeDataLen);
 				}
 				break;
@@ -276,7 +255,11 @@ OmniPvdCommand::Enum OMNI_PVD_CALL OmniPvdReaderImpl::getNextCommand()
 						attributeHandleStack++;
 					}
 					mStream->readBytes((uint8_t*)&mCmdAttributeDataLen, sizeof(uint32_t));
-					readLongDataFromStream(mCmdAttributeDataLen);
+					if (!readLongDataFromStream(mCmdAttributeDataLen))
+					{
+						cmdType = OmniPvdCommand::eINVALID;
+						break;
+					}
 					mLog.outputLine("[parser] remove from attributeSet (contextHandle:%d, objectHandle: %d, attributeHandle: %d, dataLen: %d)\n", mCmdContextHandle, mCmdObjectHandle, mCmdAttributeHandle, mCmdAttributeDataLen);
 				}
 				break;
@@ -332,8 +315,8 @@ OmniPvdCommand::Enum OMNI_PVD_CALL OmniPvdReaderImpl::getNextCommand()
 
 					mCmdMessageParsed = true;
 
-					mLog.outputLine("[parser] message (contextHandle: %d, message: %s, file: %s, line: %d, type: %d)\n", 
-						mCmdContextHandle, 
+					mLog.outputLine("[parser] message (contextHandle: %d, message: %s, file: %s, line: %d, type: %d)\n",
+						mCmdContextHandle,
 						mCmdMessage, mCmdMessageFile, mCmdMessageLine, mCmdMessageType
 					);
 				}
@@ -474,16 +457,25 @@ uint32_t OMNI_PVD_CALL OmniPvdReaderImpl::getEnumValue()
 	return mCmdEnumValue;
 }
 
-void OmniPvdReaderImpl::readLongDataFromStream(uint32_t streamByteLen)
+// Sane upper bound on a single attribute's payload. No PhysX attribute write approaches this;
+// a larger length means the stream is corrupt or was truncated mid-command (e.g. a live socket
+// FIN landed inside the 4-byte length field, leaving garbage). Refuse it rather than attempt a
+// multi-GB allocation -- and crucially it keeps streamByteLen * 1.3f from overflowing uint32 and
+// under-allocating, which would otherwise turn the readBytes below into a heap overflow.
+#define OMNI_PVD_MAX_ATTRIBUTE_DATA_LEN  (1u << 30) // 1 GiB
+
+bool OmniPvdReaderImpl::readLongDataFromStream(uint32_t streamByteLen)
 {
-	if (streamByteLen < 1) return;
+	if (streamByteLen < 1) return true;
+	if (streamByteLen > OMNI_PVD_MAX_ATTRIBUTE_DATA_LEN) return false;
 	if (streamByteLen > mDataBuffAllocatedLen) {
 		delete[] mDataBuffer;
 		mDataBuffAllocatedLen = (uint32_t)(streamByteLen * 1.3f);
 		mDataBuffer = new uint8_t[mDataBuffAllocatedLen];
 	}
 	mCmdAttributeDataPtr = mDataBuffer;
-	mStream->readBytes(mCmdAttributeDataPtr, streamByteLen);
+	// A short read means the stream ended mid-payload -- signal the caller to abort the command.
+	return mStream->readBytes(mCmdAttributeDataPtr, streamByteLen) == streamByteLen;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -491,7 +483,7 @@ void OmniPvdReaderImpl::readLongDataFromStream(uint32_t streamByteLen)
 // except for those parameters that are "stateful" which are left commented out.
 ////////////////////////////////////////////////////////////////////////////////
 void OmniPvdReaderImpl::resetCommandParams()
-{	
+{
 	////////////////////////////////////////////////////////////////////////////////
 	// Stateful: Depends on the version of the stream reader
 	////////////////////////////////////////////////////////////////////////////////
@@ -514,7 +506,7 @@ void OmniPvdReaderImpl::resetCommandParams()
 	mCmdClassHandle = OMNI_PVD_INVALID_HANDLE;
 	mCmdBaseClassHandle = OMNI_PVD_INVALID_HANDLE;
 	mCmdAttributeHandle = OMNI_PVD_INVALID_HANDLE;
-		
+
 	mCmdClassName[0] = 0;
 	mCmdAttributeName[0] = 0;
 	mCmdObjectName[0] = 0;
@@ -530,7 +522,7 @@ void OmniPvdReaderImpl::resetCommandParams()
 	////////////////////////////////////////////////////////////////////////////////
 	//mCmdAttributeDataType = OmniPvdDataType::eINT8; // int 8 is 0
 	////////////////////////////////////////////////////////////////////////////////
-	
+
 	mCmdAttributeDataLen = 0;
 	mCmdAttributeNbElements = 0;
 	mCmdEnumValue = 0;

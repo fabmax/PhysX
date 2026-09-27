@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
-// Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
+// Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef PXG_GEOMETRY_MANAGER_H
 #define PXG_GEOMETRY_MANAGER_H
@@ -72,9 +49,9 @@
 namespace physx
 {
 
-class PxgHeapMemoryAllocatorManager;
-class PxgHeapMemoryAllocator;
 class PxCudaContext;
+class PxgHeapMemoryAllocator;
+struct PxgAllocatorDesc;
 
 namespace Gu
 {
@@ -145,6 +122,9 @@ struct HullOrMeshData
 {
 	void*		mDeviceMemPointer;
 	PxU32		mCopyDescIndex;
+	// Cleared by removeGeometry(). Needs its own field: mDeviceMemPointer is legitimately NULL on
+	// allocation failure, and mCopyDescIndex is INVALID_COPY_DESC_INDEX once the upload has run.
+	bool		mIsAllocated;
 
 	static const PxU32 INVALID_COPY_DESC_INDEX = 0xFFffFFff;
 };
@@ -165,7 +145,7 @@ private:
 		};
 	};
 public:
-	PxgCopyManager::CopyDesc         mCopyDesc;            //!< Copy descriptor for upload to GPU. lives until copy completed.
+	PxgCopyDesc                      mCopyDesc;            //!< Copy descriptor for upload to GPU. lives until copy completed.
 	PxU32                            mHullOrTrimeshIdx;    //!< Index into mGeometrydata
 	UploadGeometryType::Enum         mType;                //!< Geometry type: see UploadGeometryType. Needed for deferred pinned memory allocation.
 	PxU32                            mNumPolyVertices;     //!< Number of polygon vertices in case this is a convex hull
@@ -179,7 +159,7 @@ class PxgGeometryManager
 	using UploadGeometryType = ScheduledCopyData::UploadGeometryType;
 
 public:
-	PxgGeometryManager(PxgHeapMemoryAllocatorManager* heapMemoryManager);
+	PxgGeometryManager(PxgAllocatorDesc& allocDesc);
 
 	virtual ~PxgGeometryManager();
 
@@ -199,10 +179,10 @@ public:
 private:
 	PxU32 							addGeometryInternal(PxU64 byteSize, const void* geomPtr, UploadGeometryType::Enum type, PxU32 numPolyVertices = 0);
 
-	PxgHeapMemoryAllocator*									mDeviceMemoryAllocator; //device memory
-	PxgHeapMemoryAllocator*									mPinnedMemoryAllocator; //mapped memory
-	void*													mPinnedMemoryBasePtr;   //stores the pointer to the current pinned memory allocation.
-	PxU64													mPinnedHostMemoryRequirements; // accumulates pinned memory requirements for copies.
+	PxgHeapMemoryAllocator&									mDeviceAlloc;
+	Cm::VirtualAllocatorCallback&							mHostMappedAlloc;
+	PxU8*													mHostMemoryMapped;   //stores the pointer to the current pinned memory allocation.
+	PxU64													mHostMemoryRequirements; // accumulates pinned memory requirements for copies.
 	
 	PxArray<ScheduledCopyData>								mScheduledCopies;       // copies in current step, cleared after scheduleCopyHtoD
 
@@ -210,6 +190,8 @@ private:
 	PxgFreeIndicesProvider<PxArray<HullOrMeshData> >		mFreeGeometryIndices;   //freeIndex provider for mGeometry.
 	
 	PxU32													mBoxHullIdx;            //index into mGeometryData for hardcoded convex hull for box.
+
+	bool													mAllocFailed;           //sticky: an allocation failed, stop handing out geometries. Mirrors PxgShapeManager/PxgCopyManager/etc.
 
 	PxHashMap<void*, PxgMeshTextureData>					mMeshToTextureMap;      //maps meshes to SDF textures for lifetime management
 };

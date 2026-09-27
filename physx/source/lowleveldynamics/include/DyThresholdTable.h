@@ -1,44 +1,18 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef DY_THRESHOLD_TABLE_H
 #define DY_THRESHOLD_TABLE_H
 
-#include "foundation/PxPinnedArray.h"
-#include "foundation/PxUserAllocated.h"
+#include "foundation/PxAllocator.h"
 #include "foundation/PxHash.h"
 #include "foundation/PxMemory.h"
 #include "PxNodeIndex.h"
 
 namespace physx
 {
-
-class PxsRigidBody;
 
 namespace Sc
 {
@@ -72,18 +46,6 @@ struct ThresholdStreamElement
 	{
 		return ((nodeIndexA == otherPair.nodeIndexA && nodeIndexB == otherPair.nodeIndexB));
 	}
-
-};
-
-typedef PxPinnedArray<ThresholdStreamElement> ThresholdArray;
-
-class ThresholdStream : public ThresholdArray, public PxUserAllocated
-{
-public:
-	ThresholdStream(PxVirtualAllocatorCallback& allocatorCallback) : ThresholdArray(PxVirtualAllocator(&allocatorCallback))
-	{
-	}
-
 };
 
 class ThresholdTable
@@ -107,18 +69,18 @@ public:
 		PX_FREE(mBuffer);
 	}
 
-	void build(const ThresholdStream& stream);
+	void build(const ThresholdStreamElement* stream, const PxU32 streamSize);
 
-	bool check(const ThresholdStream& stream, const PxU32 nodexIndexA, const PxU32 nodexIndexB, PxReal dt);
+	bool check(const ThresholdStreamElement* stream, const PxU32 streamSize, const PxU32 nodexIndexA, const PxU32 nodexIndexB, PxReal dt);
 
-	bool check(const ThresholdStream& stream, const ThresholdStreamElement& elem, PxU32& thresholdIndex);
+	bool check(const ThresholdStreamElement* stream, const PxU32 streamSize, const ThresholdStreamElement& elem, PxU32& thresholdIndex);
 
 //private:
 
 	static const PxU32 NO_INDEX = 0xffffffff;
 
 	struct Pair 
-	{	
+	{
 		PxU32		thresholdStreamIndex;
 		PxReal		accumulatedForce;
 		//PxU32		next;		// hash key & next ptr
@@ -144,7 +106,8 @@ namespace
 	}
 }
 
-inline bool ThresholdTable::check(const ThresholdStream& stream, const ThresholdStreamElement& elem, PxU32& thresholdIndex)
+inline bool ThresholdTable::check(const ThresholdStreamElement* stream, const PxU32 streamSize, const ThresholdStreamElement& elem,
+								  PxU32& thresholdIndex)
 {
 	PxU32* PX_RESTRICT hashes = mHash;
 	PxU32* PX_RESTRICT nextIndices = mNexts;
@@ -159,7 +122,8 @@ inline bool ThresholdTable::check(const ThresholdStream& stream, const Threshold
 	{
 		Pair& pair = pairs[pairIndex];
 		const PxU32 thresholdStreamIndex = pair.thresholdStreamIndex;
-		PX_ASSERT(thresholdStreamIndex < stream.size());
+		PX_ASSERT(thresholdStreamIndex < streamSize);
+		PX_UNUSED(streamSize);
 		const ThresholdStreamElement& otherElement = stream[thresholdStreamIndex];
 		if(otherElement.nodeIndexA==elem.nodeIndexA  && otherElement.nodeIndexB==elem.nodeIndexB && otherElement.shapeInteraction == elem.shapeInteraction)
 		{
@@ -174,10 +138,10 @@ inline bool ThresholdTable::check(const ThresholdStream& stream, const Threshold
 }
 
 
-inline void ThresholdTable::build(const ThresholdStream& stream)
+inline void ThresholdTable::build(const ThresholdStreamElement* stream, const PxU32 streamSize)
 {
 	//Handle the case of an empty stream.
-	if(0==stream.size())
+	if(0==streamSize)
 	{
 		mPairsSize=0;
 		mPairsCapacity=0;
@@ -188,7 +152,7 @@ inline void ThresholdTable::build(const ThresholdStream& stream)
 	}
 
 	//Realloc/resize if necessary.
-	const PxU32 pairsCapacity = stream.size();
+	const PxU32 pairsCapacity = streamSize;
 	const PxU32 hashCapacity = pairsCapacity*2+1;
 	if((pairsCapacity > mPairsCapacity) || (pairsCapacity < (mPairsCapacity >> 2)))
 	{
@@ -211,7 +175,6 @@ inline void ThresholdTable::build(const ThresholdStream& stream)
 		mPairsCapacity = pairsCapacity;
 		mHashCapactiy = hashCapacity;
 	}
-
 
 	//Set each entry of the hash table to 0xffffffff
 	PxMemSet(mHash, 0xff, sizeof(PxU32)*hashCapacity);
@@ -249,10 +212,10 @@ inline void ThresholdTable::build(const ThresholdStream& stream)
 		{
 			Pair& pair = pairs[pairIndex];
 			const PxU32 thresholdStreamIndex = pair.thresholdStreamIndex;
-			PX_ASSERT(thresholdStreamIndex < stream.size());
+			PX_ASSERT(thresholdStreamIndex < streamSize);
 			const ThresholdStreamElement& otherElement = stream[thresholdStreamIndex];
 			if(nodeIndexA == otherElement.nodeIndexA && nodeIndexB==otherElement.nodeIndexB)
-			{	
+			{
 				pair.accumulatedForce += force;
 				prevPairIndex = NO_INDEX;
 				pairIndex = NO_INDEX;

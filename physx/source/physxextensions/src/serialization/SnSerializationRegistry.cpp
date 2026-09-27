@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "common/PxSerializer.h"
 #include "foundation/PxString.h"
@@ -72,14 +49,14 @@ namespace
 		}
 
 		void sort()
-		{		
+		{
 			Element element;		
 			PxU32 i;
 
 			PxU32 nbObject = mCollection.internalGetNbObjects();
 			const Cm::Collection::ObjectToIdMap::Entry* objectdatas = mCollection.internalGetObjects();
 			for( i = 0; i < nbObject; ++i )
-			{				
+			{
 				element.object.first = objectdatas[i].first;
 				element.object.second = objectdatas[i].second;
 				mObjToIdMap.insert(objectdatas[i].first, mElements.size());
@@ -92,7 +69,7 @@ namespace
 				const PxSerializer* serializer = mSr.getSerializer(mCurElement->object.first->getConcreteType());
 				PX_ASSERT(serializer);
 				serializer->requiresObjects(*mCurElement->object.first, *this);
-			}  	
+			}
 
 			for( i = 0; i < nbObject; ++i )
 			{
@@ -104,7 +81,7 @@ namespace
 
 			mCollection.mObjects.clear();
 			for(PxArray<Object>::Iterator o = mSorted.begin(); o != mSorted.end(); ++o )
-			{				
+			{
 				mCollection.internalAdd(o->first, o->second);
 			}
 		}
@@ -116,7 +93,7 @@ namespace
 				for( PxArray<PxU32>::Iterator child = e.children.begin(); child != e.children.end(); ++child )
 				{
 					AddElement(mElements[*child]);
-				}				
+				}
 				mSorted.pushBack(e.object);
 				e.isFinished = true;
 			}
@@ -146,7 +123,7 @@ namespace physx { namespace Sn {
 
 SerializationRegistry::SerializationRegistry(PxPhysics& physics)
 	: mPhysics(physics)
-{	
+{
 	PxRegisterPhysicsSerializers(*this);
 	Ext::RegisterExtensionsSerializers(*this);
 }

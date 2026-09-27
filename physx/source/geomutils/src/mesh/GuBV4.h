@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef GU_BV4_H
 #define GU_BV4_H
@@ -170,8 +147,8 @@ namespace Gu
 		// PT: TODO: check whether adding these vcalls affected build & runtime performance
 		virtual			PxU32			getNbPrimitives()	const = 0;
 		virtual			void			remapTopology(const PxU32* order) = 0;
-		virtual			void			getPrimitiveBox(const PxU32 primitiveInd, physx::aos::Vec4V& minV, physx::aos::Vec4V& maxV) = 0;
-		virtual			void			refit(const PxU32 primitiveInd, PxBounds3& refitBox) = 0;
+		virtual			void			getPrimitiveBox(PxU32 primitiveInd, physx::aos::Vec4V& minV, physx::aos::Vec4V& maxV)	const = 0;
+		virtual			void			refit(PxU32 primitiveInd, PxBounds3& refitBox) = 0;
 		
 		protected:
 						MeshType		mType;
@@ -201,10 +178,10 @@ namespace Gu
 		PX_FORCE_INLINE	void			setNbTriangles(PxU32 nb)	{ mNbTris = nb;			}
 
 		// SourceMeshBase
-		virtual			PxU32			getNbPrimitives()	const	{ return  getNbTriangles(); }
-		virtual			void			remapTopology(const PxU32* order);
-		virtual			void			getPrimitiveBox(const PxU32 primitiveInd, physx::aos::Vec4V& minV, physx::aos::Vec4V& maxV);
-		virtual			void			refit(const PxU32 primitiveInd, PxBounds3& refitBox);
+		virtual			PxU32			getNbPrimitives()	const	PX_OVERRIDE	{ return  getNbTriangles(); }
+		virtual			void			remapTopology(const PxU32* order)	PX_OVERRIDE;
+		virtual			void			getPrimitiveBox(PxU32 primitiveInd, physx::aos::Vec4V& minV, physx::aos::Vec4V& maxV)	const	PX_OVERRIDE;
+		virtual			void			refit(PxU32 primitiveInd, PxBounds3& refitBox)	PX_OVERRIDE;
 		//~SourceMeshBase
 
 		PX_FORCE_INLINE	void			setPointers(IndTri32* tris32, IndTri16* tris16, const PxVec3* verts)
@@ -232,7 +209,7 @@ namespace Gu
 												TetrahedronSourceMesh();
 		virtual									~TetrahedronSourceMesh();
 		// PX_SERIALIZATION
-												TetrahedronSourceMesh(const PxEMPTY) : SourceMeshBase(TET_MESH) {}
+												TetrahedronSourceMesh(const PxEMPTY) : SourceMeshBase(PxEmpty) {}
 		//~PX_SERIALIZATION
 
 						void					reset();
@@ -249,10 +226,10 @@ namespace Gu
 		PX_FORCE_INLINE	void					setNbTetrahedrons(PxU32 nb)			{ mNbTetrahedrons = nb;		}
 
 		// SourceMeshBase
-		virtual			PxU32					getNbPrimitives()			const	{ return  getNbTetrahedrons(); }
-		virtual			void					remapTopology(const PxU32* order);
-		virtual			void					getPrimitiveBox(const PxU32 primitiveInd, physx::aos::Vec4V& minV, physx::aos::Vec4V& maxV);
-		virtual			void					refit(const PxU32 primitiveInd, PxBounds3& refitBox);
+		virtual			PxU32					getNbPrimitives()			const	PX_OVERRIDE	{ return getNbTetrahedrons(); }
+		virtual			void					remapTopology(const PxU32* order)	PX_OVERRIDE;
+		virtual			void					getPrimitiveBox(PxU32 primitiveInd, physx::aos::Vec4V& minV, physx::aos::Vec4V& maxV)	const	PX_OVERRIDE;
+		virtual			void					refit(PxU32 primitiveInd, PxBounds3& refitBox)	PX_OVERRIDE;
 		//~SourceMeshBase
 
 		PX_FORCE_INLINE	void					setPointers(IndTetrahedron32* tets32, IndTetrahedron16* tets16, const PxVec3* verts)
@@ -345,7 +322,7 @@ namespace Gu
 				void			importExtraData(PxDeserializationContext& context);
 		//~PX_SERIALIZATION
 								BV4Tree();
-								BV4Tree(SourceMesh* meshInterface, const PxBounds3& localBounds);
+								BV4Tree(SourceMeshBase* meshInterface, const PxBounds3& localBounds);
 								~BV4Tree();
 
 				bool			refit(PxBounds3& globalBounds, float epsilon);
@@ -377,4 +354,4 @@ namespace Gu
 } // namespace Gu
 }
 
-#endif // GU_BV4_H
+#endif

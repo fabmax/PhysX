@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef __SOLVER_BLOCK_TGS_CUH__
 #define __SOLVER_BLOCK_TGS_CUH__
@@ -39,7 +16,6 @@
 #include "PxgConstraint.h"
 #include "PxgConstraintBlock.h"
 #include "PxgIslandContext.h"
-#include "PxgSolverContext.h"
 #include "cutil_math.h"
 #include "PxgSolverCoreDesc.h"
 #include "DyThresholdTable.h"
@@ -50,14 +26,14 @@
 #include "stdio.h"
 #include "assert.h"
 #include "PxgIntrinsics.h"
-#include "solverResidual.cuh"
 
 #include "DyCpuGpu1dConstraint.h"
 
 #include "solverBlockCommon.cuh"
 #include "constraintPrepShared.cuh"
 
-using namespace physx;
+namespace physx
+{
 
 static __forceinline__ __device__ float4 shfl(const PxU32 syncMask, const float4 f, const PxU32 index)
 {
@@ -154,11 +130,9 @@ static __device__ void solveContactBlockTGS(const PxgBlockConstraintBatch& batch
 	const PxU32 threadIndex, const PxgTGSBlockSolverContactHeader* PX_RESTRICT contactHeaders,
 	PxgTGSBlockSolverFrictionHeader* PX_RESTRICT frictionHeaders, PxgTGSBlockSolverContactPoint* PX_RESTRICT contactPoints,
 	PxgTGSBlockSolverContactFriction* PX_RESTRICT frictionPoints,
-	const PxReal elapsedTime, const PxReal minPen, PxgErrorAccumulator* error, 
+	const PxReal elapsedTime, const PxReal minPen,
 	PxReal ref0 = 1.f, PxReal ref1 = 1.f)
 {  
-	using namespace physx;
-
 	PxVec3 linVel0(b0LinVel.x, b0LinVel.y, b0LinVel.z);
 	PxVec3 linVel1(b1LinVel.x, b1LinVel.y, b1LinVel.z);
 	PxVec3 angVel0(b0AngVel.x, b0AngVel.y, b0AngVel.z);
@@ -197,7 +171,7 @@ static __device__ void solveContactBlockTGS(const PxgBlockConstraintBatch& batch
 			const PxVec3 normal = PxVec3(normal_staticFriction.x, normal_staticFriction.y, normal_staticFriction.z);
 
 			const float restitutionXdt = contactHeader->restitutionXdt[threadIndex];
-			const float p8 = contactHeader->p8[threadIndex]; // using previous p8 value in the prep step.
+			const float contactHeaderBiasCoefficient = contactHeader->biasCoefficient[threadIndex]; // using previous bias coefficient value in the prep step.
 			const PxU8 flags = contactHeader->flags[threadIndex];
 
 			const PxVec3 delLinVel0 = normal * invMassA;
@@ -284,7 +258,7 @@ static __device__ void solveContactBlockTGS(const PxgBlockConstraintBatch& batch
 						next_resp1 = ref1 * Pxldcs(frictions[0].resp1[threadIndex]);
 
 						const float next_resp = next_resp0 + next_resp1;
-						next_velMultiplier = (next_resp > 0.f) ? (p8 / next_resp) : 0.f;
+						next_velMultiplier = (next_resp > 0.f) ? (contactHeaderBiasCoefficient / next_resp) : 0.f;
 					}
 
 					const PxVec3 raXn = PxVec3(raXn_contactCoeff.x, raXn_contactCoeff.y, raXn_contactCoeff.z);
@@ -316,9 +290,6 @@ static __device__ void solveContactBlockTGS(const PxgBlockConstraintBatch& batch
 
 					angVel0 += raXn * (deltaF * angDom0);
 					angVel1 -= rbXn * (deltaF * angDom1);
-
-					if(error)
-						error->accumulateErrorLocal(deltaF, velMultiplier);
 
 					Pxstcs(&c.appliedForce[threadIndex], newForce);
 
@@ -372,7 +343,7 @@ static __device__ void solveContactBlockTGS(const PxgBlockConstraintBatch& batch
 					const float f1_resp0 = ref0 * f1.resp0[threadIndex];
 					const float f1_resp1 = ref1 * f1.resp1[threadIndex];
 					const float f1_resp = f1_resp0 + f1_resp1;
-					const float velMultiplier1 = (f1_resp > 0.f) ? (p8 / f1_resp) : 0.f;
+					const float velMultiplier1 = (f1_resp > 0.f) ? (contactHeaderBiasCoefficient / f1_resp) : 0.f;
 					const float velMultiplier0 = next_velMultiplier;
 
 					if ((i + 2) < numFrictionConstrTotal)
@@ -386,7 +357,7 @@ static __device__ void solveContactBlockTGS(const PxgBlockConstraintBatch& batch
 						next_resp1 = ref1 * Pxldcs(frictions[i + 2].resp1[threadIndex]);
 
 						const float next_resp = next_resp0 + next_resp1;
-						next_velMultiplier = (next_resp > 0.f) ? (p8 / next_resp) : 0.f;
+						next_velMultiplier = (next_resp > 0.f) ? (contactHeaderBiasCoefficient / next_resp) : 0.f;
 					}
 
 					const PxVec3 raXn0 = PxVec3(raXn_extraCoeff0.x, raXn_extraCoeff0.y, raXn_extraCoeff0.z);
@@ -427,9 +398,6 @@ static __device__ void solveContactBlockTGS(const PxgBlockConstraintBatch& batch
 
 					float deltaF0 = newAppliedForce0 - appliedForce0;
 					float deltaF1 = newAppliedForce1 - appliedForce1;
-
-					if (error)
-						error->accumulateErrorLocal(deltaF0, deltaF1, velMultiplier0, velMultiplier1);
 
 					linVel0 += delLinVel00 * deltaF0;
 					linVel1 -= delLinVel10 * deltaF0;
@@ -475,8 +443,6 @@ static __device__ void solveContactBlockTGS(const PxgBlockConstraintBatch& batch
 					const PxReal newAppliedForce = clamp ? totalClamped : totalImpulse;
 
 					float deltaF = newAppliedForce - appliedForce0;
-					if (error)
-						error->accumulateErrorLocal(deltaF, velMultiplier0);
 
 					angVel0 += raXn0 * (deltaF * angDom0);
 					angVel1 -= rbXn0 * (deltaF * angDom1);
@@ -505,8 +471,6 @@ static __device__ bool checkActiveContactBlockTGS(const PxgBlockConstraintBatch&
 	const PxVec3& b1AngDelta, const PxU32 threadIndex, const PxgTGSBlockSolverContactHeader* PX_RESTRICT contactHeaders,
 	PxgTGSBlockSolverContactPoint* PX_RESTRICT contactPoints, const PxReal elapsedTime, const PxReal minPen)
 {
-	using namespace physx;
-
 	{
 		const PxgTGSBlockSolverContactHeader* PX_RESTRICT contactHeader = &contactHeaders[batch.mConstraintBatchIndex];
 		const uint numNormalConstr = Pxldcs(contactHeader->numNormalConstr[threadIndex]);
@@ -633,8 +597,6 @@ static __device__ void concludeContactBlockTGS(const PxgBlockConstraintBatch& ba
 {
 
 #if 0
-	using namespace physx;
-
 	{
 		const PxgTGSBlockSolverContactHeader* contactHeader = &contactHeaders[batch.mConstraintBatchIndex];
 		PxgTGSBlockSolverFrictionHeader* frictionHeader = &frictionHeaders[batch.mConstraintBatchIndex];
@@ -744,11 +706,9 @@ static __device__ void writeBackContactBlockTGS(const PxgBlockConstraintBatch& b
 static __device__ void solve1DBlockTGS(const PxgBlockConstraintBatch& batch, PxVec3& b0LinVel, PxVec3& b0AngVel, PxVec3& b1LinVel, PxVec3& b1AngVel,
 	const PxVec3& linDelta0, const PxVec3& angDelta0, const PxVec3& linDelta1, const PxVec3& angDelta1, const PxU32 threadIndex,
 	const PxgTGSBlockSolverConstraint1DHeader* PX_RESTRICT headers, PxgTGSBlockSolverConstraint1DCon* PX_RESTRICT rowsCon,
-	const PxgSolverTxIData& iData0, const PxgSolverTxIData& iData1, const PxReal elapsedTime, bool residualReportingEnabled,
+	const PxgSolverTxIData& iData0, const PxgSolverTxIData& iData1, const PxReal elapsedTime,
 	PxReal ref0 = 1.f, PxReal ref1 = 1.f)
 {
-	using namespace physx;
-
 	//
 	// please refer to solve1DStep() in DyTGSContactPrep.cpp for a description of the parameters and some of the logic
 	//
@@ -908,8 +868,6 @@ static __device__ void solve1DBlockTGS(const PxgBlockConstraintBatch& batch, PxV
 		const float deltaF = clampedForce - appliedForce;//FSub(clampedForce, appliedForce);
 
 		ccon.appliedForce[threadIndex] = clampedForce; // FStore(clampedForce);
-		if(residualReportingEnabled)
-			ccon.residual[threadIndex] = PxgErrorAccumulator::calculateResidual(deltaF, vMul);
 
 		linVel0 = linVel0 + clinVel0 * (deltaF * invMass0);//V3ScaleAdd(clinVel0, FMul(deltaF, invMass0), linVel0);			
 		linVel1 = linVel1 - clinVel1 * (deltaF * invMass1);//V3NegScaleSub(clinVel1, FMul(deltaF, invMass1), linVel1);
@@ -940,13 +898,10 @@ static __device__ PX_FORCE_INLINE void solveExt1DBlockTGS(const PxgBlockConstrai
 	PxgArticulationBlockResponse* PX_RESTRICT artiResponse,
 	const PxQuat& deltaQ0, const PxQuat& deltaQ1,
 	const PxReal elapsedTime,
-	Cm::UnAlignedSpatialVector& impluse0,
-	Cm::UnAlignedSpatialVector& impluse1,
-	bool residualReportingEnabled, 
+	Cm::UnAlignedSpatialVector& impulse0,
+	Cm::UnAlignedSpatialVector& impulse1,
 	PxReal ref0 = 1.f, PxReal ref1 = 1.f)
 {
-	using namespace physx;
-
 	const PxgTGSBlockSolverConstraint1DHeader* PX_RESTRICT  header = &headers[batch.mConstraintBatchIndex];
 	PxgTGSBlockSolverConstraint1DCon* PX_RESTRICT baseCon = &rowsCon[batch.startConstraintIndex];
 	const PxgArticulationBlockResponse* PX_RESTRICT responses = &artiResponse[batch.mArticulationResponseIndex];
@@ -1009,7 +964,7 @@ static __device__ PX_FORCE_INLINE void solveExt1DBlockTGS(const PxgBlockConstrai
 		float unitResponse = resp0 + resp1;
 		unitResponse += cfm;
 
-		//https://omniverse-jirasw.nvidia.com/browse/PX-4383
+		// JIRA: PX-4383
 		const PxReal minRowResponse = DY_ARTICULATION_MIN_RESPONSE;
 		const PxReal recipResponse = Dy::computeRecipUnitResponse(unitResponse, minRowResponse);
 
@@ -1061,8 +1016,6 @@ static __device__ PX_FORCE_INLINE void solveExt1DBlockTGS(const PxgBlockConstrai
 		const float deltaF = clampedForce - appliedForce;//FSub(clampedForce, appliedForce);
 
 		ccon.appliedForce[threadIndex] = clampedForce; // FStore(clampedForce);
-		if(residualReportingEnabled)
-			ccon.residual[threadIndex] = PxgErrorAccumulator::calculateResidual(deltaF, vMul);
 
 		li0 = clinVel0 * deltaF + li0;
 		ai0 = cangVel0 * deltaF + ai0;
@@ -1084,14 +1037,12 @@ static __device__ PX_FORCE_INLINE void solveExt1DBlockTGS(const PxgBlockConstrai
 	vel0.top = angVel0; vel0.bottom = linVel0;
 	vel1.top = angVel1; vel1.bottom = linVel1;
 
-	impluse0.top = li0 * invMass0; impluse0.bottom = ai0 * invInertiaScale0;
-	impluse1.top = li1 * invMass1; impluse1.bottom = ai1 * invInertiaScale1;
+	impulse0.top = li0 * invMass0; impulse0.bottom = ai0 * invInertiaScale0;
+	impulse1.top = li1 * invMass1; impulse1.bottom = ai1 * invInertiaScale1;
 }
 
 static __device__ void conclude1DBlockTGS(const PxgBlockConstraintBatch& batch, const PxU32 threadIndex, const PxgTGSBlockSolverConstraint1DHeader* PX_RESTRICT headers, PxgTGSBlockSolverConstraint1DCon* PX_RESTRICT rows)
 {
-	using namespace physx;
-
 	const PxgTGSBlockSolverConstraint1DHeader* PX_RESTRICT  header = &headers[batch.mConstraintBatchIndex];
 	PxgTGSBlockSolverConstraint1DCon* PX_RESTRICT base = &rows[batch.startConstraintIndex];
 
@@ -1141,7 +1092,6 @@ static __device__ void writeBack1DBlockTGS(const PxgBlockConstraintBatch& batch,
 		PxgConstraintWriteback& writeback = constraintWriteBacks[forceWritebackOffset];
 
 		PxVec3 linVel(0), angVel(0);
-		PxReal constraintErrorSq = 0.0f;
 		for (PxU32 i = 0; i < numRows; ++i)
 		{
 			PxgTGSBlockSolverConstraint1DCon& con = conBase[i];
@@ -1157,9 +1107,6 @@ static __device__ void writeBack1DBlockTGS(const PxgBlockConstraintBatch& batch,
 				linVel += lin0 * appliedForce;
 				angVel += ang0WriteBack *appliedForce;
 			}
-
-			PxReal err = con.residual[threadIndex];
-			constraintErrorSq += err * err;
 		}
 
 		const float4 body0WorldOffset_InvMass0D0 = header->rAWorld_invMass0D0[threadIndex];
@@ -1168,13 +1115,13 @@ static __device__ void writeBack1DBlockTGS(const PxgBlockConstraintBatch& batch,
 
 
 		const PxU32 broken = breakable ? PxU32((linVel.magnitude() > header->linBreakImpulse[threadIndex]) || (angVel.magnitude() > header->angBreakImpulse[threadIndex])) : 0;
-		writeback.angularImpulse_residual = make_float4(angVel.x, angVel.y, angVel.z, constraintErrorSq);
+		writeback.angularImpulse = make_float4(angVel.x, angVel.y, angVel.z, 0.f);
 		writeback.linearImpulse_broken = make_float4(linVel.x, linVel.y, linVel.z, broken ? -0.0f : 0.0f);
 	}
 
 }
 
 
-
+} // namespace physx
 
 #endif

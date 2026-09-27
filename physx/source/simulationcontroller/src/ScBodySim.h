@@ -1,38 +1,15 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef SC_BODYSIM_H
 #define SC_BODYSIM_H
 
 #include "foundation/PxUtilities.h"
 #include "foundation/PxIntrinsics.h"
-#include "foundation/PxPinnedArray.h"
-#include "foundation/PxPinnedBitMap.h"
+#include "CmPinnableArray.h"
+#include "CmPinnableBitMap.h"
 #include "ScRigidSim.h"
 #include "PxvDynamics.h"
 #include "ScBodyCore.h"
@@ -53,6 +30,7 @@ namespace Sc
 {
 	class Scene;
 	class ArticulationSim;
+	struct UpdateCachedParams;
 
 #if PX_VC 
     #pragma warning(push)   
@@ -85,8 +63,9 @@ namespace Sc
 						void					addSpatialVelocity(const PxVec3* linVelDelta, const PxVec3* angVelDelta);
 						void					clearSpatialVelocity(bool force, bool torque);
 
-						void					updateCached(PxBitMapPinned* shapeChangedMap);
-						void					updateCached(PxsTransformCache& transformCache, Bp::BoundsArray& boundsArray);
+						void					updateCached(const UpdateCachedParams& params, Cm::PinnableBitMap* shapeChangedMap, bool fromTask, bool useAtomics);
+						void					updateCached_NotThreadSafe(const UpdateCachedParams& params, Cm::PinnableBitMap* shapeChangedMap, bool fromTask, bool useAtomics);
+						void					updateCached_ThreadSafe(const UpdateCachedParams& params);
 						void					updateContactDistance(PxReal* contactDistance, PxReal dt, const Bp::BoundsArray& boundsArray);
 
 		// hooks for actions in body core when it's attached to a sim object. Generally
@@ -131,7 +110,7 @@ namespace Sc
 
 						void					notifyReadyForSleeping();			// inform the sleep island generation system that the body is ready for sleeping
 						void					notifyNotReadyForSleeping();		// inform the sleep island generation system that the body is not ready for sleeping
-		PX_FORCE_INLINE bool					checkSleepReadinessBesidesWakeCounter();  // for API triggered changes to test sleep readiness
+						bool					checkSleepReadinessBesidesWakeCounter();  // for API triggered changes to test sleep readiness
 
 		// PT: TODO: this is only used for the rigid bodies' sleep check, the implementations in derived classes look useless
 		virtual			void					registerCountedInteraction()		PX_OVERRIDE	{ mLLBody.getCore().numCountedInteractions++; PX_ASSERT(mLLBody.getCore().numCountedInteractions);	}
@@ -145,7 +124,8 @@ namespace Sc
 						bool					updateForces(PxReal dt, PxsRigidBody** updatedBodySims, PxU32* updatedBodyNodeIndices, PxU32& index, Cm::SpatialVector* acceleration, 
 													PxsExternalAccelerationProvider* externalAccelerations = NULL, PxU32 maxNumExternalAccelerations = 0);
 
-		PX_FORCE_INLINE bool					readVelocityModFlag(VelocityModFlags f) { return (mVelModState & f) != 0; }
+		// PT: TODO: PxIntBool
+		PX_FORCE_INLINE bool					readVelocityModFlag(VelocityModFlags f) { return (mLLBody.mInternalFlags & f) != 0; }
 
 		// Miscellaneous
 		PX_FORCE_INLINE	bool					notInScene()									const	{ return mActiveListIndex == SC_NOT_IN_SCENE_INDEX; }
@@ -175,7 +155,8 @@ namespace Sc
 
 						void					createSqBounds();
 						void					destroySqBounds();
-						void					freezeTransforms(PxBitMapPinned* shapeChangedMap);
+						void					freezeTransforms(const UpdateCachedParams& params, Cm::PinnableBitMap* shapeChangedMap);
+						void					freezeTransforms(PxsTransformCache& transformCache);
 
 						void					addToSpeculativeCCDMap();
 						void					removeFromSpeculativeCCDMap();
@@ -190,7 +171,6 @@ namespace Sc
 		// the separate velmod data if no forces have been set.
 						//PxU16					mInternalFlags;
 						SimStateData*			mSimStateData;
-						PxU8					mVelModState;
 
 		// Articulation
 						ArticulationSim*		mArticulation;				// NULL if not in an articulation
@@ -210,8 +190,8 @@ namespace Sc
 						void					notifyPutToSleep();				// inform the sleep island generation system that the object was put to sleep
 						void					internalWakeUpBase(PxReal wakeCounterValue);
 
-		PX_FORCE_INLINE void					raiseVelocityModFlag(VelocityModFlags f)	{ mVelModState |= f;	}
-		PX_FORCE_INLINE void					clearVelocityModFlag(VelocityModFlags f)	{ mVelModState &= ~f;	}
+		PX_FORCE_INLINE void					raiseVelocityModFlag(VelocityModFlags f)	{ mLLBody.mInternalFlags |= f;	}
+		PX_FORCE_INLINE void					clearVelocityModFlag(VelocityModFlags f)	{ mLLBody.mInternalFlags &= ~f;	}
 		PX_FORCE_INLINE void					setForcesToDefaults(bool enableGravity);
 	};
 
@@ -233,10 +213,13 @@ PX_FORCE_INLINE void Sc::BodySim::setForcesToDefaults(bool enableGravity)
 		}
 
 		if (enableGravity)
-			mVelModState = VMF_GRAVITY_DIRTY;	// We want to keep the gravity flag to make sure the acceleration gets changed to gravity-only
-												// in the next step (unless the application adds new forces of course)
+			raiseVelocityModFlag(VMF_GRAVITY_DIRTY);	// We want to keep the gravity flag to make sure the acceleration gets changed to gravity-only
+														// in the next step (unless the application adds new forces of course)
 		else
-			mVelModState = 0;
+			clearVelocityModFlag(VMF_GRAVITY_DIRTY);
+
+		clearVelocityModFlag(VMF_ACC_DIRTY);
+		clearVelocityModFlag(VMF_VEL_DIRTY);
 	}
 	else
 	{
@@ -247,30 +230,10 @@ PX_FORCE_INLINE void Sc::BodySim::setForcesToDefaults(bool enableGravity)
 			velmod->clearPerStep();
 		}
 
-		mVelModState &= (~(VMF_VEL_DIRTY));
+		clearVelocityModFlag(VMF_VEL_DIRTY);
 	}
 }
 
-PX_FORCE_INLINE bool Sc::BodySim::checkSleepReadinessBesidesWakeCounter()
-{
-	const BodyCore& bodyCore = getBodyCore();
-	const SimStateData* simStateData = getSimStateData(false);
-	const VelocityMod* velmod = simStateData ? simStateData->getVelocityModData() : NULL;
-
-	bool readyForSleep = bodyCore.getLinearVelocity().isZero() && bodyCore.getAngularVelocity().isZero();
-	if (readVelocityModFlag(VMF_ACC_DIRTY))
-	{
-		readyForSleep = readyForSleep && (!velmod || velmod->getLinearVelModPerSec().isZero());
-		readyForSleep = readyForSleep && (!velmod || velmod->getAngularVelModPerSec().isZero());
-	}
-	if (readVelocityModFlag(VMF_VEL_DIRTY))
-	{
-		readyForSleep = readyForSleep && (!velmod || velmod->getLinearVelModPerStep().isZero());
-		readyForSleep = readyForSleep && (!velmod || velmod->getAngularVelModPerStep().isZero());
-	}
-
-	return readyForSleep;
-}
 
 
 }

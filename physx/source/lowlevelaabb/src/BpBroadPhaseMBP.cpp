@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "BpBroadPhaseMBP.h"
 #include "BpBroadPhaseShared.h"
@@ -363,9 +340,6 @@ static PX_FORCE_INLINE void clearBit(BitArray& bitmap, MBP_ObjectIndex objectInd
 		void		allocateSleeping(PxU32 nbSleeping, PxU32 nbSentinels);
 		void		allocateUpdated(PxU32 nbUpdated, PxU32 nbSentinels);
 
-		// PT: wtf, why doesn't the 128 version compile?
-//		MBP_AABB	PX_ALIGN(128, mSleepingDynamicBoxes_Stack[STACK_BUFFER_SIZE]);
-//		MBP_AABB	PX_ALIGN(128, mUpdatedDynamicBoxes_Stack[STACK_BUFFER_SIZE]);
 		MBP_AABB	PX_ALIGN(16, mSleepingDynamicBoxes_Stack[STACK_BUFFER_SIZE]);
 		MBP_AABB	PX_ALIGN(16, mUpdatedDynamicBoxes_Stack[STACK_BUFFER_SIZE]);
 		MBP_Index	mInToOut_Dynamic_Sleeping_Stack[STACK_BUFFER_SIZE];
@@ -3038,11 +3012,8 @@ bool BroadPhaseMBP::removeRegion(PxU32 handle)
 	return mMBP->removeRegion(handle);
 }
 
-void BroadPhaseMBP::update(PxcScratchAllocator* scratchAllocator, const BroadPhaseUpdateData& updateData, physx::PxBaseTask* /*continuation*/)
+void BroadPhaseMBP::update(PxU32 /*numCpuTasks*/, Cm::FlushPool* /*flushPool*/, PxcScratchAllocator* /*scratchAllocator*/, const BroadPhaseUpdateData& updateData, physx::PxBaseTask* /*continuation*/)
 {
-	PX_CHECK_AND_RETURN(scratchAllocator, "BroadPhaseMBP::update - scratchAllocator must be non-NULL \n");
-	PX_UNUSED(scratchAllocator);
-
 	setUpdateData(updateData);
 
 	update();
@@ -3189,11 +3160,8 @@ void BroadPhaseMBP::setUpdateData(const BroadPhaseUpdateData& updateData)
 
 #if PX_CHECKED
 	// PT: WARNING: this must be done after the allocateMappingArray call
-	if(!BroadPhaseUpdateData::isValid(updateData, *this, false, mContextID))
-	{
-		PX_CHECK_MSG(false, "Illegal BroadPhaseUpdateData \n");
+	if(updateData.isValid(mContextID, this) != BroadPhaseUpdateError::eNO_ERROR)
 		return;
-	}
 #endif
 
 	mGroups = updateData.getGroups();
@@ -3282,7 +3250,7 @@ void BroadPhaseMBP::freeBuffers()
 }
 
 #if PX_CHECKED
-bool BroadPhaseMBP::isValid(const BroadPhaseUpdateData& updateData) const
+BroadPhaseUpdateError::Enum BroadPhaseMBP::isValid(const BroadPhaseUpdateData& updateData) const
 {
 	const BpHandle* created = updateData.getCreatedHandles();
 	if(created)
@@ -3304,7 +3272,7 @@ bool BroadPhaseMBP::isValid(const BroadPhaseUpdateData& updateData) const
 			PX_ASSERT(index<mCapacity);
 
 			if(set.contains(index))
-				return false;	// This object has been added already
+				return BroadPhaseUpdateError::eALREADY_ADDED;	// This object has been added already
 		}
 	}
 
@@ -3318,7 +3286,7 @@ bool BroadPhaseMBP::isValid(const BroadPhaseUpdateData& updateData) const
 			PX_ASSERT(index<mCapacity);
 
 			if(mMapping[index]==PX_INVALID_U32)
-				return false;	// This object has been removed already, or never been added
+				return BroadPhaseUpdateError::eNOT_IN_DATABASE;	// This object has been removed already, or never been added
 		}
 	}
 
@@ -3332,10 +3300,10 @@ bool BroadPhaseMBP::isValid(const BroadPhaseUpdateData& updateData) const
 			PX_ASSERT(index<mCapacity);
 
 			if(mMapping[index]==PX_INVALID_U32)
-				return false;	// This object has been removed already, or never been added
+				return BroadPhaseUpdateError::eALREADY_REMOVED;	// This object has been removed already, or never been added
 		}
 	}
-	return true;
+	return BroadPhaseUpdateError::eNO_ERROR;
 }
 #endif
 

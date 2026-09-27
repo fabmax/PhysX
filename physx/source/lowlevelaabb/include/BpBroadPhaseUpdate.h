@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef BP_BROADPHASE_UPDATE_H
 #define BP_BROADPHASE_UPDATE_H
@@ -42,6 +19,27 @@ typedef PxU32 BpHandle;
 #define BP_INVALID_BP_HANDLE	0x3fffffff
 
 class BroadPhase;
+
+struct BroadPhaseUpdateError
+{
+	enum Enum
+	{
+		eNO_ERROR				= 0,
+		eINVALID				= 1,	// generic unspecified error
+		eMISSING_DATA			= 2,	// passed data has a non-zero size and a null pointer
+		eOUT_OF_BOUNDS			= 3,	// passed index is out of bounds
+		eINVALID_ORDER			= 4,	// passed indices are not in ascending order
+		eINVALID_GROUP			= 5,	// passed groups are invalid
+		eNON_FINITE_BOUNDS		= 6,	// passed bounds have NaNs/non-finite values
+		eINVALID_BOUNDS			= 7,	// passed bounds are invalid (non-empty and min>max)
+		eCREATED_AND_UPDATED	= 8,	// an object has been both created and updated (in the same BP update call)
+		eCREATED_AND_REMOVED	= 9,	// an object has been both created and removed (in the same BP update call)
+		eUPDATED_AND_REMOVED	= 10,	// an object has been both updated and removed (in the same BP update call)
+		eALREADY_ADDED			= 11,	// an object has been added but already exists in the broadphase
+		eALREADY_REMOVED		= 12,	// an object has been removed but does not exist in the broadphase
+		eNOT_IN_DATABASE		= 13,	// an object has been updated but does not exist in the broadphase
+	};
+};
 
 class BroadPhaseUpdateData
 {
@@ -180,8 +178,8 @@ public:
 	PX_FORCE_INLINE	bool							getGpuStateChanged()	const { return mGpuStateChanged;	}
 
 #if PX_CHECKED
-	static bool isValid(const BroadPhaseUpdateData& updateData, const BroadPhase& bp, const bool skipBoundValidation, PxU64 contextID);
-	bool isValid(const bool skipBoundValidation) const;
+	// PT: we skip bounds validation for the GPU so we cannot drop 'skipBoundValidation'
+	BroadPhaseUpdateError::Enum isValid(PxU64 contextID, const BroadPhase* bp = NULL, bool skipBoundValidation = false) const;
 #endif
 
 private:

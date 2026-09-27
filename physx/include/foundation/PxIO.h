@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
-// Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
+// Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef PX_IO_H
 #define PX_IO_H
@@ -61,7 +38,7 @@ class PxInputStream
 	\return the number of bytes read from the stream.
 	*/
 
-	virtual uint32_t read(void* dest, uint32_t count) = 0;
+	virtual uint64_t read(void* dest, uint64_t count) = 0;
 
 	virtual ~PxInputStream()
 	{
@@ -83,7 +60,7 @@ class PxInputData : public PxInputStream
 	\return size in bytes of the input data
 	*/
 
-	virtual uint32_t getLength() const = 0;
+	virtual uint64_t getLength() const = 0;
 
 	/**
 	\brief seek to the given offset from the start of the data.
@@ -92,7 +69,7 @@ class PxInputData : public PxInputStream
 	seek(length);
 	*/
 
-	virtual void seek(uint32_t offset) = 0;
+	virtual void seek(uint64_t offset) = 0;
 
 	/**
 	\brief return the current offset from the start of the data
@@ -100,7 +77,7 @@ class PxInputData : public PxInputStream
 	\return the offset to seek to.
 	*/
 
-	virtual uint32_t tell() const = 0;
+	virtual uint64_t tell() const = 0;
 
 	virtual ~PxInputData()
 	{
@@ -125,7 +102,7 @@ class PxOutputStream
 	\return the number of bytes written to the stream by this call.
 	*/
 
-	virtual uint32_t write(const void* src, uint32_t count) = 0;
+	virtual uint64_t write(const void* src, uint64_t count) = 0;
 
 	virtual ~PxOutputStream()
 	{

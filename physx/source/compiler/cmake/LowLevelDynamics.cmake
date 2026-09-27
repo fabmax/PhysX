@@ -1,28 +1,5 @@
-## Redistribution and use in source and binary forms, with or without
-## modification, are permitted provided that the following conditions
-## are met:
-##  * Redistributions of source code must retain the above copyright
-##    notice, this list of conditions and the following disclaimer.
-##  * Redistributions in binary form must reproduce the above copyright
-##    notice, this list of conditions and the following disclaimer in the
-##    documentation and/or other materials provided with the distribution.
-##  * Neither the name of NVIDIA CORPORATION nor the names of its
-##    contributors may be used to endorse or promote products derived
-##    from this software without specific prior written permission.
-##
-## THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-## EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-## IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-## PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-## CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-## EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-## PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-## PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-## OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-## (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-## OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-##
-## Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+## SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+## SPDX-License-Identifier: Apache-2.0
 
 #
 # Build LowLevelDynamics common
@@ -58,7 +35,6 @@ SET(LLDYNAMICS_INCLUDES
 	${LLDYNAMICS_BASE_DIR}/include/DyArticulationJointCore.h
 	${LLDYNAMICS_BASE_DIR}/include/DyParticleSystemCore.h
 	${LLDYNAMICS_BASE_DIR}/include/DyParticleSystem.h
-	${LLDYNAMICS_BASE_DIR}/include/DyResidualAccumulator.h
 	${LLDYNAMICS_BASE_DIR}/include/DyIslandManager.h
 )
 SOURCE_GROUP("include" FILES ${LLDYNAMICS_INCLUDES})
@@ -66,6 +42,7 @@ SOURCE_GROUP("include" FILES ${LLDYNAMICS_INCLUDES})
 SET(LLDYNAMICS_SHARED
 	${LLDYNAMICS_BASE_DIR}/shared/DyCpuGpuArticulation.h
 	${LLDYNAMICS_BASE_DIR}/shared/DyCpuGpu1dConstraint.h
+    ${LLDYNAMICS_BASE_DIR}/shared/DyCpuGpuBiasCoefficient.h
 )
 SOURCE_GROUP("shared" FILES ${LLDYNAMICS_SHARED})
 
@@ -96,9 +73,6 @@ SET(LLDYNAMICS_SOURCE
 	${LLDYNAMICS_BASE_DIR}/src/DyTGSContactPrep.cpp
 	${LLDYNAMICS_BASE_DIR}/src/DyTGSContactPrepBlock.cpp
 	${LLDYNAMICS_BASE_DIR}/src/DyArticulationContactPrep.h
-	${LLDYNAMICS_BASE_DIR}/src/DyArticulationPImpl.h
-	${LLDYNAMICS_BASE_DIR}/src/DyArticulationUtils.h
-	${LLDYNAMICS_BASE_DIR}/src/DyFeatherstoneArticulationLink.h
 	${LLDYNAMICS_BASE_DIR}/src/DyBodyCoreIntegrator.h
 	${LLDYNAMICS_BASE_DIR}/src/DyConstraintPartition.h
 	${LLDYNAMICS_BASE_DIR}/src/DyConstraintPrep.h
@@ -114,7 +88,6 @@ SET(LLDYNAMICS_SOURCE
 	${LLDYNAMICS_BASE_DIR}/src/DySolverConstraint1D.h
 	${LLDYNAMICS_BASE_DIR}/src/DySolverConstraint1D4.h
 	${LLDYNAMICS_BASE_DIR}/src/DySolverConstraintDesc.h
-	${LLDYNAMICS_BASE_DIR}/src/DySolverConstraintExtShared.h
 	${LLDYNAMICS_BASE_DIR}/src/DySolverConstraintsShared.h
 	${LLDYNAMICS_BASE_DIR}/src/DySolverConstraintTypes.h
 	${LLDYNAMICS_BASE_DIR}/src/DySolverContact.h

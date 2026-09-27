@@ -1,0 +1,27 @@
+// SPDX-FileCopyrightText: Copyright (c) 2020-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
+
+#include "tensors/cpu/CpuSdfShapeView.h"
+#include "tensors/cpu/CpuSimulationView.h"
+
+using namespace physx;
+
+namespace omni
+{
+namespace physx
+{
+namespace tensors
+{
+
+CpuSdfShapeView::CpuSdfShapeView(CpuSimulationView* sim, const std::vector<SdfShapeEntry>& entries)
+    : BaseSdfShapeView(sim, entries)
+{
+}
+
+CpuSdfShapeView::~CpuSdfShapeView()
+{
+}
+
+} // namespace tensors
+} // namespace physx
+} // namespace omni

@@ -1,28 +1,5 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef PX_CUDA_CONTEXT_MANAGER_H
 #define PX_CUDA_CONTEXT_MANAGER_H
@@ -65,21 +42,48 @@ public:
 
 	/**
 	\brief Allocated device memory.
-	\param[in] ptr Pointer to store the allocated address
-	\param[in] size The amount of memory required
-	\return A boolean indicates the operation succeed or fail
+	\param[out] ptr Output pointer to the allocated memory. The returned address must be 256 bytes aligned.
+	\param[in] size The amount of memory to be allocated.
+	\return A boolean indicating whether the allocation succeeded or not.
 	*/
 	virtual bool memAlloc(void** ptr, size_t size) = 0;
 
 	/**
 	\brief Frees device memory.
-	\param[in] ptr The memory to free
-	\return A boolean indicates the operation succeed or fail
+	\param[in] ptr The memory to free.
+	\return A boolean indicating whether the deallocation succeeded or not.
 	*/
 	virtual bool memFree(void* ptr) = 0;
 
 protected:
 	virtual ~PxDeviceAllocatorCallback() {}
+};
+
+/**
+\brief An interface class that the user can implement in order for PhysX to use a user-defined host pinned memory allocator.
+*/
+class PxPinnedHostAllocatorCallback
+{
+public:
+
+	/**
+	\brief Allocates host pinned memory.
+	\param[in] ptr Output pointer to the allocated memory. The returned address must be 256 bytes aligned.
+	\param[in] size The amount of memory to be allocated.
+	\param[in] flags CUDA allocation flags (e.g., CU_MEMHOSTALLOC_DEVICEMAP, CU_MEMHOSTALLOC_PORTABLE)
+	\return A boolean indicating whether the allocation succeeded or not.
+	*/
+	virtual bool memAlloc(void** ptr, size_t size, PxU32 flags) = 0;
+
+	/**
+	\brief Frees host pinned memory.
+	\param[in] ptr The memory to free.
+	\return A boolean indicating whether the deallocation succeeded or not.
+	*/
+	virtual bool memFree(void* ptr) = 0;
+
+protected:
+	virtual ~PxPinnedHostAllocatorCallback() {}
 };
 /**
 \brief collection of set bits defined in NxCudaInteropRegisterFlag.
@@ -141,20 +145,30 @@ public:
 	const char*	appGUID;
 
 	/**
-	  * \brief Application-specific device memory allocator
+	  * \brief The application-specific device memory allocator
 	  *
-	  * the application can implement an device memory allocator, which inherites PxDeviceAllocatorCallback, and 
-	  * pass that to the PxCudaContextManagerDesc. The SDK will use that allocator to allocate device memory instead of
-	  * using the defaul CUDA device memory allocator.
+	  * The application can implement a device memory allocator, which inherits from PxDeviceAllocatorCallback, and
+	  * pass it to the SDK via PxCudaContextManagerDesc. The SDK will use that allocator to allocate device memory instead of
+	  * using the default CUDA device memory allocator.
 	  */
-	PxDeviceAllocatorCallback*	deviceAllocator;
+	PxDeviceAllocatorCallback*		deviceAllocator;
+
+	/**
+	  * \brief The application-specific host pinned memory allocator
+	  *
+	  * The application can implement a host pinned memory allocator, which inherits from PxPinnedHostAllocatorCallback, and
+	  * pass it to the SDK via PxCudaContextManagerDesc. The SDK will use that allocator to allocate host pinned memory instead of
+	  * using the default CUDA pinned host memory allocator.
+	  */
+	PxPinnedHostAllocatorCallback*	pinnedHostAllocator;
 
 	PX_INLINE PxCudaContextManagerDesc() :
-		ctx				(NULL),
-		graphicsDevice	(NULL),
-		deviceOrdinal	(-1),
-		appGUID			(NULL),
-		deviceAllocator	(NULL)
+		ctx					(NULL),
+		graphicsDevice		(NULL),
+		deviceOrdinal		(-1),
+		appGUID				(NULL),
+		deviceAllocator		(NULL),
+		pinnedHostAllocator	(NULL)
 	{
 	}
 };
@@ -452,12 +466,17 @@ public:
      *
      * If the PxCudaContextManager created the CUDA context it was 
 	 * responsible for, it also frees that context.
-     *
-     * Do not release the PxCudaContextManager if there are any scenes
-     * using it.  Those scenes must be released first.
-     *
      */
 	virtual void release() = 0;
+
+	/**
+	 * \brief Acquire a reference to the PxCudaContextManager, incrementing its reference count.
+	 *
+	 * The context manager is destroyed once its reference count reaches zero (via release()). Holding a
+	 * reference guarantees it stays alive; every acquireReference() must be matched by a release().
+	 * Used e.g. by a scene to ensure the context manager cannot be destroyed while the scene still uses it.
+	 */
+	virtual void acquireReference() = 0;
 
 protected:
 

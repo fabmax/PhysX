@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef PX_SCENE_DESC_H
 #define PX_SCENE_DESC_H
@@ -213,6 +190,10 @@ struct PxSceneFlag
 		number of solver iterations is used.
 
 		Note that this flag is not mutable and must be set in PxSceneDesc at scene creation.
+
+		\note Support depends on the simulation backend. The CPU narrow phase honors this flag for all pair types. With GPU dynamics (see PxSceneFlag::eENABLE_GPU_DYNAMICS)
+		only the convex vs. convex narrow phase generates average points: the remaining GPU pair types, in particular those involving a triangle mesh, a heightfield, a plane or
+		a convex core geometry, ignore this flag, so enabling it has no stabilization effect on them.
 		*/
 		eENABLE_AVERAGE_POINT = (1 << 11),
 
@@ -293,7 +274,7 @@ struct PxSceneFlag
 		*/
 		eENABLE_EXTERNAL_FORCES_EVERY_ITERATION_TGS = (1 << 16),
 
-		/*
+		/**
 		\brief Enables the direct-GPU API. Raising this flag is only allowed if eENABLE_GPU_DYNAMICS is raised and 
 		PxBroadphaseType::eGPU is used.
 
@@ -305,8 +286,10 @@ struct PxSceneFlag
 		PxDirectGPUAPI::getArticulationData(), PxDirectGPUAPI::copyContactData()), and reading state directly from the actor
 		is not allowed.
 
+		\note This flag requires PxSceneFlag::eDISABLE_SLEEPING to be raised.
+
 		\note This flag is not mutable and must be set in PxSceneDesc at scene creation.
-		\see PxScene::getDirectGPUAPI() PxDirectGPUAPI
+		\see PxScene::getDirectGPUAPI() PxDirectGPUAPI eDISABLE_SLEEPING
 
 		<b>Default</b> false
 		*/
@@ -336,13 +319,6 @@ struct PxSceneFlag
 		*/
 		eENABLE_BODY_ACCELERATIONS = (1 << 18),
 
-		/*
-		\brief Enables the solver residual reporting.
-
-		\note Enabling this flag can have a negative impact on the performance but the impact should be small.
-		*/
-		eENABLE_SOLVER_RESIDUAL_REPORTING = (1 << 19),
-
 		/**
 		\brief Reorders articulation contact constraints and articulation joint maximum velocity constraints in the solver.
 
@@ -368,7 +344,19 @@ struct PxSceneFlag
  
 		<b>Default</b> false
 		*/
-		eSOLVE_ARTICULATION_CONTACT_LAST = (1 << 20),
+		eSOLVE_ARTICULATION_CONTACT_LAST = (1 << 19),
+
+		/**
+		\brief Disables all sleeping logic in the scene.
+
+		When this flag is raised, no objects will be put to sleep. They will all be treated by the solver as awake.
+		This is a performance optimization for use cases where sleeping is not desired.
+
+		\note This flag is automatically enabled when PxSceneFlag::eENABLE_DIRECT_GPU_API is set.
+
+		<b>Default</b> false
+		*/
+		eDISABLE_SLEEPING = (1 << 20),
 
 		eMUTABLE_FLAGS = eENABLE_ACTIVE_ACTORS|eEXCLUDE_KINEMATICS_FROM_ACTIVE_ACTORS
 	};
@@ -456,19 +444,70 @@ PX_INLINE bool PxSceneLimits::isValid() const
 
 struct PxGpuDynamicsMemoryConfig
 {
-	PxU64 tempBufferCapacity;				//!< Initial capacity of temp solver buffer allocated in pinned host memory. This buffer will grow if more memory is needed than specified here.
-	PxU32 maxRigidContactCount;				//!< Size of contact stream buffer allocated in pinned host memory. This is double-buffered so total allocation size = 2* contactStreamCapacity * sizeof(PxContact).
-	PxU32 maxRigidPatchCount;				//!< Size of the contact patch stream buffer allocated in pinned host memory. This is double-buffered so total allocation size = 2 * patchStreamCapacity * sizeof(PxContactPatch).
-	PxU32 heapCapacity;						//!< Initial capacity of the GPU and pinned host memory heaps. Additional memory will be allocated if more memory is required.
-	PxU32 foundLostPairsCapacity;			//!< Capacity of found and lost buffers allocated in GPU global memory. This is used for the found/lost pair reports in the BP. 
-	PxU32 foundLostAggregatePairsCapacity;	//!< Capacity of found and lost buffers in aggregate system allocated in GPU global memory. This is used for the found/lost pair reports in AABB manager.
-	PxU32 totalAggregatePairsCapacity;		//!< Capacity of aggregate pair buffer allocated in GPU global memory.
-	PxU32 maxDeformableSurfaceContacts;		//!< Capacity of deformable surface contact buffer allocated in GPU global memory.
-	PX_DEPRECATED PxU32 maxFemClothContacts;//!< Deprecated, replace with maxDeformableSurfaceContacts.
-	PxU32 maxDeformableVolumeContacts;		//!< Capacity of deformable volume contact buffer allocated in GPU global memory.
-	PX_DEPRECATED PxU32 maxSoftBodyContacts;//!< Deprecated, replace with maxDeformableVolumeContacts.
-	PxU32 maxParticleContacts;				//!< Capacity of particle contact buffer allocated in GPU global memory.
-	PxU32 collisionStackSize;				//!< Capacity of the collision stack buffer, used as scratch space during narrowphase collision detection.
+	/**
+	\brief Initial capacity of temp solver buffer allocated in pinned host memory.
+	This buffer will grow if more memory is needed than specified here.
+	*/
+	PxU64 tempBufferCapacity;
+
+	/**
+	\brief Size of contact stream buffer allocated in pinned host memory.
+	This is double-buffered so total allocation size = 2 * maxRigidContactCount * sizeof(PxContact).
+	*/
+	PxU32 maxRigidContactCount;
+
+	/**
+	\brief Size of the contact patch stream buffer allocated in pinned host memory.
+	This is double-buffered so total allocation size = 2 * maxRigidPatchCount * sizeof(PxContactPatch).
+	*/
+	PxU32 maxRigidPatchCount;
+
+	/**
+	\brief Initial capacity of the device and pinned host memory heaps.
+	Additional memory will be allocated if more memory is required, in increments of heapCapacity.
+	If an allocation is larger than half of heapCapacity, then the heap is bypassed and the memory 
+	is allocated directly. The configuration heapCapacity == 0 is valid: In this case no heap is 
+	allocated, and all allocations bypass the heap.
+	*/
+	PxU32 heapCapacity;
+
+	/**
+	\brief Capacity of found and lost buffers allocated in GPU global memory.
+	This is used for the found/lost pair reports in the BP.
+	*/
+	PxU32 foundLostPairsCapacity;
+
+	/**
+	\brief Capacity of found and lost buffers in aggregate system allocated in GPU global memory.
+	This is used for the found/lost pair reports in AABB manager.
+	*/
+	PxU32 foundLostAggregatePairsCapacity;
+
+	/**
+	\brief Capacity of aggregate pair buffer allocated in GPU global memory.
+	*/
+	PxU32 totalAggregatePairsCapacity;
+
+	/**
+	\brief Capacity of deformable surface contact buffer allocated in GPU global memory.
+	*/
+	PxU32 maxDeformableSurfaceContacts;
+
+	/**
+	\brief Capacity of deformable volume contact buffer allocated in GPU global memory.
+	*/
+	PxU32 maxDeformableVolumeContacts;
+
+	/**
+	\brief Capacity of particle contact buffer allocated in GPU global memory.
+	*/
+	PxU32 maxParticleContacts;
+
+	/**
+	\brief Capacity of the collision stack buffer.
+	Used as scratch space during narrowphase collision detection.
+	*/
+	PxU32 collisionStackSize;
 
 	PxGpuDynamicsMemoryConfig() :
 		tempBufferCapacity(16 * 1024 * 1024),
@@ -479,9 +518,7 @@ struct PxGpuDynamicsMemoryConfig
 		foundLostAggregatePairsCapacity(1024),
 		totalAggregatePairsCapacity(1024),
 		maxDeformableSurfaceContacts(1 * 1024 * 1024),
-		maxFemClothContacts(0), // deprecated, if > 0, used instead of maxDeformableSurfaceContacts
 		maxDeformableVolumeContacts(1 * 1024 * 1024),
-		maxSoftBodyContacts(0), // deprecated, if > 0, used instead of maxDeformableVolumeContacts
 		maxParticleContacts(1*1024*1024),
 		collisionStackSize(64*1024*1024)
 	{
@@ -493,7 +530,7 @@ struct PxGpuDynamicsMemoryConfig
 PX_INLINE bool PxGpuDynamicsMemoryConfig::isValid() const
 {
 	const bool isPowerOfTwo = PxIsPowerOfTwo(heapCapacity);
-	return isPowerOfTwo;
+	return isPowerOfTwo || (heapCapacity == 0);
 }
 
 //#endif

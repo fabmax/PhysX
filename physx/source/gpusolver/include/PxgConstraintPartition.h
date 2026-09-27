@@ -1,41 +1,15 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef PXG_CONSTRAINT_PARTITION_H
 #define PXG_CONSTRAINT_PARTITION_H
 
 #define PX_PARTITION_COMPACTION 1
 
-#include "foundation/PxPinnedArray.h"
-#include "foundation/PxSList.h"
+#include "CmPinnableArray.h"
 #include "foundation/PxUserAllocated.h"
-#include "foundation/PxUtilities.h"
-#include "PxgSolverBody.h"
 #include "PxgSolverConstraintDesc.h"
 #include "PxsSimpleIslandManager.h"
 #include "PxgDynamicsConfiguration.h"
@@ -150,7 +124,7 @@ struct Partition
 		return true;
 	}
 
-	void removeFromPartition(PxU32 uniqueIndex, PxPinnedArray<PartitionIndexData>& iterator)
+	void removeFromPartition(PxU32 uniqueIndex, Cm::PinnableArray<PartitionIndexData>& iterator)
 	{
 		const PartitionIndexData& indexData = iterator[uniqueIndex];
 		PartitionIndices& indices = mPartitionIndices[indexData.mCType];
@@ -266,18 +240,18 @@ public:	// PT: TODO: revisit after the dust settles
 
 	PxBitMap mIsDirtyNode;
 
-	PxArray<PxU32>										mNpIndexArray;
-	PxPinnedArray<PartitionIndexData>					mPartitionIndexArray;
-	PxPinnedArray<PartitionNodeData>					mPartitionNodeArray;
-	PxPinnedArray<PxgSolverConstraintManagerConstants>	mSolverConstants;
-	PxInt32ArrayPinned									mNodeInteractionCountArray;
+	PxArray<PxU32>											mNpIndexArray;
+	Cm::PinnableArray<PartitionIndexData>					mPartitionIndexArray;
+	Cm::PinnableArray<PartitionNodeData>					mPartitionNodeArray;
+	Cm::PinnableArray<PxgSolverConstraintManagerConstants>	mSolverConstants;
+	Cm::PinnableArray<PxU32>								mNodeInteractionCountArray;
 
-	PxInt32ArrayPinned			mDestroyedContactEdgeIndices;
+	Cm::PinnableArray<PxU32>		mDestroyedContactEdgeIndices;
 
-	PxInt32ArrayPinned			mStartSlabPerPartition;
-	PxInt32ArrayPinned			mArticStartSlabPerPartition;
-	PxInt32ArrayPinned			mNbJointsPerPartition;
-	PxInt32ArrayPinned			mNbArtiJointsPerPartition;
+	Cm::PinnableArray<PxU32>		mStartSlabPerPartition;
+	Cm::PinnableArray<PxU32>		mArticStartSlabPerPartition;
+	Cm::PinnableArray<PxU32>		mNbJointsPerPartition;
+	Cm::PinnableArray<PxU32>		mNbArtiJointsPerPartition;
 
 	PxArray<PxU32>				mJointStartIndices;
 	PxArray<PxU32>				mContactStartIndices;
@@ -290,7 +264,7 @@ public:	// PT: TODO: revisit after the dust settles
 
 public:
 
-	PxgIncrementalPartition(const PxVirtualAllocator& allocator, PxU32 maxNumPartitions, PxU64 contextID);
+	PxgIncrementalPartition(Cm::VirtualAllocatorCallback& hostAlloc, PxU32 maxNumPartitions, PxU64 contextID);
 	~PxgIncrementalPartition();
 
 	void processLostFoundPatches(	Cm::FlushPool& flushPool, PxBaseTask* continuation,
@@ -313,22 +287,22 @@ public:
 											PxgBodySimManager& bodySimManager, PxgJointManager& jointManager);
 
 	// PT: edge data
-	PX_FORCE_INLINE	const PxPinnedArray<PxgSolverConstraintManagerConstants>&	getSolverConstants()	const	{ return mSolverConstants;	}
+	PX_FORCE_INLINE	const Cm::PinnableArray<PxgSolverConstraintManagerConstants>&	getSolverConstants()	const	{ return mSolverConstants;	}
 
 	// PT: TODO: what's the difference between mNbPartitions and mCSlab.mNbPartitions ?
 	PX_FORCE_INLINE	PxU32	getNbPartitions()					const	{ return mNbPartitions;				}
 	PX_FORCE_INLINE	PxU32	getCombinedSlabMaxNbPartitions()	const	{ return mCSlab.mNbMaxPartitions;	}
 	PX_FORCE_INLINE	PxU32	getCombinedSlabNbPartitions()		const	{ return mCSlab.mNbPartitions;		}
 
-	PX_FORCE_INLINE	const PxPinnedArray<PartitionIndexData>&	getPartitionIndexArray()	const	{ return mPartitionIndexArray;	}
-	PX_FORCE_INLINE	const PxPinnedArray<PartitionNodeData>&		getPartitionNodeArray()		const	{ return mPartitionNodeArray;	}
+	PX_FORCE_INLINE	const Cm::PinnableArray<PartitionIndexData>&	getPartitionIndexArray()	const	{ return mPartitionIndexArray;	}
+	PX_FORCE_INLINE	const Cm::PinnableArray<PartitionNodeData>&	getPartitionNodeArray()			const	{ return mPartitionNodeArray;	}
 
-	PX_FORCE_INLINE	const PxInt32ArrayPinned&		getStartSlabPerPartition()			const	{ return mStartSlabPerPartition;		}
-	PX_FORCE_INLINE	const PxInt32ArrayPinned&		getArticStartSlabPerPartition()		const	{ return mArticStartSlabPerPartition;	}
-	PX_FORCE_INLINE	const PxInt32ArrayPinned&		getNbJointsPerPartition()			const	{ return mNbJointsPerPartition;			}
-	PX_FORCE_INLINE	const PxInt32ArrayPinned&		getNbArticJointsPerPartition()		const	{ return mNbArtiJointsPerPartition;		}
-	PX_FORCE_INLINE	const PxInt32ArrayPinned&		getNodeInteractionCountArray()		const	{ return mNodeInteractionCountArray;	}
-	PX_FORCE_INLINE	const PxInt32ArrayPinned&		getDestroyedContactEdgeIndices()	const	{ return mDestroyedContactEdgeIndices;	}
+	PX_FORCE_INLINE	const Cm::PinnableArray<PxU32>&	getStartSlabPerPartition()			const	{ return mStartSlabPerPartition;		}
+	PX_FORCE_INLINE	const Cm::PinnableArray<PxU32>&	getArticStartSlabPerPartition()		const	{ return mArticStartSlabPerPartition;	}
+	PX_FORCE_INLINE	const Cm::PinnableArray<PxU32>&	getNbJointsPerPartition()			const	{ return mNbJointsPerPartition;			}
+	PX_FORCE_INLINE	const Cm::PinnableArray<PxU32>&	getNbArticJointsPerPartition()		const	{ return mNbArtiJointsPerPartition;		}
+	PX_FORCE_INLINE	const Cm::PinnableArray<PxU32>&	getNodeInteractionCountArray()		const	{ return mNodeInteractionCountArray;	}
+	PX_FORCE_INLINE	const Cm::PinnableArray<PxU32>&	getDestroyedContactEdgeIndices()	const	{ return mDestroyedContactEdgeIndices;	}
 
 	PX_FORCE_INLINE	const PxArray<PxU32>&			getNpIndexArray()					const	{ return mNpIndexArray;					}
 	PX_FORCE_INLINE	const PxArray<PartitionSlab*>&	getPartitionSlabs()					const	{ return mPartitionSlabs;				}

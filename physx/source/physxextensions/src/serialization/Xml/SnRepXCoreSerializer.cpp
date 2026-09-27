@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "PxPhysicsAPI.h"
 #include "PxMetaDataObjects.h"
@@ -101,7 +78,7 @@ namespace physx {
 		case PxGeometryType::eGEOMETRY_COUNT:
 		case PxGeometryType::eINVALID:
 			PX_ASSERT(0);			
-		}		
+		}
 		inAllocator.getAllocator().deallocate(geometry);
 
 		bool ret = readAllProperties( inArgs, inReader, theShape, inAllocator, *inCollection );
@@ -190,11 +167,11 @@ namespace physx {
 		PxTriangleMeshDesc theDesc;
 		readStridedBufferProperty<PxVec3>( inReader, "points", theDesc.points, inAllocator);
 		readStridedBufferProperty<Triangle<PxU32> >( inReader, "triangles", theDesc.triangles, inAllocator);
-		PxU32 triCount;
+		PxU64 triCount;
 		readStridedBufferProperty<PxMaterialTableIndex>( inReader, "materialIndices", theDesc.materialIndices, triCount, inAllocator);
 		PxStridedData cookedData;
 		cookedData.stride = sizeof(PxU8);
-		PxU32 dataSize;
+		PxU64 dataSize;
 		readStridedBufferProperty<PxU8>( inReader, "CookedData", cookedData, dataSize, inAllocator);
 
 		TMemoryPoolManager theManager(inAllocator.getAllocator());	
@@ -204,7 +181,7 @@ namespace physx {
 		PxBVH33TriangleMesh* theMesh = NULL;			
 
 		if(dataSize != 0)
-		{				
+		{
 			theTempBuf.write(cookedData.data, dataSize*sizeof(PxU8));
 //			theMesh = inArgs.physics.createTriangleMesh( theTempBuf );
 			theMesh = static_cast<PxBVH33TriangleMesh*>(inArgs.physics.createTriangleMesh( theTempBuf ));
@@ -221,7 +198,7 @@ namespace physx {
 			PxCookTriangleMesh( params, theDesc, theTempBuf );
 //			theMesh = inArgs.physics.createTriangleMesh( theTempBuf );
 			theMesh = static_cast<PxBVH33TriangleMesh*>(inArgs.physics.createTriangleMesh( theTempBuf ));
-		}					
+		}
 
 		return PxCreateRepXObject( theMesh );
 	}
@@ -291,11 +268,11 @@ namespace physx {
 		PxTriangleMeshDesc theDesc;
 		readStridedBufferProperty<PxVec3>( inReader, "points", theDesc.points, inAllocator);
 		readStridedBufferProperty<Triangle<PxU32> >( inReader, "triangles", theDesc.triangles, inAllocator);
-		PxU32 triCount;
+		PxU64 triCount;
 		readStridedBufferProperty<PxMaterialTableIndex>( inReader, "materialIndices", theDesc.materialIndices, triCount, inAllocator);
 		PxStridedData cookedData;
 		cookedData.stride = sizeof(PxU8);
-		PxU32 dataSize;
+		PxU64 dataSize;
 		readStridedBufferProperty<PxU8>( inReader, "CookedData", cookedData, dataSize, inAllocator);
 
 		TMemoryPoolManager theManager(inAllocator.getAllocator());	
@@ -305,7 +282,7 @@ namespace physx {
 		PxBVH34TriangleMesh* theMesh = NULL;			
 
 		if(dataSize != 0)
-		{				
+		{
 			theTempBuf.write(cookedData.data, dataSize*sizeof(PxU8));
 //			theMesh = inArgs.physics.createTriangleMesh( theTempBuf );
 			theMesh = static_cast<PxBVH34TriangleMesh*>(inArgs.physics.createTriangleMesh( theTempBuf ));
@@ -322,7 +299,7 @@ namespace physx {
 			PxCookTriangleMesh( params, theDesc, theTempBuf );
 //			theMesh = inArgs.physics.createTriangleMesh( theTempBuf );
 			theMesh = static_cast<PxBVH34TriangleMesh*>(inArgs.physics.createTriangleMesh( theTempBuf ));
-		}					
+		}
 
 		return PxCreateRepXObject(theMesh);
 	}
@@ -360,7 +337,7 @@ namespace physx {
 		PxHeightFieldDesc theDesc;
 		readAllProperties( inArgs, inReader, &theDesc, inAllocator, *inCollection );
 		//Now read the data...
-		PxU32 count = 0; //ignored becaues numRows and numColumns tells the story
+		PxU64 count = 0; //ignored because numRows and numColumns tells the story
 		readStridedBufferProperty<PxHeightFieldSample>( inReader, "samples", theDesc.samples, count, inAllocator);
 		PxHeightField* retval = PxCreateHeightField( theDesc, inArgs.physics.getPhysicsInsertionCallback() );
 		return PxCreateRepXObject(retval);
@@ -400,7 +377,7 @@ namespace physx {
 
 		PxStridedData cookedData;
 		cookedData.stride = sizeof(PxU8);
-		PxU32 dataSize;
+		PxU64 dataSize;
 		readStridedBufferProperty<PxU8>( inReader, "CookedData", cookedData, dataSize, inAllocator);
 
 		TMemoryPoolManager theManager(inAllocator.getAllocator());
@@ -421,7 +398,7 @@ namespace physx {
 
 			PxCookConvexMesh( *inArgs.cooker, theDesc, theTempBuf );
 			theMesh = inArgs.physics.createConvexMesh( theTempBuf );
-		}					
+		}
 
 		return PxCreateRepXObject(theMesh);
 	}
@@ -549,7 +526,7 @@ namespace physx {
 						}
 						theAggregate->addArticulation(*articulation);
 					}
-				}	
+				}
 			}
 			inReader.popCurrentContext();
 			inReader.leaveChild();

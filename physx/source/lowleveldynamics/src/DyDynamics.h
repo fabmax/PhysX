@@ -1,41 +1,19 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef DY_DYNAMICS_H
 #define DY_DYNAMICS_H
 
 #include "DyDynamicsBase.h"
-#include "PxvConfig.h"
+#include "PxPhysXConfig.h"
 #include "CmTask.h"
 #include "CmPool.h"
 #include "PxcThreadCoherentCache.h"
 #include "PxcConstraintBlockStream.h"
 #include "DySolverBody.h"
+#include "DyCpuGpuBiasCoefficient.h"
 
 namespace physx
 {
@@ -115,32 +93,18 @@ class DynamicsContext : public DynamicsContextBase
 {
 	PX_NOCOPY(DynamicsContext)
 public:
-	
-										DynamicsContext(PxcNpMemBlockPool* memBlockPool,
-														PxcScratchAllocator& scratchAllocator,
-														Cm::FlushPool& taskPool,
-														PxvSimStats& simStats,
-														PxTaskManager* taskManager,
-														PxVirtualAllocatorCallback* allocatorCallback,
-														PxsMaterialManager* materialManager,
-														IG::SimpleIslandManager& islandManager,
-														PxU64 contextID,
-														bool enableStabilization,
-														bool useEnhancedDeterminism,
-														bool solveArticulationContactLast,
-														PxReal maxBiasCoefficient,
-														bool frictionEveryIteration,
-														PxReal lengthScale,
-														bool isResidualReportingEnabled
-														);
+										DynamicsContext(PxcNpMemBlockPool* memBlockPool, Cm::FlushPool& taskPool,
+														PxvSimStats& simStats, Cm::VirtualAllocatorCallback& allocator,
+														PxsMaterialManager* materialManager, IG::SimpleIslandManager& islandManager,
+														PxU64 contextID, PxReal maxBiasCoefficient, PxReal lengthScale, PxSceneFlags sceneFlags);
 
-	virtual								~DynamicsContext();
+	virtual								~DynamicsContext() {}
 
 	// Context
 	virtual	void						destroy()	PX_OVERRIDE;
 	virtual void						update(	Cm::FlushPool& flushPool, PxBaseTask* continuation, PxBaseTask* postPartitioningTask, PxBaseTask* lostTouchTask,
 												PxvNphaseImplementationContext* nPhase, PxU32 maxPatchesPerCM, PxU32 maxArticulationLinks,
-												PxReal dt, const PxVec3& gravity, PxBitMapPinned& changedHandleMap)	PX_OVERRIDE;
+												PxReal dt, const PxVec3& gravity, Cm::PinnableBitMap& changedHandleMap)	PX_OVERRIDE;
 	virtual void						mergeResults()	PX_OVERRIDE;
 	virtual void						setSimulationController(PxsSimulationController* simulationController )	PX_OVERRIDE	{ mSimulationController = simulationController; }
 	virtual PxSolverType::Enum			getSolverType()	const	PX_OVERRIDE	{ return PxSolverType::ePGS;	}
@@ -149,6 +113,8 @@ public:
 					void				updatePostKinematic(IG::SimpleIslandManager& simpleIslandManager, PxBaseTask* continuation, PxBaseTask* lostTouchTask, PxU32 maxLinks);
 
 	PX_FORCE_INLINE bool				solveFrictionEveryIteration() const { return mSolveFrictionEveryIteration; }
+
+	PX_FORCE_INLINE const Dy::BiasCoefficientCollection& getBiasCoefficients() const { return mBiasCoefficients; }
 
 protected:
 
@@ -205,7 +171,7 @@ protected:
 	\param[in] params Solver parameter structure
 	*/
 
-	void								solveParallel(SolverIslandParams& params, IG::IslandSim& islandSim, Cm::SpatialVectorF* deltaV, Dy::ErrorAccumulatorEx* errorAccumulator);
+	void								solveParallel(SolverIslandParams& params, IG::IslandSim& islandSim, Cm::SpatialVectorF* deltaV);
 
 	void								integrateCoreParallel(SolverIslandParams& params, Cm::SpatialVectorF* deltaV, IG::IslandSim& islandSim);
 
@@ -242,6 +208,8 @@ protected:
 	*/
 	SolverBodyDataPool		mSolverBodyDataPool;
 
+	Dy::BiasCoefficientCollection mBiasCoefficients;
+
 private:
 	const bool	mSolveFrictionEveryIteration;
 
@@ -252,6 +220,7 @@ private:
 	friend class PxsSolverSetupConstraintsTask;
 	friend class PxsSolverCreateFinalizeConstraintsTask;	
 	friend class PxsSolverConstraintPartitionTask;
+	friend class PxsSolverPartitionAndCreateFinalizeConstraintsTask;
 	friend class PxsSolverSetupSolveTask;
 	friend class PxsSolverIntegrateTask;
 	friend class PxsSolverEndTask;

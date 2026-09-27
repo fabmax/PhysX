@@ -1,28 +1,5 @@
-## Redistribution and use in source and binary forms, with or without
-## modification, are permitted provided that the following conditions
-## are met:
-##  * Redistributions of source code must retain the above copyright
-##    notice, this list of conditions and the following disclaimer.
-##  * Redistributions in binary form must reproduce the above copyright
-##    notice, this list of conditions and the following disclaimer in the
-##    documentation and/or other materials provided with the distribution.
-##  * Neither the name of NVIDIA CORPORATION nor the names of its
-##    contributors may be used to endorse or promote products derived
-##    from this software without specific prior written permission.
-##
-## THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-## EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-## IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-## PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-## CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-## EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-## PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-## PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-## OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-## (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-## OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-##
-## Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+## SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+## SPDX-License-Identifier: Apache-2.0
 
 OPTION(PX_COPY_EXTERNAL_DLL "Copy external dlls into SDK bin directory" OFF)
 OPTION(PX_FLOAT_POINT_PRECISE_MATH "Float point precise math" OFF)
@@ -124,7 +101,7 @@ ENDIF()
 SET(PHYSX_WINDOWS_COMPILE_DEFS "WIN32;${WIN64_FLAG};${SCALAR_MATH_FLAG};_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_WINSOCK_DEPRECATED_NO_WARNINGS;${PHYSX_AUTOBUILD};${PUBLIC_RELEASE_FLAG};${DISABLE_CUDA_DEF}"
     CACHE INTERNAL "Base PhysX preprocessor definitions")
 
-IF(CMAKE_CL_64)
+IF(CMAKE_CL_64 AND PX_BUILDPVDRUNTIME)
 	SET(PX_SUPPORT_OMNI_PVD_FLAG "PX_SUPPORT_OMNI_PVD=1")
 ELSE()
 	SET(PX_SUPPORT_OMNI_PVD_FLAG "PX_SUPPORT_OMNI_PVD=0")
@@ -152,10 +129,15 @@ IF(PX_COPY_EXTERNAL_DLL OR PUBLIC_RELEASE)
 			FILE(COPY ${PHYSX_SLN_PHYSXDEVICE_PATH}/PhysXDevice64.dll DESTINATION ${PX_EXE_OUTPUT_DIRECTORY_CHECKED})
 		ENDIF()
 
+			# Only copy FreeGLUT DLLs if they exist (packman installation)
+	IF(EXISTS "${PHYSX_SLN_FREEGLUT_PATH}/win64/freeglutd.dll")
 		FILE(COPY ${PHYSX_SLN_FREEGLUT_PATH}/win64/freeglutd.dll DESTINATION ${PX_EXE_OUTPUT_DIRECTORY_DEBUG})
+	ENDIF()
+	IF(EXISTS "${PHYSX_SLN_FREEGLUT_PATH}/win64/freeglut.dll")
 		FILE(COPY ${PHYSX_SLN_FREEGLUT_PATH}/win64/freeglut.dll DESTINATION ${PX_EXE_OUTPUT_DIRECTORY_PROFILE})
 		FILE(COPY ${PHYSX_SLN_FREEGLUT_PATH}/win64/freeglut.dll DESTINATION ${PX_EXE_OUTPUT_DIRECTORY_RELEASE})
 		FILE(COPY ${PHYSX_SLN_FREEGLUT_PATH}/win64/freeglut.dll DESTINATION ${PX_EXE_OUTPUT_DIRECTORY_CHECKED})
+	ENDIF()
 	# ELSE()
 	# 	FILE(COPY ${PHYSX_SLN_PHYSXDEVICE_PATH}/PhysXDevice.dll DESTINATION ${PX_EXE_OUTPUT_DIRECTORY_DEBUG})
 	# 	FILE(COPY ${PHYSX_SLN_PHYSXDEVICE_PATH}/PhysXDevice.dll DESTINATION ${PX_EXE_OUTPUT_DIRECTORY_PROFILE})
@@ -209,7 +191,7 @@ ELSE()
 	SET_PROPERTY(TARGET PhysXCommon PROPERTY FOLDER "PhysX SDK")
 	SET_PROPERTY(TARGET PhysXCooking PROPERTY FOLDER "PhysX SDK")
 	SET_PROPERTY(TARGET PhysXExtensions PROPERTY FOLDER "PhysX SDK")
-	SET_PROPERTY(TARGET PhysXVehicle2 PROPERTY FOLDER "PhysX SDK")
+	SET_PROPERTY(TARGET PhysXVehicle PROPERTY FOLDER "PhysX SDK")
 	SET_PROPERTY(TARGET LowLevel PROPERTY FOLDER "PhysX SDK")
 	SET_PROPERTY(TARGET LowLevelAABB PROPERTY FOLDER "PhysX SDK")
 	SET_PROPERTY(TARGET LowLevelDynamics PROPERTY FOLDER "PhysX SDK")
@@ -221,19 +203,40 @@ ELSE()
 
 
 	IF(PX_GENERATE_STATIC_LIBRARIES)
-		SET(PHYSXDISTRO_LIBS PhysXFoundation PhysX PhysXCharacterKinematic PhysXPvdSDK PhysXCommon PhysXCooking PhysXExtensions PhysXVehicle2)
+		SET(PHYSXDISTRO_LIBS PhysXFoundation PhysX PhysXCharacterKinematic PhysXPvdSDK PhysXCommon PhysXCooking PhysXExtensions PhysXVehicle)
 	ELSE()
-		SET(PHYSXDISTRO_LIBS PhysXFoundation PhysX PhysXCharacterKinematic PhysXPvdSDK PhysXCommon PhysXCooking PhysXExtensions PhysXVehicle2 PhysXTask)
+		SET(PHYSXDISTRO_LIBS PhysXFoundation PhysX PhysXCharacterKinematic PhysXPvdSDK PhysXCommon PhysXCooking PhysXExtensions PhysXVehicle PhysXTask)
 	ENDIF()
 
-	INSTALL(
-		TARGETS ${PHYSXDISTRO_LIBS}
-		EXPORT PhysXSDK
-		DESTINATION $<$<CONFIG:debug>:${PX_ROOT_LIB_DIR}/debug>$<$<CONFIG:release>:${PX_ROOT_LIB_DIR}/release>$<$<CONFIG:checked>:${PX_ROOT_LIB_DIR}/checked>$<$<CONFIG:profile>:${PX_ROOT_LIB_DIR}/profile>
-		)
+	# Only install the legacy PhysXSDK export set in standalone mode (PX_ENABLE_INSTALL not defined).
+	# The FetchContent entry point (physx/CMakeLists.txt) uses its own PhysXTargets export set.
+	# Installing both would put the same targets in two export sets, which is a CMake error.
+	IF(NOT DEFINED PX_ENABLE_INSTALL)
+		INSTALL(
+			TARGETS ${PHYSXDISTRO_LIBS}
+			EXPORT PhysXSDK
+			DESTINATION $<$<CONFIG:debug>:${PX_ROOT_LIB_DIR}/debug>$<$<CONFIG:release>:${PX_ROOT_LIB_DIR}/release>$<$<CONFIG:checked>:${PX_ROOT_LIB_DIR}/checked>$<$<CONFIG:profile>:${PX_ROOT_LIB_DIR}/profile>
+			)
+	ENDIF()
 
 ENDIF()
 
 IF(PX_GENERATE_STATIC_LIBRARIES)
 	STRING(APPEND HEADER_CONTENT "#define PX_PHYSX_STATIC_LIB\n")
+ENDIF()
+
+# Source-distro fallback for non-GPU Windows presets (e.g. windows-crosscompile,
+# used by --distro_name=public on Linux hosts). When PX_GENERATE_GPU_PROJECTS
+# is OFF, cmakegpu/ is never add_subdirectory'd, so its source_distro_list.txt is
+# never written and the Windows GPU resource files (PhysXGpu.rc + resource.h)
+# fall through. Enumerate them here so the public source distro is identical
+# regardless of host OS. Pulls in the manifest used by the GPU build path
+# (cmakegpu/windows/PhysXGpu.cmake) so there is a single source of truth. No
+# CUDA toolchain is required because we only set file paths.
+IF(PX_GENERATE_SOURCE_DISTRO AND NOT PX_GENERATE_GPU_PROJECTS AND NOT PX_GENERATE_GPU_PROJECTS_ONLY)
+	IF(NOT DEFINED PHYSX_SOURCE_DIR)
+		SET(PHYSX_SOURCE_DIR ${PHYSX_ROOT_DIR}/source)
+	ENDIF()
+	INCLUDE(${PHYSX_ROOT_DIR}/source/compiler/cmakegpu/windows/PhysXGpuPlatformFiles.cmake)
+	LIST(APPEND SOURCE_DISTRO_FILE_LIST ${PHYSXGPU_RESOURCE})
 ENDIF()

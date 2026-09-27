@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -145,7 +122,7 @@ struct RayRTreeCallback : RTree::CallbackRaycast, RTree::Callback
 		}
 	}
 
-	virtual PX_FORCE_INLINE bool processResults(PxU32 NumTouched, PxU32* Touched, PxF32& newMaxT)
+	virtual PX_FORCE_INLINE bool processResults(PxU32 NumTouched, PxU32* Touched, PxF32& newMaxT) PX_OVERRIDE
 	{
 		PX_ASSERT(NumTouched > 0);
 		// Loop through touched leaves
@@ -232,7 +209,7 @@ struct RayRTreeCallback : RTree::CallbackRaycast, RTree::Callback
 		return true;
 	}
 
-	virtual bool processResults(PxU32 numTouched, PxU32* touched)
+	virtual bool processResults(PxU32 numTouched, PxU32* touched) PX_OVERRIDE
 	{
 		PxF32 dummy;
 		return RayRTreeCallback::processResults(numTouched, touched, dummy);
@@ -350,7 +327,7 @@ struct RayMeshColliderCallback  : public MeshHitCallback<PxGeomRaycastHit>
 
 	// return false for early out
 	virtual bool processHit(
-		const PxGeomRaycastHit& lHit, const PxVec3& lp0, const PxVec3& lp1, const PxVec3& lp2, PxReal&, const PxU32*)
+		const PxGeomRaycastHit& lHit, const PxVec3& lp0, const PxVec3& lp1, const PxVec3& lp2, PxReal&, const PxU32*) PX_OVERRIDE
 	{
 		if(mHitNum == mMaxHits)
 			return false;
@@ -541,7 +518,7 @@ struct IntersectSphereVsMeshCallback : IntersectShapeVsMeshCallback
 	PxVec3					mLocalCenter;	// PT: sphere center in local/mesh space
 
 	virtual PxAgain processHit( // all reported coords are in mesh local space including hit.position
-		const PxGeomRaycastHit& aHit, const PxVec3& av0, const PxVec3& av1, const PxVec3& av2, PxReal&, const PxU32*)
+		const PxGeomRaycastHit& aHit, const PxVec3& av0, const PxVec3& av1, const PxVec3& av2, PxReal&, const PxU32*) PX_OVERRIDE
 	{
 		const Vec3V v0 = V3LoadU(tScaleIsIdentity ? av0 : mVertexToShapeSkew * av0);
 		const Vec3V v1 = V3LoadU(tScaleIsIdentity ? av1 : mVertexToShapeSkew * (mFlipNormal ? av2 : av1));
@@ -565,7 +542,7 @@ struct IntersectCapsuleVsMeshCallback : IntersectShapeVsMeshCallback
 	CapsuleTriangleOverlapData	mParams;
 
 	virtual PxAgain processHit( // all reported coords are in mesh local space including hit.position
-		const PxGeomRaycastHit& aHit, const PxVec3& av0, const PxVec3& av1, const PxVec3& av2, PxReal&, const PxU32*)
+		const PxGeomRaycastHit& aHit, const PxVec3& av0, const PxVec3& av1, const PxVec3& av2, PxReal&, const PxU32*) PX_OVERRIDE
 	{
 		bool hit;
 		if(tScaleIsIdentity)
@@ -595,7 +572,7 @@ struct IntersectBoxVsMeshCallback : IntersectShapeVsMeshCallback
 	PxVec3p	mBoxExtents, mBoxCenter;
 
 	virtual PxAgain processHit( // all reported coords are in mesh local space including hit.position
-		const PxGeomRaycastHit& aHit, const PxVec3& av0, const PxVec3& av1, const PxVec3& av2, PxReal&, const PxU32*)
+		const PxGeomRaycastHit& aHit, const PxVec3& av0, const PxVec3& av1, const PxVec3& av2, PxReal&, const PxU32*) PX_OVERRIDE
 	{
 		PxVec3p v0, v1, v2;
 		if(tScaleIsIdentity)

@@ -1,28 +1,5 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "GuTetrahedronMeshUtils.h"
 #include "GuDistancePointTetrahedron.h"
@@ -99,36 +76,6 @@ void convertDeformableVolumeCollisionToSimMeshTets(const PxTetrahedronMesh& simM
 
 	PX_ASSERT(outTetId != 0xFFFFFFFF);
 }
-
-PxVec4 addAxisToSimMeshBarycentric(const PxTetrahedronMesh& simMesh, const PxU32 simTetId, const PxVec4& simBary, const PxVec3& axis)
-{
-	const PxVec3* simMeshVerts = simMesh.getVertices();
-	PxVec3 tetVerts[4];
-	if(simMesh.getTetrahedronMeshFlags() & PxTetrahedronMeshFlag::e16_BIT_INDICES)
-	{
-		const PxU16* indices = reinterpret_cast<const PxU16*>(simMesh.getTetrahedrons());
-		tetVerts[0] = simMeshVerts[indices[simTetId*4 + 0]];
-		tetVerts[1] = simMeshVerts[indices[simTetId*4 + 1]];
-		tetVerts[2] = simMeshVerts[indices[simTetId*4 + 2]];
-		tetVerts[3] = simMeshVerts[indices[simTetId*4 + 3]];
-	}
-	else
-	{
-		const PxU32* indices = reinterpret_cast<const PxU32*>(simMesh.getTetrahedrons());
-		tetVerts[0] = simMeshVerts[indices[simTetId*4 + 0]];
-		tetVerts[1] = simMeshVerts[indices[simTetId*4 + 1]];
-		tetVerts[2] = simMeshVerts[indices[simTetId*4 + 2]];
-		tetVerts[3] = simMeshVerts[indices[simTetId*4 + 3]];
-	}
-
-	const PxVec3 simPoint = tetVerts[0]*simBary.x + tetVerts[1]*simBary.y + tetVerts[2]*simBary.z + tetVerts[3]*simBary.w;
-	const PxVec3 offsetPoint = simPoint + axis;
-
-	PxVec4 offsetBary;
-	PxComputeBarycentric(tetVerts[0], tetVerts[1], tetVerts[2], tetVerts[3], offsetPoint, offsetBary);
-	return offsetBary;
-}
-
 
 }
 }

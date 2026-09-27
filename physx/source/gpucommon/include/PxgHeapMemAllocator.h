@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved. 
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef	PXG_HEAP_MEM_ALLOCATOR_H
 #define	PXG_HEAP_MEM_ALLOCATOR_H
@@ -35,7 +12,9 @@
 #include "foundation/PxArray.h"
 #include "foundation/PxPool.h"
 #include "foundation/PxMutex.h"
+#include "CmVirtualAllocatorCallback.h"
 #include "PxsHeapMemoryAllocator.h"
+#include "PxgAllocatorDesc.h"
 #include "common/PxPhysXCommonConfig.h"
 
 #if PX_DEBUG
@@ -44,7 +23,8 @@
 
 namespace physx
 {
-	class PxsMemoryManager;
+	class PxgMemoryManager;
+	class PxgCudaAllocatorCallbackBase;
 
 	class BlockHeader
 	{
@@ -107,21 +87,21 @@ namespace physx
 		size_t size;
 	};
 
-	class PxgHeapMemoryAllocator : public PxsHeapMemoryAllocator
+	class PxgHeapMemoryAllocator : public Cm::VirtualAllocatorCallback, public PxUserAllocated
 	{
 	public:
 
-		PxgHeapMemoryAllocator(const PxU32 byteSize, PxVirtualAllocatorCallback* allocator);
+		PxgHeapMemoryAllocator(const PxU32 byteSize, PxgCudaAllocatorCallbackBase& allocator);
 		~PxgHeapMemoryAllocator();
 	
 		void initializeBlocks(const PxU32 rootIndex);
 		//return a free block index
 		PxU32 getNextFreeBlock(const PxU32 blockIndex, const PxU32 allocationSize, const char* file, const int line);
 	
-		// PxVirtualAllocatorCallback
+		// Cm::VirtualAllocatorCallback
 		virtual	void* allocate(const size_t byteSize, const int group, const char* file, const int line)	PX_OVERRIDE;
 		virtual	void deallocate(void* ptr)																	PX_OVERRIDE;
-		//~PxVirtualAllocatorCallback
+		//~Cm::VirtualAllocatorCallback
 
 		void deallocateDeferred(void* ptr);
 
@@ -130,15 +110,16 @@ namespace physx
 		PxU64 getTotalSize();
 		PxsHeapStats& getHeapStats() { return mHeapStats; }
 
+		//Used for memcheck support
 #if PX_DEBUG || PX_STOMP_ALLOCATED_MEMORY
-		PxVirtualAllocatorCallback* getAllocator() { return mAllocator; } //Used for memcheck support
+		PxgCudaAllocatorCallbackBase* getAllocator() { return mAllocator; }
 #endif
 
 	private:
 
 		PxHashMap<void*, AllocationValue> mHashMap;//this is used to look up where the block is
 		PxArray<Block> mBlocks; //this is used to store fix size slots 
-		PxVirtualAllocatorCallback* mAllocator;
+		PxgCudaAllocatorCallbackBase* mAllocator;
 		PxArray<void*> mRoots;
 		PxArray<ExceptionalAlloc> mExceptionalAllocs;
 		PxArray<void*> deferredDeallocs;
@@ -154,14 +135,13 @@ namespace physx
 #if PX_DEBUG
 		MemTracker mMemTracker;
 #endif
-
 		PX_NOCOPY(PxgHeapMemoryAllocator)
 	};
 
 	class PxgHeapMemoryAllocatorManager : public PxsHeapMemoryAllocatorManager
 	{ 
 	public:
-		PxgHeapMemoryAllocatorManager(PxU32 heapCapacity, PxsMemoryManager* memoryManager);
+		PxgHeapMemoryAllocatorManager(PxU32 heapCapacity, PxgMemoryManager& memoryManager);
 
 		virtual ~PxgHeapMemoryAllocatorManager();
 
@@ -171,8 +151,17 @@ namespace physx
 		virtual void			flushDeferredDeallocs()			PX_OVERRIDE PX_FINAL;
 		//~PxsHeapMemoryAllocatorManager
 
-		PxgHeapMemoryAllocator*	mDeviceMemoryAllocators;
+		PxgHeapMemoryAllocator*	mDeviceMemoryAllocator;
 	};
+
+	// Create helper to pass around allocators from PxgHeapMemoryAllocatorManager
+	PX_INLINE PxgAllocatorDesc PxgCreateAllocatorDesc(PxgHeapMemoryAllocatorManager& heapMemoryAllocatorManager)
+	{
+		return PxgAllocatorDesc(*heapMemoryAllocatorManager.mDeviceMemoryAllocator,
+								*heapMemoryAllocatorManager.mPinnedHostMemoryAllocator,
+								*heapMemoryAllocatorManager.mPinnedHostMappedMemoryAllocator);
+	}
+
 }
 
 #endif

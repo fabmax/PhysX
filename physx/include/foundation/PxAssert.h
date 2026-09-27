@@ -1,36 +1,17 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
-// Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
+// Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef PX_ASSERT_H
 #define PX_ASSERT_H
 
 #include <stdint.h>
 #include "foundation/PxFoundationConfig.h"
+
+#if PX_CUDA_COMPILER
+#include <assert.h>
+#endif
 
 #if !PX_DOXYGEN
 namespace physx
@@ -54,6 +35,17 @@ PX_FOUNDATION_API void PxAssert(const char* exp, const char* file, int line, boo
 #else
 	#define PX_CODE_ANALYSIS_ASSUME(exp)
 #endif
+#if PX_CUDA_COMPILER
+	#define PX_ASSERT(exp)																			\
+		{																							\
+			assert(exp);																			\
+		}
+	#define PX_ALWAYS_ASSERT_MESSAGE PX_ASSERT
+	#define PX_ASSERT_WITH_MESSAGE(exp, message)													\
+		{																							\
+			assert(exp);																			\
+		}
+#else
 	#define PX_ASSERT(exp)																			\
 		{																							\
 			static bool _ignore = false;															\
@@ -72,6 +64,7 @@ PX_FOUNDATION_API void PxAssert(const char* exp, const char* file, int line, boo
 			((void)((!!(exp)) || (!_ignore && (physx::PxAssert(message, PX_FL, _ignore), false))));	\
 			PX_CODE_ANALYSIS_ASSUME(exp);															\
 		}
+#endif
 #endif // !PX_ENABLE_ASSERTS
 
 #define PX_ALWAYS_ASSERT() PX_ASSERT(0)

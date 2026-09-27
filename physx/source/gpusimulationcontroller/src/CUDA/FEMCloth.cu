@@ -1,35 +1,13 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "FEMClothUtil.cuh"
 #include "PxgNpKernelIndices.h"
 #include "utils.cuh"
 #include "atomic.cuh"
+#include "deformableUtils.cuh"
 
 using namespace physx;
 
@@ -89,8 +67,11 @@ void cloth_preIntegrateLaunch(
 				*EEContactCounts = 0;
 			}
 
-			// For TGS, updateContactPairs is updated in "cloth_stepLaunch"
-			*updateContactPairs = static_cast<PxU8>(!isTGS);
+			// Enable the pre-broadphase bound refit (cloth_refitBoundLaunch, gated on this flag) every
+			// frame for both solvers: the broadphase needs a current cloth bound to pair the cloth
+			// against other actors (rigids, particles). cloth_stepLaunch separately drives the
+			// per-substep cloth-cloth contact-pair cadence for TGS.
+			*updateContactPairs = 1;
 		}
 	}
 
@@ -124,10 +105,10 @@ void cloth_preIntegrateLaunch(
 		{
 			// Determine maximum allowed displacement for a vertex - PGS:
 			// - If maxVel == MAX_REAL: no limit on displacement.
-			// - If maxVel < 0.0f: the maximum displacement is clamped to 0.8 * restDistance.
+			// - If maxVel < 0.0f: the maximum displacement is clamped to 0.8 * the rest offset.
 			// - Otherwise: maximum displacement is based on the input maxVelocity and time step.
 			const PxReal maxVel = (femCloth.mMaxLinearVelocity == PX_MAX_REAL) ? PX_MAX_REAL
-								  : (femCloth.mMaxLinearVelocity < 0.0f)	   ? (0.8f * femCloth.mRestDistance / dt)
+								  : (femCloth.mMaxLinearVelocity < 0.0f)	   ? (0.8f * femCloth.mRestOffset / dt)
 																			   : femCloth.mMaxLinearVelocity;
 
 			const PxReal velMagSq = vel.magnitudeSquared();
@@ -172,7 +153,9 @@ void cloth_preIntegrateLaunch(
 	}
 }
 
-extern "C" __global__
+// __launch_bounds__ required: without it, debug (-G) builds use 79 registers/thread which at
+// 1024 threads/block exceeds the SM register file on Blackwell (sm_100), causing launch failure.
+extern "C" __global__ __launch_bounds__(PxgFEMClothKernelBlockDim::CLOTH_STEP, 1)
 void cloth_stepLaunch(
 	PxgFEMCloth* PX_RESTRICT femCloths, 
 	PxU32* activeId, 
@@ -257,7 +240,7 @@ void cloth_stepLaunch(
 
 		// Determine maximum allowed displacement for a vertex - TGS:
 		// - If maxVel == PX_MAX_REAL: no limit on displacement.
-		// - If maxVel < 0.0f: clamp to 80% of rest distance.
+		// - If maxVel < 0.0f: clamp to 80% of the rest offset.
 		// - Otherwise: maximum displacement is based on the input maxVelocity and time step.
 
 		if(femCloth.mMaxLinearVelocity < PX_MAX_REAL)
@@ -265,7 +248,7 @@ void cloth_stepLaunch(
 			const PxReal invDt = 1.0f / dt;
 			const PxVec3 prevPosInRestOffset = PxLoad3(prevPositionsInRestOffset[globalThreadIndex]);
 
-			const PxReal maxDistance = (femCloth.mMaxLinearVelocity < 0.0f) ? 0.8f * femCloth.mRestDistance : femCloth.mMaxLinearVelocity * dt;
+			const PxReal maxDistance = (femCloth.mMaxLinearVelocity < 0.0f) ? 0.8f * femCloth.mRestOffset : femCloth.mMaxLinearVelocity * dt;
 			const PxReal maxDistanceSq = maxDistance * maxDistance;
 
 			const PxVec3 trajectory = pos - prevPosInRestOffset;
@@ -337,8 +320,8 @@ void cloth_stepLaunch(
 extern "C" __global__ __launch_bounds__(1024, 1)
 void cloth_refitBoundLaunch(
 	PxgFEMCloth* gFemClothes,
-	const PxU32* activeFemClothes,
-	const PxU32 nbActiveFemClothes,
+	const PxU32* activeFemCloths,
+	const PxU32 nbActiveFemCloths,
 	PxReal* contactDists,
 	PxReal* speculativeCCDContactOffset,
 	PxBounds3* boundArray,
@@ -357,7 +340,7 @@ void cloth_refitBoundLaunch(
 
 	femClothRefitMidphaseScratch* s_warpScratch = reinterpret_cast<femClothRefitMidphaseScratch*>(scratchMem);
 
-	const PxU32 femClothId = activeFemClothes[blockIdx.x];
+	const PxU32 femClothId = activeFemCloths[blockIdx.x];
 
 	PxgFEMCloth& gFemCloth = gFemClothes[femClothId];
 
@@ -400,7 +383,7 @@ void cloth_refitBoundLaunch(
 	// each warp to deal with one node
 	for (PxU32 i = maxDepth; i > 0; i--)
 	{
-		const  Gu::BV32DataDepthInfo& info = depthInfo[i - 1];
+		const Gu::BV32DataDepthInfo& info = depthInfo[i - 1];
 
 		const PxU32 offset = info.offset;
 		const PxU32 count = info.count;
@@ -518,7 +501,9 @@ void cloth_refitBoundLaunch(
 	}
 }
 
-extern "C" __global__ 
+// __launch_bounds__ required: without it, debug (-G) builds use 87 registers/thread which at
+// 1024 threads/block exceeds the SM register file on Blackwell (sm_100), causing launch failure.
+extern "C" __global__ __launch_bounds__(PxgFEMClothKernelBlockDim::CLOTH_STEP, 1)
 void cloth_averageTrianglePairVertsLaunch(
 	PxgFEMCloth* gFEMCloths, 
 	const PxU32* activeFEMCloths,	
@@ -824,8 +809,8 @@ static __device__ inline void updateTrianglePairs(PxgFEMCloth& shFEMCloth, const
 	else
 		curTriPairPositions[remapIndex3].w = 0.0f;
 
-	float4 vertexReferenceCounts;
-	float* vertexReferenceCountPtr = reinterpret_cast<float*>(&vertexReferenceCounts.x);
+	float4 vertexRefCounts;
+	float* vertexRefCountPtr = reinterpret_cast<float*>(&vertexRefCounts.x);
 
 #pragma unroll
 	for (PxU32 i = 0; i < 4; ++i)
@@ -833,16 +818,16 @@ static __device__ inline void updateTrianglePairs(PxgFEMCloth& shFEMCloth, const
 		const PxU32 vi = vertexIndexPtr[i];
 		const PxU32 triPairStartInd = vi == 0 ? 0 : triPairAccumulatedCopies[vi - 1];
 		const PxU32 triPairEndInd = triPairAccumulatedCopies[vi];
-		vertexReferenceCountPtr[i] = static_cast<float>(triPairEndInd - triPairStartInd);
+		vertexRefCountPtr[i] = static_cast<float>(triPairEndInd - triPairStartInd);
 	}
 
 	if (isShared)
 	{
-		clothSharedEnergySolvePerTrianglePair(shFEMCloth, x0, x1, x2, x3, vertexReferenceCounts, clothMaterials, dt, workIndex, isTGS);
+		clothSharedEnergySolvePerTrianglePair(shFEMCloth, x0, x1, x2, x3, vertexRefCounts, clothMaterials, dt, workIndex, isTGS);
 	}
 	else
 	{
-		bendingEnergySolvePerTrianglePair(shFEMCloth, x0, x1, x2, x3, vertexReferenceCounts, dt, workIndex, false, isTGS);
+		bendingEnergySolvePerTrianglePair(shFEMCloth, x0, x1, x2, x3, vertexRefCounts, dt, workIndex, false, isTGS);
 	}
 
 	PxU32 writeIndex0 = writeIndices[workIndex];
@@ -1224,11 +1209,13 @@ void cloth_solveTrianglePairEnergyClusterLaunch(
 	}
 }
 
-extern "C" __global__ 
+// __launch_bounds__ required: without it, debug (-G) builds use 72 registers/thread which at
+// 1024 threads/block exceeds the SM register file on Blackwell (sm_100), causing launch failure.
+extern "C" __global__ __launch_bounds__(PxgFEMClothKernelBlockDim::CLOTH_STEP, 1)
 void cloth_finalizeVelocitiesLaunch(
 	PxgFEMCloth* PX_RESTRICT femCloths,
 	const PxU32* activeId,
-	const PxReal invTotalDt,
+	const PxReal invDt,
 	const PxReal dt,
 	const bool alwaysRunVelocityAveraging)
 {
@@ -1237,58 +1224,17 @@ void cloth_finalizeVelocitiesLaunch(
 	PxgFEMCloth& femCloth = femCloths[id];
 
 	const PxU32 nbVerts = femCloth.mNbVerts;
-
-	float4* PX_RESTRICT vels = femCloth.mVelocity_InvMass;
-	float4* PX_RESTRICT posDelta = femCloth.mAccumulatedDeltaPos;
-	float4* PX_RESTRICT positions = femCloth.mPosition_InvMass;
-	const PxReal sleepDamping = 1.f - PxMin(1.f, femCloth.mSettlingDamping * dt);
-
 	const PxU32 globalThreadIndex = threadIdx.x + blockDim.x * blockIdx.x;
 
 	bool awake = false;
 
 	if(globalThreadIndex < nbVerts)
 	{
-		const PxReal settleTolerance = femCloth.mSettlingThreshold * dt;
-		const PxReal tolerance = femCloth.mSleepThreshold * dt;
-		const PxReal sleepDamping = 1.f - PxMin(1.f, femCloth.mSettlingDamping * dt);
-
-		const float4 delta = posDelta[globalThreadIndex];
-		PxVec3 tDelta = PxLoad3(delta);
-		PxVec3 deltaVel = tDelta / dt;
-		float4 pos = positions[globalThreadIndex];
-
-		if(pos.w != 0.0f) // skip kinematic and  infinite mass particles
-		{
-			PxReal velocityScaling = 1.0f;
-
-			const PxReal magSq = tDelta.magnitudeSquared();
-			if(magSq < settleTolerance * settleTolerance)
-			{
-				awake = magSq >= tolerance * tolerance;
-
-				velocityScaling = sleepDamping;
-			}
-			else
-			{
-				awake = true;
-			}
-
-			if(alwaysRunVelocityAveraging || velocityScaling != 1.0f)
-			{
-				float4 vel = vels[globalThreadIndex];
-				PxVec3 tVel = PxLoad3(vel);
-
-				PxReal deltaVelMagSqr = deltaVel.magnitudeSquared();
-				PxReal velMagSqr = tVel.magnitudeSquared();
-				if(alwaysRunVelocityAveraging && deltaVelMagSqr < tVel.magnitudeSquared())
-				{
-					tVel = tVel * PxSqrt(deltaVelMagSqr / velMagSqr);
-				}
-
-				vels[globalThreadIndex] = make_float4(velocityScaling * tVel.x, velocityScaling * tVel.y, velocityScaling * tVel.z, vel.w);
-			}
-		}
+		float4 vel = femCloth.mVelocity_InvMass[globalThreadIndex];
+		awake = finalizeVertexVelocity(femCloth.mPosition_InvMass[globalThreadIndex], vel, femCloth.mAccumulatedDeltaPos[globalThreadIndex],
+			femCloth.mSettlingThreshold, femCloth.mSleepThreshold, femCloth.mSettlingDamping,
+			dt, invDt, alwaysRunVelocityAveraging, MagnitudeClampVelocityAveraging());
+		femCloth.mVelocity_InvMass[globalThreadIndex] = vel;
 	}
 
 	awake = __any_sync(FULL_MASK, awake);
