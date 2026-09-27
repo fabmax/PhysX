@@ -8291,20 +8291,20 @@ JNIEXPORT jint JNICALL Java_physx_physics_PxArticulationDrive__1_1sizeOf(JNIEnv*
 JNIEXPORT jlong JNICALL Java_physx_physics_PxArticulationDrive_00024Raw_PxArticulationDrive_1placed__J(JNIEnv*, jclass, jlong _placement_address) {
     return (jlong) new((void*)_placement_address) physx::PxArticulationDrive();
 }
-JNIEXPORT jlong JNICALL Java_physx_physics_PxArticulationDrive_00024Raw_PxArticulationDrive_1placed__JFFFI(JNIEnv*, jclass, jlong _placement_address, jfloat stiffness, jfloat damping, jfloat maxForce, jint driveType) {
-    return (jlong) new((void*)_placement_address) physx::PxArticulationDrive(stiffness, damping, maxForce, (PxArticulationDriveTypeEnum) driveType);
-}
 JNIEXPORT jlong JNICALL Java_physx_physics_PxArticulationDrive_00024Raw_PxArticulationDrive_1placed__JFFJI(JNIEnv*, jclass, jlong _placement_address, jfloat stiffness, jfloat damping, jlong envelope, jint driveType) {
     return (jlong) new((void*)_placement_address) physx::PxArticulationDrive(stiffness, damping, *((physx::PxPerformanceEnvelope*) envelope), (PxArticulationDriveTypeEnum) driveType);
+}
+JNIEXPORT jlong JNICALL Java_physx_physics_PxArticulationDrive_00024Raw_PxArticulationDrive_1placed__JFFFI(JNIEnv*, jclass, jlong _placement_address, jfloat stiffness, jfloat damping, jfloat maxForce, jint driveType) {
+    return (jlong) new((void*)_placement_address) physx::PxArticulationDrive(stiffness, damping, maxForce, (PxArticulationDriveTypeEnum) driveType);
 }
 JNIEXPORT jlong JNICALL Java_physx_physics_PxArticulationDrive_00024Raw_PxArticulationDrive__(JNIEnv*, jclass) {
     return (jlong) new physx::PxArticulationDrive();
 }
-JNIEXPORT jlong JNICALL Java_physx_physics_PxArticulationDrive_00024Raw_PxArticulationDrive__FFFI(JNIEnv*, jclass, jfloat stiffness, jfloat damping, jfloat maxForce, jint driveType) {
-    return (jlong) new physx::PxArticulationDrive(stiffness, damping, maxForce, (PxArticulationDriveTypeEnum) driveType);
-}
 JNIEXPORT jlong JNICALL Java_physx_physics_PxArticulationDrive_00024Raw_PxArticulationDrive__FFJI(JNIEnv*, jclass, jfloat stiffness, jfloat damping, jlong envelope, jint driveType) {
     return (jlong) new physx::PxArticulationDrive(stiffness, damping, *((physx::PxPerformanceEnvelope*) envelope), (PxArticulationDriveTypeEnum) driveType);
+}
+JNIEXPORT jlong JNICALL Java_physx_physics_PxArticulationDrive_00024Raw_PxArticulationDrive__FFFI(JNIEnv*, jclass, jfloat stiffness, jfloat damping, jfloat maxForce, jint driveType) {
+    return (jlong) new physx::PxArticulationDrive(stiffness, damping, maxForce, (PxArticulationDriveTypeEnum) driveType);
 }
 JNIEXPORT void JNICALL Java_physx_physics_PxArticulationDrive_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
     delete (physx::PxArticulationDrive*) _address;

@@ -503,7 +503,6 @@ interface PxArticulationCacheFlags {
 [Prefix="physx::"]
 interface PxArticulationDrive {
     void PxArticulationDrive();
-    void PxArticulationDrive(float stiffness, float damping, float maxForce, PxArticulationDriveTypeEnum driveType);
     void PxArticulationDrive(float stiffness, float damping, [Const, Ref] PxPerformanceEnvelope envelope, PxArticulationDriveTypeEnum driveType);
     attribute float stiffness;
     attribute float damping;
