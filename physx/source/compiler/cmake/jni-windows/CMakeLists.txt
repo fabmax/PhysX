@@ -208,7 +208,7 @@ ELSE()
 	SET_PROPERTY(TARGET PhysXCommon PROPERTY FOLDER "PhysX SDK")
 	SET_PROPERTY(TARGET PhysXCooking PROPERTY FOLDER "PhysX SDK")
 	SET_PROPERTY(TARGET PhysXExtensions PROPERTY FOLDER "PhysX SDK")
-	SET_PROPERTY(TARGET PhysXVehicle2 PROPERTY FOLDER "PhysX SDK")
+	SET_PROPERTY(TARGET PhysXVehicle PROPERTY FOLDER "PhysX SDK")
 	SET_PROPERTY(TARGET LowLevel PROPERTY FOLDER "PhysX SDK")
 	SET_PROPERTY(TARGET LowLevelAABB PROPERTY FOLDER "PhysX SDK")
 	SET_PROPERTY(TARGET LowLevelDynamics PROPERTY FOLDER "PhysX SDK")
@@ -220,9 +220,9 @@ ELSE()
 
 
 	IF(PX_GENERATE_STATIC_LIBRARIES)
-		SET(PHYSXDISTRO_LIBS PhysXFoundation PhysX PhysXCharacterKinematic PhysXPvdSDK PhysXCommon PhysXCooking PhysXExtensions PhysXVehicle2)
+		SET(PHYSXDISTRO_LIBS PhysXFoundation PhysX PhysXCharacterKinematic PhysXPvdSDK PhysXCommon PhysXCooking PhysXExtensions PhysXVehicle)
 	ELSE()
-		SET(PHYSXDISTRO_LIBS PhysXFoundation PhysX PhysXCharacterKinematic PhysXPvdSDK PhysXCommon PhysXCooking PhysXExtensions PhysXVehicle2 PhysXTask)
+		SET(PHYSXDISTRO_LIBS PhysXFoundation PhysX PhysXCharacterKinematic PhysXPvdSDK PhysXCommon PhysXCooking PhysXExtensions PhysXVehicle PhysXTask)
 	ENDIF()
 
 	INSTALL(

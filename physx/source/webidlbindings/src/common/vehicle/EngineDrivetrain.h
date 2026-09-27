@@ -28,14 +28,13 @@
 
 #pragma once
 
-#include "vehicle2/PxVehicleAPI.h"
+#include "vehicle/PxVehicleAPI.h"
 #include "PhysXIntegration.h"
 
-namespace snippetvehicle2
+namespace snippetvehicle
 {
 
 using namespace physx;
-using namespace physx::vehicle2;
 
 struct EngineDrivetrainParams
 {
@@ -332,6 +331,6 @@ public:
 	Enum differentialType;
 };
 
-}//namespace snippetvehicle2
+}//namespace snippetvehicle
 
-typedef snippetvehicle2::EngineDriveVehicle::Enum EngineDriveVehicleEnum;
+typedef snippetvehicle::EngineDriveVehicle::Enum EngineDriveVehicleEnum;

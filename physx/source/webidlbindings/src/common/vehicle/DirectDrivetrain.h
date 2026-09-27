@@ -28,14 +28,13 @@
 
 #pragma once
 
-#include "vehicle2/PxVehicleAPI.h"
+#include "vehicle/PxVehicleAPI.h"
 #include "PhysXIntegration.h"
 
-namespace snippetvehicle2
+namespace snippetvehicle
 {
 
 using namespace physx;
-using namespace physx::vehicle2;
 
 struct DirectDrivetrainParams
 {
@@ -144,4 +143,4 @@ public:
 	PxVehicleDirectDriveTransmissionCommandState transmissionCommandState;
 };
 
-}//namespace snippetvehicle2
+}//namespace snippetvehicle

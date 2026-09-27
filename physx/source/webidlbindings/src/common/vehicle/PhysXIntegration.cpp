@@ -28,7 +28,7 @@
 
 #include "PhysXIntegration.h"
 
-namespace snippetvehicle2
+namespace snippetvehicle
 {
 
 void PhysXIntegrationParams::create
@@ -130,4 +130,4 @@ void PhysXActorVehicle::destroyState()
 	BaseVehicle::destroyState();
 }
 
-}//namespace snippetvehicle2
+}//namespace snippetvehicle

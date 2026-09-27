@@ -5168,9 +5168,6 @@ JNIEXPORT jint JNICALL Java_physx_extensions_PxD6AngularDriveConfigEnum__1geteSW
 JNIEXPORT jint JNICALL Java_physx_extensions_PxD6AngularDriveConfigEnum__1geteSLERP(JNIEnv*, jclass) {
     return PxD6AngularDriveConfigEnum::eSLERP;
 }
-JNIEXPORT jint JNICALL Java_physx_extensions_PxD6AngularDriveConfigEnum__1geteLEGACY(JNIEnv*, jclass) {
-    return PxD6AngularDriveConfigEnum::eLEGACY;
-}
 
 // PxD6AxisEnum
 JNIEXPORT jint JNICALL Java_physx_extensions_PxD6AxisEnum__1geteX(JNIEnv*, jclass) {
@@ -5201,9 +5198,6 @@ JNIEXPORT jint JNICALL Java_physx_extensions_PxD6DriveEnum__1geteY(JNIEnv*, jcla
 }
 JNIEXPORT jint JNICALL Java_physx_extensions_PxD6DriveEnum__1geteZ(JNIEnv*, jclass) {
     return PxD6DriveEnum::eZ;
-}
-JNIEXPORT jint JNICALL Java_physx_extensions_PxD6DriveEnum__1geteSWING(JNIEnv*, jclass) {
-    return PxD6DriveEnum::eSWING;
 }
 JNIEXPORT jint JNICALL Java_physx_extensions_PxD6DriveEnum__1geteTWIST(JNIEnv*, jclass) {
     return PxD6DriveEnum::eTWIST;
@@ -8740,17 +8734,9 @@ JNIEXPORT void JNICALL Java_physx_physics_PxArticulationReducedCoordinate_00024R
     physx::PxArticulationReducedCoordinate* self = (physx::PxArticulationReducedCoordinate*) _address;
     self->commonInit();
 }
-JNIEXPORT void JNICALL Java_physx_physics_PxArticulationReducedCoordinate_00024Raw_computeGeneralizedGravityForce(JNIEnv*, jclass, jlong _address, jlong cache) {
-    physx::PxArticulationReducedCoordinate* self = (physx::PxArticulationReducedCoordinate*) _address;
-    self->computeGeneralizedGravityForce(*((physx::PxArticulationCache*) cache));
-}
 JNIEXPORT void JNICALL Java_physx_physics_PxArticulationReducedCoordinate_00024Raw_computeGravityCompensation(JNIEnv*, jclass, jlong _address, jlong cache) {
     physx::PxArticulationReducedCoordinate* self = (physx::PxArticulationReducedCoordinate*) _address;
     self->computeGravityCompensation(*((physx::PxArticulationCache*) cache));
-}
-JNIEXPORT void JNICALL Java_physx_physics_PxArticulationReducedCoordinate_00024Raw_computeCoriolisAndCentrifugalForce(JNIEnv*, jclass, jlong _address, jlong cache) {
-    physx::PxArticulationReducedCoordinate* self = (physx::PxArticulationReducedCoordinate*) _address;
-    self->computeCoriolisAndCentrifugalForce(*((physx::PxArticulationCache*) cache));
 }
 JNIEXPORT void JNICALL Java_physx_physics_PxArticulationReducedCoordinate_00024Raw_computeCoriolisCompensation(JNIEnv*, jclass, jlong _address, jlong cache) {
     physx::PxArticulationReducedCoordinate* self = (physx::PxArticulationReducedCoordinate*) _address;
@@ -8771,10 +8757,6 @@ JNIEXPORT void JNICALL Java_physx_physics_PxArticulationReducedCoordinate_00024R
 JNIEXPORT void JNICALL Java_physx_physics_PxArticulationReducedCoordinate_00024Raw_computeCoefficientMatrix(JNIEnv*, jclass, jlong _address, jlong cache) {
     physx::PxArticulationReducedCoordinate* self = (physx::PxArticulationReducedCoordinate*) _address;
     self->computeCoefficientMatrix(*((physx::PxArticulationCache*) cache));
-}
-JNIEXPORT void JNICALL Java_physx_physics_PxArticulationReducedCoordinate_00024Raw_computeGeneralizedMassMatrix(JNIEnv*, jclass, jlong _address, jlong cache) {
-    physx::PxArticulationReducedCoordinate* self = (physx::PxArticulationReducedCoordinate*) _address;
-    self->computeGeneralizedMassMatrix(*((physx::PxArticulationCache*) cache));
 }
 JNIEXPORT void JNICALL Java_physx_physics_PxArticulationReducedCoordinate_00024Raw_computeMassMatrix(JNIEnv*, jclass, jlong _address, jlong cache) {
     physx::PxArticulationReducedCoordinate* self = (physx::PxArticulationReducedCoordinate*) _address;
@@ -11882,9 +11864,6 @@ JNIEXPORT jint JNICALL Java_physx_physics_PxActorTypeEnum__1geteDEFORMABLE_1SURF
 JNIEXPORT jint JNICALL Java_physx_physics_PxActorTypeEnum__1geteDEFORMABLE_1VOLUME(JNIEnv*, jclass) {
     return PxActorTypeEnum::eDEFORMABLE_VOLUME;
 }
-JNIEXPORT jint JNICALL Java_physx_physics_PxActorTypeEnum__1geteSOFTBODY(JNIEnv*, jclass) {
-    return PxActorTypeEnum::eSOFTBODY;
-}
 JNIEXPORT jint JNICALL Java_physx_physics_PxActorTypeEnum__1getePBD_1PARTICLESYSTEM(JNIEnv*, jclass) {
     return PxActorTypeEnum::ePBD_PARTICLESYSTEM;
 }
@@ -13618,10 +13597,6 @@ JNIEXPORT jlong JNICALL Java_physx_support_PxOmniPvd_00024Raw_getWriter(JNIEnv*,
     physx::PxOmniPvd* self = (physx::PxOmniPvd*) _address;
     return (jlong) self->getWriter();
 }
-JNIEXPORT jlong JNICALL Java_physx_support_PxOmniPvd_00024Raw_getFileWriteStream(JNIEnv*, jclass, jlong _address) {
-    physx::PxOmniPvd* self = (physx::PxOmniPvd*) _address;
-    return (jlong) self->getFileWriteStream();
-}
 JNIEXPORT jboolean JNICALL Java_physx_support_PxOmniPvd_00024Raw_startSampling(JNIEnv*, jclass, jlong _address) {
     physx::PxOmniPvd* self = (physx::PxOmniPvd*) _address;
     return (jboolean) self->startSampling();
@@ -13769,4081 +13744,4081 @@ JNIEXPORT jint JNICALL Java_physx_support_PxPvdSceneFlagEnum__1geteTRANSMIT_1CON
 }
 
 // PxVehicleTopLevelFunctions
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleTopLevelFunctions__1_1sizeOf(JNIEnv*, jclass) {
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleTopLevelFunctions__1_1sizeOf(JNIEnv*, jclass) {
     return sizeof(PxVehicleTopLevelFunctions);
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_PxVehicleTopLevelFunctions_00024Raw_InitVehicleExtension(JNIEnv*, jclass, jlong foundation) {
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_PxVehicleTopLevelFunctions_00024Raw_InitVehicleExtension(JNIEnv*, jclass, jlong foundation) {
     return (jboolean) PxVehicleTopLevelFunctions::InitVehicleExtension(*((physx::PxFoundation*) foundation));
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTopLevelFunctions_00024Raw_CloseVehicleExtension(JNIEnv*, jclass) {
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTopLevelFunctions_00024Raw_CloseVehicleExtension(JNIEnv*, jclass) {
     PxVehicleTopLevelFunctions::CloseVehicleExtension();
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_PxVehicleTopLevelFunctions_00024Raw_VehicleComputeSprungMasses(JNIEnv*, jclass, jint nbSprungMasses, jlong sprungMassCoordinates, jfloat totalMass, jint gravityDirection, jlong sprungMasses) {
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_PxVehicleTopLevelFunctions_00024Raw_VehicleComputeSprungMasses(JNIEnv*, jclass, jint nbSprungMasses, jlong sprungMassCoordinates, jfloat totalMass, jint gravityDirection, jlong sprungMasses) {
     return (jboolean) PxVehicleTopLevelFunctions::VehicleComputeSprungMasses(nbSprungMasses, *((PxArray_PxVec3*) sprungMassCoordinates), totalMass, (PxVehicleAxesEnum) gravityDirection, *((PxArray_PxReal*) sprungMasses));
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleTopLevelFunctions_00024Raw_VehicleUnitCylinderSweepMeshCreate(JNIEnv*, jclass, jlong vehicleFrame, jlong physics, jlong params) {
-    return (jlong) PxVehicleTopLevelFunctions::VehicleUnitCylinderSweepMeshCreate(*((physx::vehicle2::PxVehicleFrame*) vehicleFrame), *((physx::PxPhysics*) physics), *((physx::PxCookingParams*) params));
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleTopLevelFunctions_00024Raw_VehicleUnitCylinderSweepMeshCreate(JNIEnv*, jclass, jlong vehicleFrame, jlong physics, jlong params) {
+    return (jlong) PxVehicleTopLevelFunctions::VehicleUnitCylinderSweepMeshCreate(*((physx::PxVehicleFrame*) vehicleFrame), *((physx::PxPhysics*) physics), *((physx::PxCookingParams*) params));
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTopLevelFunctions_00024Raw_VehicleUnitCylinderSweepMeshDestroy(JNIEnv*, jclass, jlong mesh) {
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTopLevelFunctions_00024Raw_VehicleUnitCylinderSweepMeshDestroy(JNIEnv*, jclass, jlong mesh) {
     PxVehicleTopLevelFunctions::VehicleUnitCylinderSweepMeshDestroy((physx::PxConvexMesh*) mesh);
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleTopLevelFunctions_00024Raw_getMAX_1NB_1ENGINE_1TORQUE_1CURVE_1ENTRIES(JNIEnv*, jclass) {
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleTopLevelFunctions_00024Raw_getMAX_1NB_1ENGINE_1TORQUE_1CURVE_1ENTRIES(JNIEnv*, jclass) {
     return (jint) PxVehicleTopLevelFunctions::MAX_NB_ENGINE_TORQUE_CURVE_ENTRIES;
 }
 
 // PxVehicleAckermannParams
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleAckermannParams__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleAckermannParams);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleAckermannParams__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleAckermannParams);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleAckermannParams_00024Raw_PxVehicleAckermannParams(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleAckermannParams();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleAckermannParams_00024Raw_PxVehicleAckermannParams(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleAckermannParams();
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_PxVehicleAckermannParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address, jlong axleDesc) {
-    physx::vehicle2::PxVehicleAckermannParams* self = (physx::vehicle2::PxVehicleAckermannParams*) _address;
-    return (jboolean) self->isValid(*((physx::vehicle2::PxVehicleAxleDescription*) axleDesc));
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_PxVehicleAckermannParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address, jlong axleDesc) {
+    physx::PxVehicleAckermannParams* self = (physx::PxVehicleAckermannParams*) _address;
+    return (jboolean) self->isValid(*((physx::PxVehicleAxleDescription*) axleDesc));
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleAckermannParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
-    physx::vehicle2::PxVehicleAckermannParams* self = (physx::vehicle2::PxVehicleAckermannParams*) _address;
-    static thread_local physx::vehicle2::PxVehicleAckermannParams _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
-    _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleAckermannParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
+    physx::PxVehicleAckermannParams* self = (physx::PxVehicleAckermannParams*) _address;
+    static thread_local physx::PxVehicleAckermannParams _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
+    _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
     return (jlong) &_cache;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleAckermannParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleAckermannParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleAckermannParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleAckermannParams*) _address;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleAckermannParams_00024Raw_getWheelIds(JNIEnv*, jclass, jlong _address, jint _index) {
-    physx::vehicle2::PxVehicleAckermannParams* _self = (physx::vehicle2::PxVehicleAckermannParams*) _address;
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleAckermannParams_00024Raw_getWheelIds(JNIEnv*, jclass, jlong _address, jint _index) {
+    physx::PxVehicleAckermannParams* _self = (physx::PxVehicleAckermannParams*) _address;
     return (jint) _self->wheelIds[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleAckermannParams_00024Raw_setWheelIds(JNIEnv*, jclass, jlong _address, jint _index, jint value) {
-    physx::vehicle2::PxVehicleAckermannParams* _self = (physx::vehicle2::PxVehicleAckermannParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleAckermannParams_00024Raw_setWheelIds(JNIEnv*, jclass, jlong _address, jint _index, jint value) {
+    physx::PxVehicleAckermannParams* _self = (physx::PxVehicleAckermannParams*) _address;
     _self->wheelIds[_index] = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleAckermannParams_00024Raw_getWheelBase(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleAckermannParams* _self = (physx::vehicle2::PxVehicleAckermannParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleAckermannParams_00024Raw_getWheelBase(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleAckermannParams* _self = (physx::PxVehicleAckermannParams*) _address;
     return (jfloat) _self->wheelBase;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleAckermannParams_00024Raw_setWheelBase(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleAckermannParams* _self = (physx::vehicle2::PxVehicleAckermannParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleAckermannParams_00024Raw_setWheelBase(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleAckermannParams* _self = (physx::PxVehicleAckermannParams*) _address;
     _self->wheelBase = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleAckermannParams_00024Raw_getTrackWidth(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleAckermannParams* _self = (physx::vehicle2::PxVehicleAckermannParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleAckermannParams_00024Raw_getTrackWidth(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleAckermannParams* _self = (physx::PxVehicleAckermannParams*) _address;
     return (jfloat) _self->trackWidth;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleAckermannParams_00024Raw_setTrackWidth(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleAckermannParams* _self = (physx::vehicle2::PxVehicleAckermannParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleAckermannParams_00024Raw_setTrackWidth(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleAckermannParams* _self = (physx::PxVehicleAckermannParams*) _address;
     _self->trackWidth = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleAckermannParams_00024Raw_getStrength(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleAckermannParams* _self = (physx::vehicle2::PxVehicleAckermannParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleAckermannParams_00024Raw_getStrength(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleAckermannParams* _self = (physx::PxVehicleAckermannParams*) _address;
     return (jfloat) _self->strength;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleAckermannParams_00024Raw_setStrength(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleAckermannParams* _self = (physx::vehicle2::PxVehicleAckermannParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleAckermannParams_00024Raw_setStrength(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleAckermannParams* _self = (physx::PxVehicleAckermannParams*) _address;
     _self->strength = value;
 }
 
 // PxVehicleAntiRollForceParams
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleAntiRollForceParams__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleAntiRollForceParams);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleAntiRollForceParams__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleAntiRollForceParams);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleAntiRollForceParams_00024Raw_PxVehicleAntiRollForceParams(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleAntiRollForceParams();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleAntiRollForceParams_00024Raw_PxVehicleAntiRollForceParams(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleAntiRollForceParams();
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleAntiRollForceParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
-    physx::vehicle2::PxVehicleAntiRollForceParams* self = (physx::vehicle2::PxVehicleAntiRollForceParams*) _address;
-    static thread_local physx::vehicle2::PxVehicleAntiRollForceParams _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
-    _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleAntiRollForceParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
+    physx::PxVehicleAntiRollForceParams* self = (physx::PxVehicleAntiRollForceParams*) _address;
+    static thread_local physx::PxVehicleAntiRollForceParams _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
+    _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
     return (jlong) &_cache;
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_PxVehicleAntiRollForceParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address, jlong axleDesc) {
-    physx::vehicle2::PxVehicleAntiRollForceParams* self = (physx::vehicle2::PxVehicleAntiRollForceParams*) _address;
-    return (jboolean) self->isValid(*((physx::vehicle2::PxVehicleAxleDescription*) axleDesc));
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_PxVehicleAntiRollForceParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address, jlong axleDesc) {
+    physx::PxVehicleAntiRollForceParams* self = (physx::PxVehicleAntiRollForceParams*) _address;
+    return (jboolean) self->isValid(*((physx::PxVehicleAxleDescription*) axleDesc));
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleAntiRollForceParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleAntiRollForceParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleAntiRollForceParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleAntiRollForceParams*) _address;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleAntiRollForceParams_00024Raw_getWheel0(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleAntiRollForceParams* _self = (physx::vehicle2::PxVehicleAntiRollForceParams*) _address;
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleAntiRollForceParams_00024Raw_getWheel0(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleAntiRollForceParams* _self = (physx::PxVehicleAntiRollForceParams*) _address;
     return (jint) _self->wheel0;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleAntiRollForceParams_00024Raw_setWheel0(JNIEnv*, jclass, jlong _address, jint value) {
-    physx::vehicle2::PxVehicleAntiRollForceParams* _self = (physx::vehicle2::PxVehicleAntiRollForceParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleAntiRollForceParams_00024Raw_setWheel0(JNIEnv*, jclass, jlong _address, jint value) {
+    physx::PxVehicleAntiRollForceParams* _self = (physx::PxVehicleAntiRollForceParams*) _address;
     _self->wheel0 = value;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleAntiRollForceParams_00024Raw_getWheel1(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleAntiRollForceParams* _self = (physx::vehicle2::PxVehicleAntiRollForceParams*) _address;
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleAntiRollForceParams_00024Raw_getWheel1(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleAntiRollForceParams* _self = (physx::PxVehicleAntiRollForceParams*) _address;
     return (jint) _self->wheel1;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleAntiRollForceParams_00024Raw_setWheel1(JNIEnv*, jclass, jlong _address, jint value) {
-    physx::vehicle2::PxVehicleAntiRollForceParams* _self = (physx::vehicle2::PxVehicleAntiRollForceParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleAntiRollForceParams_00024Raw_setWheel1(JNIEnv*, jclass, jlong _address, jint value) {
+    physx::PxVehicleAntiRollForceParams* _self = (physx::PxVehicleAntiRollForceParams*) _address;
     _self->wheel1 = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleAntiRollForceParams_00024Raw_getStiffness(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleAntiRollForceParams* _self = (physx::vehicle2::PxVehicleAntiRollForceParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleAntiRollForceParams_00024Raw_getStiffness(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleAntiRollForceParams* _self = (physx::PxVehicleAntiRollForceParams*) _address;
     return (jfloat) _self->stiffness;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleAntiRollForceParams_00024Raw_setStiffness(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleAntiRollForceParams* _self = (physx::vehicle2::PxVehicleAntiRollForceParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleAntiRollForceParams_00024Raw_setStiffness(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleAntiRollForceParams* _self = (physx::PxVehicleAntiRollForceParams*) _address;
     _self->stiffness = value;
 }
 
 // PxVehicleAntiRollTorque
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleAntiRollTorque__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleAntiRollTorque);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleAntiRollTorque__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleAntiRollTorque);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleAntiRollTorque_00024Raw_PxVehicleAntiRollTorque(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleAntiRollTorque();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleAntiRollTorque_00024Raw_PxVehicleAntiRollTorque(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleAntiRollTorque();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleAntiRollTorque_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleAntiRollTorque* self = (physx::vehicle2::PxVehicleAntiRollTorque*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleAntiRollTorque_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleAntiRollTorque* self = (physx::PxVehicleAntiRollTorque*) _address;
     self->setToDefault();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleAntiRollTorque_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleAntiRollTorque*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleAntiRollTorque_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleAntiRollTorque*) _address;
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleAntiRollTorque_00024Raw_getAntiRollTorque(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleAntiRollTorque* _self = (physx::vehicle2::PxVehicleAntiRollTorque*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleAntiRollTorque_00024Raw_getAntiRollTorque(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleAntiRollTorque* _self = (physx::PxVehicleAntiRollTorque*) _address;
     return (jlong) &_self->antiRollTorque;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleAntiRollTorque_00024Raw_setAntiRollTorque(JNIEnv*, jclass, jlong _address, jlong value) {
-    physx::vehicle2::PxVehicleAntiRollTorque* _self = (physx::vehicle2::PxVehicleAntiRollTorque*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleAntiRollTorque_00024Raw_setAntiRollTorque(JNIEnv*, jclass, jlong _address, jlong value) {
+    physx::PxVehicleAntiRollTorque* _self = (physx::PxVehicleAntiRollTorque*) _address;
     _self->antiRollTorque = *((physx::PxVec3*) value);
 }
 
 // PxVehicleAutoboxParams
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleAutoboxParams__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleAutoboxParams);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleAutoboxParams__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleAutoboxParams);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleAutoboxParams_00024Raw_PxVehicleAutoboxParams_1placed(JNIEnv*, jclass, jlong _placement_address) {
-    return (jlong) new((void*)_placement_address) physx::vehicle2::PxVehicleAutoboxParams();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleAutoboxParams_00024Raw_PxVehicleAutoboxParams_1placed(JNIEnv*, jclass, jlong _placement_address) {
+    return (jlong) new((void*)_placement_address) physx::PxVehicleAutoboxParams();
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleAutoboxParams_00024Raw_PxVehicleAutoboxParams(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleAutoboxParams();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleAutoboxParams_00024Raw_PxVehicleAutoboxParams(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleAutoboxParams();
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleAutoboxParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
-    physx::vehicle2::PxVehicleAutoboxParams* self = (physx::vehicle2::PxVehicleAutoboxParams*) _address;
-    static thread_local physx::vehicle2::PxVehicleAutoboxParams _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
-    _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleAutoboxParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
+    physx::PxVehicleAutoboxParams* self = (physx::PxVehicleAutoboxParams*) _address;
+    static thread_local physx::PxVehicleAutoboxParams _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
+    _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
     return (jlong) &_cache;
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_PxVehicleAutoboxParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address, jlong gearboxParams) {
-    physx::vehicle2::PxVehicleAutoboxParams* self = (physx::vehicle2::PxVehicleAutoboxParams*) _address;
-    return (jboolean) self->isValid(*((physx::vehicle2::PxVehicleGearboxParams*) gearboxParams));
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_PxVehicleAutoboxParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address, jlong gearboxParams) {
+    physx::PxVehicleAutoboxParams* self = (physx::PxVehicleAutoboxParams*) _address;
+    return (jboolean) self->isValid(*((physx::PxVehicleGearboxParams*) gearboxParams));
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleAutoboxParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleAutoboxParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleAutoboxParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleAutoboxParams*) _address;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleAutoboxParams_00024Raw_getUpRatios(JNIEnv*, jclass, jlong _address, jint _index) {
-    physx::vehicle2::PxVehicleAutoboxParams* _self = (physx::vehicle2::PxVehicleAutoboxParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleAutoboxParams_00024Raw_getUpRatios(JNIEnv*, jclass, jlong _address, jint _index) {
+    physx::PxVehicleAutoboxParams* _self = (physx::PxVehicleAutoboxParams*) _address;
     return (jfloat) _self->upRatios[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleAutoboxParams_00024Raw_setUpRatios(JNIEnv*, jclass, jlong _address, jint _index, jfloat value) {
-    physx::vehicle2::PxVehicleAutoboxParams* _self = (physx::vehicle2::PxVehicleAutoboxParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleAutoboxParams_00024Raw_setUpRatios(JNIEnv*, jclass, jlong _address, jint _index, jfloat value) {
+    physx::PxVehicleAutoboxParams* _self = (physx::PxVehicleAutoboxParams*) _address;
     _self->upRatios[_index] = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleAutoboxParams_00024Raw_getDownRatios(JNIEnv*, jclass, jlong _address, jint _index) {
-    physx::vehicle2::PxVehicleAutoboxParams* _self = (physx::vehicle2::PxVehicleAutoboxParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleAutoboxParams_00024Raw_getDownRatios(JNIEnv*, jclass, jlong _address, jint _index) {
+    physx::PxVehicleAutoboxParams* _self = (physx::PxVehicleAutoboxParams*) _address;
     return (jfloat) _self->downRatios[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleAutoboxParams_00024Raw_setDownRatios(JNIEnv*, jclass, jlong _address, jint _index, jfloat value) {
-    physx::vehicle2::PxVehicleAutoboxParams* _self = (physx::vehicle2::PxVehicleAutoboxParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleAutoboxParams_00024Raw_setDownRatios(JNIEnv*, jclass, jlong _address, jint _index, jfloat value) {
+    physx::PxVehicleAutoboxParams* _self = (physx::PxVehicleAutoboxParams*) _address;
     _self->downRatios[_index] = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleAutoboxParams_00024Raw_getLatency(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleAutoboxParams* _self = (physx::vehicle2::PxVehicleAutoboxParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleAutoboxParams_00024Raw_getLatency(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleAutoboxParams* _self = (physx::PxVehicleAutoboxParams*) _address;
     return (jfloat) _self->latency;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleAutoboxParams_00024Raw_setLatency(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleAutoboxParams* _self = (physx::vehicle2::PxVehicleAutoboxParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleAutoboxParams_00024Raw_setLatency(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleAutoboxParams* _self = (physx::PxVehicleAutoboxParams*) _address;
     _self->latency = value;
 }
 
 // PxVehicleAutoboxState
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleAutoboxState__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleAutoboxState);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleAutoboxState__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleAutoboxState);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleAutoboxState_00024Raw_PxVehicleAutoboxState(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleAutoboxState();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleAutoboxState_00024Raw_PxVehicleAutoboxState(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleAutoboxState();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleAutoboxState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleAutoboxState* self = (physx::vehicle2::PxVehicleAutoboxState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleAutoboxState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleAutoboxState* self = (physx::PxVehicleAutoboxState*) _address;
     self->setToDefault();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleAutoboxState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleAutoboxState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleAutoboxState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleAutoboxState*) _address;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleAutoboxState_00024Raw_getTimeSinceLastShift(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleAutoboxState* _self = (physx::vehicle2::PxVehicleAutoboxState*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleAutoboxState_00024Raw_getTimeSinceLastShift(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleAutoboxState* _self = (physx::PxVehicleAutoboxState*) _address;
     return (jfloat) _self->timeSinceLastShift;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleAutoboxState_00024Raw_setTimeSinceLastShift(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleAutoboxState* _self = (physx::vehicle2::PxVehicleAutoboxState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleAutoboxState_00024Raw_setTimeSinceLastShift(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleAutoboxState* _self = (physx::PxVehicleAutoboxState*) _address;
     _self->timeSinceLastShift = value;
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_PxVehicleAutoboxState_00024Raw_getActiveAutoboxGearShift(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleAutoboxState* _self = (physx::vehicle2::PxVehicleAutoboxState*) _address;
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_PxVehicleAutoboxState_00024Raw_getActiveAutoboxGearShift(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleAutoboxState* _self = (physx::PxVehicleAutoboxState*) _address;
     return (jboolean) _self->activeAutoboxGearShift;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleAutoboxState_00024Raw_setActiveAutoboxGearShift(JNIEnv*, jclass, jlong _address, jboolean value) {
-    physx::vehicle2::PxVehicleAutoboxState* _self = (physx::vehicle2::PxVehicleAutoboxState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleAutoboxState_00024Raw_setActiveAutoboxGearShift(JNIEnv*, jclass, jlong _address, jboolean value) {
+    physx::PxVehicleAutoboxState* _self = (physx::PxVehicleAutoboxState*) _address;
     _self->activeAutoboxGearShift = value;
 }
 
 // PxVehicleAxleDescription
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleAxleDescription__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleAxleDescription);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleAxleDescription__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleAxleDescription);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleAxleDescription_00024Raw_PxVehicleAxleDescription(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleAxleDescription();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleAxleDescription_00024Raw_PxVehicleAxleDescription(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleAxleDescription();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleAxleDescription_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleAxleDescription* self = (physx::vehicle2::PxVehicleAxleDescription*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleAxleDescription_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleAxleDescription* self = (physx::PxVehicleAxleDescription*) _address;
     self->setToDefault();
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleAxleDescription_00024Raw_getNbWheelsOnAxle(JNIEnv*, jclass, jlong _address, jint i) {
-    physx::vehicle2::PxVehicleAxleDescription* self = (physx::vehicle2::PxVehicleAxleDescription*) _address;
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleAxleDescription_00024Raw_getNbWheelsOnAxle(JNIEnv*, jclass, jlong _address, jint i) {
+    physx::PxVehicleAxleDescription* self = (physx::PxVehicleAxleDescription*) _address;
     return (jint) self->getNbWheelsOnAxle(i);
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleAxleDescription_00024Raw_getWheelOnAxle(JNIEnv*, jclass, jlong _address, jint j, jint i) {
-    physx::vehicle2::PxVehicleAxleDescription* self = (physx::vehicle2::PxVehicleAxleDescription*) _address;
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleAxleDescription_00024Raw_getWheelOnAxle(JNIEnv*, jclass, jlong _address, jint j, jint i) {
+    physx::PxVehicleAxleDescription* self = (physx::PxVehicleAxleDescription*) _address;
     return (jint) self->getWheelOnAxle(j, i);
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleAxleDescription_00024Raw_getAxle(JNIEnv*, jclass, jlong _address, jint wheelId) {
-    physx::vehicle2::PxVehicleAxleDescription* self = (physx::vehicle2::PxVehicleAxleDescription*) _address;
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleAxleDescription_00024Raw_getAxle(JNIEnv*, jclass, jlong _address, jint wheelId) {
+    physx::PxVehicleAxleDescription* self = (physx::PxVehicleAxleDescription*) _address;
     return (jint) self->getAxle(wheelId);
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_PxVehicleAxleDescription_00024Raw_isValid(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleAxleDescription* self = (physx::vehicle2::PxVehicleAxleDescription*) _address;
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_PxVehicleAxleDescription_00024Raw_isValid(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleAxleDescription* self = (physx::PxVehicleAxleDescription*) _address;
     return (jboolean) self->isValid();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleAxleDescription_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleAxleDescription*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleAxleDescription_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleAxleDescription*) _address;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleAxleDescription_00024Raw_getNbAxles(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleAxleDescription* _self = (physx::vehicle2::PxVehicleAxleDescription*) _address;
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleAxleDescription_00024Raw_getNbAxles(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleAxleDescription* _self = (physx::PxVehicleAxleDescription*) _address;
     return (jint) _self->nbAxles;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleAxleDescription_00024Raw_setNbAxles(JNIEnv*, jclass, jlong _address, jint value) {
-    physx::vehicle2::PxVehicleAxleDescription* _self = (physx::vehicle2::PxVehicleAxleDescription*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleAxleDescription_00024Raw_setNbAxles(JNIEnv*, jclass, jlong _address, jint value) {
+    physx::PxVehicleAxleDescription* _self = (physx::PxVehicleAxleDescription*) _address;
     _self->nbAxles = value;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleAxleDescription_00024Raw_getNbWheelsPerAxle(JNIEnv*, jclass, jlong _address, jint _index) {
-    physx::vehicle2::PxVehicleAxleDescription* _self = (physx::vehicle2::PxVehicleAxleDescription*) _address;
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleAxleDescription_00024Raw_getNbWheelsPerAxle(JNIEnv*, jclass, jlong _address, jint _index) {
+    physx::PxVehicleAxleDescription* _self = (physx::PxVehicleAxleDescription*) _address;
     return (jint) _self->nbWheelsPerAxle[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleAxleDescription_00024Raw_setNbWheelsPerAxle(JNIEnv*, jclass, jlong _address, jint _index, jint value) {
-    physx::vehicle2::PxVehicleAxleDescription* _self = (physx::vehicle2::PxVehicleAxleDescription*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleAxleDescription_00024Raw_setNbWheelsPerAxle(JNIEnv*, jclass, jlong _address, jint _index, jint value) {
+    physx::PxVehicleAxleDescription* _self = (physx::PxVehicleAxleDescription*) _address;
     _self->nbWheelsPerAxle[_index] = value;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleAxleDescription_00024Raw_getAxleToWheelIds(JNIEnv*, jclass, jlong _address, jint _index) {
-    physx::vehicle2::PxVehicleAxleDescription* _self = (physx::vehicle2::PxVehicleAxleDescription*) _address;
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleAxleDescription_00024Raw_getAxleToWheelIds(JNIEnv*, jclass, jlong _address, jint _index) {
+    physx::PxVehicleAxleDescription* _self = (physx::PxVehicleAxleDescription*) _address;
     return (jint) _self->axleToWheelIds[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleAxleDescription_00024Raw_setAxleToWheelIds(JNIEnv*, jclass, jlong _address, jint _index, jint value) {
-    physx::vehicle2::PxVehicleAxleDescription* _self = (physx::vehicle2::PxVehicleAxleDescription*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleAxleDescription_00024Raw_setAxleToWheelIds(JNIEnv*, jclass, jlong _address, jint _index, jint value) {
+    physx::PxVehicleAxleDescription* _self = (physx::PxVehicleAxleDescription*) _address;
     _self->axleToWheelIds[_index] = value;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleAxleDescription_00024Raw_getWheelIdsInAxleOrder(JNIEnv*, jclass, jlong _address, jint _index) {
-    physx::vehicle2::PxVehicleAxleDescription* _self = (physx::vehicle2::PxVehicleAxleDescription*) _address;
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleAxleDescription_00024Raw_getWheelIdsInAxleOrder(JNIEnv*, jclass, jlong _address, jint _index) {
+    physx::PxVehicleAxleDescription* _self = (physx::PxVehicleAxleDescription*) _address;
     return (jint) _self->wheelIdsInAxleOrder[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleAxleDescription_00024Raw_setWheelIdsInAxleOrder(JNIEnv*, jclass, jlong _address, jint _index, jint value) {
-    physx::vehicle2::PxVehicleAxleDescription* _self = (physx::vehicle2::PxVehicleAxleDescription*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleAxleDescription_00024Raw_setWheelIdsInAxleOrder(JNIEnv*, jclass, jlong _address, jint _index, jint value) {
+    physx::PxVehicleAxleDescription* _self = (physx::PxVehicleAxleDescription*) _address;
     _self->wheelIdsInAxleOrder[_index] = value;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleAxleDescription_00024Raw_getNbWheels(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleAxleDescription* _self = (physx::vehicle2::PxVehicleAxleDescription*) _address;
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleAxleDescription_00024Raw_getNbWheels(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleAxleDescription* _self = (physx::PxVehicleAxleDescription*) _address;
     return (jint) _self->nbWheels;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleAxleDescription_00024Raw_setNbWheels(JNIEnv*, jclass, jlong _address, jint value) {
-    physx::vehicle2::PxVehicleAxleDescription* _self = (physx::vehicle2::PxVehicleAxleDescription*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleAxleDescription_00024Raw_setNbWheels(JNIEnv*, jclass, jlong _address, jint value) {
+    physx::PxVehicleAxleDescription* _self = (physx::PxVehicleAxleDescription*) _address;
     _self->nbWheels = value;
 }
 
 // PxVehicleBrakeCommandResponseParams
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleBrakeCommandResponseParams__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleBrakeCommandResponseParams);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleBrakeCommandResponseParams__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleBrakeCommandResponseParams);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleBrakeCommandResponseParams_00024Raw_PxVehicleBrakeCommandResponseParams(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleBrakeCommandResponseParams();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleBrakeCommandResponseParams_00024Raw_PxVehicleBrakeCommandResponseParams(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleBrakeCommandResponseParams();
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleBrakeCommandResponseParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
-    physx::vehicle2::PxVehicleBrakeCommandResponseParams* self = (physx::vehicle2::PxVehicleBrakeCommandResponseParams*) _address;
-    static thread_local physx::vehicle2::PxVehicleBrakeCommandResponseParams _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
-    _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleBrakeCommandResponseParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
+    physx::PxVehicleBrakeCommandResponseParams* self = (physx::PxVehicleBrakeCommandResponseParams*) _address;
+    static thread_local physx::PxVehicleBrakeCommandResponseParams _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
+    _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
     return (jlong) &_cache;
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_PxVehicleBrakeCommandResponseParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address, jlong axleDesc) {
-    physx::vehicle2::PxVehicleBrakeCommandResponseParams* self = (physx::vehicle2::PxVehicleBrakeCommandResponseParams*) _address;
-    return (jboolean) self->isValid(*((physx::vehicle2::PxVehicleAxleDescription*) axleDesc));
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_PxVehicleBrakeCommandResponseParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address, jlong axleDesc) {
+    physx::PxVehicleBrakeCommandResponseParams* self = (physx::PxVehicleBrakeCommandResponseParams*) _address;
+    return (jboolean) self->isValid(*((physx::PxVehicleAxleDescription*) axleDesc));
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleBrakeCommandResponseParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleBrakeCommandResponseParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleBrakeCommandResponseParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleBrakeCommandResponseParams*) _address;
 }
 
 // PxVehicleClutchCommandResponseParams
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleClutchCommandResponseParams__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleClutchCommandResponseParams);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleClutchCommandResponseParams__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleClutchCommandResponseParams);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleClutchCommandResponseParams_00024Raw_PxVehicleClutchCommandResponseParams_1placed(JNIEnv*, jclass, jlong _placement_address) {
-    return (jlong) new((void*)_placement_address) physx::vehicle2::PxVehicleClutchCommandResponseParams();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleClutchCommandResponseParams_00024Raw_PxVehicleClutchCommandResponseParams_1placed(JNIEnv*, jclass, jlong _placement_address) {
+    return (jlong) new((void*)_placement_address) physx::PxVehicleClutchCommandResponseParams();
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleClutchCommandResponseParams_00024Raw_PxVehicleClutchCommandResponseParams(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleClutchCommandResponseParams();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleClutchCommandResponseParams_00024Raw_PxVehicleClutchCommandResponseParams(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleClutchCommandResponseParams();
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleClutchCommandResponseParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
-    physx::vehicle2::PxVehicleClutchCommandResponseParams* self = (physx::vehicle2::PxVehicleClutchCommandResponseParams*) _address;
-    static thread_local physx::vehicle2::PxVehicleClutchCommandResponseParams _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
-    _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleClutchCommandResponseParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
+    physx::PxVehicleClutchCommandResponseParams* self = (physx::PxVehicleClutchCommandResponseParams*) _address;
+    static thread_local physx::PxVehicleClutchCommandResponseParams _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
+    _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
     return (jlong) &_cache;
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_PxVehicleClutchCommandResponseParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleClutchCommandResponseParams* self = (physx::vehicle2::PxVehicleClutchCommandResponseParams*) _address;
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_PxVehicleClutchCommandResponseParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleClutchCommandResponseParams* self = (physx::PxVehicleClutchCommandResponseParams*) _address;
     return (jboolean) self->isValid();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleClutchCommandResponseParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleClutchCommandResponseParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleClutchCommandResponseParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleClutchCommandResponseParams*) _address;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleClutchCommandResponseParams_00024Raw_getMaxResponse(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleClutchCommandResponseParams* _self = (physx::vehicle2::PxVehicleClutchCommandResponseParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleClutchCommandResponseParams_00024Raw_getMaxResponse(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleClutchCommandResponseParams* _self = (physx::PxVehicleClutchCommandResponseParams*) _address;
     return (jfloat) _self->maxResponse;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleClutchCommandResponseParams_00024Raw_setMaxResponse(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleClutchCommandResponseParams* _self = (physx::vehicle2::PxVehicleClutchCommandResponseParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleClutchCommandResponseParams_00024Raw_setMaxResponse(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleClutchCommandResponseParams* _self = (physx::PxVehicleClutchCommandResponseParams*) _address;
     _self->maxResponse = value;
 }
 
 // PxVehicleClutchCommandResponseState
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleClutchCommandResponseState__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleClutchCommandResponseState);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleClutchCommandResponseState__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleClutchCommandResponseState);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleClutchCommandResponseState_00024Raw_PxVehicleClutchCommandResponseState(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleClutchCommandResponseState();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleClutchCommandResponseState_00024Raw_PxVehicleClutchCommandResponseState(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleClutchCommandResponseState();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleClutchCommandResponseState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleClutchCommandResponseState* self = (physx::vehicle2::PxVehicleClutchCommandResponseState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleClutchCommandResponseState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleClutchCommandResponseState* self = (physx::PxVehicleClutchCommandResponseState*) _address;
     self->setToDefault();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleClutchCommandResponseState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleClutchCommandResponseState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleClutchCommandResponseState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleClutchCommandResponseState*) _address;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleClutchCommandResponseState_00024Raw_getNormalisedCommandResponse(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleClutchCommandResponseState* _self = (physx::vehicle2::PxVehicleClutchCommandResponseState*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleClutchCommandResponseState_00024Raw_getNormalisedCommandResponse(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleClutchCommandResponseState* _self = (physx::PxVehicleClutchCommandResponseState*) _address;
     return (jfloat) _self->normalisedCommandResponse;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleClutchCommandResponseState_00024Raw_setNormalisedCommandResponse(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleClutchCommandResponseState* _self = (physx::vehicle2::PxVehicleClutchCommandResponseState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleClutchCommandResponseState_00024Raw_setNormalisedCommandResponse(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleClutchCommandResponseState* _self = (physx::PxVehicleClutchCommandResponseState*) _address;
     _self->normalisedCommandResponse = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleClutchCommandResponseState_00024Raw_getCommandResponse(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleClutchCommandResponseState* _self = (physx::vehicle2::PxVehicleClutchCommandResponseState*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleClutchCommandResponseState_00024Raw_getCommandResponse(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleClutchCommandResponseState* _self = (physx::PxVehicleClutchCommandResponseState*) _address;
     return (jfloat) _self->commandResponse;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleClutchCommandResponseState_00024Raw_setCommandResponse(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleClutchCommandResponseState* _self = (physx::vehicle2::PxVehicleClutchCommandResponseState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleClutchCommandResponseState_00024Raw_setCommandResponse(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleClutchCommandResponseState* _self = (physx::PxVehicleClutchCommandResponseState*) _address;
     _self->commandResponse = value;
 }
 
 // PxVehicleClutchParams
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleClutchParams__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleClutchParams);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleClutchParams__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleClutchParams);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleClutchParams_00024Raw_PxVehicleClutchParams_1placed(JNIEnv*, jclass, jlong _placement_address) {
-    return (jlong) new((void*)_placement_address) physx::vehicle2::PxVehicleClutchParams();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleClutchParams_00024Raw_PxVehicleClutchParams_1placed(JNIEnv*, jclass, jlong _placement_address) {
+    return (jlong) new((void*)_placement_address) physx::PxVehicleClutchParams();
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleClutchParams_00024Raw_PxVehicleClutchParams(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleClutchParams();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleClutchParams_00024Raw_PxVehicleClutchParams(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleClutchParams();
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleClutchParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
-    physx::vehicle2::PxVehicleClutchParams* self = (physx::vehicle2::PxVehicleClutchParams*) _address;
-    static thread_local physx::vehicle2::PxVehicleClutchParams _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
-    _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleClutchParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
+    physx::PxVehicleClutchParams* self = (physx::PxVehicleClutchParams*) _address;
+    static thread_local physx::PxVehicleClutchParams _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
+    _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
     return (jlong) &_cache;
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_PxVehicleClutchParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleClutchParams* self = (physx::vehicle2::PxVehicleClutchParams*) _address;
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_PxVehicleClutchParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleClutchParams* self = (physx::PxVehicleClutchParams*) _address;
     return (jboolean) self->isValid();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleClutchParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleClutchParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleClutchParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleClutchParams*) _address;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleClutchParams_00024Raw_getAccuracyMode(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleClutchParams* _self = (physx::vehicle2::PxVehicleClutchParams*) _address;
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleClutchParams_00024Raw_getAccuracyMode(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleClutchParams* _self = (physx::PxVehicleClutchParams*) _address;
     return (jint) _self->accuracyMode;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleClutchParams_00024Raw_setAccuracyMode(JNIEnv*, jclass, jlong _address, jint value) {
-    physx::vehicle2::PxVehicleClutchParams* _self = (physx::vehicle2::PxVehicleClutchParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleClutchParams_00024Raw_setAccuracyMode(JNIEnv*, jclass, jlong _address, jint value) {
+    physx::PxVehicleClutchParams* _self = (physx::PxVehicleClutchParams*) _address;
     _self->accuracyMode = (PxVehicleClutchAccuracyModeEnum) value;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleClutchParams_00024Raw_getEstimateIterations(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleClutchParams* _self = (physx::vehicle2::PxVehicleClutchParams*) _address;
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleClutchParams_00024Raw_getEstimateIterations(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleClutchParams* _self = (physx::PxVehicleClutchParams*) _address;
     return (jint) _self->estimateIterations;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleClutchParams_00024Raw_setEstimateIterations(JNIEnv*, jclass, jlong _address, jint value) {
-    physx::vehicle2::PxVehicleClutchParams* _self = (physx::vehicle2::PxVehicleClutchParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleClutchParams_00024Raw_setEstimateIterations(JNIEnv*, jclass, jlong _address, jint value) {
+    physx::PxVehicleClutchParams* _self = (physx::PxVehicleClutchParams*) _address;
     _self->estimateIterations = value;
 }
 
 // PxVehicleClutchSlipState
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleClutchSlipState__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleClutchSlipState);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleClutchSlipState__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleClutchSlipState);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleClutchSlipState_00024Raw_PxVehicleClutchSlipState(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleClutchSlipState();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleClutchSlipState_00024Raw_PxVehicleClutchSlipState(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleClutchSlipState();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleClutchSlipState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleClutchSlipState* self = (physx::vehicle2::PxVehicleClutchSlipState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleClutchSlipState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleClutchSlipState* self = (physx::PxVehicleClutchSlipState*) _address;
     self->setToDefault();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleClutchSlipState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleClutchSlipState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleClutchSlipState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleClutchSlipState*) _address;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleClutchSlipState_00024Raw_getClutchSlip(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleClutchSlipState* _self = (physx::vehicle2::PxVehicleClutchSlipState*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleClutchSlipState_00024Raw_getClutchSlip(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleClutchSlipState* _self = (physx::PxVehicleClutchSlipState*) _address;
     return (jfloat) _self->clutchSlip;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleClutchSlipState_00024Raw_setClutchSlip(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleClutchSlipState* _self = (physx::vehicle2::PxVehicleClutchSlipState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleClutchSlipState_00024Raw_setClutchSlip(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleClutchSlipState* _self = (physx::PxVehicleClutchSlipState*) _address;
     _self->clutchSlip = value;
 }
 
 // PxVehicleCommandNonLinearResponseParams
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleCommandNonLinearResponseParams__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleCommandNonLinearResponseParams);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleCommandNonLinearResponseParams__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleCommandNonLinearResponseParams);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleCommandNonLinearResponseParams_00024Raw_PxVehicleCommandNonLinearResponseParams(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleCommandNonLinearResponseParams();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleCommandNonLinearResponseParams_00024Raw_PxVehicleCommandNonLinearResponseParams(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleCommandNonLinearResponseParams();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleCommandNonLinearResponseParams_00024Raw_clear(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleCommandNonLinearResponseParams* self = (physx::vehicle2::PxVehicleCommandNonLinearResponseParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleCommandNonLinearResponseParams_00024Raw_clear(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleCommandNonLinearResponseParams* self = (physx::PxVehicleCommandNonLinearResponseParams*) _address;
     self->clear();
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_PxVehicleCommandNonLinearResponseParams_00024Raw_addResponse(JNIEnv*, jclass, jlong _address, jlong commandValueSpeedResponses) {
-    physx::vehicle2::PxVehicleCommandNonLinearResponseParams* self = (physx::vehicle2::PxVehicleCommandNonLinearResponseParams*) _address;
-    return (jboolean) self->addResponse(*((physx::vehicle2::PxVehicleCommandValueResponseTable*) commandValueSpeedResponses));
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_PxVehicleCommandNonLinearResponseParams_00024Raw_addResponse(JNIEnv*, jclass, jlong _address, jlong commandValueSpeedResponses) {
+    physx::PxVehicleCommandNonLinearResponseParams* self = (physx::PxVehicleCommandNonLinearResponseParams*) _address;
+    return (jboolean) self->addResponse(*((physx::PxVehicleCommandValueResponseTable*) commandValueSpeedResponses));
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleCommandNonLinearResponseParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleCommandNonLinearResponseParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleCommandNonLinearResponseParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleCommandNonLinearResponseParams*) _address;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleCommandNonLinearResponseParams_00024Raw_getSpeedResponses(JNIEnv*, jclass, jlong _address, jint _index) {
-    physx::vehicle2::PxVehicleCommandNonLinearResponseParams* _self = (physx::vehicle2::PxVehicleCommandNonLinearResponseParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleCommandNonLinearResponseParams_00024Raw_getSpeedResponses(JNIEnv*, jclass, jlong _address, jint _index) {
+    physx::PxVehicleCommandNonLinearResponseParams* _self = (physx::PxVehicleCommandNonLinearResponseParams*) _address;
     return (jfloat) _self->speedResponses[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleCommandNonLinearResponseParams_00024Raw_setSpeedResponses(JNIEnv*, jclass, jlong _address, jint _index, jfloat value) {
-    physx::vehicle2::PxVehicleCommandNonLinearResponseParams* _self = (physx::vehicle2::PxVehicleCommandNonLinearResponseParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleCommandNonLinearResponseParams_00024Raw_setSpeedResponses(JNIEnv*, jclass, jlong _address, jint _index, jfloat value) {
+    physx::PxVehicleCommandNonLinearResponseParams* _self = (physx::PxVehicleCommandNonLinearResponseParams*) _address;
     _self->speedResponses[_index] = value;
 }
-JNIEXPORT jshort JNICALL Java_physx_vehicle2_PxVehicleCommandNonLinearResponseParams_00024Raw_getNbSpeedResponses(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleCommandNonLinearResponseParams* _self = (physx::vehicle2::PxVehicleCommandNonLinearResponseParams*) _address;
+JNIEXPORT jshort JNICALL Java_physx_vehicle_PxVehicleCommandNonLinearResponseParams_00024Raw_getNbSpeedResponses(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleCommandNonLinearResponseParams* _self = (physx::PxVehicleCommandNonLinearResponseParams*) _address;
     return (jshort) _self->nbSpeedResponses;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleCommandNonLinearResponseParams_00024Raw_setNbSpeedResponses(JNIEnv*, jclass, jlong _address, jshort value) {
-    physx::vehicle2::PxVehicleCommandNonLinearResponseParams* _self = (physx::vehicle2::PxVehicleCommandNonLinearResponseParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleCommandNonLinearResponseParams_00024Raw_setNbSpeedResponses(JNIEnv*, jclass, jlong _address, jshort value) {
+    physx::PxVehicleCommandNonLinearResponseParams* _self = (physx::PxVehicleCommandNonLinearResponseParams*) _address;
     _self->nbSpeedResponses = value;
 }
-JNIEXPORT jshort JNICALL Java_physx_vehicle2_PxVehicleCommandNonLinearResponseParams_00024Raw_getSpeedResponsesPerCommandValue(JNIEnv*, jclass, jlong _address, jint _index) {
-    physx::vehicle2::PxVehicleCommandNonLinearResponseParams* _self = (physx::vehicle2::PxVehicleCommandNonLinearResponseParams*) _address;
+JNIEXPORT jshort JNICALL Java_physx_vehicle_PxVehicleCommandNonLinearResponseParams_00024Raw_getSpeedResponsesPerCommandValue(JNIEnv*, jclass, jlong _address, jint _index) {
+    physx::PxVehicleCommandNonLinearResponseParams* _self = (physx::PxVehicleCommandNonLinearResponseParams*) _address;
     return (jshort) _self->speedResponsesPerCommandValue[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleCommandNonLinearResponseParams_00024Raw_setSpeedResponsesPerCommandValue(JNIEnv*, jclass, jlong _address, jint _index, jshort value) {
-    physx::vehicle2::PxVehicleCommandNonLinearResponseParams* _self = (physx::vehicle2::PxVehicleCommandNonLinearResponseParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleCommandNonLinearResponseParams_00024Raw_setSpeedResponsesPerCommandValue(JNIEnv*, jclass, jlong _address, jint _index, jshort value) {
+    physx::PxVehicleCommandNonLinearResponseParams* _self = (physx::PxVehicleCommandNonLinearResponseParams*) _address;
     _self->speedResponsesPerCommandValue[_index] = value;
 }
-JNIEXPORT jshort JNICALL Java_physx_vehicle2_PxVehicleCommandNonLinearResponseParams_00024Raw_getNbSpeedResponsesPerCommandValue(JNIEnv*, jclass, jlong _address, jint _index) {
-    physx::vehicle2::PxVehicleCommandNonLinearResponseParams* _self = (physx::vehicle2::PxVehicleCommandNonLinearResponseParams*) _address;
+JNIEXPORT jshort JNICALL Java_physx_vehicle_PxVehicleCommandNonLinearResponseParams_00024Raw_getNbSpeedResponsesPerCommandValue(JNIEnv*, jclass, jlong _address, jint _index) {
+    physx::PxVehicleCommandNonLinearResponseParams* _self = (physx::PxVehicleCommandNonLinearResponseParams*) _address;
     return (jshort) _self->nbSpeedResponsesPerCommandValue[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleCommandNonLinearResponseParams_00024Raw_setNbSpeedResponsesPerCommandValue(JNIEnv*, jclass, jlong _address, jint _index, jshort value) {
-    physx::vehicle2::PxVehicleCommandNonLinearResponseParams* _self = (physx::vehicle2::PxVehicleCommandNonLinearResponseParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleCommandNonLinearResponseParams_00024Raw_setNbSpeedResponsesPerCommandValue(JNIEnv*, jclass, jlong _address, jint _index, jshort value) {
+    physx::PxVehicleCommandNonLinearResponseParams* _self = (physx::PxVehicleCommandNonLinearResponseParams*) _address;
     _self->nbSpeedResponsesPerCommandValue[_index] = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleCommandNonLinearResponseParams_00024Raw_getCommandValues(JNIEnv*, jclass, jlong _address, jint _index) {
-    physx::vehicle2::PxVehicleCommandNonLinearResponseParams* _self = (physx::vehicle2::PxVehicleCommandNonLinearResponseParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleCommandNonLinearResponseParams_00024Raw_getCommandValues(JNIEnv*, jclass, jlong _address, jint _index) {
+    physx::PxVehicleCommandNonLinearResponseParams* _self = (physx::PxVehicleCommandNonLinearResponseParams*) _address;
     return (jfloat) _self->commandValues[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleCommandNonLinearResponseParams_00024Raw_setCommandValues(JNIEnv*, jclass, jlong _address, jint _index, jfloat value) {
-    physx::vehicle2::PxVehicleCommandNonLinearResponseParams* _self = (physx::vehicle2::PxVehicleCommandNonLinearResponseParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleCommandNonLinearResponseParams_00024Raw_setCommandValues(JNIEnv*, jclass, jlong _address, jint _index, jfloat value) {
+    physx::PxVehicleCommandNonLinearResponseParams* _self = (physx::PxVehicleCommandNonLinearResponseParams*) _address;
     _self->commandValues[_index] = value;
 }
-JNIEXPORT jshort JNICALL Java_physx_vehicle2_PxVehicleCommandNonLinearResponseParams_00024Raw_getNbCommandValues(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleCommandNonLinearResponseParams* _self = (physx::vehicle2::PxVehicleCommandNonLinearResponseParams*) _address;
+JNIEXPORT jshort JNICALL Java_physx_vehicle_PxVehicleCommandNonLinearResponseParams_00024Raw_getNbCommandValues(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleCommandNonLinearResponseParams* _self = (physx::PxVehicleCommandNonLinearResponseParams*) _address;
     return (jshort) _self->nbCommandValues;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleCommandNonLinearResponseParams_00024Raw_setNbCommandValues(JNIEnv*, jclass, jlong _address, jshort value) {
-    physx::vehicle2::PxVehicleCommandNonLinearResponseParams* _self = (physx::vehicle2::PxVehicleCommandNonLinearResponseParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleCommandNonLinearResponseParams_00024Raw_setNbCommandValues(JNIEnv*, jclass, jlong _address, jshort value) {
+    physx::PxVehicleCommandNonLinearResponseParams* _self = (physx::PxVehicleCommandNonLinearResponseParams*) _address;
     _self->nbCommandValues = value;
 }
 
 // PxVehicleCommandResponseParams
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleCommandResponseParams__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleCommandResponseParams);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleCommandResponseParams__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleCommandResponseParams);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleCommandResponseParams_00024Raw_PxVehicleCommandResponseParams(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleCommandResponseParams();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleCommandResponseParams_00024Raw_PxVehicleCommandResponseParams(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleCommandResponseParams();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleCommandResponseParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleCommandResponseParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleCommandResponseParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleCommandResponseParams*) _address;
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleCommandResponseParams_00024Raw_getNonlinearResponse(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleCommandResponseParams* _self = (physx::vehicle2::PxVehicleCommandResponseParams*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleCommandResponseParams_00024Raw_getNonlinearResponse(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleCommandResponseParams* _self = (physx::PxVehicleCommandResponseParams*) _address;
     return (jlong) &_self->nonlinearResponse;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleCommandResponseParams_00024Raw_setNonlinearResponse(JNIEnv*, jclass, jlong _address, jlong value) {
-    physx::vehicle2::PxVehicleCommandResponseParams* _self = (physx::vehicle2::PxVehicleCommandResponseParams*) _address;
-    _self->nonlinearResponse = *((physx::vehicle2::PxVehicleCommandNonLinearResponseParams*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleCommandResponseParams_00024Raw_setNonlinearResponse(JNIEnv*, jclass, jlong _address, jlong value) {
+    physx::PxVehicleCommandResponseParams* _self = (physx::PxVehicleCommandResponseParams*) _address;
+    _self->nonlinearResponse = *((physx::PxVehicleCommandNonLinearResponseParams*) value);
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleCommandResponseParams_00024Raw_getWheelResponseMultipliers(JNIEnv*, jclass, jlong _address, jint _index) {
-    physx::vehicle2::PxVehicleCommandResponseParams* _self = (physx::vehicle2::PxVehicleCommandResponseParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleCommandResponseParams_00024Raw_getWheelResponseMultipliers(JNIEnv*, jclass, jlong _address, jint _index) {
+    physx::PxVehicleCommandResponseParams* _self = (physx::PxVehicleCommandResponseParams*) _address;
     return (jfloat) _self->wheelResponseMultipliers[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleCommandResponseParams_00024Raw_setWheelResponseMultipliers(JNIEnv*, jclass, jlong _address, jint _index, jfloat value) {
-    physx::vehicle2::PxVehicleCommandResponseParams* _self = (physx::vehicle2::PxVehicleCommandResponseParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleCommandResponseParams_00024Raw_setWheelResponseMultipliers(JNIEnv*, jclass, jlong _address, jint _index, jfloat value) {
+    physx::PxVehicleCommandResponseParams* _self = (physx::PxVehicleCommandResponseParams*) _address;
     _self->wheelResponseMultipliers[_index] = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleCommandResponseParams_00024Raw_getMaxResponse(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleCommandResponseParams* _self = (physx::vehicle2::PxVehicleCommandResponseParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleCommandResponseParams_00024Raw_getMaxResponse(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleCommandResponseParams* _self = (physx::PxVehicleCommandResponseParams*) _address;
     return (jfloat) _self->maxResponse;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleCommandResponseParams_00024Raw_setMaxResponse(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleCommandResponseParams* _self = (physx::vehicle2::PxVehicleCommandResponseParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleCommandResponseParams_00024Raw_setMaxResponse(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleCommandResponseParams* _self = (physx::PxVehicleCommandResponseParams*) _address;
     _self->maxResponse = value;
 }
 
 // PxVehicleCommandState
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleCommandState__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleCommandState);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleCommandState__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleCommandState);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleCommandState_00024Raw_PxVehicleCommandState(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleCommandState();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleCommandState_00024Raw_PxVehicleCommandState(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleCommandState();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleCommandState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleCommandState* self = (physx::vehicle2::PxVehicleCommandState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleCommandState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleCommandState* self = (physx::PxVehicleCommandState*) _address;
     self->setToDefault();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleCommandState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleCommandState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleCommandState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleCommandState*) _address;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleCommandState_00024Raw_getBrakes(JNIEnv*, jclass, jlong _address, jint _index) {
-    physx::vehicle2::PxVehicleCommandState* _self = (physx::vehicle2::PxVehicleCommandState*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleCommandState_00024Raw_getBrakes(JNIEnv*, jclass, jlong _address, jint _index) {
+    physx::PxVehicleCommandState* _self = (physx::PxVehicleCommandState*) _address;
     return (jfloat) _self->brakes[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleCommandState_00024Raw_setBrakes(JNIEnv*, jclass, jlong _address, jint _index, jfloat value) {
-    physx::vehicle2::PxVehicleCommandState* _self = (physx::vehicle2::PxVehicleCommandState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleCommandState_00024Raw_setBrakes(JNIEnv*, jclass, jlong _address, jint _index, jfloat value) {
+    physx::PxVehicleCommandState* _self = (physx::PxVehicleCommandState*) _address;
     _self->brakes[_index] = value;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleCommandState_00024Raw_getNbBrakes(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleCommandState* _self = (physx::vehicle2::PxVehicleCommandState*) _address;
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleCommandState_00024Raw_getNbBrakes(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleCommandState* _self = (physx::PxVehicleCommandState*) _address;
     return (jint) _self->nbBrakes;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleCommandState_00024Raw_setNbBrakes(JNIEnv*, jclass, jlong _address, jint value) {
-    physx::vehicle2::PxVehicleCommandState* _self = (physx::vehicle2::PxVehicleCommandState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleCommandState_00024Raw_setNbBrakes(JNIEnv*, jclass, jlong _address, jint value) {
+    physx::PxVehicleCommandState* _self = (physx::PxVehicleCommandState*) _address;
     _self->nbBrakes = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleCommandState_00024Raw_getThrottle(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleCommandState* _self = (physx::vehicle2::PxVehicleCommandState*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleCommandState_00024Raw_getThrottle(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleCommandState* _self = (physx::PxVehicleCommandState*) _address;
     return (jfloat) _self->throttle;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleCommandState_00024Raw_setThrottle(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleCommandState* _self = (physx::vehicle2::PxVehicleCommandState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleCommandState_00024Raw_setThrottle(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleCommandState* _self = (physx::PxVehicleCommandState*) _address;
     _self->throttle = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleCommandState_00024Raw_getSteer(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleCommandState* _self = (physx::vehicle2::PxVehicleCommandState*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleCommandState_00024Raw_getSteer(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleCommandState* _self = (physx::PxVehicleCommandState*) _address;
     return (jfloat) _self->steer;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleCommandState_00024Raw_setSteer(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleCommandState* _self = (physx::vehicle2::PxVehicleCommandState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleCommandState_00024Raw_setSteer(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleCommandState* _self = (physx::PxVehicleCommandState*) _address;
     _self->steer = value;
 }
 
 // PxVehicleCommandValueResponseTable
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleCommandValueResponseTable__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleCommandValueResponseTable);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleCommandValueResponseTable__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleCommandValueResponseTable);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleCommandValueResponseTable_00024Raw_PxVehicleCommandValueResponseTable(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleCommandValueResponseTable();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleCommandValueResponseTable_00024Raw_PxVehicleCommandValueResponseTable(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleCommandValueResponseTable();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleCommandValueResponseTable_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleCommandValueResponseTable*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleCommandValueResponseTable_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleCommandValueResponseTable*) _address;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleCommandValueResponseTable_00024Raw_getCommandValue(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleCommandValueResponseTable* _self = (physx::vehicle2::PxVehicleCommandValueResponseTable*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleCommandValueResponseTable_00024Raw_getCommandValue(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleCommandValueResponseTable* _self = (physx::PxVehicleCommandValueResponseTable*) _address;
     return (jfloat) _self->commandValue;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleCommandValueResponseTable_00024Raw_setCommandValue(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleCommandValueResponseTable* _self = (physx::vehicle2::PxVehicleCommandValueResponseTable*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleCommandValueResponseTable_00024Raw_setCommandValue(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleCommandValueResponseTable* _self = (physx::PxVehicleCommandValueResponseTable*) _address;
     _self->commandValue = value;
 }
 
 // PxVehicleComponent
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleComponent__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleComponent);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleComponent__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleComponent);
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleComponent_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleComponent*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleComponent_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleComponent*) _address;
 }
 
 // PxVehicleComponentSequence
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleComponentSequence__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleComponentSequence);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleComponentSequence__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleComponentSequence);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleComponentSequence_00024Raw_PxVehicleComponentSequence(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleComponentSequence();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleComponentSequence_00024Raw_PxVehicleComponentSequence(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleComponentSequence();
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_PxVehicleComponentSequence_00024Raw_add(JNIEnv*, jclass, jlong _address, jlong component) {
-    physx::vehicle2::PxVehicleComponentSequence* self = (physx::vehicle2::PxVehicleComponentSequence*) _address;
-    return (jboolean) self->add((physx::vehicle2::PxVehicleComponent*) component);
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_PxVehicleComponentSequence_00024Raw_add(JNIEnv*, jclass, jlong _address, jlong component) {
+    physx::PxVehicleComponentSequence* self = (physx::PxVehicleComponentSequence*) _address;
+    return (jboolean) self->add((physx::PxVehicleComponent*) component);
 }
-JNIEXPORT jbyte JNICALL Java_physx_vehicle2_PxVehicleComponentSequence_00024Raw_beginSubstepGroup__J(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleComponentSequence* self = (physx::vehicle2::PxVehicleComponentSequence*) _address;
+JNIEXPORT jbyte JNICALL Java_physx_vehicle_PxVehicleComponentSequence_00024Raw_beginSubstepGroup__J(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleComponentSequence* self = (physx::PxVehicleComponentSequence*) _address;
     return (jbyte) self->beginSubstepGroup();
 }
-JNIEXPORT jbyte JNICALL Java_physx_vehicle2_PxVehicleComponentSequence_00024Raw_beginSubstepGroup__JB(JNIEnv*, jclass, jlong _address, jbyte nbSubSteps) {
-    physx::vehicle2::PxVehicleComponentSequence* self = (physx::vehicle2::PxVehicleComponentSequence*) _address;
+JNIEXPORT jbyte JNICALL Java_physx_vehicle_PxVehicleComponentSequence_00024Raw_beginSubstepGroup__JB(JNIEnv*, jclass, jlong _address, jbyte nbSubSteps) {
+    physx::PxVehicleComponentSequence* self = (physx::PxVehicleComponentSequence*) _address;
     return (jbyte) self->beginSubstepGroup(nbSubSteps);
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleComponentSequence_00024Raw_endSubstepGroup(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleComponentSequence* self = (physx::vehicle2::PxVehicleComponentSequence*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleComponentSequence_00024Raw_endSubstepGroup(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleComponentSequence* self = (physx::PxVehicleComponentSequence*) _address;
     self->endSubstepGroup();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleComponentSequence_00024Raw_setSubsteps(JNIEnv*, jclass, jlong _address, jbyte subGroupHandle, jbyte nbSteps) {
-    physx::vehicle2::PxVehicleComponentSequence* self = (physx::vehicle2::PxVehicleComponentSequence*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleComponentSequence_00024Raw_setSubsteps(JNIEnv*, jclass, jlong _address, jbyte subGroupHandle, jbyte nbSteps) {
+    physx::PxVehicleComponentSequence* self = (physx::PxVehicleComponentSequence*) _address;
     self->setSubsteps(subGroupHandle, nbSteps);
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleComponentSequence_00024Raw_update(JNIEnv*, jclass, jlong _address, jfloat dt, jlong context) {
-    physx::vehicle2::PxVehicleComponentSequence* self = (physx::vehicle2::PxVehicleComponentSequence*) _address;
-    self->update(dt, *((physx::vehicle2::PxVehicleSimulationContext*) context));
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleComponentSequence_00024Raw_update(JNIEnv*, jclass, jlong _address, jfloat dt, jlong context) {
+    physx::PxVehicleComponentSequence* self = (physx::PxVehicleComponentSequence*) _address;
+    self->update(dt, *((physx::PxVehicleSimulationContext*) context));
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleComponentSequence_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleComponentSequence*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleComponentSequence_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleComponentSequence*) _address;
 }
 
 // PxVehicleConstraintConnector
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleConstraintConnector__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleConstraintConnector);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleConstraintConnector__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleConstraintConnector);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleConstraintConnector_00024Raw_PxVehicleConstraintConnector__(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleConstraintConnector();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleConstraintConnector_00024Raw_PxVehicleConstraintConnector__(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleConstraintConnector();
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleConstraintConnector_00024Raw_PxVehicleConstraintConnector__J(JNIEnv*, jclass, jlong vehicleConstraintState) {
-    return (jlong) new physx::vehicle2::PxVehicleConstraintConnector((physx::vehicle2::PxVehiclePhysXConstraintState*) vehicleConstraintState);
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleConstraintConnector_00024Raw_PxVehicleConstraintConnector__J(JNIEnv*, jclass, jlong vehicleConstraintState) {
+    return (jlong) new physx::PxVehicleConstraintConnector((physx::PxVehiclePhysXConstraintState*) vehicleConstraintState);
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleConstraintConnector_00024Raw_setConstraintState(JNIEnv*, jclass, jlong _address, jlong constraintState) {
-    physx::vehicle2::PxVehicleConstraintConnector* self = (physx::vehicle2::PxVehicleConstraintConnector*) _address;
-    self->setConstraintState((physx::vehicle2::PxVehiclePhysXConstraintState*) constraintState);
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleConstraintConnector_00024Raw_setConstraintState(JNIEnv*, jclass, jlong _address, jlong constraintState) {
+    physx::PxVehicleConstraintConnector* self = (physx::PxVehicleConstraintConnector*) _address;
+    self->setConstraintState((physx::PxVehiclePhysXConstraintState*) constraintState);
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleConstraintConnector_00024Raw_getConstantBlock(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleConstraintConnector* self = (physx::vehicle2::PxVehicleConstraintConnector*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleConstraintConnector_00024Raw_getConstantBlock(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleConstraintConnector* self = (physx::PxVehicleConstraintConnector*) _address;
     self->getConstantBlock();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleConstraintConnector_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleConstraintConnector*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleConstraintConnector_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleConstraintConnector*) _address;
 }
 
 // PxVehicleDifferentialState
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleDifferentialState__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleDifferentialState);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleDifferentialState__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleDifferentialState);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleDifferentialState_00024Raw_PxVehicleDifferentialState(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleDifferentialState();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleDifferentialState_00024Raw_PxVehicleDifferentialState(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleDifferentialState();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleDifferentialState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleDifferentialState* self = (physx::vehicle2::PxVehicleDifferentialState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleDifferentialState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleDifferentialState* self = (physx::PxVehicleDifferentialState*) _address;
     self->setToDefault();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleDifferentialState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleDifferentialState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleDifferentialState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleDifferentialState*) _address;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleDifferentialState_00024Raw_getConnectedWheels(JNIEnv*, jclass, jlong _address, jint _index) {
-    physx::vehicle2::PxVehicleDifferentialState* _self = (physx::vehicle2::PxVehicleDifferentialState*) _address;
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleDifferentialState_00024Raw_getConnectedWheels(JNIEnv*, jclass, jlong _address, jint _index) {
+    physx::PxVehicleDifferentialState* _self = (physx::PxVehicleDifferentialState*) _address;
     return (jint) _self->connectedWheels[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleDifferentialState_00024Raw_setConnectedWheels(JNIEnv*, jclass, jlong _address, jint _index, jint value) {
-    physx::vehicle2::PxVehicleDifferentialState* _self = (physx::vehicle2::PxVehicleDifferentialState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleDifferentialState_00024Raw_setConnectedWheels(JNIEnv*, jclass, jlong _address, jint _index, jint value) {
+    physx::PxVehicleDifferentialState* _self = (physx::PxVehicleDifferentialState*) _address;
     _self->connectedWheels[_index] = value;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleDifferentialState_00024Raw_getNbConnectedWheels(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleDifferentialState* _self = (physx::vehicle2::PxVehicleDifferentialState*) _address;
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleDifferentialState_00024Raw_getNbConnectedWheels(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleDifferentialState* _self = (physx::PxVehicleDifferentialState*) _address;
     return (jint) _self->nbConnectedWheels;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleDifferentialState_00024Raw_setNbConnectedWheels(JNIEnv*, jclass, jlong _address, jint value) {
-    physx::vehicle2::PxVehicleDifferentialState* _self = (physx::vehicle2::PxVehicleDifferentialState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleDifferentialState_00024Raw_setNbConnectedWheels(JNIEnv*, jclass, jlong _address, jint value) {
+    physx::PxVehicleDifferentialState* _self = (physx::PxVehicleDifferentialState*) _address;
     _self->nbConnectedWheels = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleDifferentialState_00024Raw_getTorqueRatiosAllWheels(JNIEnv*, jclass, jlong _address, jint _index) {
-    physx::vehicle2::PxVehicleDifferentialState* _self = (physx::vehicle2::PxVehicleDifferentialState*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleDifferentialState_00024Raw_getTorqueRatiosAllWheels(JNIEnv*, jclass, jlong _address, jint _index) {
+    physx::PxVehicleDifferentialState* _self = (physx::PxVehicleDifferentialState*) _address;
     return (jfloat) _self->torqueRatiosAllWheels[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleDifferentialState_00024Raw_setTorqueRatiosAllWheels(JNIEnv*, jclass, jlong _address, jint _index, jfloat value) {
-    physx::vehicle2::PxVehicleDifferentialState* _self = (physx::vehicle2::PxVehicleDifferentialState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleDifferentialState_00024Raw_setTorqueRatiosAllWheels(JNIEnv*, jclass, jlong _address, jint _index, jfloat value) {
+    physx::PxVehicleDifferentialState* _self = (physx::PxVehicleDifferentialState*) _address;
     _self->torqueRatiosAllWheels[_index] = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleDifferentialState_00024Raw_getAveWheelSpeedContributionAllWheels(JNIEnv*, jclass, jlong _address, jint _index) {
-    physx::vehicle2::PxVehicleDifferentialState* _self = (physx::vehicle2::PxVehicleDifferentialState*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleDifferentialState_00024Raw_getAveWheelSpeedContributionAllWheels(JNIEnv*, jclass, jlong _address, jint _index) {
+    physx::PxVehicleDifferentialState* _self = (physx::PxVehicleDifferentialState*) _address;
     return (jfloat) _self->aveWheelSpeedContributionAllWheels[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleDifferentialState_00024Raw_setAveWheelSpeedContributionAllWheels(JNIEnv*, jclass, jlong _address, jint _index, jfloat value) {
-    physx::vehicle2::PxVehicleDifferentialState* _self = (physx::vehicle2::PxVehicleDifferentialState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleDifferentialState_00024Raw_setAveWheelSpeedContributionAllWheels(JNIEnv*, jclass, jlong _address, jint _index, jfloat value) {
+    physx::PxVehicleDifferentialState* _self = (physx::PxVehicleDifferentialState*) _address;
     _self->aveWheelSpeedContributionAllWheels[_index] = value;
 }
 
 // PxVehicleDirectDriveThrottleCommandResponseParams
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleDirectDriveThrottleCommandResponseParams__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleDirectDriveThrottleCommandResponseParams);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleDirectDriveThrottleCommandResponseParams__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleDirectDriveThrottleCommandResponseParams);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleDirectDriveThrottleCommandResponseParams_00024Raw_PxVehicleDirectDriveThrottleCommandResponseParams(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleDirectDriveThrottleCommandResponseParams();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleDirectDriveThrottleCommandResponseParams_00024Raw_PxVehicleDirectDriveThrottleCommandResponseParams(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleDirectDriveThrottleCommandResponseParams();
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleDirectDriveThrottleCommandResponseParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
-    physx::vehicle2::PxVehicleDirectDriveThrottleCommandResponseParams* self = (physx::vehicle2::PxVehicleDirectDriveThrottleCommandResponseParams*) _address;
-    static thread_local physx::vehicle2::PxVehicleDirectDriveThrottleCommandResponseParams _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
-    _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleDirectDriveThrottleCommandResponseParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
+    physx::PxVehicleDirectDriveThrottleCommandResponseParams* self = (physx::PxVehicleDirectDriveThrottleCommandResponseParams*) _address;
+    static thread_local physx::PxVehicleDirectDriveThrottleCommandResponseParams _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
+    _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
     return (jlong) &_cache;
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_PxVehicleDirectDriveThrottleCommandResponseParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address, jlong axleDesc) {
-    physx::vehicle2::PxVehicleDirectDriveThrottleCommandResponseParams* self = (physx::vehicle2::PxVehicleDirectDriveThrottleCommandResponseParams*) _address;
-    return (jboolean) self->isValid(*((physx::vehicle2::PxVehicleAxleDescription*) axleDesc));
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_PxVehicleDirectDriveThrottleCommandResponseParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address, jlong axleDesc) {
+    physx::PxVehicleDirectDriveThrottleCommandResponseParams* self = (physx::PxVehicleDirectDriveThrottleCommandResponseParams*) _address;
+    return (jboolean) self->isValid(*((physx::PxVehicleAxleDescription*) axleDesc));
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleDirectDriveThrottleCommandResponseParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleDirectDriveThrottleCommandResponseParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleDirectDriveThrottleCommandResponseParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleDirectDriveThrottleCommandResponseParams*) _address;
 }
 
 // PxVehicleDirectDriveTransmissionCommandState
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleDirectDriveTransmissionCommandState__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleDirectDriveTransmissionCommandState);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleDirectDriveTransmissionCommandState__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleDirectDriveTransmissionCommandState);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleDirectDriveTransmissionCommandState_00024Raw_PxVehicleDirectDriveTransmissionCommandState(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleDirectDriveTransmissionCommandState();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleDirectDriveTransmissionCommandState_00024Raw_PxVehicleDirectDriveTransmissionCommandState(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleDirectDriveTransmissionCommandState();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleDirectDriveTransmissionCommandState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleDirectDriveTransmissionCommandState* self = (physx::vehicle2::PxVehicleDirectDriveTransmissionCommandState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleDirectDriveTransmissionCommandState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleDirectDriveTransmissionCommandState* self = (physx::PxVehicleDirectDriveTransmissionCommandState*) _address;
     self->setToDefault();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleDirectDriveTransmissionCommandState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleDirectDriveTransmissionCommandState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleDirectDriveTransmissionCommandState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleDirectDriveTransmissionCommandState*) _address;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleDirectDriveTransmissionCommandState_00024Raw_getGear(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleDirectDriveTransmissionCommandState* _self = (physx::vehicle2::PxVehicleDirectDriveTransmissionCommandState*) _address;
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleDirectDriveTransmissionCommandState_00024Raw_getGear(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleDirectDriveTransmissionCommandState* _self = (physx::PxVehicleDirectDriveTransmissionCommandState*) _address;
     return (jint) _self->gear;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleDirectDriveTransmissionCommandState_00024Raw_setGear(JNIEnv*, jclass, jlong _address, jint value) {
-    physx::vehicle2::PxVehicleDirectDriveTransmissionCommandState* _self = (physx::vehicle2::PxVehicleDirectDriveTransmissionCommandState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleDirectDriveTransmissionCommandState_00024Raw_setGear(JNIEnv*, jclass, jlong _address, jint value) {
+    physx::PxVehicleDirectDriveTransmissionCommandState* _self = (physx::PxVehicleDirectDriveTransmissionCommandState*) _address;
     _self->gear = (PxVehicleDirectDriveTransmissionCommandStateEnum) value;
 }
 
 // PxVehicleEngineDriveThrottleCommandResponseState
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleEngineDriveThrottleCommandResponseState__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleEngineDriveThrottleCommandResponseState);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleEngineDriveThrottleCommandResponseState__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleEngineDriveThrottleCommandResponseState);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleEngineDriveThrottleCommandResponseState_00024Raw_PxVehicleEngineDriveThrottleCommandResponseState(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleEngineDriveThrottleCommandResponseState();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleEngineDriveThrottleCommandResponseState_00024Raw_PxVehicleEngineDriveThrottleCommandResponseState(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleEngineDriveThrottleCommandResponseState();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleEngineDriveThrottleCommandResponseState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleEngineDriveThrottleCommandResponseState* self = (physx::vehicle2::PxVehicleEngineDriveThrottleCommandResponseState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleEngineDriveThrottleCommandResponseState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleEngineDriveThrottleCommandResponseState* self = (physx::PxVehicleEngineDriveThrottleCommandResponseState*) _address;
     self->setToDefault();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleEngineDriveThrottleCommandResponseState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleEngineDriveThrottleCommandResponseState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleEngineDriveThrottleCommandResponseState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleEngineDriveThrottleCommandResponseState*) _address;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleEngineDriveThrottleCommandResponseState_00024Raw_getCommandResponse(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleEngineDriveThrottleCommandResponseState* _self = (physx::vehicle2::PxVehicleEngineDriveThrottleCommandResponseState*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleEngineDriveThrottleCommandResponseState_00024Raw_getCommandResponse(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleEngineDriveThrottleCommandResponseState* _self = (physx::PxVehicleEngineDriveThrottleCommandResponseState*) _address;
     return (jfloat) _self->commandResponse;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleEngineDriveThrottleCommandResponseState_00024Raw_setCommandResponse(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleEngineDriveThrottleCommandResponseState* _self = (physx::vehicle2::PxVehicleEngineDriveThrottleCommandResponseState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleEngineDriveThrottleCommandResponseState_00024Raw_setCommandResponse(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleEngineDriveThrottleCommandResponseState* _self = (physx::PxVehicleEngineDriveThrottleCommandResponseState*) _address;
     _self->commandResponse = value;
 }
 
 // PxVehicleEngineDriveTransmissionCommandState
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleEngineDriveTransmissionCommandState__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleEngineDriveTransmissionCommandState);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleEngineDriveTransmissionCommandState__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleEngineDriveTransmissionCommandState);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleEngineDriveTransmissionCommandState_00024Raw_PxVehicleEngineDriveTransmissionCommandState(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleEngineDriveTransmissionCommandState();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleEngineDriveTransmissionCommandState_00024Raw_PxVehicleEngineDriveTransmissionCommandState(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleEngineDriveTransmissionCommandState();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleEngineDriveTransmissionCommandState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleEngineDriveTransmissionCommandState* self = (physx::vehicle2::PxVehicleEngineDriveTransmissionCommandState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleEngineDriveTransmissionCommandState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleEngineDriveTransmissionCommandState* self = (physx::PxVehicleEngineDriveTransmissionCommandState*) _address;
     self->setToDefault();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleEngineDriveTransmissionCommandState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleEngineDriveTransmissionCommandState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleEngineDriveTransmissionCommandState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleEngineDriveTransmissionCommandState*) _address;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleEngineDriveTransmissionCommandState_00024Raw_getClutch(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleEngineDriveTransmissionCommandState* _self = (physx::vehicle2::PxVehicleEngineDriveTransmissionCommandState*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleEngineDriveTransmissionCommandState_00024Raw_getClutch(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleEngineDriveTransmissionCommandState* _self = (physx::PxVehicleEngineDriveTransmissionCommandState*) _address;
     return (jfloat) _self->clutch;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleEngineDriveTransmissionCommandState_00024Raw_setClutch(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleEngineDriveTransmissionCommandState* _self = (physx::vehicle2::PxVehicleEngineDriveTransmissionCommandState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleEngineDriveTransmissionCommandState_00024Raw_setClutch(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleEngineDriveTransmissionCommandState* _self = (physx::PxVehicleEngineDriveTransmissionCommandState*) _address;
     _self->clutch = value;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleEngineDriveTransmissionCommandState_00024Raw_getTargetGear(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleEngineDriveTransmissionCommandState* _self = (physx::vehicle2::PxVehicleEngineDriveTransmissionCommandState*) _address;
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleEngineDriveTransmissionCommandState_00024Raw_getTargetGear(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleEngineDriveTransmissionCommandState* _self = (physx::PxVehicleEngineDriveTransmissionCommandState*) _address;
     return (jint) _self->targetGear;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleEngineDriveTransmissionCommandState_00024Raw_setTargetGear(JNIEnv*, jclass, jlong _address, jint value) {
-    physx::vehicle2::PxVehicleEngineDriveTransmissionCommandState* _self = (physx::vehicle2::PxVehicleEngineDriveTransmissionCommandState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleEngineDriveTransmissionCommandState_00024Raw_setTargetGear(JNIEnv*, jclass, jlong _address, jint value) {
+    physx::PxVehicleEngineDriveTransmissionCommandState* _self = (physx::PxVehicleEngineDriveTransmissionCommandState*) _address;
     _self->targetGear = value;
 }
 
 // PxVehicleEngineParams
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleEngineParams__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleEngineParams);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleEngineParams__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleEngineParams);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleEngineParams_00024Raw_PxVehicleEngineParams_1placed(JNIEnv*, jclass, jlong _placement_address) {
-    return (jlong) new((void*)_placement_address) physx::vehicle2::PxVehicleEngineParams();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleEngineParams_00024Raw_PxVehicleEngineParams_1placed(JNIEnv*, jclass, jlong _placement_address) {
+    return (jlong) new((void*)_placement_address) physx::PxVehicleEngineParams();
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleEngineParams_00024Raw_PxVehicleEngineParams(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleEngineParams();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleEngineParams_00024Raw_PxVehicleEngineParams(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleEngineParams();
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleEngineParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
-    physx::vehicle2::PxVehicleEngineParams* self = (physx::vehicle2::PxVehicleEngineParams*) _address;
-    static thread_local physx::vehicle2::PxVehicleEngineParams _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
-    _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleEngineParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
+    physx::PxVehicleEngineParams* self = (physx::PxVehicleEngineParams*) _address;
+    static thread_local physx::PxVehicleEngineParams _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
+    _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
     return (jlong) &_cache;
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_PxVehicleEngineParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleEngineParams* self = (physx::vehicle2::PxVehicleEngineParams*) _address;
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_PxVehicleEngineParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleEngineParams* self = (physx::PxVehicleEngineParams*) _address;
     return (jboolean) self->isValid();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleEngineParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleEngineParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleEngineParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleEngineParams*) _address;
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleEngineParams_00024Raw_getTorqueCurve(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleEngineParams* _self = (physx::vehicle2::PxVehicleEngineParams*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleEngineParams_00024Raw_getTorqueCurve(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleEngineParams* _self = (physx::PxVehicleEngineParams*) _address;
     return (jlong) &_self->torqueCurve;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleEngineParams_00024Raw_setTorqueCurve(JNIEnv*, jclass, jlong _address, jlong value) {
-    physx::vehicle2::PxVehicleEngineParams* _self = (physx::vehicle2::PxVehicleEngineParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleEngineParams_00024Raw_setTorqueCurve(JNIEnv*, jclass, jlong _address, jlong value) {
+    physx::PxVehicleEngineParams* _self = (physx::PxVehicleEngineParams*) _address;
     _self->torqueCurve = *((PxVehicleTorqueCurveLookupTable*) value);
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleEngineParams_00024Raw_getMoi(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleEngineParams* _self = (physx::vehicle2::PxVehicleEngineParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleEngineParams_00024Raw_getMoi(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleEngineParams* _self = (physx::PxVehicleEngineParams*) _address;
     return (jfloat) _self->moi;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleEngineParams_00024Raw_setMoi(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleEngineParams* _self = (physx::vehicle2::PxVehicleEngineParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleEngineParams_00024Raw_setMoi(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleEngineParams* _self = (physx::PxVehicleEngineParams*) _address;
     _self->moi = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleEngineParams_00024Raw_getPeakTorque(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleEngineParams* _self = (physx::vehicle2::PxVehicleEngineParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleEngineParams_00024Raw_getPeakTorque(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleEngineParams* _self = (physx::PxVehicleEngineParams*) _address;
     return (jfloat) _self->peakTorque;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleEngineParams_00024Raw_setPeakTorque(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleEngineParams* _self = (physx::vehicle2::PxVehicleEngineParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleEngineParams_00024Raw_setPeakTorque(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleEngineParams* _self = (physx::PxVehicleEngineParams*) _address;
     _self->peakTorque = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleEngineParams_00024Raw_getIdleOmega(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleEngineParams* _self = (physx::vehicle2::PxVehicleEngineParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleEngineParams_00024Raw_getIdleOmega(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleEngineParams* _self = (physx::PxVehicleEngineParams*) _address;
     return (jfloat) _self->idleOmega;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleEngineParams_00024Raw_setIdleOmega(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleEngineParams* _self = (physx::vehicle2::PxVehicleEngineParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleEngineParams_00024Raw_setIdleOmega(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleEngineParams* _self = (physx::PxVehicleEngineParams*) _address;
     _self->idleOmega = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleEngineParams_00024Raw_getMaxOmega(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleEngineParams* _self = (physx::vehicle2::PxVehicleEngineParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleEngineParams_00024Raw_getMaxOmega(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleEngineParams* _self = (physx::PxVehicleEngineParams*) _address;
     return (jfloat) _self->maxOmega;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleEngineParams_00024Raw_setMaxOmega(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleEngineParams* _self = (physx::vehicle2::PxVehicleEngineParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleEngineParams_00024Raw_setMaxOmega(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleEngineParams* _self = (physx::PxVehicleEngineParams*) _address;
     _self->maxOmega = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleEngineParams_00024Raw_getDampingRateFullThrottle(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleEngineParams* _self = (physx::vehicle2::PxVehicleEngineParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleEngineParams_00024Raw_getDampingRateFullThrottle(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleEngineParams* _self = (physx::PxVehicleEngineParams*) _address;
     return (jfloat) _self->dampingRateFullThrottle;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleEngineParams_00024Raw_setDampingRateFullThrottle(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleEngineParams* _self = (physx::vehicle2::PxVehicleEngineParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleEngineParams_00024Raw_setDampingRateFullThrottle(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleEngineParams* _self = (physx::PxVehicleEngineParams*) _address;
     _self->dampingRateFullThrottle = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleEngineParams_00024Raw_getDampingRateZeroThrottleClutchEngaged(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleEngineParams* _self = (physx::vehicle2::PxVehicleEngineParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleEngineParams_00024Raw_getDampingRateZeroThrottleClutchEngaged(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleEngineParams* _self = (physx::PxVehicleEngineParams*) _address;
     return (jfloat) _self->dampingRateZeroThrottleClutchEngaged;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleEngineParams_00024Raw_setDampingRateZeroThrottleClutchEngaged(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleEngineParams* _self = (physx::vehicle2::PxVehicleEngineParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleEngineParams_00024Raw_setDampingRateZeroThrottleClutchEngaged(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleEngineParams* _self = (physx::PxVehicleEngineParams*) _address;
     _self->dampingRateZeroThrottleClutchEngaged = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleEngineParams_00024Raw_getDampingRateZeroThrottleClutchDisengaged(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleEngineParams* _self = (physx::vehicle2::PxVehicleEngineParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleEngineParams_00024Raw_getDampingRateZeroThrottleClutchDisengaged(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleEngineParams* _self = (physx::PxVehicleEngineParams*) _address;
     return (jfloat) _self->dampingRateZeroThrottleClutchDisengaged;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleEngineParams_00024Raw_setDampingRateZeroThrottleClutchDisengaged(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleEngineParams* _self = (physx::vehicle2::PxVehicleEngineParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleEngineParams_00024Raw_setDampingRateZeroThrottleClutchDisengaged(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleEngineParams* _self = (physx::PxVehicleEngineParams*) _address;
     _self->dampingRateZeroThrottleClutchDisengaged = value;
 }
 
 // PxVehicleEngineState
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleEngineState__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleEngineState);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleEngineState__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleEngineState);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleEngineState_00024Raw_PxVehicleEngineState(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleEngineState();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleEngineState_00024Raw_PxVehicleEngineState(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleEngineState();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleEngineState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleEngineState* self = (physx::vehicle2::PxVehicleEngineState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleEngineState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleEngineState* self = (physx::PxVehicleEngineState*) _address;
     self->setToDefault();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleEngineState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleEngineState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleEngineState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleEngineState*) _address;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleEngineState_00024Raw_getRotationSpeed(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleEngineState* _self = (physx::vehicle2::PxVehicleEngineState*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleEngineState_00024Raw_getRotationSpeed(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleEngineState* _self = (physx::PxVehicleEngineState*) _address;
     return (jfloat) _self->rotationSpeed;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleEngineState_00024Raw_setRotationSpeed(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleEngineState* _self = (physx::vehicle2::PxVehicleEngineState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleEngineState_00024Raw_setRotationSpeed(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleEngineState* _self = (physx::PxVehicleEngineState*) _address;
     _self->rotationSpeed = value;
 }
 
 // PxVehicleFixedSizeLookupTableFloat_3
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleFixedSizeLookupTableFloat_13__1_1sizeOf(JNIEnv*, jclass) {
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleFixedSizeLookupTableFloat_13__1_1sizeOf(JNIEnv*, jclass) {
     return sizeof(PxVehicleFixedSizeLookupTableFloat_3);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleFixedSizeLookupTableFloat_13_00024Raw_PxVehicleFixedSizeLookupTableFloat_13(JNIEnv*, jclass) {
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleFixedSizeLookupTableFloat_13_00024Raw_PxVehicleFixedSizeLookupTableFloat_13(JNIEnv*, jclass) {
     return (jlong) new PxVehicleFixedSizeLookupTableFloat_3();
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_PxVehicleFixedSizeLookupTableFloat_13_00024Raw_addPair(JNIEnv*, jclass, jlong _address, jfloat x, jfloat y) {
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_PxVehicleFixedSizeLookupTableFloat_13_00024Raw_addPair(JNIEnv*, jclass, jlong _address, jfloat x, jfloat y) {
     PxVehicleFixedSizeLookupTableFloat_3* self = (PxVehicleFixedSizeLookupTableFloat_3*) _address;
     return (jboolean) self->addPair(x, y);
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleFixedSizeLookupTableFloat_13_00024Raw_interpolate(JNIEnv*, jclass, jlong _address, jfloat x) {
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleFixedSizeLookupTableFloat_13_00024Raw_interpolate(JNIEnv*, jclass, jlong _address, jfloat x) {
     PxVehicleFixedSizeLookupTableFloat_3* self = (PxVehicleFixedSizeLookupTableFloat_3*) _address;
     return (jfloat) self->interpolate(x);
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleFixedSizeLookupTableFloat_13_00024Raw_clear(JNIEnv*, jclass, jlong _address) {
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleFixedSizeLookupTableFloat_13_00024Raw_clear(JNIEnv*, jclass, jlong _address) {
     PxVehicleFixedSizeLookupTableFloat_3* self = (PxVehicleFixedSizeLookupTableFloat_3*) _address;
     self->clear();
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_PxVehicleFixedSizeLookupTableFloat_13_00024Raw_isValid(JNIEnv*, jclass, jlong _address) {
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_PxVehicleFixedSizeLookupTableFloat_13_00024Raw_isValid(JNIEnv*, jclass, jlong _address) {
     PxVehicleFixedSizeLookupTableFloat_3* self = (PxVehicleFixedSizeLookupTableFloat_3*) _address;
     return (jboolean) self->isValid();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleFixedSizeLookupTableFloat_13_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleFixedSizeLookupTableFloat_13_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
     delete (PxVehicleFixedSizeLookupTableFloat_3*) _address;
 }
 
 // PxVehicleFixedSizeLookupTableVec3_3
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleFixedSizeLookupTableVec3_13__1_1sizeOf(JNIEnv*, jclass) {
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleFixedSizeLookupTableVec3_13__1_1sizeOf(JNIEnv*, jclass) {
     return sizeof(PxVehicleFixedSizeLookupTableVec3_3);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleFixedSizeLookupTableVec3_13_00024Raw_PxVehicleFixedSizeLookupTableVec3_13(JNIEnv*, jclass) {
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleFixedSizeLookupTableVec3_13_00024Raw_PxVehicleFixedSizeLookupTableVec3_13(JNIEnv*, jclass) {
     return (jlong) new PxVehicleFixedSizeLookupTableVec3_3();
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_PxVehicleFixedSizeLookupTableVec3_13_00024Raw_addPair(JNIEnv*, jclass, jlong _address, jfloat x, jlong y) {
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_PxVehicleFixedSizeLookupTableVec3_13_00024Raw_addPair(JNIEnv*, jclass, jlong _address, jfloat x, jlong y) {
     PxVehicleFixedSizeLookupTableVec3_3* self = (PxVehicleFixedSizeLookupTableVec3_3*) _address;
     return (jboolean) self->addPair(x, *((physx::PxVec3*) y));
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleFixedSizeLookupTableVec3_13_00024Raw_interpolate(JNIEnv*, jclass, jlong _address, jfloat x) {
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleFixedSizeLookupTableVec3_13_00024Raw_interpolate(JNIEnv*, jclass, jlong _address, jfloat x) {
     PxVehicleFixedSizeLookupTableVec3_3* self = (PxVehicleFixedSizeLookupTableVec3_3*) _address;
     static thread_local physx::PxVec3 _cache = self->interpolate(x);
     _cache = self->interpolate(x);
     return (jlong) &_cache;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleFixedSizeLookupTableVec3_13_00024Raw_clear(JNIEnv*, jclass, jlong _address) {
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleFixedSizeLookupTableVec3_13_00024Raw_clear(JNIEnv*, jclass, jlong _address) {
     PxVehicleFixedSizeLookupTableVec3_3* self = (PxVehicleFixedSizeLookupTableVec3_3*) _address;
     self->clear();
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_PxVehicleFixedSizeLookupTableVec3_13_00024Raw_isValid(JNIEnv*, jclass, jlong _address) {
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_PxVehicleFixedSizeLookupTableVec3_13_00024Raw_isValid(JNIEnv*, jclass, jlong _address) {
     PxVehicleFixedSizeLookupTableVec3_3* self = (PxVehicleFixedSizeLookupTableVec3_3*) _address;
     return (jboolean) self->isValid();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleFixedSizeLookupTableVec3_13_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleFixedSizeLookupTableVec3_13_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
     delete (PxVehicleFixedSizeLookupTableVec3_3*) _address;
 }
 
 // PxVehicleFourWheelDriveDifferentialParams
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleFourWheelDriveDifferentialParams__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleFourWheelDriveDifferentialParams);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleFourWheelDriveDifferentialParams__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleFourWheelDriveDifferentialParams);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleFourWheelDriveDifferentialParams_00024Raw_PxVehicleFourWheelDriveDifferentialParams_1placed(JNIEnv*, jclass, jlong _placement_address) {
-    return (jlong) new((void*)_placement_address) physx::vehicle2::PxVehicleFourWheelDriveDifferentialParams();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleFourWheelDriveDifferentialParams_00024Raw_PxVehicleFourWheelDriveDifferentialParams_1placed(JNIEnv*, jclass, jlong _placement_address) {
+    return (jlong) new((void*)_placement_address) physx::PxVehicleFourWheelDriveDifferentialParams();
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleFourWheelDriveDifferentialParams_00024Raw_PxVehicleFourWheelDriveDifferentialParams(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleFourWheelDriveDifferentialParams();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleFourWheelDriveDifferentialParams_00024Raw_PxVehicleFourWheelDriveDifferentialParams(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleFourWheelDriveDifferentialParams();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleFourWheelDriveDifferentialParams_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleFourWheelDriveDifferentialParams* self = (physx::vehicle2::PxVehicleFourWheelDriveDifferentialParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleFourWheelDriveDifferentialParams_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleFourWheelDriveDifferentialParams* self = (physx::PxVehicleFourWheelDriveDifferentialParams*) _address;
     self->setToDefault();
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleFourWheelDriveDifferentialParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
-    physx::vehicle2::PxVehicleFourWheelDriveDifferentialParams* self = (physx::vehicle2::PxVehicleFourWheelDriveDifferentialParams*) _address;
-    static thread_local physx::vehicle2::PxVehicleFourWheelDriveDifferentialParams _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
-    _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleFourWheelDriveDifferentialParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
+    physx::PxVehicleFourWheelDriveDifferentialParams* self = (physx::PxVehicleFourWheelDriveDifferentialParams*) _address;
+    static thread_local physx::PxVehicleFourWheelDriveDifferentialParams _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
+    _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
     return (jlong) &_cache;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleFourWheelDriveDifferentialParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleFourWheelDriveDifferentialParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleFourWheelDriveDifferentialParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleFourWheelDriveDifferentialParams*) _address;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleFourWheelDriveDifferentialParams_00024Raw_getFrontWheelIds(JNIEnv*, jclass, jlong _address, jint _index) {
-    physx::vehicle2::PxVehicleFourWheelDriveDifferentialParams* _self = (physx::vehicle2::PxVehicleFourWheelDriveDifferentialParams*) _address;
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleFourWheelDriveDifferentialParams_00024Raw_getFrontWheelIds(JNIEnv*, jclass, jlong _address, jint _index) {
+    physx::PxVehicleFourWheelDriveDifferentialParams* _self = (physx::PxVehicleFourWheelDriveDifferentialParams*) _address;
     return (jint) _self->frontWheelIds[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleFourWheelDriveDifferentialParams_00024Raw_setFrontWheelIds(JNIEnv*, jclass, jlong _address, jint _index, jint value) {
-    physx::vehicle2::PxVehicleFourWheelDriveDifferentialParams* _self = (physx::vehicle2::PxVehicleFourWheelDriveDifferentialParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleFourWheelDriveDifferentialParams_00024Raw_setFrontWheelIds(JNIEnv*, jclass, jlong _address, jint _index, jint value) {
+    physx::PxVehicleFourWheelDriveDifferentialParams* _self = (physx::PxVehicleFourWheelDriveDifferentialParams*) _address;
     _self->frontWheelIds[_index] = value;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleFourWheelDriveDifferentialParams_00024Raw_getRearWheelIds(JNIEnv*, jclass, jlong _address, jint _index) {
-    physx::vehicle2::PxVehicleFourWheelDriveDifferentialParams* _self = (physx::vehicle2::PxVehicleFourWheelDriveDifferentialParams*) _address;
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleFourWheelDriveDifferentialParams_00024Raw_getRearWheelIds(JNIEnv*, jclass, jlong _address, jint _index) {
+    physx::PxVehicleFourWheelDriveDifferentialParams* _self = (physx::PxVehicleFourWheelDriveDifferentialParams*) _address;
     return (jint) _self->rearWheelIds[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleFourWheelDriveDifferentialParams_00024Raw_setRearWheelIds(JNIEnv*, jclass, jlong _address, jint _index, jint value) {
-    physx::vehicle2::PxVehicleFourWheelDriveDifferentialParams* _self = (physx::vehicle2::PxVehicleFourWheelDriveDifferentialParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleFourWheelDriveDifferentialParams_00024Raw_setRearWheelIds(JNIEnv*, jclass, jlong _address, jint _index, jint value) {
+    physx::PxVehicleFourWheelDriveDifferentialParams* _self = (physx::PxVehicleFourWheelDriveDifferentialParams*) _address;
     _self->rearWheelIds[_index] = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleFourWheelDriveDifferentialParams_00024Raw_getFrontBias(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleFourWheelDriveDifferentialParams* _self = (physx::vehicle2::PxVehicleFourWheelDriveDifferentialParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleFourWheelDriveDifferentialParams_00024Raw_getFrontBias(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleFourWheelDriveDifferentialParams* _self = (physx::PxVehicleFourWheelDriveDifferentialParams*) _address;
     return (jfloat) _self->frontBias;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleFourWheelDriveDifferentialParams_00024Raw_setFrontBias(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleFourWheelDriveDifferentialParams* _self = (physx::vehicle2::PxVehicleFourWheelDriveDifferentialParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleFourWheelDriveDifferentialParams_00024Raw_setFrontBias(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleFourWheelDriveDifferentialParams* _self = (physx::PxVehicleFourWheelDriveDifferentialParams*) _address;
     _self->frontBias = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleFourWheelDriveDifferentialParams_00024Raw_getFrontTarget(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleFourWheelDriveDifferentialParams* _self = (physx::vehicle2::PxVehicleFourWheelDriveDifferentialParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleFourWheelDriveDifferentialParams_00024Raw_getFrontTarget(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleFourWheelDriveDifferentialParams* _self = (physx::PxVehicleFourWheelDriveDifferentialParams*) _address;
     return (jfloat) _self->frontTarget;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleFourWheelDriveDifferentialParams_00024Raw_setFrontTarget(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleFourWheelDriveDifferentialParams* _self = (physx::vehicle2::PxVehicleFourWheelDriveDifferentialParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleFourWheelDriveDifferentialParams_00024Raw_setFrontTarget(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleFourWheelDriveDifferentialParams* _self = (physx::PxVehicleFourWheelDriveDifferentialParams*) _address;
     _self->frontTarget = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleFourWheelDriveDifferentialParams_00024Raw_getRearBias(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleFourWheelDriveDifferentialParams* _self = (physx::vehicle2::PxVehicleFourWheelDriveDifferentialParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleFourWheelDriveDifferentialParams_00024Raw_getRearBias(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleFourWheelDriveDifferentialParams* _self = (physx::PxVehicleFourWheelDriveDifferentialParams*) _address;
     return (jfloat) _self->rearBias;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleFourWheelDriveDifferentialParams_00024Raw_setRearBias(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleFourWheelDriveDifferentialParams* _self = (physx::vehicle2::PxVehicleFourWheelDriveDifferentialParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleFourWheelDriveDifferentialParams_00024Raw_setRearBias(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleFourWheelDriveDifferentialParams* _self = (physx::PxVehicleFourWheelDriveDifferentialParams*) _address;
     _self->rearBias = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleFourWheelDriveDifferentialParams_00024Raw_getRearTarget(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleFourWheelDriveDifferentialParams* _self = (physx::vehicle2::PxVehicleFourWheelDriveDifferentialParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleFourWheelDriveDifferentialParams_00024Raw_getRearTarget(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleFourWheelDriveDifferentialParams* _self = (physx::PxVehicleFourWheelDriveDifferentialParams*) _address;
     return (jfloat) _self->rearTarget;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleFourWheelDriveDifferentialParams_00024Raw_setRearTarget(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleFourWheelDriveDifferentialParams* _self = (physx::vehicle2::PxVehicleFourWheelDriveDifferentialParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleFourWheelDriveDifferentialParams_00024Raw_setRearTarget(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleFourWheelDriveDifferentialParams* _self = (physx::PxVehicleFourWheelDriveDifferentialParams*) _address;
     _self->rearTarget = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleFourWheelDriveDifferentialParams_00024Raw_getCenterBias(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleFourWheelDriveDifferentialParams* _self = (physx::vehicle2::PxVehicleFourWheelDriveDifferentialParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleFourWheelDriveDifferentialParams_00024Raw_getCenterBias(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleFourWheelDriveDifferentialParams* _self = (physx::PxVehicleFourWheelDriveDifferentialParams*) _address;
     return (jfloat) _self->centerBias;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleFourWheelDriveDifferentialParams_00024Raw_setCenterBias(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleFourWheelDriveDifferentialParams* _self = (physx::vehicle2::PxVehicleFourWheelDriveDifferentialParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleFourWheelDriveDifferentialParams_00024Raw_setCenterBias(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleFourWheelDriveDifferentialParams* _self = (physx::PxVehicleFourWheelDriveDifferentialParams*) _address;
     _self->centerBias = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleFourWheelDriveDifferentialParams_00024Raw_getCenterTarget(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleFourWheelDriveDifferentialParams* _self = (physx::vehicle2::PxVehicleFourWheelDriveDifferentialParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleFourWheelDriveDifferentialParams_00024Raw_getCenterTarget(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleFourWheelDriveDifferentialParams* _self = (physx::PxVehicleFourWheelDriveDifferentialParams*) _address;
     return (jfloat) _self->centerTarget;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleFourWheelDriveDifferentialParams_00024Raw_setCenterTarget(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleFourWheelDriveDifferentialParams* _self = (physx::vehicle2::PxVehicleFourWheelDriveDifferentialParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleFourWheelDriveDifferentialParams_00024Raw_setCenterTarget(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleFourWheelDriveDifferentialParams* _self = (physx::PxVehicleFourWheelDriveDifferentialParams*) _address;
     _self->centerTarget = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleFourWheelDriveDifferentialParams_00024Raw_getRate(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleFourWheelDriveDifferentialParams* _self = (physx::vehicle2::PxVehicleFourWheelDriveDifferentialParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleFourWheelDriveDifferentialParams_00024Raw_getRate(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleFourWheelDriveDifferentialParams* _self = (physx::PxVehicleFourWheelDriveDifferentialParams*) _address;
     return (jfloat) _self->rate;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleFourWheelDriveDifferentialParams_00024Raw_setRate(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleFourWheelDriveDifferentialParams* _self = (physx::vehicle2::PxVehicleFourWheelDriveDifferentialParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleFourWheelDriveDifferentialParams_00024Raw_setRate(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleFourWheelDriveDifferentialParams* _self = (physx::PxVehicleFourWheelDriveDifferentialParams*) _address;
     _self->rate = value;
 }
 
 // PxVehicleFrame
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleFrame__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleFrame);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleFrame__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleFrame);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleFrame_00024Raw_PxVehicleFrame(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleFrame();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleFrame_00024Raw_PxVehicleFrame(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleFrame();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleFrame_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleFrame* self = (physx::vehicle2::PxVehicleFrame*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleFrame_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleFrame* self = (physx::PxVehicleFrame*) _address;
     self->setToDefault();
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleFrame_00024Raw_getFrame(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleFrame* self = (physx::vehicle2::PxVehicleFrame*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleFrame_00024Raw_getFrame(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleFrame* self = (physx::PxVehicleFrame*) _address;
     static thread_local physx::PxMat33 _cache = self->getFrame();
     _cache = self->getFrame();
     return (jlong) &_cache;
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_PxVehicleFrame_00024Raw_isValid(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleFrame* self = (physx::vehicle2::PxVehicleFrame*) _address;
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_PxVehicleFrame_00024Raw_isValid(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleFrame* self = (physx::PxVehicleFrame*) _address;
     return (jboolean) self->isValid();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleFrame_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleFrame*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleFrame_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleFrame*) _address;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleFrame_00024Raw_getLngAxis(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleFrame* _self = (physx::vehicle2::PxVehicleFrame*) _address;
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleFrame_00024Raw_getLngAxis(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleFrame* _self = (physx::PxVehicleFrame*) _address;
     return (jint) _self->lngAxis;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleFrame_00024Raw_setLngAxis(JNIEnv*, jclass, jlong _address, jint value) {
-    physx::vehicle2::PxVehicleFrame* _self = (physx::vehicle2::PxVehicleFrame*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleFrame_00024Raw_setLngAxis(JNIEnv*, jclass, jlong _address, jint value) {
+    physx::PxVehicleFrame* _self = (physx::PxVehicleFrame*) _address;
     _self->lngAxis = (PxVehicleAxesEnum) value;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleFrame_00024Raw_getLatAxis(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleFrame* _self = (physx::vehicle2::PxVehicleFrame*) _address;
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleFrame_00024Raw_getLatAxis(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleFrame* _self = (physx::PxVehicleFrame*) _address;
     return (jint) _self->latAxis;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleFrame_00024Raw_setLatAxis(JNIEnv*, jclass, jlong _address, jint value) {
-    physx::vehicle2::PxVehicleFrame* _self = (physx::vehicle2::PxVehicleFrame*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleFrame_00024Raw_setLatAxis(JNIEnv*, jclass, jlong _address, jint value) {
+    physx::PxVehicleFrame* _self = (physx::PxVehicleFrame*) _address;
     _self->latAxis = (PxVehicleAxesEnum) value;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleFrame_00024Raw_getVrtAxis(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleFrame* _self = (physx::vehicle2::PxVehicleFrame*) _address;
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleFrame_00024Raw_getVrtAxis(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleFrame* _self = (physx::PxVehicleFrame*) _address;
     return (jint) _self->vrtAxis;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleFrame_00024Raw_setVrtAxis(JNIEnv*, jclass, jlong _address, jint value) {
-    physx::vehicle2::PxVehicleFrame* _self = (physx::vehicle2::PxVehicleFrame*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleFrame_00024Raw_setVrtAxis(JNIEnv*, jclass, jlong _address, jint value) {
+    physx::PxVehicleFrame* _self = (physx::PxVehicleFrame*) _address;
     _self->vrtAxis = (PxVehicleAxesEnum) value;
 }
 
 // PxVehicleGearboxParams
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleGearboxParams__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleGearboxParams);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleGearboxParams__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleGearboxParams);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleGearboxParams_00024Raw_PxVehicleGearboxParams_1placed(JNIEnv*, jclass, jlong _placement_address) {
-    return (jlong) new((void*)_placement_address) physx::vehicle2::PxVehicleGearboxParams();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleGearboxParams_00024Raw_PxVehicleGearboxParams_1placed(JNIEnv*, jclass, jlong _placement_address) {
+    return (jlong) new((void*)_placement_address) physx::PxVehicleGearboxParams();
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleGearboxParams_00024Raw_PxVehicleGearboxParams(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleGearboxParams();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleGearboxParams_00024Raw_PxVehicleGearboxParams(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleGearboxParams();
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleGearboxParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
-    physx::vehicle2::PxVehicleGearboxParams* self = (physx::vehicle2::PxVehicleGearboxParams*) _address;
-    static thread_local physx::vehicle2::PxVehicleGearboxParams _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
-    _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleGearboxParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
+    physx::PxVehicleGearboxParams* self = (physx::PxVehicleGearboxParams*) _address;
+    static thread_local physx::PxVehicleGearboxParams _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
+    _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
     return (jlong) &_cache;
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_PxVehicleGearboxParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleGearboxParams* self = (physx::vehicle2::PxVehicleGearboxParams*) _address;
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_PxVehicleGearboxParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleGearboxParams* self = (physx::PxVehicleGearboxParams*) _address;
     return (jboolean) self->isValid();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleGearboxParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleGearboxParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleGearboxParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleGearboxParams*) _address;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleGearboxParams_00024Raw_getNeutralGear(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleGearboxParams* _self = (physx::vehicle2::PxVehicleGearboxParams*) _address;
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleGearboxParams_00024Raw_getNeutralGear(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleGearboxParams* _self = (physx::PxVehicleGearboxParams*) _address;
     return (jint) _self->neutralGear;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleGearboxParams_00024Raw_setNeutralGear(JNIEnv*, jclass, jlong _address, jint value) {
-    physx::vehicle2::PxVehicleGearboxParams* _self = (physx::vehicle2::PxVehicleGearboxParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleGearboxParams_00024Raw_setNeutralGear(JNIEnv*, jclass, jlong _address, jint value) {
+    physx::PxVehicleGearboxParams* _self = (physx::PxVehicleGearboxParams*) _address;
     _self->neutralGear = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleGearboxParams_00024Raw_getRatios(JNIEnv*, jclass, jlong _address, jint _index) {
-    physx::vehicle2::PxVehicleGearboxParams* _self = (physx::vehicle2::PxVehicleGearboxParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleGearboxParams_00024Raw_getRatios(JNIEnv*, jclass, jlong _address, jint _index) {
+    physx::PxVehicleGearboxParams* _self = (physx::PxVehicleGearboxParams*) _address;
     return (jfloat) _self->ratios[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleGearboxParams_00024Raw_setRatios(JNIEnv*, jclass, jlong _address, jint _index, jfloat value) {
-    physx::vehicle2::PxVehicleGearboxParams* _self = (physx::vehicle2::PxVehicleGearboxParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleGearboxParams_00024Raw_setRatios(JNIEnv*, jclass, jlong _address, jint _index, jfloat value) {
+    physx::PxVehicleGearboxParams* _self = (physx::PxVehicleGearboxParams*) _address;
     _self->ratios[_index] = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleGearboxParams_00024Raw_getFinalRatio(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleGearboxParams* _self = (physx::vehicle2::PxVehicleGearboxParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleGearboxParams_00024Raw_getFinalRatio(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleGearboxParams* _self = (physx::PxVehicleGearboxParams*) _address;
     return (jfloat) _self->finalRatio;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleGearboxParams_00024Raw_setFinalRatio(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleGearboxParams* _self = (physx::vehicle2::PxVehicleGearboxParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleGearboxParams_00024Raw_setFinalRatio(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleGearboxParams* _self = (physx::PxVehicleGearboxParams*) _address;
     _self->finalRatio = value;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleGearboxParams_00024Raw_getNbRatios(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleGearboxParams* _self = (physx::vehicle2::PxVehicleGearboxParams*) _address;
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleGearboxParams_00024Raw_getNbRatios(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleGearboxParams* _self = (physx::PxVehicleGearboxParams*) _address;
     return (jint) _self->nbRatios;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleGearboxParams_00024Raw_setNbRatios(JNIEnv*, jclass, jlong _address, jint value) {
-    physx::vehicle2::PxVehicleGearboxParams* _self = (physx::vehicle2::PxVehicleGearboxParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleGearboxParams_00024Raw_setNbRatios(JNIEnv*, jclass, jlong _address, jint value) {
+    physx::PxVehicleGearboxParams* _self = (physx::PxVehicleGearboxParams*) _address;
     _self->nbRatios = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleGearboxParams_00024Raw_getSwitchTime(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleGearboxParams* _self = (physx::vehicle2::PxVehicleGearboxParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleGearboxParams_00024Raw_getSwitchTime(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleGearboxParams* _self = (physx::PxVehicleGearboxParams*) _address;
     return (jfloat) _self->switchTime;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleGearboxParams_00024Raw_setSwitchTime(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleGearboxParams* _self = (physx::vehicle2::PxVehicleGearboxParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleGearboxParams_00024Raw_setSwitchTime(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleGearboxParams* _self = (physx::PxVehicleGearboxParams*) _address;
     _self->switchTime = value;
 }
 
 // PxVehicleGearboxState
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleGearboxState__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleGearboxState);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleGearboxState__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleGearboxState);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleGearboxState_00024Raw_PxVehicleGearboxState(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleGearboxState();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleGearboxState_00024Raw_PxVehicleGearboxState(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleGearboxState();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleGearboxState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleGearboxState* self = (physx::vehicle2::PxVehicleGearboxState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleGearboxState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleGearboxState* self = (physx::PxVehicleGearboxState*) _address;
     self->setToDefault();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleGearboxState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleGearboxState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleGearboxState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleGearboxState*) _address;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleGearboxState_00024Raw_getCurrentGear(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleGearboxState* _self = (physx::vehicle2::PxVehicleGearboxState*) _address;
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleGearboxState_00024Raw_getCurrentGear(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleGearboxState* _self = (physx::PxVehicleGearboxState*) _address;
     return (jint) _self->currentGear;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleGearboxState_00024Raw_setCurrentGear(JNIEnv*, jclass, jlong _address, jint value) {
-    physx::vehicle2::PxVehicleGearboxState* _self = (physx::vehicle2::PxVehicleGearboxState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleGearboxState_00024Raw_setCurrentGear(JNIEnv*, jclass, jlong _address, jint value) {
+    physx::PxVehicleGearboxState* _self = (physx::PxVehicleGearboxState*) _address;
     _self->currentGear = value;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleGearboxState_00024Raw_getTargetGear(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleGearboxState* _self = (physx::vehicle2::PxVehicleGearboxState*) _address;
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleGearboxState_00024Raw_getTargetGear(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleGearboxState* _self = (physx::PxVehicleGearboxState*) _address;
     return (jint) _self->targetGear;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleGearboxState_00024Raw_setTargetGear(JNIEnv*, jclass, jlong _address, jint value) {
-    physx::vehicle2::PxVehicleGearboxState* _self = (physx::vehicle2::PxVehicleGearboxState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleGearboxState_00024Raw_setTargetGear(JNIEnv*, jclass, jlong _address, jint value) {
+    physx::PxVehicleGearboxState* _self = (physx::PxVehicleGearboxState*) _address;
     _self->targetGear = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleGearboxState_00024Raw_getGearSwitchTime(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleGearboxState* _self = (physx::vehicle2::PxVehicleGearboxState*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleGearboxState_00024Raw_getGearSwitchTime(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleGearboxState* _self = (physx::PxVehicleGearboxState*) _address;
     return (jfloat) _self->gearSwitchTime;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleGearboxState_00024Raw_setGearSwitchTime(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleGearboxState* _self = (physx::vehicle2::PxVehicleGearboxState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleGearboxState_00024Raw_setGearSwitchTime(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleGearboxState* _self = (physx::PxVehicleGearboxState*) _address;
     _self->gearSwitchTime = value;
 }
 
 // PxVehicleMultiWheelDriveDifferentialParams
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleMultiWheelDriveDifferentialParams__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleMultiWheelDriveDifferentialParams);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleMultiWheelDriveDifferentialParams__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleMultiWheelDriveDifferentialParams);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleMultiWheelDriveDifferentialParams_00024Raw_PxVehicleMultiWheelDriveDifferentialParams_1placed(JNIEnv*, jclass, jlong _placement_address) {
-    return (jlong) new((void*)_placement_address) physx::vehicle2::PxVehicleMultiWheelDriveDifferentialParams();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleMultiWheelDriveDifferentialParams_00024Raw_PxVehicleMultiWheelDriveDifferentialParams_1placed(JNIEnv*, jclass, jlong _placement_address) {
+    return (jlong) new((void*)_placement_address) physx::PxVehicleMultiWheelDriveDifferentialParams();
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleMultiWheelDriveDifferentialParams_00024Raw_PxVehicleMultiWheelDriveDifferentialParams(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleMultiWheelDriveDifferentialParams();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleMultiWheelDriveDifferentialParams_00024Raw_PxVehicleMultiWheelDriveDifferentialParams(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleMultiWheelDriveDifferentialParams();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleMultiWheelDriveDifferentialParams_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleMultiWheelDriveDifferentialParams* self = (physx::vehicle2::PxVehicleMultiWheelDriveDifferentialParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleMultiWheelDriveDifferentialParams_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleMultiWheelDriveDifferentialParams* self = (physx::PxVehicleMultiWheelDriveDifferentialParams*) _address;
     self->setToDefault();
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleMultiWheelDriveDifferentialParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
-    physx::vehicle2::PxVehicleMultiWheelDriveDifferentialParams* self = (physx::vehicle2::PxVehicleMultiWheelDriveDifferentialParams*) _address;
-    static thread_local physx::vehicle2::PxVehicleMultiWheelDriveDifferentialParams _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
-    _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleMultiWheelDriveDifferentialParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
+    physx::PxVehicleMultiWheelDriveDifferentialParams* self = (physx::PxVehicleMultiWheelDriveDifferentialParams*) _address;
+    static thread_local physx::PxVehicleMultiWheelDriveDifferentialParams _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
+    _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
     return (jlong) &_cache;
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_PxVehicleMultiWheelDriveDifferentialParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address, jlong axleDesc) {
-    physx::vehicle2::PxVehicleMultiWheelDriveDifferentialParams* self = (physx::vehicle2::PxVehicleMultiWheelDriveDifferentialParams*) _address;
-    return (jboolean) self->isValid(*((physx::vehicle2::PxVehicleAxleDescription*) axleDesc));
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_PxVehicleMultiWheelDriveDifferentialParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address, jlong axleDesc) {
+    physx::PxVehicleMultiWheelDriveDifferentialParams* self = (physx::PxVehicleMultiWheelDriveDifferentialParams*) _address;
+    return (jboolean) self->isValid(*((physx::PxVehicleAxleDescription*) axleDesc));
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleMultiWheelDriveDifferentialParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleMultiWheelDriveDifferentialParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleMultiWheelDriveDifferentialParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleMultiWheelDriveDifferentialParams*) _address;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleMultiWheelDriveDifferentialParams_00024Raw_getTorqueRatios(JNIEnv*, jclass, jlong _address, jint _index) {
-    physx::vehicle2::PxVehicleMultiWheelDriveDifferentialParams* _self = (physx::vehicle2::PxVehicleMultiWheelDriveDifferentialParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleMultiWheelDriveDifferentialParams_00024Raw_getTorqueRatios(JNIEnv*, jclass, jlong _address, jint _index) {
+    physx::PxVehicleMultiWheelDriveDifferentialParams* _self = (physx::PxVehicleMultiWheelDriveDifferentialParams*) _address;
     return (jfloat) _self->torqueRatios[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleMultiWheelDriveDifferentialParams_00024Raw_setTorqueRatios(JNIEnv*, jclass, jlong _address, jint _index, jfloat value) {
-    physx::vehicle2::PxVehicleMultiWheelDriveDifferentialParams* _self = (physx::vehicle2::PxVehicleMultiWheelDriveDifferentialParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleMultiWheelDriveDifferentialParams_00024Raw_setTorqueRatios(JNIEnv*, jclass, jlong _address, jint _index, jfloat value) {
+    physx::PxVehicleMultiWheelDriveDifferentialParams* _self = (physx::PxVehicleMultiWheelDriveDifferentialParams*) _address;
     _self->torqueRatios[_index] = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleMultiWheelDriveDifferentialParams_00024Raw_getAveWheelSpeedRatios(JNIEnv*, jclass, jlong _address, jint _index) {
-    physx::vehicle2::PxVehicleMultiWheelDriveDifferentialParams* _self = (physx::vehicle2::PxVehicleMultiWheelDriveDifferentialParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleMultiWheelDriveDifferentialParams_00024Raw_getAveWheelSpeedRatios(JNIEnv*, jclass, jlong _address, jint _index) {
+    physx::PxVehicleMultiWheelDriveDifferentialParams* _self = (physx::PxVehicleMultiWheelDriveDifferentialParams*) _address;
     return (jfloat) _self->aveWheelSpeedRatios[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleMultiWheelDriveDifferentialParams_00024Raw_setAveWheelSpeedRatios(JNIEnv*, jclass, jlong _address, jint _index, jfloat value) {
-    physx::vehicle2::PxVehicleMultiWheelDriveDifferentialParams* _self = (physx::vehicle2::PxVehicleMultiWheelDriveDifferentialParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleMultiWheelDriveDifferentialParams_00024Raw_setAveWheelSpeedRatios(JNIEnv*, jclass, jlong _address, jint _index, jfloat value) {
+    physx::PxVehicleMultiWheelDriveDifferentialParams* _self = (physx::PxVehicleMultiWheelDriveDifferentialParams*) _address;
     _self->aveWheelSpeedRatios[_index] = value;
 }
 
 // PxVehiclePhysXActor
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehiclePhysXActor__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehiclePhysXActor);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehiclePhysXActor__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehiclePhysXActor);
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehiclePhysXActor_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehiclePhysXActor* self = (physx::vehicle2::PxVehiclePhysXActor*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehiclePhysXActor_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehiclePhysXActor* self = (physx::PxVehiclePhysXActor*) _address;
     self->setToDefault();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehiclePhysXActor_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehiclePhysXActor*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehiclePhysXActor_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehiclePhysXActor*) _address;
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehiclePhysXActor_00024Raw_getRigidBody(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehiclePhysXActor* _self = (physx::vehicle2::PxVehiclePhysXActor*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehiclePhysXActor_00024Raw_getRigidBody(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehiclePhysXActor* _self = (physx::PxVehiclePhysXActor*) _address;
     return (jlong) _self->rigidBody;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehiclePhysXActor_00024Raw_setRigidBody(JNIEnv*, jclass, jlong _address, jlong value) {
-    physx::vehicle2::PxVehiclePhysXActor* _self = (physx::vehicle2::PxVehiclePhysXActor*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehiclePhysXActor_00024Raw_setRigidBody(JNIEnv*, jclass, jlong _address, jlong value) {
+    physx::PxVehiclePhysXActor* _self = (physx::PxVehiclePhysXActor*) _address;
     _self->rigidBody = (physx::PxRigidBody*) value;
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehiclePhysXActor_00024Raw_getWheelShapes(JNIEnv*, jclass, jlong _address, jint _index) {
-    physx::vehicle2::PxVehiclePhysXActor* _self = (physx::vehicle2::PxVehiclePhysXActor*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehiclePhysXActor_00024Raw_getWheelShapes(JNIEnv*, jclass, jlong _address, jint _index) {
+    physx::PxVehiclePhysXActor* _self = (physx::PxVehiclePhysXActor*) _address;
     return (jlong) _self->wheelShapes[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehiclePhysXActor_00024Raw_setWheelShapes(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
-    physx::vehicle2::PxVehiclePhysXActor* _self = (physx::vehicle2::PxVehiclePhysXActor*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehiclePhysXActor_00024Raw_setWheelShapes(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
+    physx::PxVehiclePhysXActor* _self = (physx::PxVehiclePhysXActor*) _address;
     _self->wheelShapes[_index] = (physx::PxShape*) value;
 }
 
 // PxVehiclePhysXConstraints
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehiclePhysXConstraints__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehiclePhysXConstraints);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehiclePhysXConstraints__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehiclePhysXConstraints);
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehiclePhysXConstraints_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehiclePhysXConstraints* self = (physx::vehicle2::PxVehiclePhysXConstraints*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehiclePhysXConstraints_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehiclePhysXConstraints* self = (physx::PxVehiclePhysXConstraints*) _address;
     self->setToDefault();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehiclePhysXConstraints_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehiclePhysXConstraints*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehiclePhysXConstraints_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehiclePhysXConstraints*) _address;
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehiclePhysXConstraints_00024Raw_getConstraintStates(JNIEnv*, jclass, jlong _address, jint _index) {
-    physx::vehicle2::PxVehiclePhysXConstraints* _self = (physx::vehicle2::PxVehiclePhysXConstraints*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehiclePhysXConstraints_00024Raw_getConstraintStates(JNIEnv*, jclass, jlong _address, jint _index) {
+    physx::PxVehiclePhysXConstraints* _self = (physx::PxVehiclePhysXConstraints*) _address;
     return (jlong) &_self->constraintStates[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehiclePhysXConstraints_00024Raw_setConstraintStates(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
-    physx::vehicle2::PxVehiclePhysXConstraints* _self = (physx::vehicle2::PxVehiclePhysXConstraints*) _address;
-    _self->constraintStates[_index] = *((physx::vehicle2::PxVehiclePhysXConstraintState*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehiclePhysXConstraints_00024Raw_setConstraintStates(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
+    physx::PxVehiclePhysXConstraints* _self = (physx::PxVehiclePhysXConstraints*) _address;
+    _self->constraintStates[_index] = *((physx::PxVehiclePhysXConstraintState*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehiclePhysXConstraints_00024Raw_getConstraints(JNIEnv*, jclass, jlong _address, jint _index) {
-    physx::vehicle2::PxVehiclePhysXConstraints* _self = (physx::vehicle2::PxVehiclePhysXConstraints*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehiclePhysXConstraints_00024Raw_getConstraints(JNIEnv*, jclass, jlong _address, jint _index) {
+    physx::PxVehiclePhysXConstraints* _self = (physx::PxVehiclePhysXConstraints*) _address;
     return (jlong) _self->constraints[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehiclePhysXConstraints_00024Raw_setConstraints(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
-    physx::vehicle2::PxVehiclePhysXConstraints* _self = (physx::vehicle2::PxVehiclePhysXConstraints*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehiclePhysXConstraints_00024Raw_setConstraints(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
+    physx::PxVehiclePhysXConstraints* _self = (physx::PxVehiclePhysXConstraints*) _address;
     _self->constraints[_index] = (physx::PxConstraint*) value;
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehiclePhysXConstraints_00024Raw_getConstraintConnectors(JNIEnv*, jclass, jlong _address, jint _index) {
-    physx::vehicle2::PxVehiclePhysXConstraints* _self = (physx::vehicle2::PxVehiclePhysXConstraints*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehiclePhysXConstraints_00024Raw_getConstraintConnectors(JNIEnv*, jclass, jlong _address, jint _index) {
+    physx::PxVehiclePhysXConstraints* _self = (physx::PxVehiclePhysXConstraints*) _address;
     return (jlong) _self->constraintConnectors[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehiclePhysXConstraints_00024Raw_setConstraintConnectors(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
-    physx::vehicle2::PxVehiclePhysXConstraints* _self = (physx::vehicle2::PxVehiclePhysXConstraints*) _address;
-    _self->constraintConnectors[_index] = (physx::vehicle2::PxVehicleConstraintConnector*) value;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehiclePhysXConstraints_00024Raw_setConstraintConnectors(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
+    physx::PxVehiclePhysXConstraints* _self = (physx::PxVehiclePhysXConstraints*) _address;
+    _self->constraintConnectors[_index] = (physx::PxVehicleConstraintConnector*) value;
 }
 
 // PxVehiclePhysXConstraintState
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehiclePhysXConstraintState__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehiclePhysXConstraintState);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehiclePhysXConstraintState__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehiclePhysXConstraintState);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehiclePhysXConstraintState_00024Raw_PxVehiclePhysXConstraintState(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehiclePhysXConstraintState();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehiclePhysXConstraintState_00024Raw_PxVehiclePhysXConstraintState(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehiclePhysXConstraintState();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehiclePhysXConstraintState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehiclePhysXConstraintState* self = (physx::vehicle2::PxVehiclePhysXConstraintState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehiclePhysXConstraintState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehiclePhysXConstraintState* self = (physx::PxVehiclePhysXConstraintState*) _address;
     self->setToDefault();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehiclePhysXConstraintState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehiclePhysXConstraintState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehiclePhysXConstraintState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehiclePhysXConstraintState*) _address;
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_PxVehiclePhysXConstraintState_00024Raw_getTireActiveStatus(JNIEnv*, jclass, jlong _address, jint _index) {
-    physx::vehicle2::PxVehiclePhysXConstraintState* _self = (physx::vehicle2::PxVehiclePhysXConstraintState*) _address;
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_PxVehiclePhysXConstraintState_00024Raw_getTireActiveStatus(JNIEnv*, jclass, jlong _address, jint _index) {
+    physx::PxVehiclePhysXConstraintState* _self = (physx::PxVehiclePhysXConstraintState*) _address;
     return (jboolean) _self->tireActiveStatus[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehiclePhysXConstraintState_00024Raw_setTireActiveStatus(JNIEnv*, jclass, jlong _address, jint _index, jboolean value) {
-    physx::vehicle2::PxVehiclePhysXConstraintState* _self = (physx::vehicle2::PxVehiclePhysXConstraintState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehiclePhysXConstraintState_00024Raw_setTireActiveStatus(JNIEnv*, jclass, jlong _address, jint _index, jboolean value) {
+    physx::PxVehiclePhysXConstraintState* _self = (physx::PxVehiclePhysXConstraintState*) _address;
     _self->tireActiveStatus[_index] = value;
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehiclePhysXConstraintState_00024Raw_getTireLinears(JNIEnv*, jclass, jlong _address, jint _index) {
-    physx::vehicle2::PxVehiclePhysXConstraintState* _self = (physx::vehicle2::PxVehiclePhysXConstraintState*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehiclePhysXConstraintState_00024Raw_getTireLinears(JNIEnv*, jclass, jlong _address, jint _index) {
+    physx::PxVehiclePhysXConstraintState* _self = (physx::PxVehiclePhysXConstraintState*) _address;
     return (jlong) &_self->tireLinears[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehiclePhysXConstraintState_00024Raw_setTireLinears(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
-    physx::vehicle2::PxVehiclePhysXConstraintState* _self = (physx::vehicle2::PxVehiclePhysXConstraintState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehiclePhysXConstraintState_00024Raw_setTireLinears(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
+    physx::PxVehiclePhysXConstraintState* _self = (physx::PxVehiclePhysXConstraintState*) _address;
     _self->tireLinears[_index] = *((physx::PxVec3*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehiclePhysXConstraintState_00024Raw_getTireAngulars(JNIEnv*, jclass, jlong _address, jint _index) {
-    physx::vehicle2::PxVehiclePhysXConstraintState* _self = (physx::vehicle2::PxVehiclePhysXConstraintState*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehiclePhysXConstraintState_00024Raw_getTireAngulars(JNIEnv*, jclass, jlong _address, jint _index) {
+    physx::PxVehiclePhysXConstraintState* _self = (physx::PxVehiclePhysXConstraintState*) _address;
     return (jlong) &_self->tireAngulars[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehiclePhysXConstraintState_00024Raw_setTireAngulars(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
-    physx::vehicle2::PxVehiclePhysXConstraintState* _self = (physx::vehicle2::PxVehiclePhysXConstraintState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehiclePhysXConstraintState_00024Raw_setTireAngulars(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
+    physx::PxVehiclePhysXConstraintState* _self = (physx::PxVehiclePhysXConstraintState*) _address;
     _self->tireAngulars[_index] = *((physx::PxVec3*) value);
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehiclePhysXConstraintState_00024Raw_getTireDamping(JNIEnv*, jclass, jlong _address, jint _index) {
-    physx::vehicle2::PxVehiclePhysXConstraintState* _self = (physx::vehicle2::PxVehiclePhysXConstraintState*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehiclePhysXConstraintState_00024Raw_getTireDamping(JNIEnv*, jclass, jlong _address, jint _index) {
+    physx::PxVehiclePhysXConstraintState* _self = (physx::PxVehiclePhysXConstraintState*) _address;
     return (jfloat) _self->tireDamping[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehiclePhysXConstraintState_00024Raw_setTireDamping(JNIEnv*, jclass, jlong _address, jint _index, jfloat value) {
-    physx::vehicle2::PxVehiclePhysXConstraintState* _self = (physx::vehicle2::PxVehiclePhysXConstraintState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehiclePhysXConstraintState_00024Raw_setTireDamping(JNIEnv*, jclass, jlong _address, jint _index, jfloat value) {
+    physx::PxVehiclePhysXConstraintState* _self = (physx::PxVehiclePhysXConstraintState*) _address;
     _self->tireDamping[_index] = value;
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_PxVehiclePhysXConstraintState_00024Raw_getSuspActiveStatus(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehiclePhysXConstraintState* _self = (physx::vehicle2::PxVehiclePhysXConstraintState*) _address;
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_PxVehiclePhysXConstraintState_00024Raw_getSuspActiveStatus(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehiclePhysXConstraintState* _self = (physx::PxVehiclePhysXConstraintState*) _address;
     return (jboolean) _self->suspActiveStatus;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehiclePhysXConstraintState_00024Raw_setSuspActiveStatus(JNIEnv*, jclass, jlong _address, jboolean value) {
-    physx::vehicle2::PxVehiclePhysXConstraintState* _self = (physx::vehicle2::PxVehiclePhysXConstraintState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehiclePhysXConstraintState_00024Raw_setSuspActiveStatus(JNIEnv*, jclass, jlong _address, jboolean value) {
+    physx::PxVehiclePhysXConstraintState* _self = (physx::PxVehiclePhysXConstraintState*) _address;
     _self->suspActiveStatus = value;
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehiclePhysXConstraintState_00024Raw_getSuspLinear(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehiclePhysXConstraintState* _self = (physx::vehicle2::PxVehiclePhysXConstraintState*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehiclePhysXConstraintState_00024Raw_getSuspLinear(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehiclePhysXConstraintState* _self = (physx::PxVehiclePhysXConstraintState*) _address;
     return (jlong) &_self->suspLinear;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehiclePhysXConstraintState_00024Raw_setSuspLinear(JNIEnv*, jclass, jlong _address, jlong value) {
-    physx::vehicle2::PxVehiclePhysXConstraintState* _self = (physx::vehicle2::PxVehiclePhysXConstraintState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehiclePhysXConstraintState_00024Raw_setSuspLinear(JNIEnv*, jclass, jlong _address, jlong value) {
+    physx::PxVehiclePhysXConstraintState* _self = (physx::PxVehiclePhysXConstraintState*) _address;
     _self->suspLinear = *((physx::PxVec3*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehiclePhysXConstraintState_00024Raw_getSuspAngular(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehiclePhysXConstraintState* _self = (physx::vehicle2::PxVehiclePhysXConstraintState*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehiclePhysXConstraintState_00024Raw_getSuspAngular(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehiclePhysXConstraintState* _self = (physx::PxVehiclePhysXConstraintState*) _address;
     return (jlong) &_self->suspAngular;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehiclePhysXConstraintState_00024Raw_setSuspAngular(JNIEnv*, jclass, jlong _address, jlong value) {
-    physx::vehicle2::PxVehiclePhysXConstraintState* _self = (physx::vehicle2::PxVehiclePhysXConstraintState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehiclePhysXConstraintState_00024Raw_setSuspAngular(JNIEnv*, jclass, jlong _address, jlong value) {
+    physx::PxVehiclePhysXConstraintState* _self = (physx::PxVehiclePhysXConstraintState*) _address;
     _self->suspAngular = *((physx::PxVec3*) value);
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehiclePhysXConstraintState_00024Raw_getSuspGeometricError(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehiclePhysXConstraintState* _self = (physx::vehicle2::PxVehiclePhysXConstraintState*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehiclePhysXConstraintState_00024Raw_getSuspGeometricError(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehiclePhysXConstraintState* _self = (physx::PxVehiclePhysXConstraintState*) _address;
     return (jfloat) _self->suspGeometricError;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehiclePhysXConstraintState_00024Raw_setSuspGeometricError(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehiclePhysXConstraintState* _self = (physx::vehicle2::PxVehiclePhysXConstraintState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehiclePhysXConstraintState_00024Raw_setSuspGeometricError(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehiclePhysXConstraintState* _self = (physx::PxVehiclePhysXConstraintState*) _address;
     _self->suspGeometricError = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehiclePhysXConstraintState_00024Raw_getRestitution(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehiclePhysXConstraintState* _self = (physx::vehicle2::PxVehiclePhysXConstraintState*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehiclePhysXConstraintState_00024Raw_getRestitution(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehiclePhysXConstraintState* _self = (physx::PxVehiclePhysXConstraintState*) _address;
     return (jfloat) _self->restitution;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehiclePhysXConstraintState_00024Raw_setRestitution(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehiclePhysXConstraintState* _self = (physx::vehicle2::PxVehiclePhysXConstraintState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehiclePhysXConstraintState_00024Raw_setRestitution(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehiclePhysXConstraintState* _self = (physx::PxVehiclePhysXConstraintState*) _address;
     _self->restitution = value;
 }
 
 // PxVehiclePhysXMaterialFriction
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehiclePhysXMaterialFriction__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehiclePhysXMaterialFriction);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehiclePhysXMaterialFriction__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehiclePhysXMaterialFriction);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehiclePhysXMaterialFriction_00024Raw_PxVehiclePhysXMaterialFriction(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehiclePhysXMaterialFriction();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehiclePhysXMaterialFriction_00024Raw_PxVehiclePhysXMaterialFriction(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehiclePhysXMaterialFriction();
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_PxVehiclePhysXMaterialFriction_00024Raw_isValid(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehiclePhysXMaterialFriction* self = (physx::vehicle2::PxVehiclePhysXMaterialFriction*) _address;
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_PxVehiclePhysXMaterialFriction_00024Raw_isValid(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehiclePhysXMaterialFriction* self = (physx::PxVehiclePhysXMaterialFriction*) _address;
     return (jboolean) self->isValid();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehiclePhysXMaterialFriction_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehiclePhysXMaterialFriction*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehiclePhysXMaterialFriction_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehiclePhysXMaterialFriction*) _address;
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehiclePhysXMaterialFriction_00024Raw_getMaterial(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehiclePhysXMaterialFriction* _self = (physx::vehicle2::PxVehiclePhysXMaterialFriction*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehiclePhysXMaterialFriction_00024Raw_getMaterial(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehiclePhysXMaterialFriction* _self = (physx::PxVehiclePhysXMaterialFriction*) _address;
     return (jlong) _self->material;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehiclePhysXMaterialFriction_00024Raw_setMaterial(JNIEnv*, jclass, jlong _address, jlong value) {
-    physx::vehicle2::PxVehiclePhysXMaterialFriction* _self = (physx::vehicle2::PxVehiclePhysXMaterialFriction*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehiclePhysXMaterialFriction_00024Raw_setMaterial(JNIEnv*, jclass, jlong _address, jlong value) {
+    physx::PxVehiclePhysXMaterialFriction* _self = (physx::PxVehiclePhysXMaterialFriction*) _address;
     _self->material = (physx::PxMaterial*) value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehiclePhysXMaterialFriction_00024Raw_getFriction(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehiclePhysXMaterialFriction* _self = (physx::vehicle2::PxVehiclePhysXMaterialFriction*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehiclePhysXMaterialFriction_00024Raw_getFriction(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehiclePhysXMaterialFriction* _self = (physx::PxVehiclePhysXMaterialFriction*) _address;
     return (jfloat) _self->friction;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehiclePhysXMaterialFriction_00024Raw_setFriction(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehiclePhysXMaterialFriction* _self = (physx::vehicle2::PxVehiclePhysXMaterialFriction*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehiclePhysXMaterialFriction_00024Raw_setFriction(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehiclePhysXMaterialFriction* _self = (physx::PxVehiclePhysXMaterialFriction*) _address;
     _self->friction = value;
 }
 
 // PxVehiclePhysXMaterialFrictionParams
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehiclePhysXMaterialFrictionParams__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehiclePhysXMaterialFrictionParams);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehiclePhysXMaterialFrictionParams__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehiclePhysXMaterialFrictionParams);
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_PxVehiclePhysXMaterialFrictionParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehiclePhysXMaterialFrictionParams* self = (physx::vehicle2::PxVehiclePhysXMaterialFrictionParams*) _address;
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_PxVehiclePhysXMaterialFrictionParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehiclePhysXMaterialFrictionParams* self = (physx::PxVehiclePhysXMaterialFrictionParams*) _address;
     return (jboolean) self->isValid();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehiclePhysXMaterialFrictionParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehiclePhysXMaterialFrictionParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehiclePhysXMaterialFrictionParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehiclePhysXMaterialFrictionParams*) _address;
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehiclePhysXMaterialFrictionParams_00024Raw_getMaterialFrictions(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehiclePhysXMaterialFrictionParams* _self = (physx::vehicle2::PxVehiclePhysXMaterialFrictionParams*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehiclePhysXMaterialFrictionParams_00024Raw_getMaterialFrictions(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehiclePhysXMaterialFrictionParams* _self = (physx::PxVehiclePhysXMaterialFrictionParams*) _address;
     return (jlong) _self->materialFrictions;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehiclePhysXMaterialFrictionParams_00024Raw_setMaterialFrictions(JNIEnv*, jclass, jlong _address, jlong value) {
-    physx::vehicle2::PxVehiclePhysXMaterialFrictionParams* _self = (physx::vehicle2::PxVehiclePhysXMaterialFrictionParams*) _address;
-    _self->materialFrictions = (physx::vehicle2::PxVehiclePhysXMaterialFriction*) value;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehiclePhysXMaterialFrictionParams_00024Raw_setMaterialFrictions(JNIEnv*, jclass, jlong _address, jlong value) {
+    physx::PxVehiclePhysXMaterialFrictionParams* _self = (physx::PxVehiclePhysXMaterialFrictionParams*) _address;
+    _self->materialFrictions = (physx::PxVehiclePhysXMaterialFriction*) value;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehiclePhysXMaterialFrictionParams_00024Raw_getNbMaterialFrictions(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehiclePhysXMaterialFrictionParams* _self = (physx::vehicle2::PxVehiclePhysXMaterialFrictionParams*) _address;
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehiclePhysXMaterialFrictionParams_00024Raw_getNbMaterialFrictions(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehiclePhysXMaterialFrictionParams* _self = (physx::PxVehiclePhysXMaterialFrictionParams*) _address;
     return (jint) _self->nbMaterialFrictions;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehiclePhysXMaterialFrictionParams_00024Raw_setNbMaterialFrictions(JNIEnv*, jclass, jlong _address, jint value) {
-    physx::vehicle2::PxVehiclePhysXMaterialFrictionParams* _self = (physx::vehicle2::PxVehiclePhysXMaterialFrictionParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehiclePhysXMaterialFrictionParams_00024Raw_setNbMaterialFrictions(JNIEnv*, jclass, jlong _address, jint value) {
+    physx::PxVehiclePhysXMaterialFrictionParams* _self = (physx::PxVehiclePhysXMaterialFrictionParams*) _address;
     _self->nbMaterialFrictions = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehiclePhysXMaterialFrictionParams_00024Raw_getDefaultFriction(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehiclePhysXMaterialFrictionParams* _self = (physx::vehicle2::PxVehiclePhysXMaterialFrictionParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehiclePhysXMaterialFrictionParams_00024Raw_getDefaultFriction(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehiclePhysXMaterialFrictionParams* _self = (physx::PxVehiclePhysXMaterialFrictionParams*) _address;
     return (jfloat) _self->defaultFriction;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehiclePhysXMaterialFrictionParams_00024Raw_setDefaultFriction(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehiclePhysXMaterialFrictionParams* _self = (physx::vehicle2::PxVehiclePhysXMaterialFrictionParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehiclePhysXMaterialFrictionParams_00024Raw_setDefaultFriction(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehiclePhysXMaterialFrictionParams* _self = (physx::PxVehiclePhysXMaterialFrictionParams*) _address;
     _self->defaultFriction = value;
 }
 
 // PxVehiclePhysXRoadGeometryQueryParams
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehiclePhysXRoadGeometryQueryParams__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehiclePhysXRoadGeometryQueryParams);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehiclePhysXRoadGeometryQueryParams__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehiclePhysXRoadGeometryQueryParams);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehiclePhysXRoadGeometryQueryParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
-    physx::vehicle2::PxVehiclePhysXRoadGeometryQueryParams* self = (physx::vehicle2::PxVehiclePhysXRoadGeometryQueryParams*) _address;
-    static thread_local physx::vehicle2::PxVehiclePhysXRoadGeometryQueryParams _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
-    _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehiclePhysXRoadGeometryQueryParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
+    physx::PxVehiclePhysXRoadGeometryQueryParams* self = (physx::PxVehiclePhysXRoadGeometryQueryParams*) _address;
+    static thread_local physx::PxVehiclePhysXRoadGeometryQueryParams _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
+    _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
     return (jlong) &_cache;
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_PxVehiclePhysXRoadGeometryQueryParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehiclePhysXRoadGeometryQueryParams* self = (physx::vehicle2::PxVehiclePhysXRoadGeometryQueryParams*) _address;
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_PxVehiclePhysXRoadGeometryQueryParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehiclePhysXRoadGeometryQueryParams* self = (physx::PxVehiclePhysXRoadGeometryQueryParams*) _address;
     return (jboolean) self->isValid();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehiclePhysXRoadGeometryQueryParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehiclePhysXRoadGeometryQueryParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehiclePhysXRoadGeometryQueryParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehiclePhysXRoadGeometryQueryParams*) _address;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehiclePhysXRoadGeometryQueryParams_00024Raw_getRoadGeometryQueryType(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehiclePhysXRoadGeometryQueryParams* _self = (physx::vehicle2::PxVehiclePhysXRoadGeometryQueryParams*) _address;
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehiclePhysXRoadGeometryQueryParams_00024Raw_getRoadGeometryQueryType(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehiclePhysXRoadGeometryQueryParams* _self = (physx::PxVehiclePhysXRoadGeometryQueryParams*) _address;
     return (jint) _self->roadGeometryQueryType;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehiclePhysXRoadGeometryQueryParams_00024Raw_setRoadGeometryQueryType(JNIEnv*, jclass, jlong _address, jint value) {
-    physx::vehicle2::PxVehiclePhysXRoadGeometryQueryParams* _self = (physx::vehicle2::PxVehiclePhysXRoadGeometryQueryParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehiclePhysXRoadGeometryQueryParams_00024Raw_setRoadGeometryQueryType(JNIEnv*, jclass, jlong _address, jint value) {
+    physx::PxVehiclePhysXRoadGeometryQueryParams* _self = (physx::PxVehiclePhysXRoadGeometryQueryParams*) _address;
     _self->roadGeometryQueryType = (PxVehiclePhysXRoadGeometryQueryTypeEnum) value;
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehiclePhysXRoadGeometryQueryParams_00024Raw_getDefaultFilterData(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehiclePhysXRoadGeometryQueryParams* _self = (physx::vehicle2::PxVehiclePhysXRoadGeometryQueryParams*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehiclePhysXRoadGeometryQueryParams_00024Raw_getDefaultFilterData(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehiclePhysXRoadGeometryQueryParams* _self = (physx::PxVehiclePhysXRoadGeometryQueryParams*) _address;
     return (jlong) &_self->defaultFilterData;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehiclePhysXRoadGeometryQueryParams_00024Raw_setDefaultFilterData(JNIEnv*, jclass, jlong _address, jlong value) {
-    physx::vehicle2::PxVehiclePhysXRoadGeometryQueryParams* _self = (physx::vehicle2::PxVehiclePhysXRoadGeometryQueryParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehiclePhysXRoadGeometryQueryParams_00024Raw_setDefaultFilterData(JNIEnv*, jclass, jlong _address, jlong value) {
+    physx::PxVehiclePhysXRoadGeometryQueryParams* _self = (physx::PxVehiclePhysXRoadGeometryQueryParams*) _address;
     _self->defaultFilterData = *((physx::PxQueryFilterData*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehiclePhysXRoadGeometryQueryParams_00024Raw_getFilterDataEntries(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehiclePhysXRoadGeometryQueryParams* _self = (physx::vehicle2::PxVehiclePhysXRoadGeometryQueryParams*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehiclePhysXRoadGeometryQueryParams_00024Raw_getFilterDataEntries(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehiclePhysXRoadGeometryQueryParams* _self = (physx::PxVehiclePhysXRoadGeometryQueryParams*) _address;
     return (jlong) _self->filterDataEntries;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehiclePhysXRoadGeometryQueryParams_00024Raw_setFilterDataEntries(JNIEnv*, jclass, jlong _address, jlong value) {
-    physx::vehicle2::PxVehiclePhysXRoadGeometryQueryParams* _self = (physx::vehicle2::PxVehiclePhysXRoadGeometryQueryParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehiclePhysXRoadGeometryQueryParams_00024Raw_setFilterDataEntries(JNIEnv*, jclass, jlong _address, jlong value) {
+    physx::PxVehiclePhysXRoadGeometryQueryParams* _self = (physx::PxVehiclePhysXRoadGeometryQueryParams*) _address;
     _self->filterDataEntries = (physx::PxQueryFilterData*) value;
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehiclePhysXRoadGeometryQueryParams_00024Raw_getFilterCallback(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehiclePhysXRoadGeometryQueryParams* _self = (physx::vehicle2::PxVehiclePhysXRoadGeometryQueryParams*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehiclePhysXRoadGeometryQueryParams_00024Raw_getFilterCallback(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehiclePhysXRoadGeometryQueryParams* _self = (physx::PxVehiclePhysXRoadGeometryQueryParams*) _address;
     return (jlong) _self->filterCallback;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehiclePhysXRoadGeometryQueryParams_00024Raw_setFilterCallback(JNIEnv*, jclass, jlong _address, jlong value) {
-    physx::vehicle2::PxVehiclePhysXRoadGeometryQueryParams* _self = (physx::vehicle2::PxVehiclePhysXRoadGeometryQueryParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehiclePhysXRoadGeometryQueryParams_00024Raw_setFilterCallback(JNIEnv*, jclass, jlong _address, jlong value) {
+    physx::PxVehiclePhysXRoadGeometryQueryParams* _self = (physx::PxVehiclePhysXRoadGeometryQueryParams*) _address;
     _self->filterCallback = (physx::PxQueryFilterCallback*) value;
 }
 
 // PxVehiclePhysXSimulationContext
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehiclePhysXSimulationContext__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehiclePhysXSimulationContext);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehiclePhysXSimulationContext__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehiclePhysXSimulationContext);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehiclePhysXSimulationContext_00024Raw_PxVehiclePhysXSimulationContext(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehiclePhysXSimulationContext();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehiclePhysXSimulationContext_00024Raw_PxVehiclePhysXSimulationContext(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehiclePhysXSimulationContext();
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehiclePhysXSimulationContext_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
-    physx::vehicle2::PxVehiclePhysXSimulationContext* self = (physx::vehicle2::PxVehiclePhysXSimulationContext*) _address;
-    static thread_local physx::vehicle2::PxVehiclePhysXSimulationContext _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
-    _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehiclePhysXSimulationContext_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
+    physx::PxVehiclePhysXSimulationContext* self = (physx::PxVehiclePhysXSimulationContext*) _address;
+    static thread_local physx::PxVehiclePhysXSimulationContext _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
+    _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
     return (jlong) &_cache;
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehiclePhysXSimulationContext_00024Raw_getPhysxUnitCylinderSweepMesh(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehiclePhysXSimulationContext* _self = (physx::vehicle2::PxVehiclePhysXSimulationContext*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehiclePhysXSimulationContext_00024Raw_getPhysxUnitCylinderSweepMesh(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehiclePhysXSimulationContext* _self = (physx::PxVehiclePhysXSimulationContext*) _address;
     return (jlong) _self->physxUnitCylinderSweepMesh;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehiclePhysXSimulationContext_00024Raw_setPhysxUnitCylinderSweepMesh(JNIEnv*, jclass, jlong _address, jlong value) {
-    physx::vehicle2::PxVehiclePhysXSimulationContext* _self = (physx::vehicle2::PxVehiclePhysXSimulationContext*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehiclePhysXSimulationContext_00024Raw_setPhysxUnitCylinderSweepMesh(JNIEnv*, jclass, jlong _address, jlong value) {
+    physx::PxVehiclePhysXSimulationContext* _self = (physx::PxVehiclePhysXSimulationContext*) _address;
     _self->physxUnitCylinderSweepMesh = (physx::PxConvexMesh*) value;
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehiclePhysXSimulationContext_00024Raw_getPhysxScene(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehiclePhysXSimulationContext* _self = (physx::vehicle2::PxVehiclePhysXSimulationContext*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehiclePhysXSimulationContext_00024Raw_getPhysxScene(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehiclePhysXSimulationContext* _self = (physx::PxVehiclePhysXSimulationContext*) _address;
     return (jlong) _self->physxScene;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehiclePhysXSimulationContext_00024Raw_setPhysxScene(JNIEnv*, jclass, jlong _address, jlong value) {
-    physx::vehicle2::PxVehiclePhysXSimulationContext* _self = (physx::vehicle2::PxVehiclePhysXSimulationContext*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehiclePhysXSimulationContext_00024Raw_setPhysxScene(JNIEnv*, jclass, jlong _address, jlong value) {
+    physx::PxVehiclePhysXSimulationContext* _self = (physx::PxVehiclePhysXSimulationContext*) _address;
     _self->physxScene = (physx::PxScene*) value;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehiclePhysXSimulationContext_00024Raw_getPhysxActorUpdateMode(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehiclePhysXSimulationContext* _self = (physx::vehicle2::PxVehiclePhysXSimulationContext*) _address;
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehiclePhysXSimulationContext_00024Raw_getPhysxActorUpdateMode(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehiclePhysXSimulationContext* _self = (physx::PxVehiclePhysXSimulationContext*) _address;
     return (jint) _self->physxActorUpdateMode;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehiclePhysXSimulationContext_00024Raw_setPhysxActorUpdateMode(JNIEnv*, jclass, jlong _address, jint value) {
-    physx::vehicle2::PxVehiclePhysXSimulationContext* _self = (physx::vehicle2::PxVehiclePhysXSimulationContext*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehiclePhysXSimulationContext_00024Raw_setPhysxActorUpdateMode(JNIEnv*, jclass, jlong _address, jint value) {
+    physx::PxVehiclePhysXSimulationContext* _self = (physx::PxVehiclePhysXSimulationContext*) _address;
     _self->physxActorUpdateMode = (PxVehiclePhysXActorUpdateModeEnum) value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehiclePhysXSimulationContext_00024Raw_getPhysxActorWakeCounterResetValue(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehiclePhysXSimulationContext* _self = (physx::vehicle2::PxVehiclePhysXSimulationContext*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehiclePhysXSimulationContext_00024Raw_getPhysxActorWakeCounterResetValue(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehiclePhysXSimulationContext* _self = (physx::PxVehiclePhysXSimulationContext*) _address;
     return (jfloat) _self->physxActorWakeCounterResetValue;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehiclePhysXSimulationContext_00024Raw_setPhysxActorWakeCounterResetValue(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehiclePhysXSimulationContext* _self = (physx::vehicle2::PxVehiclePhysXSimulationContext*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehiclePhysXSimulationContext_00024Raw_setPhysxActorWakeCounterResetValue(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehiclePhysXSimulationContext* _self = (physx::PxVehiclePhysXSimulationContext*) _address;
     _self->physxActorWakeCounterResetValue = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehiclePhysXSimulationContext_00024Raw_getPhysxActorWakeCounterThreshold(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehiclePhysXSimulationContext* _self = (physx::vehicle2::PxVehiclePhysXSimulationContext*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehiclePhysXSimulationContext_00024Raw_getPhysxActorWakeCounterThreshold(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehiclePhysXSimulationContext* _self = (physx::PxVehiclePhysXSimulationContext*) _address;
     return (jfloat) _self->physxActorWakeCounterThreshold;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehiclePhysXSimulationContext_00024Raw_setPhysxActorWakeCounterThreshold(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehiclePhysXSimulationContext* _self = (physx::vehicle2::PxVehiclePhysXSimulationContext*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehiclePhysXSimulationContext_00024Raw_setPhysxActorWakeCounterThreshold(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehiclePhysXSimulationContext* _self = (physx::PxVehiclePhysXSimulationContext*) _address;
     _self->physxActorWakeCounterThreshold = value;
 }
 
 // PxVehiclePhysXSteerState
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehiclePhysXSteerState__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehiclePhysXSteerState);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehiclePhysXSteerState__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehiclePhysXSteerState);
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehiclePhysXSteerState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehiclePhysXSteerState* self = (physx::vehicle2::PxVehiclePhysXSteerState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehiclePhysXSteerState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehiclePhysXSteerState* self = (physx::PxVehiclePhysXSteerState*) _address;
     self->setToDefault();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehiclePhysXSteerState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehiclePhysXSteerState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehiclePhysXSteerState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehiclePhysXSteerState*) _address;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehiclePhysXSteerState_00024Raw_getPreviousSteerCommand(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehiclePhysXSteerState* _self = (physx::vehicle2::PxVehiclePhysXSteerState*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehiclePhysXSteerState_00024Raw_getPreviousSteerCommand(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehiclePhysXSteerState* _self = (physx::PxVehiclePhysXSteerState*) _address;
     return (jfloat) _self->previousSteerCommand;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehiclePhysXSteerState_00024Raw_setPreviousSteerCommand(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehiclePhysXSteerState* _self = (physx::vehicle2::PxVehiclePhysXSteerState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehiclePhysXSteerState_00024Raw_setPreviousSteerCommand(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehiclePhysXSteerState* _self = (physx::PxVehiclePhysXSteerState*) _address;
     _self->previousSteerCommand = value;
 }
 
 // PxVehiclePhysXSuspensionLimitConstraintParams
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehiclePhysXSuspensionLimitConstraintParams__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehiclePhysXSuspensionLimitConstraintParams);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehiclePhysXSuspensionLimitConstraintParams__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehiclePhysXSuspensionLimitConstraintParams);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehiclePhysXSuspensionLimitConstraintParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
-    physx::vehicle2::PxVehiclePhysXSuspensionLimitConstraintParams* self = (physx::vehicle2::PxVehiclePhysXSuspensionLimitConstraintParams*) _address;
-    static thread_local physx::vehicle2::PxVehiclePhysXSuspensionLimitConstraintParams _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
-    _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehiclePhysXSuspensionLimitConstraintParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
+    physx::PxVehiclePhysXSuspensionLimitConstraintParams* self = (physx::PxVehiclePhysXSuspensionLimitConstraintParams*) _address;
+    static thread_local physx::PxVehiclePhysXSuspensionLimitConstraintParams _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
+    _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
     return (jlong) &_cache;
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_PxVehiclePhysXSuspensionLimitConstraintParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehiclePhysXSuspensionLimitConstraintParams* self = (physx::vehicle2::PxVehiclePhysXSuspensionLimitConstraintParams*) _address;
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_PxVehiclePhysXSuspensionLimitConstraintParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehiclePhysXSuspensionLimitConstraintParams* self = (physx::PxVehiclePhysXSuspensionLimitConstraintParams*) _address;
     return (jboolean) self->isValid();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehiclePhysXSuspensionLimitConstraintParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehiclePhysXSuspensionLimitConstraintParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehiclePhysXSuspensionLimitConstraintParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehiclePhysXSuspensionLimitConstraintParams*) _address;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehiclePhysXSuspensionLimitConstraintParams_00024Raw_getRestitution(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehiclePhysXSuspensionLimitConstraintParams* _self = (physx::vehicle2::PxVehiclePhysXSuspensionLimitConstraintParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehiclePhysXSuspensionLimitConstraintParams_00024Raw_getRestitution(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehiclePhysXSuspensionLimitConstraintParams* _self = (physx::PxVehiclePhysXSuspensionLimitConstraintParams*) _address;
     return (jfloat) _self->restitution;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehiclePhysXSuspensionLimitConstraintParams_00024Raw_setRestitution(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehiclePhysXSuspensionLimitConstraintParams* _self = (physx::vehicle2::PxVehiclePhysXSuspensionLimitConstraintParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehiclePhysXSuspensionLimitConstraintParams_00024Raw_setRestitution(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehiclePhysXSuspensionLimitConstraintParams* _self = (physx::PxVehiclePhysXSuspensionLimitConstraintParams*) _address;
     _self->restitution = value;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehiclePhysXSuspensionLimitConstraintParams_00024Raw_getDirectionForSuspensionLimitConstraint(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehiclePhysXSuspensionLimitConstraintParams* _self = (physx::vehicle2::PxVehiclePhysXSuspensionLimitConstraintParams*) _address;
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehiclePhysXSuspensionLimitConstraintParams_00024Raw_getDirectionForSuspensionLimitConstraint(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehiclePhysXSuspensionLimitConstraintParams* _self = (physx::PxVehiclePhysXSuspensionLimitConstraintParams*) _address;
     return (jint) _self->directionForSuspensionLimitConstraint;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehiclePhysXSuspensionLimitConstraintParams_00024Raw_setDirectionForSuspensionLimitConstraint(JNIEnv*, jclass, jlong _address, jint value) {
-    physx::vehicle2::PxVehiclePhysXSuspensionLimitConstraintParams* _self = (physx::vehicle2::PxVehiclePhysXSuspensionLimitConstraintParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehiclePhysXSuspensionLimitConstraintParams_00024Raw_setDirectionForSuspensionLimitConstraint(JNIEnv*, jclass, jlong _address, jint value) {
+    physx::PxVehiclePhysXSuspensionLimitConstraintParams* _self = (physx::PxVehiclePhysXSuspensionLimitConstraintParams*) _address;
     _self->directionForSuspensionLimitConstraint = (PxVehiclePhysXSuspensionLimitConstraintParamsDirectionSpecifierEnum) value;
 }
 
 // PxVehiclePvdContext
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehiclePvdContext__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehiclePvdContext);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehiclePvdContext__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehiclePvdContext);
 }
 
 // PxVehicleRigidBodyParams
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleRigidBodyParams__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleRigidBodyParams);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleRigidBodyParams__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleRigidBodyParams);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleRigidBodyParams_00024Raw_PxVehicleRigidBodyParams(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleRigidBodyParams();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleRigidBodyParams_00024Raw_PxVehicleRigidBodyParams(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleRigidBodyParams();
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleRigidBodyParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
-    physx::vehicle2::PxVehicleRigidBodyParams* self = (physx::vehicle2::PxVehicleRigidBodyParams*) _address;
-    static thread_local physx::vehicle2::PxVehicleRigidBodyParams _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
-    _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleRigidBodyParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
+    physx::PxVehicleRigidBodyParams* self = (physx::PxVehicleRigidBodyParams*) _address;
+    static thread_local physx::PxVehicleRigidBodyParams _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
+    _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
     return (jlong) &_cache;
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_PxVehicleRigidBodyParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleRigidBodyParams* self = (physx::vehicle2::PxVehicleRigidBodyParams*) _address;
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_PxVehicleRigidBodyParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleRigidBodyParams* self = (physx::PxVehicleRigidBodyParams*) _address;
     return (jboolean) self->isValid();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleRigidBodyParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleRigidBodyParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleRigidBodyParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleRigidBodyParams*) _address;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleRigidBodyParams_00024Raw_getMass(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleRigidBodyParams* _self = (physx::vehicle2::PxVehicleRigidBodyParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleRigidBodyParams_00024Raw_getMass(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleRigidBodyParams* _self = (physx::PxVehicleRigidBodyParams*) _address;
     return (jfloat) _self->mass;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleRigidBodyParams_00024Raw_setMass(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleRigidBodyParams* _self = (physx::vehicle2::PxVehicleRigidBodyParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleRigidBodyParams_00024Raw_setMass(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleRigidBodyParams* _self = (physx::PxVehicleRigidBodyParams*) _address;
     _self->mass = value;
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleRigidBodyParams_00024Raw_getMoi(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleRigidBodyParams* _self = (physx::vehicle2::PxVehicleRigidBodyParams*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleRigidBodyParams_00024Raw_getMoi(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleRigidBodyParams* _self = (physx::PxVehicleRigidBodyParams*) _address;
     return (jlong) &_self->moi;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleRigidBodyParams_00024Raw_setMoi(JNIEnv*, jclass, jlong _address, jlong value) {
-    physx::vehicle2::PxVehicleRigidBodyParams* _self = (physx::vehicle2::PxVehicleRigidBodyParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleRigidBodyParams_00024Raw_setMoi(JNIEnv*, jclass, jlong _address, jlong value) {
+    physx::PxVehicleRigidBodyParams* _self = (physx::PxVehicleRigidBodyParams*) _address;
     _self->moi = *((physx::PxVec3*) value);
 }
 
 // PxVehicleRigidBodyState
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleRigidBodyState__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleRigidBodyState);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleRigidBodyState__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleRigidBodyState);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleRigidBodyState_00024Raw_PxVehicleRigidBodyState(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleRigidBodyState();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleRigidBodyState_00024Raw_PxVehicleRigidBodyState(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleRigidBodyState();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleRigidBodyState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleRigidBodyState* self = (physx::vehicle2::PxVehicleRigidBodyState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleRigidBodyState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleRigidBodyState* self = (physx::PxVehicleRigidBodyState*) _address;
     self->setToDefault();
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleRigidBodyState_00024Raw_getVerticalSpeed(JNIEnv*, jclass, jlong _address, jlong frame) {
-    physx::vehicle2::PxVehicleRigidBodyState* self = (physx::vehicle2::PxVehicleRigidBodyState*) _address;
-    return (jfloat) self->getVerticalSpeed(*((physx::vehicle2::PxVehicleFrame*) frame));
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleRigidBodyState_00024Raw_getVerticalSpeed(JNIEnv*, jclass, jlong _address, jlong frame) {
+    physx::PxVehicleRigidBodyState* self = (physx::PxVehicleRigidBodyState*) _address;
+    return (jfloat) self->getVerticalSpeed(*((physx::PxVehicleFrame*) frame));
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleRigidBodyState_00024Raw_getLateralSpeed(JNIEnv*, jclass, jlong _address, jlong frame) {
-    physx::vehicle2::PxVehicleRigidBodyState* self = (physx::vehicle2::PxVehicleRigidBodyState*) _address;
-    return (jfloat) self->getLateralSpeed(*((physx::vehicle2::PxVehicleFrame*) frame));
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleRigidBodyState_00024Raw_getLateralSpeed(JNIEnv*, jclass, jlong _address, jlong frame) {
+    physx::PxVehicleRigidBodyState* self = (physx::PxVehicleRigidBodyState*) _address;
+    return (jfloat) self->getLateralSpeed(*((physx::PxVehicleFrame*) frame));
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleRigidBodyState_00024Raw_getLongitudinalSpeed(JNIEnv*, jclass, jlong _address, jlong frame) {
-    physx::vehicle2::PxVehicleRigidBodyState* self = (physx::vehicle2::PxVehicleRigidBodyState*) _address;
-    return (jfloat) self->getLongitudinalSpeed(*((physx::vehicle2::PxVehicleFrame*) frame));
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleRigidBodyState_00024Raw_getLongitudinalSpeed(JNIEnv*, jclass, jlong _address, jlong frame) {
+    physx::PxVehicleRigidBodyState* self = (physx::PxVehicleRigidBodyState*) _address;
+    return (jfloat) self->getLongitudinalSpeed(*((physx::PxVehicleFrame*) frame));
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleRigidBodyState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleRigidBodyState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleRigidBodyState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleRigidBodyState*) _address;
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleRigidBodyState_00024Raw_getPose(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleRigidBodyState* _self = (physx::vehicle2::PxVehicleRigidBodyState*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleRigidBodyState_00024Raw_getPose(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleRigidBodyState* _self = (physx::PxVehicleRigidBodyState*) _address;
     return (jlong) &_self->pose;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleRigidBodyState_00024Raw_setPose(JNIEnv*, jclass, jlong _address, jlong value) {
-    physx::vehicle2::PxVehicleRigidBodyState* _self = (physx::vehicle2::PxVehicleRigidBodyState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleRigidBodyState_00024Raw_setPose(JNIEnv*, jclass, jlong _address, jlong value) {
+    physx::PxVehicleRigidBodyState* _self = (physx::PxVehicleRigidBodyState*) _address;
     _self->pose = *((physx::PxTransform*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleRigidBodyState_00024Raw_getLinearVelocity(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleRigidBodyState* _self = (physx::vehicle2::PxVehicleRigidBodyState*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleRigidBodyState_00024Raw_getLinearVelocity(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleRigidBodyState* _self = (physx::PxVehicleRigidBodyState*) _address;
     return (jlong) &_self->linearVelocity;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleRigidBodyState_00024Raw_setLinearVelocity(JNIEnv*, jclass, jlong _address, jlong value) {
-    physx::vehicle2::PxVehicleRigidBodyState* _self = (physx::vehicle2::PxVehicleRigidBodyState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleRigidBodyState_00024Raw_setLinearVelocity(JNIEnv*, jclass, jlong _address, jlong value) {
+    physx::PxVehicleRigidBodyState* _self = (physx::PxVehicleRigidBodyState*) _address;
     _self->linearVelocity = *((physx::PxVec3*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleRigidBodyState_00024Raw_getAngularVelocity(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleRigidBodyState* _self = (physx::vehicle2::PxVehicleRigidBodyState*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleRigidBodyState_00024Raw_getAngularVelocity(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleRigidBodyState* _self = (physx::PxVehicleRigidBodyState*) _address;
     return (jlong) &_self->angularVelocity;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleRigidBodyState_00024Raw_setAngularVelocity(JNIEnv*, jclass, jlong _address, jlong value) {
-    physx::vehicle2::PxVehicleRigidBodyState* _self = (physx::vehicle2::PxVehicleRigidBodyState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleRigidBodyState_00024Raw_setAngularVelocity(JNIEnv*, jclass, jlong _address, jlong value) {
+    physx::PxVehicleRigidBodyState* _self = (physx::PxVehicleRigidBodyState*) _address;
     _self->angularVelocity = *((physx::PxVec3*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleRigidBodyState_00024Raw_getPreviousLinearVelocity(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleRigidBodyState* _self = (physx::vehicle2::PxVehicleRigidBodyState*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleRigidBodyState_00024Raw_getPreviousLinearVelocity(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleRigidBodyState* _self = (physx::PxVehicleRigidBodyState*) _address;
     return (jlong) &_self->previousLinearVelocity;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleRigidBodyState_00024Raw_setPreviousLinearVelocity(JNIEnv*, jclass, jlong _address, jlong value) {
-    physx::vehicle2::PxVehicleRigidBodyState* _self = (physx::vehicle2::PxVehicleRigidBodyState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleRigidBodyState_00024Raw_setPreviousLinearVelocity(JNIEnv*, jclass, jlong _address, jlong value) {
+    physx::PxVehicleRigidBodyState* _self = (physx::PxVehicleRigidBodyState*) _address;
     _self->previousLinearVelocity = *((physx::PxVec3*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleRigidBodyState_00024Raw_getPreviousAngularVelocity(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleRigidBodyState* _self = (physx::vehicle2::PxVehicleRigidBodyState*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleRigidBodyState_00024Raw_getPreviousAngularVelocity(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleRigidBodyState* _self = (physx::PxVehicleRigidBodyState*) _address;
     return (jlong) &_self->previousAngularVelocity;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleRigidBodyState_00024Raw_setPreviousAngularVelocity(JNIEnv*, jclass, jlong _address, jlong value) {
-    physx::vehicle2::PxVehicleRigidBodyState* _self = (physx::vehicle2::PxVehicleRigidBodyState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleRigidBodyState_00024Raw_setPreviousAngularVelocity(JNIEnv*, jclass, jlong _address, jlong value) {
+    physx::PxVehicleRigidBodyState* _self = (physx::PxVehicleRigidBodyState*) _address;
     _self->previousAngularVelocity = *((physx::PxVec3*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleRigidBodyState_00024Raw_getExternalForce(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleRigidBodyState* _self = (physx::vehicle2::PxVehicleRigidBodyState*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleRigidBodyState_00024Raw_getExternalForce(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleRigidBodyState* _self = (physx::PxVehicleRigidBodyState*) _address;
     return (jlong) &_self->externalForce;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleRigidBodyState_00024Raw_setExternalForce(JNIEnv*, jclass, jlong _address, jlong value) {
-    physx::vehicle2::PxVehicleRigidBodyState* _self = (physx::vehicle2::PxVehicleRigidBodyState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleRigidBodyState_00024Raw_setExternalForce(JNIEnv*, jclass, jlong _address, jlong value) {
+    physx::PxVehicleRigidBodyState* _self = (physx::PxVehicleRigidBodyState*) _address;
     _self->externalForce = *((physx::PxVec3*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleRigidBodyState_00024Raw_getExternalTorque(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleRigidBodyState* _self = (physx::vehicle2::PxVehicleRigidBodyState*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleRigidBodyState_00024Raw_getExternalTorque(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleRigidBodyState* _self = (physx::PxVehicleRigidBodyState*) _address;
     return (jlong) &_self->externalTorque;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleRigidBodyState_00024Raw_setExternalTorque(JNIEnv*, jclass, jlong _address, jlong value) {
-    physx::vehicle2::PxVehicleRigidBodyState* _self = (physx::vehicle2::PxVehicleRigidBodyState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleRigidBodyState_00024Raw_setExternalTorque(JNIEnv*, jclass, jlong _address, jlong value) {
+    physx::PxVehicleRigidBodyState* _self = (physx::PxVehicleRigidBodyState*) _address;
     _self->externalTorque = *((physx::PxVec3*) value);
 }
 
 // PxVehicleRoadGeometryState
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleRoadGeometryState__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleRoadGeometryState);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleRoadGeometryState__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleRoadGeometryState);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleRoadGeometryState_00024Raw_PxVehicleRoadGeometryState(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleRoadGeometryState();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleRoadGeometryState_00024Raw_PxVehicleRoadGeometryState(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleRoadGeometryState();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleRoadGeometryState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleRoadGeometryState* self = (physx::vehicle2::PxVehicleRoadGeometryState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleRoadGeometryState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleRoadGeometryState* self = (physx::PxVehicleRoadGeometryState*) _address;
     self->setToDefault();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleRoadGeometryState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleRoadGeometryState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleRoadGeometryState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleRoadGeometryState*) _address;
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleRoadGeometryState_00024Raw_getPlane(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleRoadGeometryState* _self = (physx::vehicle2::PxVehicleRoadGeometryState*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleRoadGeometryState_00024Raw_getPlane(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleRoadGeometryState* _self = (physx::PxVehicleRoadGeometryState*) _address;
     return (jlong) &_self->plane;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleRoadGeometryState_00024Raw_setPlane(JNIEnv*, jclass, jlong _address, jlong value) {
-    physx::vehicle2::PxVehicleRoadGeometryState* _self = (physx::vehicle2::PxVehicleRoadGeometryState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleRoadGeometryState_00024Raw_setPlane(JNIEnv*, jclass, jlong _address, jlong value) {
+    physx::PxVehicleRoadGeometryState* _self = (physx::PxVehicleRoadGeometryState*) _address;
     _self->plane = *((physx::PxPlane*) value);
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleRoadGeometryState_00024Raw_getFriction(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleRoadGeometryState* _self = (physx::vehicle2::PxVehicleRoadGeometryState*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleRoadGeometryState_00024Raw_getFriction(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleRoadGeometryState* _self = (physx::PxVehicleRoadGeometryState*) _address;
     return (jfloat) _self->friction;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleRoadGeometryState_00024Raw_setFriction(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleRoadGeometryState* _self = (physx::vehicle2::PxVehicleRoadGeometryState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleRoadGeometryState_00024Raw_setFriction(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleRoadGeometryState* _self = (physx::PxVehicleRoadGeometryState*) _address;
     _self->friction = value;
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleRoadGeometryState_00024Raw_getVelocity(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleRoadGeometryState* _self = (physx::vehicle2::PxVehicleRoadGeometryState*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleRoadGeometryState_00024Raw_getVelocity(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleRoadGeometryState* _self = (physx::PxVehicleRoadGeometryState*) _address;
     return (jlong) &_self->velocity;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleRoadGeometryState_00024Raw_setVelocity(JNIEnv*, jclass, jlong _address, jlong value) {
-    physx::vehicle2::PxVehicleRoadGeometryState* _self = (physx::vehicle2::PxVehicleRoadGeometryState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleRoadGeometryState_00024Raw_setVelocity(JNIEnv*, jclass, jlong _address, jlong value) {
+    physx::PxVehicleRoadGeometryState* _self = (physx::PxVehicleRoadGeometryState*) _address;
     _self->velocity = *((physx::PxVec3*) value);
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_PxVehicleRoadGeometryState_00024Raw_getHitState(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleRoadGeometryState* _self = (physx::vehicle2::PxVehicleRoadGeometryState*) _address;
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_PxVehicleRoadGeometryState_00024Raw_getHitState(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleRoadGeometryState* _self = (physx::PxVehicleRoadGeometryState*) _address;
     return (jboolean) _self->hitState;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleRoadGeometryState_00024Raw_setHitState(JNIEnv*, jclass, jlong _address, jboolean value) {
-    physx::vehicle2::PxVehicleRoadGeometryState* _self = (physx::vehicle2::PxVehicleRoadGeometryState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleRoadGeometryState_00024Raw_setHitState(JNIEnv*, jclass, jlong _address, jboolean value) {
+    physx::PxVehicleRoadGeometryState* _self = (physx::PxVehicleRoadGeometryState*) _address;
     _self->hitState = value;
 }
 
 // PxVehicleScale
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleScale__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleScale);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleScale__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleScale);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleScale_00024Raw_PxVehicleScale(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleScale();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleScale_00024Raw_PxVehicleScale(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleScale();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleScale_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleScale* self = (physx::vehicle2::PxVehicleScale*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleScale_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleScale* self = (physx::PxVehicleScale*) _address;
     self->setToDefault();
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_PxVehicleScale_00024Raw_isValid(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleScale* self = (physx::vehicle2::PxVehicleScale*) _address;
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_PxVehicleScale_00024Raw_isValid(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleScale* self = (physx::PxVehicleScale*) _address;
     return (jboolean) self->isValid();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleScale_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleScale*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleScale_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleScale*) _address;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleScale_00024Raw_getScale(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleScale* _self = (physx::vehicle2::PxVehicleScale*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleScale_00024Raw_getScale(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleScale* _self = (physx::PxVehicleScale*) _address;
     return (jfloat) _self->scale;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleScale_00024Raw_setScale(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleScale* _self = (physx::vehicle2::PxVehicleScale*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleScale_00024Raw_setScale(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleScale* _self = (physx::PxVehicleScale*) _address;
     _self->scale = value;
 }
 
 // PxVehicleSimulationContext
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleSimulationContext__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleSimulationContext);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleSimulationContext__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleSimulationContext);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleSimulationContext_00024Raw_PxVehicleSimulationContext(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleSimulationContext();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleSimulationContext_00024Raw_PxVehicleSimulationContext(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleSimulationContext();
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleSimulationContext_00024Raw_getType(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleSimulationContext* self = (physx::vehicle2::PxVehicleSimulationContext*) _address;
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleSimulationContext_00024Raw_getType(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleSimulationContext* self = (physx::PxVehicleSimulationContext*) _address;
     return (jint) self->getType();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleSimulationContext_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleSimulationContext* self = (physx::vehicle2::PxVehicleSimulationContext*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleSimulationContext_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleSimulationContext* self = (physx::PxVehicleSimulationContext*) _address;
     self->setToDefault();
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleSimulationContext_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
-    physx::vehicle2::PxVehicleSimulationContext* self = (physx::vehicle2::PxVehicleSimulationContext*) _address;
-    static thread_local physx::vehicle2::PxVehicleSimulationContext _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
-    _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleSimulationContext_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
+    physx::PxVehicleSimulationContext* self = (physx::PxVehicleSimulationContext*) _address;
+    static thread_local physx::PxVehicleSimulationContext _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
+    _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
     return (jlong) &_cache;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleSimulationContext_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleSimulationContext*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleSimulationContext_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleSimulationContext*) _address;
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleSimulationContext_00024Raw_getGravity(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleSimulationContext* _self = (physx::vehicle2::PxVehicleSimulationContext*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleSimulationContext_00024Raw_getGravity(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleSimulationContext* _self = (physx::PxVehicleSimulationContext*) _address;
     return (jlong) &_self->gravity;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleSimulationContext_00024Raw_setGravity(JNIEnv*, jclass, jlong _address, jlong value) {
-    physx::vehicle2::PxVehicleSimulationContext* _self = (physx::vehicle2::PxVehicleSimulationContext*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleSimulationContext_00024Raw_setGravity(JNIEnv*, jclass, jlong _address, jlong value) {
+    physx::PxVehicleSimulationContext* _self = (physx::PxVehicleSimulationContext*) _address;
     _self->gravity = *((physx::PxVec3*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleSimulationContext_00024Raw_getFrame(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleSimulationContext* _self = (physx::vehicle2::PxVehicleSimulationContext*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleSimulationContext_00024Raw_getFrame(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleSimulationContext* _self = (physx::PxVehicleSimulationContext*) _address;
     return (jlong) &_self->frame;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleSimulationContext_00024Raw_setFrame(JNIEnv*, jclass, jlong _address, jlong value) {
-    physx::vehicle2::PxVehicleSimulationContext* _self = (physx::vehicle2::PxVehicleSimulationContext*) _address;
-    _self->frame = *((physx::vehicle2::PxVehicleFrame*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleSimulationContext_00024Raw_setFrame(JNIEnv*, jclass, jlong _address, jlong value) {
+    physx::PxVehicleSimulationContext* _self = (physx::PxVehicleSimulationContext*) _address;
+    _self->frame = *((physx::PxVehicleFrame*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleSimulationContext_00024Raw_getScale(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleSimulationContext* _self = (physx::vehicle2::PxVehicleSimulationContext*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleSimulationContext_00024Raw_getScale(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleSimulationContext* _self = (physx::PxVehicleSimulationContext*) _address;
     return (jlong) &_self->scale;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleSimulationContext_00024Raw_setScale(JNIEnv*, jclass, jlong _address, jlong value) {
-    physx::vehicle2::PxVehicleSimulationContext* _self = (physx::vehicle2::PxVehicleSimulationContext*) _address;
-    _self->scale = *((physx::vehicle2::PxVehicleScale*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleSimulationContext_00024Raw_setScale(JNIEnv*, jclass, jlong _address, jlong value) {
+    physx::PxVehicleSimulationContext* _self = (physx::PxVehicleSimulationContext*) _address;
+    _self->scale = *((physx::PxVehicleScale*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleSimulationContext_00024Raw_getTireSlipParams(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleSimulationContext* _self = (physx::vehicle2::PxVehicleSimulationContext*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleSimulationContext_00024Raw_getTireSlipParams(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleSimulationContext* _self = (physx::PxVehicleSimulationContext*) _address;
     return (jlong) &_self->tireSlipParams;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleSimulationContext_00024Raw_setTireSlipParams(JNIEnv*, jclass, jlong _address, jlong value) {
-    physx::vehicle2::PxVehicleSimulationContext* _self = (physx::vehicle2::PxVehicleSimulationContext*) _address;
-    _self->tireSlipParams = *((physx::vehicle2::PxVehicleTireSlipParams*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleSimulationContext_00024Raw_setTireSlipParams(JNIEnv*, jclass, jlong _address, jlong value) {
+    physx::PxVehicleSimulationContext* _self = (physx::PxVehicleSimulationContext*) _address;
+    _self->tireSlipParams = *((physx::PxVehicleTireSlipParams*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleSimulationContext_00024Raw_getTireStickyParams(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleSimulationContext* _self = (physx::vehicle2::PxVehicleSimulationContext*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleSimulationContext_00024Raw_getTireStickyParams(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleSimulationContext* _self = (physx::PxVehicleSimulationContext*) _address;
     return (jlong) &_self->tireStickyParams;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleSimulationContext_00024Raw_setTireStickyParams(JNIEnv*, jclass, jlong _address, jlong value) {
-    physx::vehicle2::PxVehicleSimulationContext* _self = (physx::vehicle2::PxVehicleSimulationContext*) _address;
-    _self->tireStickyParams = *((physx::vehicle2::PxVehicleTireStickyParams*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleSimulationContext_00024Raw_setTireStickyParams(JNIEnv*, jclass, jlong _address, jlong value) {
+    physx::PxVehicleSimulationContext* _self = (physx::PxVehicleSimulationContext*) _address;
+    _self->tireStickyParams = *((physx::PxVehicleTireStickyParams*) value);
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleSimulationContext_00024Raw_getThresholdForwardSpeedForWheelAngleIntegration(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleSimulationContext* _self = (physx::vehicle2::PxVehicleSimulationContext*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleSimulationContext_00024Raw_getThresholdForwardSpeedForWheelAngleIntegration(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleSimulationContext* _self = (physx::PxVehicleSimulationContext*) _address;
     return (jfloat) _self->thresholdForwardSpeedForWheelAngleIntegration;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleSimulationContext_00024Raw_setThresholdForwardSpeedForWheelAngleIntegration(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleSimulationContext* _self = (physx::vehicle2::PxVehicleSimulationContext*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleSimulationContext_00024Raw_setThresholdForwardSpeedForWheelAngleIntegration(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleSimulationContext* _self = (physx::PxVehicleSimulationContext*) _address;
     _self->thresholdForwardSpeedForWheelAngleIntegration = value;
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleSimulationContext_00024Raw_getPvdContext(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleSimulationContext* _self = (physx::vehicle2::PxVehicleSimulationContext*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleSimulationContext_00024Raw_getPvdContext(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleSimulationContext* _self = (physx::PxVehicleSimulationContext*) _address;
     return (jlong) &_self->pvdContext;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleSimulationContext_00024Raw_setPvdContext(JNIEnv*, jclass, jlong _address, jlong value) {
-    physx::vehicle2::PxVehicleSimulationContext* _self = (physx::vehicle2::PxVehicleSimulationContext*) _address;
-    _self->pvdContext = *((physx::vehicle2::PxVehiclePvdContext*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleSimulationContext_00024Raw_setPvdContext(JNIEnv*, jclass, jlong _address, jlong value) {
+    physx::PxVehicleSimulationContext* _self = (physx::PxVehicleSimulationContext*) _address;
+    _self->pvdContext = *((physx::PxVehiclePvdContext*) value);
 }
 
 // PxVehicleSteerCommandResponseParams
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleSteerCommandResponseParams__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleSteerCommandResponseParams);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleSteerCommandResponseParams__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleSteerCommandResponseParams);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleSteerCommandResponseParams_00024Raw_PxVehicleSteerCommandResponseParams(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleSteerCommandResponseParams();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleSteerCommandResponseParams_00024Raw_PxVehicleSteerCommandResponseParams(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleSteerCommandResponseParams();
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleSteerCommandResponseParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
-    physx::vehicle2::PxVehicleSteerCommandResponseParams* self = (physx::vehicle2::PxVehicleSteerCommandResponseParams*) _address;
-    static thread_local physx::vehicle2::PxVehicleSteerCommandResponseParams _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
-    _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleSteerCommandResponseParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
+    physx::PxVehicleSteerCommandResponseParams* self = (physx::PxVehicleSteerCommandResponseParams*) _address;
+    static thread_local physx::PxVehicleSteerCommandResponseParams _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
+    _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
     return (jlong) &_cache;
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_PxVehicleSteerCommandResponseParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address, jlong axleDesc) {
-    physx::vehicle2::PxVehicleSteerCommandResponseParams* self = (physx::vehicle2::PxVehicleSteerCommandResponseParams*) _address;
-    return (jboolean) self->isValid(*((physx::vehicle2::PxVehicleAxleDescription*) axleDesc));
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_PxVehicleSteerCommandResponseParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address, jlong axleDesc) {
+    physx::PxVehicleSteerCommandResponseParams* self = (physx::PxVehicleSteerCommandResponseParams*) _address;
+    return (jboolean) self->isValid(*((physx::PxVehicleAxleDescription*) axleDesc));
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleSteerCommandResponseParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleSteerCommandResponseParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleSteerCommandResponseParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleSteerCommandResponseParams*) _address;
 }
 
 // PxVehicleSuspensionComplianceParams
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleSuspensionComplianceParams__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleSuspensionComplianceParams);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleSuspensionComplianceParams__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleSuspensionComplianceParams);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleSuspensionComplianceParams_00024Raw_PxVehicleSuspensionComplianceParams(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleSuspensionComplianceParams();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleSuspensionComplianceParams_00024Raw_PxVehicleSuspensionComplianceParams(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleSuspensionComplianceParams();
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleSuspensionComplianceParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
-    physx::vehicle2::PxVehicleSuspensionComplianceParams* self = (physx::vehicle2::PxVehicleSuspensionComplianceParams*) _address;
-    static thread_local physx::vehicle2::PxVehicleSuspensionComplianceParams _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
-    _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleSuspensionComplianceParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
+    physx::PxVehicleSuspensionComplianceParams* self = (physx::PxVehicleSuspensionComplianceParams*) _address;
+    static thread_local physx::PxVehicleSuspensionComplianceParams _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
+    _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
     return (jlong) &_cache;
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_PxVehicleSuspensionComplianceParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleSuspensionComplianceParams* self = (physx::vehicle2::PxVehicleSuspensionComplianceParams*) _address;
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_PxVehicleSuspensionComplianceParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleSuspensionComplianceParams* self = (physx::PxVehicleSuspensionComplianceParams*) _address;
     return (jboolean) self->isValid();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleSuspensionComplianceParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleSuspensionComplianceParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleSuspensionComplianceParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleSuspensionComplianceParams*) _address;
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleSuspensionComplianceParams_00024Raw_getWheelToeAngle(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleSuspensionComplianceParams* _self = (physx::vehicle2::PxVehicleSuspensionComplianceParams*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleSuspensionComplianceParams_00024Raw_getWheelToeAngle(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleSuspensionComplianceParams* _self = (physx::PxVehicleSuspensionComplianceParams*) _address;
     return (jlong) &_self->wheelToeAngle;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleSuspensionComplianceParams_00024Raw_setWheelToeAngle(JNIEnv*, jclass, jlong _address, jlong value) {
-    physx::vehicle2::PxVehicleSuspensionComplianceParams* _self = (physx::vehicle2::PxVehicleSuspensionComplianceParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleSuspensionComplianceParams_00024Raw_setWheelToeAngle(JNIEnv*, jclass, jlong _address, jlong value) {
+    physx::PxVehicleSuspensionComplianceParams* _self = (physx::PxVehicleSuspensionComplianceParams*) _address;
     _self->wheelToeAngle = *((PxVehicleFixedSizeLookupTableFloat_3*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleSuspensionComplianceParams_00024Raw_getWheelCamberAngle(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleSuspensionComplianceParams* _self = (physx::vehicle2::PxVehicleSuspensionComplianceParams*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleSuspensionComplianceParams_00024Raw_getWheelCamberAngle(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleSuspensionComplianceParams* _self = (physx::PxVehicleSuspensionComplianceParams*) _address;
     return (jlong) &_self->wheelCamberAngle;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleSuspensionComplianceParams_00024Raw_setWheelCamberAngle(JNIEnv*, jclass, jlong _address, jlong value) {
-    physx::vehicle2::PxVehicleSuspensionComplianceParams* _self = (physx::vehicle2::PxVehicleSuspensionComplianceParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleSuspensionComplianceParams_00024Raw_setWheelCamberAngle(JNIEnv*, jclass, jlong _address, jlong value) {
+    physx::PxVehicleSuspensionComplianceParams* _self = (physx::PxVehicleSuspensionComplianceParams*) _address;
     _self->wheelCamberAngle = *((PxVehicleFixedSizeLookupTableFloat_3*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleSuspensionComplianceParams_00024Raw_getSuspForceAppPoint(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleSuspensionComplianceParams* _self = (physx::vehicle2::PxVehicleSuspensionComplianceParams*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleSuspensionComplianceParams_00024Raw_getSuspForceAppPoint(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleSuspensionComplianceParams* _self = (physx::PxVehicleSuspensionComplianceParams*) _address;
     return (jlong) &_self->suspForceAppPoint;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleSuspensionComplianceParams_00024Raw_setSuspForceAppPoint(JNIEnv*, jclass, jlong _address, jlong value) {
-    physx::vehicle2::PxVehicleSuspensionComplianceParams* _self = (physx::vehicle2::PxVehicleSuspensionComplianceParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleSuspensionComplianceParams_00024Raw_setSuspForceAppPoint(JNIEnv*, jclass, jlong _address, jlong value) {
+    physx::PxVehicleSuspensionComplianceParams* _self = (physx::PxVehicleSuspensionComplianceParams*) _address;
     _self->suspForceAppPoint = *((PxVehicleFixedSizeLookupTableVec3_3*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleSuspensionComplianceParams_00024Raw_getTireForceAppPoint(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleSuspensionComplianceParams* _self = (physx::vehicle2::PxVehicleSuspensionComplianceParams*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleSuspensionComplianceParams_00024Raw_getTireForceAppPoint(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleSuspensionComplianceParams* _self = (physx::PxVehicleSuspensionComplianceParams*) _address;
     return (jlong) &_self->tireForceAppPoint;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleSuspensionComplianceParams_00024Raw_setTireForceAppPoint(JNIEnv*, jclass, jlong _address, jlong value) {
-    physx::vehicle2::PxVehicleSuspensionComplianceParams* _self = (physx::vehicle2::PxVehicleSuspensionComplianceParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleSuspensionComplianceParams_00024Raw_setTireForceAppPoint(JNIEnv*, jclass, jlong _address, jlong value) {
+    physx::PxVehicleSuspensionComplianceParams* _self = (physx::PxVehicleSuspensionComplianceParams*) _address;
     _self->tireForceAppPoint = *((PxVehicleFixedSizeLookupTableVec3_3*) value);
 }
 
 // PxVehicleSuspensionComplianceState
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleSuspensionComplianceState__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleSuspensionComplianceState);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleSuspensionComplianceState__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleSuspensionComplianceState);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleSuspensionComplianceState_00024Raw_PxVehicleSuspensionComplianceState(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleSuspensionComplianceState();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleSuspensionComplianceState_00024Raw_PxVehicleSuspensionComplianceState(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleSuspensionComplianceState();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleSuspensionComplianceState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleSuspensionComplianceState* self = (physx::vehicle2::PxVehicleSuspensionComplianceState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleSuspensionComplianceState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleSuspensionComplianceState* self = (physx::PxVehicleSuspensionComplianceState*) _address;
     self->setToDefault();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleSuspensionComplianceState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleSuspensionComplianceState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleSuspensionComplianceState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleSuspensionComplianceState*) _address;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleSuspensionComplianceState_00024Raw_getToe(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleSuspensionComplianceState* _self = (physx::vehicle2::PxVehicleSuspensionComplianceState*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleSuspensionComplianceState_00024Raw_getToe(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleSuspensionComplianceState* _self = (physx::PxVehicleSuspensionComplianceState*) _address;
     return (jfloat) _self->toe;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleSuspensionComplianceState_00024Raw_setToe(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleSuspensionComplianceState* _self = (physx::vehicle2::PxVehicleSuspensionComplianceState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleSuspensionComplianceState_00024Raw_setToe(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleSuspensionComplianceState* _self = (physx::PxVehicleSuspensionComplianceState*) _address;
     _self->toe = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleSuspensionComplianceState_00024Raw_getCamber(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleSuspensionComplianceState* _self = (physx::vehicle2::PxVehicleSuspensionComplianceState*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleSuspensionComplianceState_00024Raw_getCamber(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleSuspensionComplianceState* _self = (physx::PxVehicleSuspensionComplianceState*) _address;
     return (jfloat) _self->camber;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleSuspensionComplianceState_00024Raw_setCamber(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleSuspensionComplianceState* _self = (physx::vehicle2::PxVehicleSuspensionComplianceState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleSuspensionComplianceState_00024Raw_setCamber(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleSuspensionComplianceState* _self = (physx::PxVehicleSuspensionComplianceState*) _address;
     _self->camber = value;
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleSuspensionComplianceState_00024Raw_getTireForceAppPoint(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleSuspensionComplianceState* _self = (physx::vehicle2::PxVehicleSuspensionComplianceState*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleSuspensionComplianceState_00024Raw_getTireForceAppPoint(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleSuspensionComplianceState* _self = (physx::PxVehicleSuspensionComplianceState*) _address;
     return (jlong) &_self->tireForceAppPoint;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleSuspensionComplianceState_00024Raw_setTireForceAppPoint(JNIEnv*, jclass, jlong _address, jlong value) {
-    physx::vehicle2::PxVehicleSuspensionComplianceState* _self = (physx::vehicle2::PxVehicleSuspensionComplianceState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleSuspensionComplianceState_00024Raw_setTireForceAppPoint(JNIEnv*, jclass, jlong _address, jlong value) {
+    physx::PxVehicleSuspensionComplianceState* _self = (physx::PxVehicleSuspensionComplianceState*) _address;
     _self->tireForceAppPoint = *((physx::PxVec3*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleSuspensionComplianceState_00024Raw_getSuspForceAppPoint(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleSuspensionComplianceState* _self = (physx::vehicle2::PxVehicleSuspensionComplianceState*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleSuspensionComplianceState_00024Raw_getSuspForceAppPoint(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleSuspensionComplianceState* _self = (physx::PxVehicleSuspensionComplianceState*) _address;
     return (jlong) &_self->suspForceAppPoint;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleSuspensionComplianceState_00024Raw_setSuspForceAppPoint(JNIEnv*, jclass, jlong _address, jlong value) {
-    physx::vehicle2::PxVehicleSuspensionComplianceState* _self = (physx::vehicle2::PxVehicleSuspensionComplianceState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleSuspensionComplianceState_00024Raw_setSuspForceAppPoint(JNIEnv*, jclass, jlong _address, jlong value) {
+    physx::PxVehicleSuspensionComplianceState* _self = (physx::PxVehicleSuspensionComplianceState*) _address;
     _self->suspForceAppPoint = *((physx::PxVec3*) value);
 }
 
 // PxVehicleSuspensionForce
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleSuspensionForce__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleSuspensionForce);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleSuspensionForce__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleSuspensionForce);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleSuspensionForce_00024Raw_PxVehicleSuspensionForce(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleSuspensionForce();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleSuspensionForce_00024Raw_PxVehicleSuspensionForce(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleSuspensionForce();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleSuspensionForce_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleSuspensionForce* self = (physx::vehicle2::PxVehicleSuspensionForce*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleSuspensionForce_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleSuspensionForce* self = (physx::PxVehicleSuspensionForce*) _address;
     self->setToDefault();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleSuspensionForce_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleSuspensionForce*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleSuspensionForce_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleSuspensionForce*) _address;
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleSuspensionForce_00024Raw_getForce(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleSuspensionForce* _self = (physx::vehicle2::PxVehicleSuspensionForce*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleSuspensionForce_00024Raw_getForce(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleSuspensionForce* _self = (physx::PxVehicleSuspensionForce*) _address;
     return (jlong) &_self->force;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleSuspensionForce_00024Raw_setForce(JNIEnv*, jclass, jlong _address, jlong value) {
-    physx::vehicle2::PxVehicleSuspensionForce* _self = (physx::vehicle2::PxVehicleSuspensionForce*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleSuspensionForce_00024Raw_setForce(JNIEnv*, jclass, jlong _address, jlong value) {
+    physx::PxVehicleSuspensionForce* _self = (physx::PxVehicleSuspensionForce*) _address;
     _self->force = *((physx::PxVec3*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleSuspensionForce_00024Raw_getTorque(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleSuspensionForce* _self = (physx::vehicle2::PxVehicleSuspensionForce*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleSuspensionForce_00024Raw_getTorque(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleSuspensionForce* _self = (physx::PxVehicleSuspensionForce*) _address;
     return (jlong) &_self->torque;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleSuspensionForce_00024Raw_setTorque(JNIEnv*, jclass, jlong _address, jlong value) {
-    physx::vehicle2::PxVehicleSuspensionForce* _self = (physx::vehicle2::PxVehicleSuspensionForce*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleSuspensionForce_00024Raw_setTorque(JNIEnv*, jclass, jlong _address, jlong value) {
+    physx::PxVehicleSuspensionForce* _self = (physx::PxVehicleSuspensionForce*) _address;
     _self->torque = *((physx::PxVec3*) value);
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleSuspensionForce_00024Raw_getNormalForce(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleSuspensionForce* _self = (physx::vehicle2::PxVehicleSuspensionForce*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleSuspensionForce_00024Raw_getNormalForce(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleSuspensionForce* _self = (physx::PxVehicleSuspensionForce*) _address;
     return (jfloat) _self->normalForce;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleSuspensionForce_00024Raw_setNormalForce(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleSuspensionForce* _self = (physx::vehicle2::PxVehicleSuspensionForce*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleSuspensionForce_00024Raw_setNormalForce(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleSuspensionForce* _self = (physx::PxVehicleSuspensionForce*) _address;
     _self->normalForce = value;
 }
 
 // PxVehicleSuspensionForceParams
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleSuspensionForceParams__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleSuspensionForceParams);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleSuspensionForceParams__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleSuspensionForceParams);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleSuspensionForceParams_00024Raw_PxVehicleSuspensionForceParams(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleSuspensionForceParams();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleSuspensionForceParams_00024Raw_PxVehicleSuspensionForceParams(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleSuspensionForceParams();
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleSuspensionForceParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
-    physx::vehicle2::PxVehicleSuspensionForceParams* self = (physx::vehicle2::PxVehicleSuspensionForceParams*) _address;
-    static thread_local physx::vehicle2::PxVehicleSuspensionForceParams _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
-    _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleSuspensionForceParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
+    physx::PxVehicleSuspensionForceParams* self = (physx::PxVehicleSuspensionForceParams*) _address;
+    static thread_local physx::PxVehicleSuspensionForceParams _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
+    _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
     return (jlong) &_cache;
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_PxVehicleSuspensionForceParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleSuspensionForceParams* self = (physx::vehicle2::PxVehicleSuspensionForceParams*) _address;
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_PxVehicleSuspensionForceParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleSuspensionForceParams* self = (physx::PxVehicleSuspensionForceParams*) _address;
     return (jboolean) self->isValid();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleSuspensionForceParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleSuspensionForceParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleSuspensionForceParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleSuspensionForceParams*) _address;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleSuspensionForceParams_00024Raw_getStiffness(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleSuspensionForceParams* _self = (physx::vehicle2::PxVehicleSuspensionForceParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleSuspensionForceParams_00024Raw_getStiffness(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleSuspensionForceParams* _self = (physx::PxVehicleSuspensionForceParams*) _address;
     return (jfloat) _self->stiffness;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleSuspensionForceParams_00024Raw_setStiffness(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleSuspensionForceParams* _self = (physx::vehicle2::PxVehicleSuspensionForceParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleSuspensionForceParams_00024Raw_setStiffness(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleSuspensionForceParams* _self = (physx::PxVehicleSuspensionForceParams*) _address;
     _self->stiffness = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleSuspensionForceParams_00024Raw_getDamping(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleSuspensionForceParams* _self = (physx::vehicle2::PxVehicleSuspensionForceParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleSuspensionForceParams_00024Raw_getDamping(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleSuspensionForceParams* _self = (physx::PxVehicleSuspensionForceParams*) _address;
     return (jfloat) _self->damping;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleSuspensionForceParams_00024Raw_setDamping(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleSuspensionForceParams* _self = (physx::vehicle2::PxVehicleSuspensionForceParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleSuspensionForceParams_00024Raw_setDamping(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleSuspensionForceParams* _self = (physx::PxVehicleSuspensionForceParams*) _address;
     _self->damping = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleSuspensionForceParams_00024Raw_getSprungMass(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleSuspensionForceParams* _self = (physx::vehicle2::PxVehicleSuspensionForceParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleSuspensionForceParams_00024Raw_getSprungMass(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleSuspensionForceParams* _self = (physx::PxVehicleSuspensionForceParams*) _address;
     return (jfloat) _self->sprungMass;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleSuspensionForceParams_00024Raw_setSprungMass(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleSuspensionForceParams* _self = (physx::vehicle2::PxVehicleSuspensionForceParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleSuspensionForceParams_00024Raw_setSprungMass(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleSuspensionForceParams* _self = (physx::PxVehicleSuspensionForceParams*) _address;
     _self->sprungMass = value;
 }
 
 // PxVehicleSuspensionParams
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleSuspensionParams__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleSuspensionParams);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleSuspensionParams__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleSuspensionParams);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleSuspensionParams_00024Raw_PxVehicleSuspensionParams(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleSuspensionParams();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleSuspensionParams_00024Raw_PxVehicleSuspensionParams(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleSuspensionParams();
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleSuspensionParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
-    physx::vehicle2::PxVehicleSuspensionParams* self = (physx::vehicle2::PxVehicleSuspensionParams*) _address;
-    static thread_local physx::vehicle2::PxVehicleSuspensionParams _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
-    _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleSuspensionParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
+    physx::PxVehicleSuspensionParams* self = (physx::PxVehicleSuspensionParams*) _address;
+    static thread_local physx::PxVehicleSuspensionParams _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
+    _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
     return (jlong) &_cache;
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_PxVehicleSuspensionParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleSuspensionParams* self = (physx::vehicle2::PxVehicleSuspensionParams*) _address;
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_PxVehicleSuspensionParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleSuspensionParams* self = (physx::PxVehicleSuspensionParams*) _address;
     return (jboolean) self->isValid();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleSuspensionParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleSuspensionParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleSuspensionParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleSuspensionParams*) _address;
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleSuspensionParams_00024Raw_getSuspensionAttachment(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleSuspensionParams* _self = (physx::vehicle2::PxVehicleSuspensionParams*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleSuspensionParams_00024Raw_getSuspensionAttachment(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleSuspensionParams* _self = (physx::PxVehicleSuspensionParams*) _address;
     return (jlong) &_self->suspensionAttachment;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleSuspensionParams_00024Raw_setSuspensionAttachment(JNIEnv*, jclass, jlong _address, jlong value) {
-    physx::vehicle2::PxVehicleSuspensionParams* _self = (physx::vehicle2::PxVehicleSuspensionParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleSuspensionParams_00024Raw_setSuspensionAttachment(JNIEnv*, jclass, jlong _address, jlong value) {
+    physx::PxVehicleSuspensionParams* _self = (physx::PxVehicleSuspensionParams*) _address;
     _self->suspensionAttachment = *((physx::PxTransform*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleSuspensionParams_00024Raw_getSuspensionTravelDir(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleSuspensionParams* _self = (physx::vehicle2::PxVehicleSuspensionParams*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleSuspensionParams_00024Raw_getSuspensionTravelDir(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleSuspensionParams* _self = (physx::PxVehicleSuspensionParams*) _address;
     return (jlong) &_self->suspensionTravelDir;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleSuspensionParams_00024Raw_setSuspensionTravelDir(JNIEnv*, jclass, jlong _address, jlong value) {
-    physx::vehicle2::PxVehicleSuspensionParams* _self = (physx::vehicle2::PxVehicleSuspensionParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleSuspensionParams_00024Raw_setSuspensionTravelDir(JNIEnv*, jclass, jlong _address, jlong value) {
+    physx::PxVehicleSuspensionParams* _self = (physx::PxVehicleSuspensionParams*) _address;
     _self->suspensionTravelDir = *((physx::PxVec3*) value);
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleSuspensionParams_00024Raw_getSuspensionTravelDist(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleSuspensionParams* _self = (physx::vehicle2::PxVehicleSuspensionParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleSuspensionParams_00024Raw_getSuspensionTravelDist(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleSuspensionParams* _self = (physx::PxVehicleSuspensionParams*) _address;
     return (jfloat) _self->suspensionTravelDist;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleSuspensionParams_00024Raw_setSuspensionTravelDist(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleSuspensionParams* _self = (physx::vehicle2::PxVehicleSuspensionParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleSuspensionParams_00024Raw_setSuspensionTravelDist(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleSuspensionParams* _self = (physx::PxVehicleSuspensionParams*) _address;
     _self->suspensionTravelDist = value;
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleSuspensionParams_00024Raw_getWheelAttachment(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleSuspensionParams* _self = (physx::vehicle2::PxVehicleSuspensionParams*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleSuspensionParams_00024Raw_getWheelAttachment(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleSuspensionParams* _self = (physx::PxVehicleSuspensionParams*) _address;
     return (jlong) &_self->wheelAttachment;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleSuspensionParams_00024Raw_setWheelAttachment(JNIEnv*, jclass, jlong _address, jlong value) {
-    physx::vehicle2::PxVehicleSuspensionParams* _self = (physx::vehicle2::PxVehicleSuspensionParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleSuspensionParams_00024Raw_setWheelAttachment(JNIEnv*, jclass, jlong _address, jlong value) {
+    physx::PxVehicleSuspensionParams* _self = (physx::PxVehicleSuspensionParams*) _address;
     _self->wheelAttachment = *((physx::PxTransform*) value);
 }
 
 // PxVehicleSuspensionState
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleSuspensionState__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleSuspensionState);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleSuspensionState__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleSuspensionState);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleSuspensionState_00024Raw_PxVehicleSuspensionState(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleSuspensionState();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleSuspensionState_00024Raw_PxVehicleSuspensionState(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleSuspensionState();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleSuspensionState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address, jfloat _jounce, jfloat _separation) {
-    physx::vehicle2::PxVehicleSuspensionState* self = (physx::vehicle2::PxVehicleSuspensionState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleSuspensionState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address, jfloat _jounce, jfloat _separation) {
+    physx::PxVehicleSuspensionState* self = (physx::PxVehicleSuspensionState*) _address;
     self->setToDefault(_jounce, _separation);
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleSuspensionState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleSuspensionState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleSuspensionState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleSuspensionState*) _address;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleSuspensionState_00024Raw_getJounce(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleSuspensionState* _self = (physx::vehicle2::PxVehicleSuspensionState*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleSuspensionState_00024Raw_getJounce(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleSuspensionState* _self = (physx::PxVehicleSuspensionState*) _address;
     return (jfloat) _self->jounce;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleSuspensionState_00024Raw_setJounce(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleSuspensionState* _self = (physx::vehicle2::PxVehicleSuspensionState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleSuspensionState_00024Raw_setJounce(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleSuspensionState* _self = (physx::PxVehicleSuspensionState*) _address;
     _self->jounce = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleSuspensionState_00024Raw_getJounceSpeed(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleSuspensionState* _self = (physx::vehicle2::PxVehicleSuspensionState*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleSuspensionState_00024Raw_getJounceSpeed(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleSuspensionState* _self = (physx::PxVehicleSuspensionState*) _address;
     return (jfloat) _self->jounceSpeed;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleSuspensionState_00024Raw_setJounceSpeed(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleSuspensionState* _self = (physx::vehicle2::PxVehicleSuspensionState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleSuspensionState_00024Raw_setJounceSpeed(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleSuspensionState* _self = (physx::PxVehicleSuspensionState*) _address;
     _self->jounceSpeed = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleSuspensionState_00024Raw_getSeparation(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleSuspensionState* _self = (physx::vehicle2::PxVehicleSuspensionState*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleSuspensionState_00024Raw_getSeparation(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleSuspensionState* _self = (physx::PxVehicleSuspensionState*) _address;
     return (jfloat) _self->separation;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleSuspensionState_00024Raw_setSeparation(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleSuspensionState* _self = (physx::vehicle2::PxVehicleSuspensionState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleSuspensionState_00024Raw_setSeparation(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleSuspensionState* _self = (physx::PxVehicleSuspensionState*) _address;
     _self->separation = value;
 }
 
 // PxVehicleSuspensionStateCalculationParams
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleSuspensionStateCalculationParams__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleSuspensionStateCalculationParams);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleSuspensionStateCalculationParams__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleSuspensionStateCalculationParams);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleSuspensionStateCalculationParams_00024Raw_PxVehicleSuspensionStateCalculationParams(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleSuspensionStateCalculationParams();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleSuspensionStateCalculationParams_00024Raw_PxVehicleSuspensionStateCalculationParams(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleSuspensionStateCalculationParams();
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleSuspensionStateCalculationParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
-    physx::vehicle2::PxVehicleSuspensionStateCalculationParams* self = (physx::vehicle2::PxVehicleSuspensionStateCalculationParams*) _address;
-    static thread_local physx::vehicle2::PxVehicleSuspensionStateCalculationParams _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
-    _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleSuspensionStateCalculationParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
+    physx::PxVehicleSuspensionStateCalculationParams* self = (physx::PxVehicleSuspensionStateCalculationParams*) _address;
+    static thread_local physx::PxVehicleSuspensionStateCalculationParams _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
+    _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
     return (jlong) &_cache;
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_PxVehicleSuspensionStateCalculationParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleSuspensionStateCalculationParams* self = (physx::vehicle2::PxVehicleSuspensionStateCalculationParams*) _address;
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_PxVehicleSuspensionStateCalculationParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleSuspensionStateCalculationParams* self = (physx::PxVehicleSuspensionStateCalculationParams*) _address;
     return (jboolean) self->isValid();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleSuspensionStateCalculationParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleSuspensionStateCalculationParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleSuspensionStateCalculationParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleSuspensionStateCalculationParams*) _address;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleSuspensionStateCalculationParams_00024Raw_getSuspensionJounceCalculationType(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleSuspensionStateCalculationParams* _self = (physx::vehicle2::PxVehicleSuspensionStateCalculationParams*) _address;
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleSuspensionStateCalculationParams_00024Raw_getSuspensionJounceCalculationType(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleSuspensionStateCalculationParams* _self = (physx::PxVehicleSuspensionStateCalculationParams*) _address;
     return (jint) _self->suspensionJounceCalculationType;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleSuspensionStateCalculationParams_00024Raw_setSuspensionJounceCalculationType(JNIEnv*, jclass, jlong _address, jint value) {
-    physx::vehicle2::PxVehicleSuspensionStateCalculationParams* _self = (physx::vehicle2::PxVehicleSuspensionStateCalculationParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleSuspensionStateCalculationParams_00024Raw_setSuspensionJounceCalculationType(JNIEnv*, jclass, jlong _address, jint value) {
+    physx::PxVehicleSuspensionStateCalculationParams* _self = (physx::PxVehicleSuspensionStateCalculationParams*) _address;
     _self->suspensionJounceCalculationType = (PxVehicleSuspensionJounceCalculationTypeEnum) value;
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_PxVehicleSuspensionStateCalculationParams_00024Raw_getLimitSuspensionExpansionVelocity(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleSuspensionStateCalculationParams* _self = (physx::vehicle2::PxVehicleSuspensionStateCalculationParams*) _address;
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_PxVehicleSuspensionStateCalculationParams_00024Raw_getLimitSuspensionExpansionVelocity(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleSuspensionStateCalculationParams* _self = (physx::PxVehicleSuspensionStateCalculationParams*) _address;
     return (jboolean) _self->limitSuspensionExpansionVelocity;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleSuspensionStateCalculationParams_00024Raw_setLimitSuspensionExpansionVelocity(JNIEnv*, jclass, jlong _address, jboolean value) {
-    physx::vehicle2::PxVehicleSuspensionStateCalculationParams* _self = (physx::vehicle2::PxVehicleSuspensionStateCalculationParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleSuspensionStateCalculationParams_00024Raw_setLimitSuspensionExpansionVelocity(JNIEnv*, jclass, jlong _address, jboolean value) {
+    physx::PxVehicleSuspensionStateCalculationParams* _self = (physx::PxVehicleSuspensionStateCalculationParams*) _address;
     _self->limitSuspensionExpansionVelocity = value;
 }
 
 // PxVehicleTankDriveDifferentialParams
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleTankDriveDifferentialParams__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleTankDriveDifferentialParams);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleTankDriveDifferentialParams__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleTankDriveDifferentialParams);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleTankDriveDifferentialParams_00024Raw_PxVehicleTankDriveDifferentialParams_1placed(JNIEnv*, jclass, jlong _placement_address) {
-    return (jlong) new((void*)_placement_address) physx::vehicle2::PxVehicleTankDriveDifferentialParams();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleTankDriveDifferentialParams_00024Raw_PxVehicleTankDriveDifferentialParams_1placed(JNIEnv*, jclass, jlong _placement_address) {
+    return (jlong) new((void*)_placement_address) physx::PxVehicleTankDriveDifferentialParams();
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleTankDriveDifferentialParams_00024Raw_PxVehicleTankDriveDifferentialParams(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleTankDriveDifferentialParams();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleTankDriveDifferentialParams_00024Raw_PxVehicleTankDriveDifferentialParams(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleTankDriveDifferentialParams();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTankDriveDifferentialParams_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleTankDriveDifferentialParams* self = (physx::vehicle2::PxVehicleTankDriveDifferentialParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTankDriveDifferentialParams_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleTankDriveDifferentialParams* self = (physx::PxVehicleTankDriveDifferentialParams*) _address;
     self->setToDefault();
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleTankDriveDifferentialParams_00024Raw_getNbWheelsInTrack(JNIEnv*, jclass, jlong _address, jint i) {
-    physx::vehicle2::PxVehicleTankDriveDifferentialParams* self = (physx::vehicle2::PxVehicleTankDriveDifferentialParams*) _address;
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleTankDriveDifferentialParams_00024Raw_getNbWheelsInTrack(JNIEnv*, jclass, jlong _address, jint i) {
+    physx::PxVehicleTankDriveDifferentialParams* self = (physx::PxVehicleTankDriveDifferentialParams*) _address;
     return (jint) self->getNbWheelsInTrack(i);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleTankDriveDifferentialParams_00024Raw_getWheelsInTrack(JNIEnv*, jclass, jlong _address, jint i) {
-    physx::vehicle2::PxVehicleTankDriveDifferentialParams* self = (physx::vehicle2::PxVehicleTankDriveDifferentialParams*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleTankDriveDifferentialParams_00024Raw_getWheelsInTrack(JNIEnv*, jclass, jlong _address, jint i) {
+    physx::PxVehicleTankDriveDifferentialParams* self = (physx::PxVehicleTankDriveDifferentialParams*) _address;
     static thread_local PxU32ConstPtr _cache = self->getWheelsInTrack(i);
     _cache = self->getWheelsInTrack(i);
     return (jlong) &_cache;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleTankDriveDifferentialParams_00024Raw_getWheelInTrack(JNIEnv*, jclass, jlong _address, jint j, jint i) {
-    physx::vehicle2::PxVehicleTankDriveDifferentialParams* self = (physx::vehicle2::PxVehicleTankDriveDifferentialParams*) _address;
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleTankDriveDifferentialParams_00024Raw_getWheelInTrack(JNIEnv*, jclass, jlong _address, jint j, jint i) {
+    physx::PxVehicleTankDriveDifferentialParams* self = (physx::PxVehicleTankDriveDifferentialParams*) _address;
     return (jint) self->getWheelInTrack(j, i);
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleTankDriveDifferentialParams_00024Raw_getThrustControllerIndex(JNIEnv*, jclass, jlong _address, jint i) {
-    physx::vehicle2::PxVehicleTankDriveDifferentialParams* self = (physx::vehicle2::PxVehicleTankDriveDifferentialParams*) _address;
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleTankDriveDifferentialParams_00024Raw_getThrustControllerIndex(JNIEnv*, jclass, jlong _address, jint i) {
+    physx::PxVehicleTankDriveDifferentialParams* self = (physx::PxVehicleTankDriveDifferentialParams*) _address;
     return (jint) self->getThrustControllerIndex(i);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleTankDriveDifferentialParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
-    physx::vehicle2::PxVehicleTankDriveDifferentialParams* self = (physx::vehicle2::PxVehicleTankDriveDifferentialParams*) _address;
-    static thread_local physx::vehicle2::PxVehicleTankDriveDifferentialParams _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
-    _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleTankDriveDifferentialParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
+    physx::PxVehicleTankDriveDifferentialParams* self = (physx::PxVehicleTankDriveDifferentialParams*) _address;
+    static thread_local physx::PxVehicleTankDriveDifferentialParams _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
+    _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
     return (jlong) &_cache;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTankDriveDifferentialParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleTankDriveDifferentialParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTankDriveDifferentialParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleTankDriveDifferentialParams*) _address;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleTankDriveDifferentialParams_00024Raw_getNbTracks(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleTankDriveDifferentialParams* _self = (physx::vehicle2::PxVehicleTankDriveDifferentialParams*) _address;
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleTankDriveDifferentialParams_00024Raw_getNbTracks(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleTankDriveDifferentialParams* _self = (physx::PxVehicleTankDriveDifferentialParams*) _address;
     return (jint) _self->nbTracks;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTankDriveDifferentialParams_00024Raw_setNbTracks(JNIEnv*, jclass, jlong _address, jint value) {
-    physx::vehicle2::PxVehicleTankDriveDifferentialParams* _self = (physx::vehicle2::PxVehicleTankDriveDifferentialParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTankDriveDifferentialParams_00024Raw_setNbTracks(JNIEnv*, jclass, jlong _address, jint value) {
+    physx::PxVehicleTankDriveDifferentialParams* _self = (physx::PxVehicleTankDriveDifferentialParams*) _address;
     _self->nbTracks = value;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleTankDriveDifferentialParams_00024Raw_getThrustIdPerTrack(JNIEnv*, jclass, jlong _address, jint _index) {
-    physx::vehicle2::PxVehicleTankDriveDifferentialParams* _self = (physx::vehicle2::PxVehicleTankDriveDifferentialParams*) _address;
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleTankDriveDifferentialParams_00024Raw_getThrustIdPerTrack(JNIEnv*, jclass, jlong _address, jint _index) {
+    physx::PxVehicleTankDriveDifferentialParams* _self = (physx::PxVehicleTankDriveDifferentialParams*) _address;
     return (jint) _self->thrustIdPerTrack[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTankDriveDifferentialParams_00024Raw_setThrustIdPerTrack(JNIEnv*, jclass, jlong _address, jint _index, jint value) {
-    physx::vehicle2::PxVehicleTankDriveDifferentialParams* _self = (physx::vehicle2::PxVehicleTankDriveDifferentialParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTankDriveDifferentialParams_00024Raw_setThrustIdPerTrack(JNIEnv*, jclass, jlong _address, jint _index, jint value) {
+    physx::PxVehicleTankDriveDifferentialParams* _self = (physx::PxVehicleTankDriveDifferentialParams*) _address;
     _self->thrustIdPerTrack[_index] = value;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleTankDriveDifferentialParams_00024Raw_getNbWheelsPerTrack(JNIEnv*, jclass, jlong _address, jint _index) {
-    physx::vehicle2::PxVehicleTankDriveDifferentialParams* _self = (physx::vehicle2::PxVehicleTankDriveDifferentialParams*) _address;
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleTankDriveDifferentialParams_00024Raw_getNbWheelsPerTrack(JNIEnv*, jclass, jlong _address, jint _index) {
+    physx::PxVehicleTankDriveDifferentialParams* _self = (physx::PxVehicleTankDriveDifferentialParams*) _address;
     return (jint) _self->nbWheelsPerTrack[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTankDriveDifferentialParams_00024Raw_setNbWheelsPerTrack(JNIEnv*, jclass, jlong _address, jint _index, jint value) {
-    physx::vehicle2::PxVehicleTankDriveDifferentialParams* _self = (physx::vehicle2::PxVehicleTankDriveDifferentialParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTankDriveDifferentialParams_00024Raw_setNbWheelsPerTrack(JNIEnv*, jclass, jlong _address, jint _index, jint value) {
+    physx::PxVehicleTankDriveDifferentialParams* _self = (physx::PxVehicleTankDriveDifferentialParams*) _address;
     _self->nbWheelsPerTrack[_index] = value;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleTankDriveDifferentialParams_00024Raw_getTrackToWheelIds(JNIEnv*, jclass, jlong _address, jint _index) {
-    physx::vehicle2::PxVehicleTankDriveDifferentialParams* _self = (physx::vehicle2::PxVehicleTankDriveDifferentialParams*) _address;
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleTankDriveDifferentialParams_00024Raw_getTrackToWheelIds(JNIEnv*, jclass, jlong _address, jint _index) {
+    physx::PxVehicleTankDriveDifferentialParams* _self = (physx::PxVehicleTankDriveDifferentialParams*) _address;
     return (jint) _self->trackToWheelIds[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTankDriveDifferentialParams_00024Raw_setTrackToWheelIds(JNIEnv*, jclass, jlong _address, jint _index, jint value) {
-    physx::vehicle2::PxVehicleTankDriveDifferentialParams* _self = (physx::vehicle2::PxVehicleTankDriveDifferentialParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTankDriveDifferentialParams_00024Raw_setTrackToWheelIds(JNIEnv*, jclass, jlong _address, jint _index, jint value) {
+    physx::PxVehicleTankDriveDifferentialParams* _self = (physx::PxVehicleTankDriveDifferentialParams*) _address;
     _self->trackToWheelIds[_index] = value;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleTankDriveDifferentialParams_00024Raw_getWheelIdsInTrackOrder(JNIEnv*, jclass, jlong _address, jint _index) {
-    physx::vehicle2::PxVehicleTankDriveDifferentialParams* _self = (physx::vehicle2::PxVehicleTankDriveDifferentialParams*) _address;
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleTankDriveDifferentialParams_00024Raw_getWheelIdsInTrackOrder(JNIEnv*, jclass, jlong _address, jint _index) {
+    physx::PxVehicleTankDriveDifferentialParams* _self = (physx::PxVehicleTankDriveDifferentialParams*) _address;
     return (jint) _self->wheelIdsInTrackOrder[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTankDriveDifferentialParams_00024Raw_setWheelIdsInTrackOrder(JNIEnv*, jclass, jlong _address, jint _index, jint value) {
-    physx::vehicle2::PxVehicleTankDriveDifferentialParams* _self = (physx::vehicle2::PxVehicleTankDriveDifferentialParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTankDriveDifferentialParams_00024Raw_setWheelIdsInTrackOrder(JNIEnv*, jclass, jlong _address, jint _index, jint value) {
+    physx::PxVehicleTankDriveDifferentialParams* _self = (physx::PxVehicleTankDriveDifferentialParams*) _address;
     _self->wheelIdsInTrackOrder[_index] = value;
 }
 
 // PxVehicleTankDriveTransmissionCommandState
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleTankDriveTransmissionCommandState__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleTankDriveTransmissionCommandState);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleTankDriveTransmissionCommandState__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleTankDriveTransmissionCommandState);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleTankDriveTransmissionCommandState_00024Raw_PxVehicleTankDriveTransmissionCommandState(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleTankDriveTransmissionCommandState();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleTankDriveTransmissionCommandState_00024Raw_PxVehicleTankDriveTransmissionCommandState(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleTankDriveTransmissionCommandState();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTankDriveTransmissionCommandState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleTankDriveTransmissionCommandState* self = (physx::vehicle2::PxVehicleTankDriveTransmissionCommandState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTankDriveTransmissionCommandState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleTankDriveTransmissionCommandState* self = (physx::PxVehicleTankDriveTransmissionCommandState*) _address;
     self->setToDefault();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTankDriveTransmissionCommandState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleTankDriveTransmissionCommandState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTankDriveTransmissionCommandState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleTankDriveTransmissionCommandState*) _address;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleTankDriveTransmissionCommandState_00024Raw_getThrusts(JNIEnv*, jclass, jlong _address, jint _index) {
-    physx::vehicle2::PxVehicleTankDriveTransmissionCommandState* _self = (physx::vehicle2::PxVehicleTankDriveTransmissionCommandState*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleTankDriveTransmissionCommandState_00024Raw_getThrusts(JNIEnv*, jclass, jlong _address, jint _index) {
+    physx::PxVehicleTankDriveTransmissionCommandState* _self = (physx::PxVehicleTankDriveTransmissionCommandState*) _address;
     return (jfloat) _self->thrusts[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTankDriveTransmissionCommandState_00024Raw_setThrusts(JNIEnv*, jclass, jlong _address, jint _index, jfloat value) {
-    physx::vehicle2::PxVehicleTankDriveTransmissionCommandState* _self = (physx::vehicle2::PxVehicleTankDriveTransmissionCommandState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTankDriveTransmissionCommandState_00024Raw_setThrusts(JNIEnv*, jclass, jlong _address, jint _index, jfloat value) {
+    physx::PxVehicleTankDriveTransmissionCommandState* _self = (physx::PxVehicleTankDriveTransmissionCommandState*) _address;
     _self->thrusts[_index] = value;
 }
 
 // PxVehicleTireAxisStickyParams
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleTireAxisStickyParams__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleTireAxisStickyParams);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleTireAxisStickyParams__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleTireAxisStickyParams);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleTireAxisStickyParams_00024Raw_PxVehicleTireAxisStickyParams_1placed(JNIEnv*, jclass, jlong _placement_address) {
-    return (jlong) new((void*)_placement_address) physx::vehicle2::PxVehicleTireAxisStickyParams();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleTireAxisStickyParams_00024Raw_PxVehicleTireAxisStickyParams_1placed(JNIEnv*, jclass, jlong _placement_address) {
+    return (jlong) new((void*)_placement_address) physx::PxVehicleTireAxisStickyParams();
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleTireAxisStickyParams_00024Raw_PxVehicleTireAxisStickyParams(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleTireAxisStickyParams();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleTireAxisStickyParams_00024Raw_PxVehicleTireAxisStickyParams(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleTireAxisStickyParams();
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleTireAxisStickyParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
-    physx::vehicle2::PxVehicleTireAxisStickyParams* self = (physx::vehicle2::PxVehicleTireAxisStickyParams*) _address;
-    static thread_local physx::vehicle2::PxVehicleTireAxisStickyParams _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
-    _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleTireAxisStickyParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
+    physx::PxVehicleTireAxisStickyParams* self = (physx::PxVehicleTireAxisStickyParams*) _address;
+    static thread_local physx::PxVehicleTireAxisStickyParams _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
+    _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
     return (jlong) &_cache;
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_PxVehicleTireAxisStickyParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleTireAxisStickyParams* self = (physx::vehicle2::PxVehicleTireAxisStickyParams*) _address;
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_PxVehicleTireAxisStickyParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleTireAxisStickyParams* self = (physx::PxVehicleTireAxisStickyParams*) _address;
     return (jboolean) self->isValid();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTireAxisStickyParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleTireAxisStickyParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTireAxisStickyParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleTireAxisStickyParams*) _address;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleTireAxisStickyParams_00024Raw_getThresholdSpeed(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleTireAxisStickyParams* _self = (physx::vehicle2::PxVehicleTireAxisStickyParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleTireAxisStickyParams_00024Raw_getThresholdSpeed(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleTireAxisStickyParams* _self = (physx::PxVehicleTireAxisStickyParams*) _address;
     return (jfloat) _self->thresholdSpeed;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTireAxisStickyParams_00024Raw_setThresholdSpeed(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleTireAxisStickyParams* _self = (physx::vehicle2::PxVehicleTireAxisStickyParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTireAxisStickyParams_00024Raw_setThresholdSpeed(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleTireAxisStickyParams* _self = (physx::PxVehicleTireAxisStickyParams*) _address;
     _self->thresholdSpeed = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleTireAxisStickyParams_00024Raw_getThresholdTime(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleTireAxisStickyParams* _self = (physx::vehicle2::PxVehicleTireAxisStickyParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleTireAxisStickyParams_00024Raw_getThresholdTime(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleTireAxisStickyParams* _self = (physx::PxVehicleTireAxisStickyParams*) _address;
     return (jfloat) _self->thresholdTime;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTireAxisStickyParams_00024Raw_setThresholdTime(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleTireAxisStickyParams* _self = (physx::vehicle2::PxVehicleTireAxisStickyParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTireAxisStickyParams_00024Raw_setThresholdTime(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleTireAxisStickyParams* _self = (physx::PxVehicleTireAxisStickyParams*) _address;
     _self->thresholdTime = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleTireAxisStickyParams_00024Raw_getDamping(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleTireAxisStickyParams* _self = (physx::vehicle2::PxVehicleTireAxisStickyParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleTireAxisStickyParams_00024Raw_getDamping(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleTireAxisStickyParams* _self = (physx::PxVehicleTireAxisStickyParams*) _address;
     return (jfloat) _self->damping;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTireAxisStickyParams_00024Raw_setDamping(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleTireAxisStickyParams* _self = (physx::vehicle2::PxVehicleTireAxisStickyParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTireAxisStickyParams_00024Raw_setDamping(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleTireAxisStickyParams* _self = (physx::PxVehicleTireAxisStickyParams*) _address;
     _self->damping = value;
 }
 
 // PxVehicleTireCamberAngleState
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleTireCamberAngleState__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleTireCamberAngleState);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleTireCamberAngleState__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleTireCamberAngleState);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleTireCamberAngleState_00024Raw_PxVehicleTireCamberAngleState(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleTireCamberAngleState();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleTireCamberAngleState_00024Raw_PxVehicleTireCamberAngleState(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleTireCamberAngleState();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTireCamberAngleState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleTireCamberAngleState* self = (physx::vehicle2::PxVehicleTireCamberAngleState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTireCamberAngleState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleTireCamberAngleState* self = (physx::PxVehicleTireCamberAngleState*) _address;
     self->setToDefault();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTireCamberAngleState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleTireCamberAngleState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTireCamberAngleState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleTireCamberAngleState*) _address;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleTireCamberAngleState_00024Raw_getCamberAngle(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleTireCamberAngleState* _self = (physx::vehicle2::PxVehicleTireCamberAngleState*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleTireCamberAngleState_00024Raw_getCamberAngle(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleTireCamberAngleState* _self = (physx::PxVehicleTireCamberAngleState*) _address;
     return (jfloat) _self->camberAngle;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTireCamberAngleState_00024Raw_setCamberAngle(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleTireCamberAngleState* _self = (physx::vehicle2::PxVehicleTireCamberAngleState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTireCamberAngleState_00024Raw_setCamberAngle(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleTireCamberAngleState* _self = (physx::PxVehicleTireCamberAngleState*) _address;
     _self->camberAngle = value;
 }
 
 // PxVehicleTireDirectionState
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleTireDirectionState__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleTireDirectionState);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleTireDirectionState__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleTireDirectionState);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleTireDirectionState_00024Raw_PxVehicleTireDirectionState(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleTireDirectionState();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleTireDirectionState_00024Raw_PxVehicleTireDirectionState(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleTireDirectionState();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTireDirectionState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleTireDirectionState* self = (physx::vehicle2::PxVehicleTireDirectionState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTireDirectionState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleTireDirectionState* self = (physx::PxVehicleTireDirectionState*) _address;
     self->setToDefault();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTireDirectionState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleTireDirectionState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTireDirectionState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleTireDirectionState*) _address;
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleTireDirectionState_00024Raw_getDirections(JNIEnv*, jclass, jlong _address, jint _index) {
-    physx::vehicle2::PxVehicleTireDirectionState* _self = (physx::vehicle2::PxVehicleTireDirectionState*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleTireDirectionState_00024Raw_getDirections(JNIEnv*, jclass, jlong _address, jint _index) {
+    physx::PxVehicleTireDirectionState* _self = (physx::PxVehicleTireDirectionState*) _address;
     return (jlong) &_self->directions[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTireDirectionState_00024Raw_setDirections(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
-    physx::vehicle2::PxVehicleTireDirectionState* _self = (physx::vehicle2::PxVehicleTireDirectionState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTireDirectionState_00024Raw_setDirections(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
+    physx::PxVehicleTireDirectionState* _self = (physx::PxVehicleTireDirectionState*) _address;
     _self->directions[_index] = *((physx::PxVec3*) value);
 }
 
 // PxVehicleTireForce
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleTireForce__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleTireForce);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleTireForce__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleTireForce);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleTireForce_00024Raw_PxVehicleTireForce(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleTireForce();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleTireForce_00024Raw_PxVehicleTireForce(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleTireForce();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTireForce_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleTireForce* self = (physx::vehicle2::PxVehicleTireForce*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTireForce_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleTireForce* self = (physx::PxVehicleTireForce*) _address;
     self->setToDefault();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTireForce_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleTireForce*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTireForce_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleTireForce*) _address;
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleTireForce_00024Raw_getForces(JNIEnv*, jclass, jlong _address, jint _index) {
-    physx::vehicle2::PxVehicleTireForce* _self = (physx::vehicle2::PxVehicleTireForce*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleTireForce_00024Raw_getForces(JNIEnv*, jclass, jlong _address, jint _index) {
+    physx::PxVehicleTireForce* _self = (physx::PxVehicleTireForce*) _address;
     return (jlong) &_self->forces[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTireForce_00024Raw_setForces(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
-    physx::vehicle2::PxVehicleTireForce* _self = (physx::vehicle2::PxVehicleTireForce*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTireForce_00024Raw_setForces(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
+    physx::PxVehicleTireForce* _self = (physx::PxVehicleTireForce*) _address;
     _self->forces[_index] = *((physx::PxVec3*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleTireForce_00024Raw_getTorques(JNIEnv*, jclass, jlong _address, jint _index) {
-    physx::vehicle2::PxVehicleTireForce* _self = (physx::vehicle2::PxVehicleTireForce*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleTireForce_00024Raw_getTorques(JNIEnv*, jclass, jlong _address, jint _index) {
+    physx::PxVehicleTireForce* _self = (physx::PxVehicleTireForce*) _address;
     return (jlong) &_self->torques[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTireForce_00024Raw_setTorques(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
-    physx::vehicle2::PxVehicleTireForce* _self = (physx::vehicle2::PxVehicleTireForce*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTireForce_00024Raw_setTorques(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
+    physx::PxVehicleTireForce* _self = (physx::PxVehicleTireForce*) _address;
     _self->torques[_index] = *((physx::PxVec3*) value);
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleTireForce_00024Raw_getAligningMoment(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleTireForce* _self = (physx::vehicle2::PxVehicleTireForce*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleTireForce_00024Raw_getAligningMoment(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleTireForce* _self = (physx::PxVehicleTireForce*) _address;
     return (jfloat) _self->aligningMoment;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTireForce_00024Raw_setAligningMoment(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleTireForce* _self = (physx::vehicle2::PxVehicleTireForce*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTireForce_00024Raw_setAligningMoment(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleTireForce* _self = (physx::PxVehicleTireForce*) _address;
     _self->aligningMoment = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleTireForce_00024Raw_getWheelTorque(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleTireForce* _self = (physx::vehicle2::PxVehicleTireForce*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleTireForce_00024Raw_getWheelTorque(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleTireForce* _self = (physx::PxVehicleTireForce*) _address;
     return (jfloat) _self->wheelTorque;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTireForce_00024Raw_setWheelTorque(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleTireForce* _self = (physx::vehicle2::PxVehicleTireForce*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTireForce_00024Raw_setWheelTorque(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleTireForce* _self = (physx::PxVehicleTireForce*) _address;
     _self->wheelTorque = value;
 }
 
 // PxVehicleTireForceParams
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleTireForceParams__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleTireForceParams);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleTireForceParams__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleTireForceParams);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleTireForceParams_00024Raw_PxVehicleTireForceParams(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleTireForceParams();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleTireForceParams_00024Raw_PxVehicleTireForceParams(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleTireForceParams();
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleTireForceParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
-    physx::vehicle2::PxVehicleTireForceParams* self = (physx::vehicle2::PxVehicleTireForceParams*) _address;
-    static thread_local physx::vehicle2::PxVehicleTireForceParams _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
-    _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleTireForceParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
+    physx::PxVehicleTireForceParams* self = (physx::PxVehicleTireForceParams*) _address;
+    static thread_local physx::PxVehicleTireForceParams _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
+    _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
     return (jlong) &_cache;
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_PxVehicleTireForceParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleTireForceParams* self = (physx::vehicle2::PxVehicleTireForceParams*) _address;
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_PxVehicleTireForceParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleTireForceParams* self = (physx::PxVehicleTireForceParams*) _address;
     return (jboolean) self->isValid();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTireForceParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleTireForceParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTireForceParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleTireForceParams*) _address;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleTireForceParams_00024Raw_getLatStiffX(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleTireForceParams* _self = (physx::vehicle2::PxVehicleTireForceParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleTireForceParams_00024Raw_getLatStiffX(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleTireForceParams* _self = (physx::PxVehicleTireForceParams*) _address;
     return (jfloat) _self->latStiffX;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTireForceParams_00024Raw_setLatStiffX(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleTireForceParams* _self = (physx::vehicle2::PxVehicleTireForceParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTireForceParams_00024Raw_setLatStiffX(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleTireForceParams* _self = (physx::PxVehicleTireForceParams*) _address;
     _self->latStiffX = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleTireForceParams_00024Raw_getLatStiffY(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleTireForceParams* _self = (physx::vehicle2::PxVehicleTireForceParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleTireForceParams_00024Raw_getLatStiffY(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleTireForceParams* _self = (physx::PxVehicleTireForceParams*) _address;
     return (jfloat) _self->latStiffY;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTireForceParams_00024Raw_setLatStiffY(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleTireForceParams* _self = (physx::vehicle2::PxVehicleTireForceParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTireForceParams_00024Raw_setLatStiffY(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleTireForceParams* _self = (physx::PxVehicleTireForceParams*) _address;
     _self->latStiffY = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleTireForceParams_00024Raw_getLongStiff(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleTireForceParams* _self = (physx::vehicle2::PxVehicleTireForceParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleTireForceParams_00024Raw_getLongStiff(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleTireForceParams* _self = (physx::PxVehicleTireForceParams*) _address;
     return (jfloat) _self->longStiff;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTireForceParams_00024Raw_setLongStiff(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleTireForceParams* _self = (physx::vehicle2::PxVehicleTireForceParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTireForceParams_00024Raw_setLongStiff(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleTireForceParams* _self = (physx::PxVehicleTireForceParams*) _address;
     _self->longStiff = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleTireForceParams_00024Raw_getCamberStiff(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleTireForceParams* _self = (physx::vehicle2::PxVehicleTireForceParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleTireForceParams_00024Raw_getCamberStiff(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleTireForceParams* _self = (physx::PxVehicleTireForceParams*) _address;
     return (jfloat) _self->camberStiff;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTireForceParams_00024Raw_setCamberStiff(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleTireForceParams* _self = (physx::vehicle2::PxVehicleTireForceParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTireForceParams_00024Raw_setCamberStiff(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleTireForceParams* _self = (physx::PxVehicleTireForceParams*) _address;
     _self->camberStiff = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleTireForceParams_00024Raw_getRestLoad(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleTireForceParams* _self = (physx::vehicle2::PxVehicleTireForceParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleTireForceParams_00024Raw_getRestLoad(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleTireForceParams* _self = (physx::PxVehicleTireForceParams*) _address;
     return (jfloat) _self->restLoad;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTireForceParams_00024Raw_setRestLoad(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleTireForceParams* _self = (physx::vehicle2::PxVehicleTireForceParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTireForceParams_00024Raw_setRestLoad(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleTireForceParams* _self = (physx::PxVehicleTireForceParams*) _address;
     _self->restLoad = value;
 }
 
 // PxVehicleTireForceParamsExt
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleTireForceParamsExt__1_1sizeOf(JNIEnv*, jclass) {
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleTireForceParamsExt__1_1sizeOf(JNIEnv*, jclass) {
     return sizeof(PxVehicleTireForceParamsExt);
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTireForceParamsExt_00024Raw_setFrictionVsSlip(JNIEnv*, jclass, jlong tireForceParams, jint i, jint j, jfloat value) {
-    PxVehicleTireForceParamsExt::setFrictionVsSlip((physx::vehicle2::PxVehicleTireForceParams*) tireForceParams, i, j, value);
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTireForceParamsExt_00024Raw_setFrictionVsSlip(JNIEnv*, jclass, jlong tireForceParams, jint i, jint j, jfloat value) {
+    PxVehicleTireForceParamsExt::setFrictionVsSlip((physx::PxVehicleTireForceParams*) tireForceParams, i, j, value);
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTireForceParamsExt_00024Raw_setLoadFilter(JNIEnv*, jclass, jlong tireForceParams, jint i, jint j, jfloat value) {
-    PxVehicleTireForceParamsExt::setLoadFilter((physx::vehicle2::PxVehicleTireForceParams*) tireForceParams, i, j, value);
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTireForceParamsExt_00024Raw_setLoadFilter(JNIEnv*, jclass, jlong tireForceParams, jint i, jint j, jfloat value) {
+    PxVehicleTireForceParamsExt::setLoadFilter((physx::PxVehicleTireForceParams*) tireForceParams, i, j, value);
 }
 
 // PxVehicleTireGripState
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleTireGripState__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleTireGripState);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleTireGripState__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleTireGripState);
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTireGripState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleTireGripState* self = (physx::vehicle2::PxVehicleTireGripState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTireGripState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleTireGripState* self = (physx::PxVehicleTireGripState*) _address;
     self->setToDefault();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTireGripState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleTireGripState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTireGripState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleTireGripState*) _address;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleTireGripState_00024Raw_getLoad(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleTireGripState* _self = (physx::vehicle2::PxVehicleTireGripState*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleTireGripState_00024Raw_getLoad(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleTireGripState* _self = (physx::PxVehicleTireGripState*) _address;
     return (jfloat) _self->load;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTireGripState_00024Raw_setLoad(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleTireGripState* _self = (physx::vehicle2::PxVehicleTireGripState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTireGripState_00024Raw_setLoad(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleTireGripState* _self = (physx::PxVehicleTireGripState*) _address;
     _self->load = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleTireGripState_00024Raw_getFriction(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleTireGripState* _self = (physx::vehicle2::PxVehicleTireGripState*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleTireGripState_00024Raw_getFriction(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleTireGripState* _self = (physx::PxVehicleTireGripState*) _address;
     return (jfloat) _self->friction;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTireGripState_00024Raw_setFriction(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleTireGripState* _self = (physx::vehicle2::PxVehicleTireGripState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTireGripState_00024Raw_setFriction(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleTireGripState* _self = (physx::PxVehicleTireGripState*) _address;
     _self->friction = value;
 }
 
 // PxVehicleTireSlipParams
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleTireSlipParams__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleTireSlipParams);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleTireSlipParams__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleTireSlipParams);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleTireSlipParams_00024Raw_PxVehicleTireSlipParams_1placed(JNIEnv*, jclass, jlong _placement_address) {
-    return (jlong) new((void*)_placement_address) physx::vehicle2::PxVehicleTireSlipParams();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleTireSlipParams_00024Raw_PxVehicleTireSlipParams_1placed(JNIEnv*, jclass, jlong _placement_address) {
+    return (jlong) new((void*)_placement_address) physx::PxVehicleTireSlipParams();
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleTireSlipParams_00024Raw_PxVehicleTireSlipParams(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleTireSlipParams();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleTireSlipParams_00024Raw_PxVehicleTireSlipParams(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleTireSlipParams();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTireSlipParams_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleTireSlipParams* self = (physx::vehicle2::PxVehicleTireSlipParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTireSlipParams_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleTireSlipParams* self = (physx::PxVehicleTireSlipParams*) _address;
     self->setToDefault();
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleTireSlipParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
-    physx::vehicle2::PxVehicleTireSlipParams* self = (physx::vehicle2::PxVehicleTireSlipParams*) _address;
-    static thread_local physx::vehicle2::PxVehicleTireSlipParams _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
-    _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleTireSlipParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
+    physx::PxVehicleTireSlipParams* self = (physx::PxVehicleTireSlipParams*) _address;
+    static thread_local physx::PxVehicleTireSlipParams _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
+    _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
     return (jlong) &_cache;
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_PxVehicleTireSlipParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleTireSlipParams* self = (physx::vehicle2::PxVehicleTireSlipParams*) _address;
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_PxVehicleTireSlipParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleTireSlipParams* self = (physx::PxVehicleTireSlipParams*) _address;
     return (jboolean) self->isValid();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTireSlipParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleTireSlipParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTireSlipParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleTireSlipParams*) _address;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleTireSlipParams_00024Raw_getMinLatSlipDenominator(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleTireSlipParams* _self = (physx::vehicle2::PxVehicleTireSlipParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleTireSlipParams_00024Raw_getMinLatSlipDenominator(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleTireSlipParams* _self = (physx::PxVehicleTireSlipParams*) _address;
     return (jfloat) _self->minLatSlipDenominator;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTireSlipParams_00024Raw_setMinLatSlipDenominator(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleTireSlipParams* _self = (physx::vehicle2::PxVehicleTireSlipParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTireSlipParams_00024Raw_setMinLatSlipDenominator(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleTireSlipParams* _self = (physx::PxVehicleTireSlipParams*) _address;
     _self->minLatSlipDenominator = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleTireSlipParams_00024Raw_getMinPassiveLongSlipDenominator(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleTireSlipParams* _self = (physx::vehicle2::PxVehicleTireSlipParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleTireSlipParams_00024Raw_getMinPassiveLongSlipDenominator(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleTireSlipParams* _self = (physx::PxVehicleTireSlipParams*) _address;
     return (jfloat) _self->minPassiveLongSlipDenominator;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTireSlipParams_00024Raw_setMinPassiveLongSlipDenominator(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleTireSlipParams* _self = (physx::vehicle2::PxVehicleTireSlipParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTireSlipParams_00024Raw_setMinPassiveLongSlipDenominator(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleTireSlipParams* _self = (physx::PxVehicleTireSlipParams*) _address;
     _self->minPassiveLongSlipDenominator = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleTireSlipParams_00024Raw_getMinActiveLongSlipDenominator(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleTireSlipParams* _self = (physx::vehicle2::PxVehicleTireSlipParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleTireSlipParams_00024Raw_getMinActiveLongSlipDenominator(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleTireSlipParams* _self = (physx::PxVehicleTireSlipParams*) _address;
     return (jfloat) _self->minActiveLongSlipDenominator;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTireSlipParams_00024Raw_setMinActiveLongSlipDenominator(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleTireSlipParams* _self = (physx::vehicle2::PxVehicleTireSlipParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTireSlipParams_00024Raw_setMinActiveLongSlipDenominator(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleTireSlipParams* _self = (physx::PxVehicleTireSlipParams*) _address;
     _self->minActiveLongSlipDenominator = value;
 }
 
 // PxVehicleTireSlipState
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleTireSlipState__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleTireSlipState);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleTireSlipState__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleTireSlipState);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleTireSlipState_00024Raw_PxVehicleTireSlipState(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleTireSlipState();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleTireSlipState_00024Raw_PxVehicleTireSlipState(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleTireSlipState();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTireSlipState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleTireSlipState* self = (physx::vehicle2::PxVehicleTireSlipState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTireSlipState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleTireSlipState* self = (physx::PxVehicleTireSlipState*) _address;
     self->setToDefault();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTireSlipState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleTireSlipState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTireSlipState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleTireSlipState*) _address;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleTireSlipState_00024Raw_getSlips(JNIEnv*, jclass, jlong _address, jint _index) {
-    physx::vehicle2::PxVehicleTireSlipState* _self = (physx::vehicle2::PxVehicleTireSlipState*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleTireSlipState_00024Raw_getSlips(JNIEnv*, jclass, jlong _address, jint _index) {
+    physx::PxVehicleTireSlipState* _self = (physx::PxVehicleTireSlipState*) _address;
     return (jfloat) _self->slips[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTireSlipState_00024Raw_setSlips(JNIEnv*, jclass, jlong _address, jint _index, jfloat value) {
-    physx::vehicle2::PxVehicleTireSlipState* _self = (physx::vehicle2::PxVehicleTireSlipState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTireSlipState_00024Raw_setSlips(JNIEnv*, jclass, jlong _address, jint _index, jfloat value) {
+    physx::PxVehicleTireSlipState* _self = (physx::PxVehicleTireSlipState*) _address;
     _self->slips[_index] = value;
 }
 
 // PxVehicleTireSpeedState
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleTireSpeedState__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleTireSpeedState);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleTireSpeedState__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleTireSpeedState);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleTireSpeedState_00024Raw_PxVehicleTireSpeedState(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleTireSpeedState();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleTireSpeedState_00024Raw_PxVehicleTireSpeedState(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleTireSpeedState();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTireSpeedState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleTireSpeedState* self = (physx::vehicle2::PxVehicleTireSpeedState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTireSpeedState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleTireSpeedState* self = (physx::PxVehicleTireSpeedState*) _address;
     self->setToDefault();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTireSpeedState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleTireSpeedState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTireSpeedState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleTireSpeedState*) _address;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleTireSpeedState_00024Raw_getSpeedStates(JNIEnv*, jclass, jlong _address, jint _index) {
-    physx::vehicle2::PxVehicleTireSpeedState* _self = (physx::vehicle2::PxVehicleTireSpeedState*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleTireSpeedState_00024Raw_getSpeedStates(JNIEnv*, jclass, jlong _address, jint _index) {
+    physx::PxVehicleTireSpeedState* _self = (physx::PxVehicleTireSpeedState*) _address;
     return (jfloat) _self->speedStates[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTireSpeedState_00024Raw_setSpeedStates(JNIEnv*, jclass, jlong _address, jint _index, jfloat value) {
-    physx::vehicle2::PxVehicleTireSpeedState* _self = (physx::vehicle2::PxVehicleTireSpeedState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTireSpeedState_00024Raw_setSpeedStates(JNIEnv*, jclass, jlong _address, jint _index, jfloat value) {
+    physx::PxVehicleTireSpeedState* _self = (physx::PxVehicleTireSpeedState*) _address;
     _self->speedStates[_index] = value;
 }
 
 // PxVehicleTireStickyParams
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleTireStickyParams__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleTireStickyParams);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleTireStickyParams__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleTireStickyParams);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleTireStickyParams_00024Raw_PxVehicleTireStickyParams_1placed(JNIEnv*, jclass, jlong _placement_address) {
-    return (jlong) new((void*)_placement_address) physx::vehicle2::PxVehicleTireStickyParams();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleTireStickyParams_00024Raw_PxVehicleTireStickyParams_1placed(JNIEnv*, jclass, jlong _placement_address) {
+    return (jlong) new((void*)_placement_address) physx::PxVehicleTireStickyParams();
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleTireStickyParams_00024Raw_PxVehicleTireStickyParams(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleTireStickyParams();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleTireStickyParams_00024Raw_PxVehicleTireStickyParams(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleTireStickyParams();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTireStickyParams_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleTireStickyParams* self = (physx::vehicle2::PxVehicleTireStickyParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTireStickyParams_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleTireStickyParams* self = (physx::PxVehicleTireStickyParams*) _address;
     self->setToDefault();
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleTireStickyParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
-    physx::vehicle2::PxVehicleTireStickyParams* self = (physx::vehicle2::PxVehicleTireStickyParams*) _address;
-    static thread_local physx::vehicle2::PxVehicleTireStickyParams _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
-    _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleTireStickyParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
+    physx::PxVehicleTireStickyParams* self = (physx::PxVehicleTireStickyParams*) _address;
+    static thread_local physx::PxVehicleTireStickyParams _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
+    _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
     return (jlong) &_cache;
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_PxVehicleTireStickyParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleTireStickyParams* self = (physx::vehicle2::PxVehicleTireStickyParams*) _address;
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_PxVehicleTireStickyParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleTireStickyParams* self = (physx::PxVehicleTireStickyParams*) _address;
     return (jboolean) self->isValid();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTireStickyParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleTireStickyParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTireStickyParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleTireStickyParams*) _address;
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleTireStickyParams_00024Raw_getStickyParams(JNIEnv*, jclass, jlong _address, jint _index) {
-    physx::vehicle2::PxVehicleTireStickyParams* _self = (physx::vehicle2::PxVehicleTireStickyParams*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleTireStickyParams_00024Raw_getStickyParams(JNIEnv*, jclass, jlong _address, jint _index) {
+    physx::PxVehicleTireStickyParams* _self = (physx::PxVehicleTireStickyParams*) _address;
     return (jlong) &_self->stickyParams[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTireStickyParams_00024Raw_setStickyParams(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
-    physx::vehicle2::PxVehicleTireStickyParams* _self = (physx::vehicle2::PxVehicleTireStickyParams*) _address;
-    _self->stickyParams[_index] = *((physx::vehicle2::PxVehicleTireAxisStickyParams*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTireStickyParams_00024Raw_setStickyParams(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
+    physx::PxVehicleTireStickyParams* _self = (physx::PxVehicleTireStickyParams*) _address;
+    _self->stickyParams[_index] = *((physx::PxVehicleTireAxisStickyParams*) value);
 }
 
 // PxVehicleTireStickyState
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleTireStickyState__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleTireStickyState);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleTireStickyState__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleTireStickyState);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleTireStickyState_00024Raw_PxVehicleTireStickyState(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleTireStickyState();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleTireStickyState_00024Raw_PxVehicleTireStickyState(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleTireStickyState();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTireStickyState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleTireStickyState* self = (physx::vehicle2::PxVehicleTireStickyState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTireStickyState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleTireStickyState* self = (physx::PxVehicleTireStickyState*) _address;
     self->setToDefault();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTireStickyState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleTireStickyState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTireStickyState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleTireStickyState*) _address;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleTireStickyState_00024Raw_getLowSpeedTime(JNIEnv*, jclass, jlong _address, jint _index) {
-    physx::vehicle2::PxVehicleTireStickyState* _self = (physx::vehicle2::PxVehicleTireStickyState*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleTireStickyState_00024Raw_getLowSpeedTime(JNIEnv*, jclass, jlong _address, jint _index) {
+    physx::PxVehicleTireStickyState* _self = (physx::PxVehicleTireStickyState*) _address;
     return (jfloat) _self->lowSpeedTime[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTireStickyState_00024Raw_setLowSpeedTime(JNIEnv*, jclass, jlong _address, jint _index, jfloat value) {
-    physx::vehicle2::PxVehicleTireStickyState* _self = (physx::vehicle2::PxVehicleTireStickyState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTireStickyState_00024Raw_setLowSpeedTime(JNIEnv*, jclass, jlong _address, jint _index, jfloat value) {
+    physx::PxVehicleTireStickyState* _self = (physx::PxVehicleTireStickyState*) _address;
     _self->lowSpeedTime[_index] = value;
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_PxVehicleTireStickyState_00024Raw_getActiveStatus(JNIEnv*, jclass, jlong _address, jint _index) {
-    physx::vehicle2::PxVehicleTireStickyState* _self = (physx::vehicle2::PxVehicleTireStickyState*) _address;
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_PxVehicleTireStickyState_00024Raw_getActiveStatus(JNIEnv*, jclass, jlong _address, jint _index) {
+    physx::PxVehicleTireStickyState* _self = (physx::PxVehicleTireStickyState*) _address;
     return (jboolean) _self->activeStatus[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTireStickyState_00024Raw_setActiveStatus(JNIEnv*, jclass, jlong _address, jint _index, jboolean value) {
-    physx::vehicle2::PxVehicleTireStickyState* _self = (physx::vehicle2::PxVehicleTireStickyState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTireStickyState_00024Raw_setActiveStatus(JNIEnv*, jclass, jlong _address, jint _index, jboolean value) {
+    physx::PxVehicleTireStickyState* _self = (physx::PxVehicleTireStickyState*) _address;
     _self->activeStatus[_index] = value;
 }
 
 // PxVehicleTorqueCurveLookupTable
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleTorqueCurveLookupTable__1_1sizeOf(JNIEnv*, jclass) {
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleTorqueCurveLookupTable__1_1sizeOf(JNIEnv*, jclass) {
     return sizeof(PxVehicleTorqueCurveLookupTable);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleTorqueCurveLookupTable_00024Raw_PxVehicleTorqueCurveLookupTable(JNIEnv*, jclass) {
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleTorqueCurveLookupTable_00024Raw_PxVehicleTorqueCurveLookupTable(JNIEnv*, jclass) {
     return (jlong) new PxVehicleTorqueCurveLookupTable();
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_PxVehicleTorqueCurveLookupTable_00024Raw_addPair(JNIEnv*, jclass, jlong _address, jfloat x, jfloat y) {
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_PxVehicleTorqueCurveLookupTable_00024Raw_addPair(JNIEnv*, jclass, jlong _address, jfloat x, jfloat y) {
     PxVehicleTorqueCurveLookupTable* self = (PxVehicleTorqueCurveLookupTable*) _address;
     return (jboolean) self->addPair(x, y);
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleTorqueCurveLookupTable_00024Raw_interpolate(JNIEnv*, jclass, jlong _address, jfloat x) {
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleTorqueCurveLookupTable_00024Raw_interpolate(JNIEnv*, jclass, jlong _address, jfloat x) {
     PxVehicleTorqueCurveLookupTable* self = (PxVehicleTorqueCurveLookupTable*) _address;
     return (jfloat) self->interpolate(x);
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTorqueCurveLookupTable_00024Raw_clear(JNIEnv*, jclass, jlong _address) {
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTorqueCurveLookupTable_00024Raw_clear(JNIEnv*, jclass, jlong _address) {
     PxVehicleTorqueCurveLookupTable* self = (PxVehicleTorqueCurveLookupTable*) _address;
     self->clear();
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_PxVehicleTorqueCurveLookupTable_00024Raw_isValid(JNIEnv*, jclass, jlong _address) {
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_PxVehicleTorqueCurveLookupTable_00024Raw_isValid(JNIEnv*, jclass, jlong _address) {
     PxVehicleTorqueCurveLookupTable* self = (PxVehicleTorqueCurveLookupTable*) _address;
     return (jboolean) self->isValid();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleTorqueCurveLookupTable_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleTorqueCurveLookupTable_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
     delete (PxVehicleTorqueCurveLookupTable*) _address;
 }
 
 // PxVehicleWheelActuationState
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleWheelActuationState__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleWheelActuationState);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleWheelActuationState__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleWheelActuationState);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleWheelActuationState_00024Raw_PxVehicleWheelActuationState(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleWheelActuationState();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleWheelActuationState_00024Raw_PxVehicleWheelActuationState(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleWheelActuationState();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleWheelActuationState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleWheelActuationState* self = (physx::vehicle2::PxVehicleWheelActuationState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleWheelActuationState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleWheelActuationState* self = (physx::PxVehicleWheelActuationState*) _address;
     self->setToDefault();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleWheelActuationState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleWheelActuationState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleWheelActuationState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleWheelActuationState*) _address;
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_PxVehicleWheelActuationState_00024Raw_getIsBrakeApplied(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleWheelActuationState* _self = (physx::vehicle2::PxVehicleWheelActuationState*) _address;
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_PxVehicleWheelActuationState_00024Raw_getIsBrakeApplied(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleWheelActuationState* _self = (physx::PxVehicleWheelActuationState*) _address;
     return (jboolean) _self->isBrakeApplied;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleWheelActuationState_00024Raw_setIsBrakeApplied(JNIEnv*, jclass, jlong _address, jboolean value) {
-    physx::vehicle2::PxVehicleWheelActuationState* _self = (physx::vehicle2::PxVehicleWheelActuationState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleWheelActuationState_00024Raw_setIsBrakeApplied(JNIEnv*, jclass, jlong _address, jboolean value) {
+    physx::PxVehicleWheelActuationState* _self = (physx::PxVehicleWheelActuationState*) _address;
     _self->isBrakeApplied = value;
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_PxVehicleWheelActuationState_00024Raw_getIsDriveApplied(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleWheelActuationState* _self = (physx::vehicle2::PxVehicleWheelActuationState*) _address;
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_PxVehicleWheelActuationState_00024Raw_getIsDriveApplied(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleWheelActuationState* _self = (physx::PxVehicleWheelActuationState*) _address;
     return (jboolean) _self->isDriveApplied;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleWheelActuationState_00024Raw_setIsDriveApplied(JNIEnv*, jclass, jlong _address, jboolean value) {
-    physx::vehicle2::PxVehicleWheelActuationState* _self = (physx::vehicle2::PxVehicleWheelActuationState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleWheelActuationState_00024Raw_setIsDriveApplied(JNIEnv*, jclass, jlong _address, jboolean value) {
+    physx::PxVehicleWheelActuationState* _self = (physx::PxVehicleWheelActuationState*) _address;
     _self->isDriveApplied = value;
 }
 
 // PxVehicleWheelConstraintGroupState
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleWheelConstraintGroupState__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleWheelConstraintGroupState);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleWheelConstraintGroupState__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleWheelConstraintGroupState);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleWheelConstraintGroupState_00024Raw_PxVehicleWheelConstraintGroupState(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleWheelConstraintGroupState();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleWheelConstraintGroupState_00024Raw_PxVehicleWheelConstraintGroupState(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleWheelConstraintGroupState();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleWheelConstraintGroupState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleWheelConstraintGroupState* self = (physx::vehicle2::PxVehicleWheelConstraintGroupState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleWheelConstraintGroupState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleWheelConstraintGroupState* self = (physx::PxVehicleWheelConstraintGroupState*) _address;
     self->setToDefault();
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleWheelConstraintGroupState_00024Raw_getNbConstraintGroups(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleWheelConstraintGroupState* self = (physx::vehicle2::PxVehicleWheelConstraintGroupState*) _address;
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleWheelConstraintGroupState_00024Raw_getNbConstraintGroups(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleWheelConstraintGroupState* self = (physx::PxVehicleWheelConstraintGroupState*) _address;
     return (jint) self->getNbConstraintGroups();
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleWheelConstraintGroupState_00024Raw_getNbWheelsInConstraintGroup(JNIEnv*, jclass, jlong _address, jint i) {
-    physx::vehicle2::PxVehicleWheelConstraintGroupState* self = (physx::vehicle2::PxVehicleWheelConstraintGroupState*) _address;
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleWheelConstraintGroupState_00024Raw_getNbWheelsInConstraintGroup(JNIEnv*, jclass, jlong _address, jint i) {
+    physx::PxVehicleWheelConstraintGroupState* self = (physx::PxVehicleWheelConstraintGroupState*) _address;
     return (jint) self->getNbWheelsInConstraintGroup(i);
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleWheelConstraintGroupState_00024Raw_getWheelInConstraintGroup(JNIEnv*, jclass, jlong _address, jint j, jint i) {
-    physx::vehicle2::PxVehicleWheelConstraintGroupState* self = (physx::vehicle2::PxVehicleWheelConstraintGroupState*) _address;
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleWheelConstraintGroupState_00024Raw_getWheelInConstraintGroup(JNIEnv*, jclass, jlong _address, jint j, jint i) {
+    physx::PxVehicleWheelConstraintGroupState* self = (physx::PxVehicleWheelConstraintGroupState*) _address;
     return (jint) self->getWheelInConstraintGroup(j, i);
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleWheelConstraintGroupState_00024Raw_getMultiplierInConstraintGroup(JNIEnv*, jclass, jlong _address, jint j, jint i) {
-    physx::vehicle2::PxVehicleWheelConstraintGroupState* self = (physx::vehicle2::PxVehicleWheelConstraintGroupState*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleWheelConstraintGroupState_00024Raw_getMultiplierInConstraintGroup(JNIEnv*, jclass, jlong _address, jint j, jint i) {
+    physx::PxVehicleWheelConstraintGroupState* self = (physx::PxVehicleWheelConstraintGroupState*) _address;
     return (jfloat) self->getMultiplierInConstraintGroup(j, i);
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleWheelConstraintGroupState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleWheelConstraintGroupState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleWheelConstraintGroupState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleWheelConstraintGroupState*) _address;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleWheelConstraintGroupState_00024Raw_getNbGroups(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleWheelConstraintGroupState* _self = (physx::vehicle2::PxVehicleWheelConstraintGroupState*) _address;
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleWheelConstraintGroupState_00024Raw_getNbGroups(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleWheelConstraintGroupState* _self = (physx::PxVehicleWheelConstraintGroupState*) _address;
     return (jint) _self->nbGroups;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleWheelConstraintGroupState_00024Raw_setNbGroups(JNIEnv*, jclass, jlong _address, jint value) {
-    physx::vehicle2::PxVehicleWheelConstraintGroupState* _self = (physx::vehicle2::PxVehicleWheelConstraintGroupState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleWheelConstraintGroupState_00024Raw_setNbGroups(JNIEnv*, jclass, jlong _address, jint value) {
+    physx::PxVehicleWheelConstraintGroupState* _self = (physx::PxVehicleWheelConstraintGroupState*) _address;
     _self->nbGroups = value;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleWheelConstraintGroupState_00024Raw_getNbWheelsPerGroup(JNIEnv*, jclass, jlong _address, jint _index) {
-    physx::vehicle2::PxVehicleWheelConstraintGroupState* _self = (physx::vehicle2::PxVehicleWheelConstraintGroupState*) _address;
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleWheelConstraintGroupState_00024Raw_getNbWheelsPerGroup(JNIEnv*, jclass, jlong _address, jint _index) {
+    physx::PxVehicleWheelConstraintGroupState* _self = (physx::PxVehicleWheelConstraintGroupState*) _address;
     return (jint) _self->nbWheelsPerGroup[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleWheelConstraintGroupState_00024Raw_setNbWheelsPerGroup(JNIEnv*, jclass, jlong _address, jint _index, jint value) {
-    physx::vehicle2::PxVehicleWheelConstraintGroupState* _self = (physx::vehicle2::PxVehicleWheelConstraintGroupState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleWheelConstraintGroupState_00024Raw_setNbWheelsPerGroup(JNIEnv*, jclass, jlong _address, jint _index, jint value) {
+    physx::PxVehicleWheelConstraintGroupState* _self = (physx::PxVehicleWheelConstraintGroupState*) _address;
     _self->nbWheelsPerGroup[_index] = value;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleWheelConstraintGroupState_00024Raw_getGroupToWheelIds(JNIEnv*, jclass, jlong _address, jint _index) {
-    physx::vehicle2::PxVehicleWheelConstraintGroupState* _self = (physx::vehicle2::PxVehicleWheelConstraintGroupState*) _address;
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleWheelConstraintGroupState_00024Raw_getGroupToWheelIds(JNIEnv*, jclass, jlong _address, jint _index) {
+    physx::PxVehicleWheelConstraintGroupState* _self = (physx::PxVehicleWheelConstraintGroupState*) _address;
     return (jint) _self->groupToWheelIds[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleWheelConstraintGroupState_00024Raw_setGroupToWheelIds(JNIEnv*, jclass, jlong _address, jint _index, jint value) {
-    physx::vehicle2::PxVehicleWheelConstraintGroupState* _self = (physx::vehicle2::PxVehicleWheelConstraintGroupState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleWheelConstraintGroupState_00024Raw_setGroupToWheelIds(JNIEnv*, jclass, jlong _address, jint _index, jint value) {
+    physx::PxVehicleWheelConstraintGroupState* _self = (physx::PxVehicleWheelConstraintGroupState*) _address;
     _self->groupToWheelIds[_index] = value;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleWheelConstraintGroupState_00024Raw_getWheelIdsInGroupOrder(JNIEnv*, jclass, jlong _address, jint _index) {
-    physx::vehicle2::PxVehicleWheelConstraintGroupState* _self = (physx::vehicle2::PxVehicleWheelConstraintGroupState*) _address;
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleWheelConstraintGroupState_00024Raw_getWheelIdsInGroupOrder(JNIEnv*, jclass, jlong _address, jint _index) {
+    physx::PxVehicleWheelConstraintGroupState* _self = (physx::PxVehicleWheelConstraintGroupState*) _address;
     return (jint) _self->wheelIdsInGroupOrder[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleWheelConstraintGroupState_00024Raw_setWheelIdsInGroupOrder(JNIEnv*, jclass, jlong _address, jint _index, jint value) {
-    physx::vehicle2::PxVehicleWheelConstraintGroupState* _self = (physx::vehicle2::PxVehicleWheelConstraintGroupState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleWheelConstraintGroupState_00024Raw_setWheelIdsInGroupOrder(JNIEnv*, jclass, jlong _address, jint _index, jint value) {
+    physx::PxVehicleWheelConstraintGroupState* _self = (physx::PxVehicleWheelConstraintGroupState*) _address;
     _self->wheelIdsInGroupOrder[_index] = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleWheelConstraintGroupState_00024Raw_getWheelMultipliersInGroupOrder(JNIEnv*, jclass, jlong _address, jint _index) {
-    physx::vehicle2::PxVehicleWheelConstraintGroupState* _self = (physx::vehicle2::PxVehicleWheelConstraintGroupState*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleWheelConstraintGroupState_00024Raw_getWheelMultipliersInGroupOrder(JNIEnv*, jclass, jlong _address, jint _index) {
+    physx::PxVehicleWheelConstraintGroupState* _self = (physx::PxVehicleWheelConstraintGroupState*) _address;
     return (jfloat) _self->wheelMultipliersInGroupOrder[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleWheelConstraintGroupState_00024Raw_setWheelMultipliersInGroupOrder(JNIEnv*, jclass, jlong _address, jint _index, jfloat value) {
-    physx::vehicle2::PxVehicleWheelConstraintGroupState* _self = (physx::vehicle2::PxVehicleWheelConstraintGroupState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleWheelConstraintGroupState_00024Raw_setWheelMultipliersInGroupOrder(JNIEnv*, jclass, jlong _address, jint _index, jfloat value) {
+    physx::PxVehicleWheelConstraintGroupState* _self = (physx::PxVehicleWheelConstraintGroupState*) _address;
     _self->wheelMultipliersInGroupOrder[_index] = value;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleWheelConstraintGroupState_00024Raw_getNbWheelsInGroups(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleWheelConstraintGroupState* _self = (physx::vehicle2::PxVehicleWheelConstraintGroupState*) _address;
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleWheelConstraintGroupState_00024Raw_getNbWheelsInGroups(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleWheelConstraintGroupState* _self = (physx::PxVehicleWheelConstraintGroupState*) _address;
     return (jint) _self->nbWheelsInGroups;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleWheelConstraintGroupState_00024Raw_setNbWheelsInGroups(JNIEnv*, jclass, jlong _address, jint value) {
-    physx::vehicle2::PxVehicleWheelConstraintGroupState* _self = (physx::vehicle2::PxVehicleWheelConstraintGroupState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleWheelConstraintGroupState_00024Raw_setNbWheelsInGroups(JNIEnv*, jclass, jlong _address, jint value) {
+    physx::PxVehicleWheelConstraintGroupState* _self = (physx::PxVehicleWheelConstraintGroupState*) _address;
     _self->nbWheelsInGroups = value;
 }
 
 // PxVehicleWheelLocalPose
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleWheelLocalPose__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleWheelLocalPose);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleWheelLocalPose__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleWheelLocalPose);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleWheelLocalPose_00024Raw_PxVehicleWheelLocalPose(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleWheelLocalPose();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleWheelLocalPose_00024Raw_PxVehicleWheelLocalPose(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleWheelLocalPose();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleWheelLocalPose_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleWheelLocalPose* self = (physx::vehicle2::PxVehicleWheelLocalPose*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleWheelLocalPose_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleWheelLocalPose* self = (physx::PxVehicleWheelLocalPose*) _address;
     self->setToDefault();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleWheelLocalPose_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleWheelLocalPose*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleWheelLocalPose_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleWheelLocalPose*) _address;
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleWheelLocalPose_00024Raw_getLocalPose(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleWheelLocalPose* _self = (physx::vehicle2::PxVehicleWheelLocalPose*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleWheelLocalPose_00024Raw_getLocalPose(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleWheelLocalPose* _self = (physx::PxVehicleWheelLocalPose*) _address;
     return (jlong) &_self->localPose;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleWheelLocalPose_00024Raw_setLocalPose(JNIEnv*, jclass, jlong _address, jlong value) {
-    physx::vehicle2::PxVehicleWheelLocalPose* _self = (physx::vehicle2::PxVehicleWheelLocalPose*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleWheelLocalPose_00024Raw_setLocalPose(JNIEnv*, jclass, jlong _address, jlong value) {
+    physx::PxVehicleWheelLocalPose* _self = (physx::PxVehicleWheelLocalPose*) _address;
     _self->localPose = *((physx::PxTransform*) value);
 }
 
 // PxVehicleWheelParams
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleWheelParams__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleWheelParams);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleWheelParams__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleWheelParams);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleWheelParams_00024Raw_PxVehicleWheelParams(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleWheelParams();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleWheelParams_00024Raw_PxVehicleWheelParams(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleWheelParams();
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleWheelParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
-    physx::vehicle2::PxVehicleWheelParams* self = (physx::vehicle2::PxVehicleWheelParams*) _address;
-    static thread_local physx::vehicle2::PxVehicleWheelParams _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
-    _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleWheelParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
+    physx::PxVehicleWheelParams* self = (physx::PxVehicleWheelParams*) _address;
+    static thread_local physx::PxVehicleWheelParams _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
+    _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
     return (jlong) &_cache;
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_PxVehicleWheelParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleWheelParams* self = (physx::vehicle2::PxVehicleWheelParams*) _address;
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_PxVehicleWheelParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleWheelParams* self = (physx::PxVehicleWheelParams*) _address;
     return (jboolean) self->isValid();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleWheelParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleWheelParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleWheelParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleWheelParams*) _address;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleWheelParams_00024Raw_getRadius(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleWheelParams* _self = (physx::vehicle2::PxVehicleWheelParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleWheelParams_00024Raw_getRadius(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleWheelParams* _self = (physx::PxVehicleWheelParams*) _address;
     return (jfloat) _self->radius;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleWheelParams_00024Raw_setRadius(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleWheelParams* _self = (physx::vehicle2::PxVehicleWheelParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleWheelParams_00024Raw_setRadius(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleWheelParams* _self = (physx::PxVehicleWheelParams*) _address;
     _self->radius = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleWheelParams_00024Raw_getHalfWidth(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleWheelParams* _self = (physx::vehicle2::PxVehicleWheelParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleWheelParams_00024Raw_getHalfWidth(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleWheelParams* _self = (physx::PxVehicleWheelParams*) _address;
     return (jfloat) _self->halfWidth;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleWheelParams_00024Raw_setHalfWidth(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleWheelParams* _self = (physx::vehicle2::PxVehicleWheelParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleWheelParams_00024Raw_setHalfWidth(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleWheelParams* _self = (physx::PxVehicleWheelParams*) _address;
     _self->halfWidth = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleWheelParams_00024Raw_getMass(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleWheelParams* _self = (physx::vehicle2::PxVehicleWheelParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleWheelParams_00024Raw_getMass(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleWheelParams* _self = (physx::PxVehicleWheelParams*) _address;
     return (jfloat) _self->mass;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleWheelParams_00024Raw_setMass(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleWheelParams* _self = (physx::vehicle2::PxVehicleWheelParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleWheelParams_00024Raw_setMass(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleWheelParams* _self = (physx::PxVehicleWheelParams*) _address;
     _self->mass = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleWheelParams_00024Raw_getMoi(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleWheelParams* _self = (physx::vehicle2::PxVehicleWheelParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleWheelParams_00024Raw_getMoi(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleWheelParams* _self = (physx::PxVehicleWheelParams*) _address;
     return (jfloat) _self->moi;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleWheelParams_00024Raw_setMoi(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleWheelParams* _self = (physx::vehicle2::PxVehicleWheelParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleWheelParams_00024Raw_setMoi(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleWheelParams* _self = (physx::PxVehicleWheelParams*) _address;
     _self->moi = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleWheelParams_00024Raw_getDampingRate(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleWheelParams* _self = (physx::vehicle2::PxVehicleWheelParams*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleWheelParams_00024Raw_getDampingRate(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleWheelParams* _self = (physx::PxVehicleWheelParams*) _address;
     return (jfloat) _self->dampingRate;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleWheelParams_00024Raw_setDampingRate(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleWheelParams* _self = (physx::vehicle2::PxVehicleWheelParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleWheelParams_00024Raw_setDampingRate(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleWheelParams* _self = (physx::PxVehicleWheelParams*) _address;
     _self->dampingRate = value;
 }
 
 // PxVehicleWheelRigidBody1dState
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleWheelRigidBody1dState__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::vehicle2::PxVehicleWheelRigidBody1dState);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleWheelRigidBody1dState__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxVehicleWheelRigidBody1dState);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PxVehicleWheelRigidBody1dState_00024Raw_PxVehicleWheelRigidBody1dState(JNIEnv*, jclass) {
-    return (jlong) new physx::vehicle2::PxVehicleWheelRigidBody1dState();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PxVehicleWheelRigidBody1dState_00024Raw_PxVehicleWheelRigidBody1dState(JNIEnv*, jclass) {
+    return (jlong) new physx::PxVehicleWheelRigidBody1dState();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleWheelRigidBody1dState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleWheelRigidBody1dState* self = (physx::vehicle2::PxVehicleWheelRigidBody1dState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleWheelRigidBody1dState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleWheelRigidBody1dState* self = (physx::PxVehicleWheelRigidBody1dState*) _address;
     self->setToDefault();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleWheelRigidBody1dState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::vehicle2::PxVehicleWheelRigidBody1dState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleWheelRigidBody1dState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxVehicleWheelRigidBody1dState*) _address;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleWheelRigidBody1dState_00024Raw_getRotationSpeed(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleWheelRigidBody1dState* _self = (physx::vehicle2::PxVehicleWheelRigidBody1dState*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleWheelRigidBody1dState_00024Raw_getRotationSpeed(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleWheelRigidBody1dState* _self = (physx::PxVehicleWheelRigidBody1dState*) _address;
     return (jfloat) _self->rotationSpeed;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleWheelRigidBody1dState_00024Raw_setRotationSpeed(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleWheelRigidBody1dState* _self = (physx::vehicle2::PxVehicleWheelRigidBody1dState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleWheelRigidBody1dState_00024Raw_setRotationSpeed(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleWheelRigidBody1dState* _self = (physx::PxVehicleWheelRigidBody1dState*) _address;
     _self->rotationSpeed = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleWheelRigidBody1dState_00024Raw_getCorrectedRotationSpeed(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleWheelRigidBody1dState* _self = (physx::vehicle2::PxVehicleWheelRigidBody1dState*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleWheelRigidBody1dState_00024Raw_getCorrectedRotationSpeed(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleWheelRigidBody1dState* _self = (physx::PxVehicleWheelRigidBody1dState*) _address;
     return (jfloat) _self->correctedRotationSpeed;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleWheelRigidBody1dState_00024Raw_setCorrectedRotationSpeed(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleWheelRigidBody1dState* _self = (physx::vehicle2::PxVehicleWheelRigidBody1dState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleWheelRigidBody1dState_00024Raw_setCorrectedRotationSpeed(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleWheelRigidBody1dState* _self = (physx::PxVehicleWheelRigidBody1dState*) _address;
     _self->correctedRotationSpeed = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_PxVehicleWheelRigidBody1dState_00024Raw_getRotationAngle(JNIEnv*, jclass, jlong _address) {
-    physx::vehicle2::PxVehicleWheelRigidBody1dState* _self = (physx::vehicle2::PxVehicleWheelRigidBody1dState*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_PxVehicleWheelRigidBody1dState_00024Raw_getRotationAngle(JNIEnv*, jclass, jlong _address) {
+    physx::PxVehicleWheelRigidBody1dState* _self = (physx::PxVehicleWheelRigidBody1dState*) _address;
     return (jfloat) _self->rotationAngle;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PxVehicleWheelRigidBody1dState_00024Raw_setRotationAngle(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::vehicle2::PxVehicleWheelRigidBody1dState* _self = (physx::vehicle2::PxVehicleWheelRigidBody1dState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PxVehicleWheelRigidBody1dState_00024Raw_setRotationAngle(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxVehicleWheelRigidBody1dState* _self = (physx::PxVehicleWheelRigidBody1dState*) _address;
     _self->rotationAngle = value;
 }
 
 // BaseVehicleParams
-JNIEXPORT jint JNICALL Java_physx_vehicle2_BaseVehicleParams__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(snippetvehicle2::BaseVehicleParams);
+JNIEXPORT jint JNICALL Java_physx_vehicle_BaseVehicleParams__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(snippetvehicle::BaseVehicleParams);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_BaseVehicleParams_00024Raw_BaseVehicleParams(JNIEnv*, jclass) {
-    return (jlong) new snippetvehicle2::BaseVehicleParams();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_BaseVehicleParams_00024Raw_BaseVehicleParams(JNIEnv*, jclass) {
+    return (jlong) new snippetvehicle::BaseVehicleParams();
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_BaseVehicleParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
-    snippetvehicle2::BaseVehicleParams* self = (snippetvehicle2::BaseVehicleParams*) _address;
-    static thread_local snippetvehicle2::BaseVehicleParams _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
-    _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
+JNIEXPORT jlong JNICALL Java_physx_vehicle_BaseVehicleParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
+    snippetvehicle::BaseVehicleParams* self = (snippetvehicle::BaseVehicleParams*) _address;
+    static thread_local snippetvehicle::BaseVehicleParams _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
+    _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
     return (jlong) &_cache;
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_BaseVehicleParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::BaseVehicleParams* self = (snippetvehicle2::BaseVehicleParams*) _address;
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_BaseVehicleParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::BaseVehicleParams* self = (snippetvehicle::BaseVehicleParams*) _address;
     return (jboolean) self->isValid();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_BaseVehicleParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (snippetvehicle2::BaseVehicleParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_BaseVehicleParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (snippetvehicle::BaseVehicleParams*) _address;
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_BaseVehicleParams_00024Raw_getAxleDescription(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::BaseVehicleParams* _self = (snippetvehicle2::BaseVehicleParams*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_BaseVehicleParams_00024Raw_getAxleDescription(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::BaseVehicleParams* _self = (snippetvehicle::BaseVehicleParams*) _address;
     return (jlong) &_self->axleDescription;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_BaseVehicleParams_00024Raw_setAxleDescription(JNIEnv*, jclass, jlong _address, jlong value) {
-    snippetvehicle2::BaseVehicleParams* _self = (snippetvehicle2::BaseVehicleParams*) _address;
-    _self->axleDescription = *((physx::vehicle2::PxVehicleAxleDescription*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_BaseVehicleParams_00024Raw_setAxleDescription(JNIEnv*, jclass, jlong _address, jlong value) {
+    snippetvehicle::BaseVehicleParams* _self = (snippetvehicle::BaseVehicleParams*) _address;
+    _self->axleDescription = *((physx::PxVehicleAxleDescription*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_BaseVehicleParams_00024Raw_getFrame(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::BaseVehicleParams* _self = (snippetvehicle2::BaseVehicleParams*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_BaseVehicleParams_00024Raw_getFrame(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::BaseVehicleParams* _self = (snippetvehicle::BaseVehicleParams*) _address;
     return (jlong) &_self->frame;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_BaseVehicleParams_00024Raw_setFrame(JNIEnv*, jclass, jlong _address, jlong value) {
-    snippetvehicle2::BaseVehicleParams* _self = (snippetvehicle2::BaseVehicleParams*) _address;
-    _self->frame = *((physx::vehicle2::PxVehicleFrame*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_BaseVehicleParams_00024Raw_setFrame(JNIEnv*, jclass, jlong _address, jlong value) {
+    snippetvehicle::BaseVehicleParams* _self = (snippetvehicle::BaseVehicleParams*) _address;
+    _self->frame = *((physx::PxVehicleFrame*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_BaseVehicleParams_00024Raw_getScale(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::BaseVehicleParams* _self = (snippetvehicle2::BaseVehicleParams*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_BaseVehicleParams_00024Raw_getScale(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::BaseVehicleParams* _self = (snippetvehicle::BaseVehicleParams*) _address;
     return (jlong) &_self->scale;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_BaseVehicleParams_00024Raw_setScale(JNIEnv*, jclass, jlong _address, jlong value) {
-    snippetvehicle2::BaseVehicleParams* _self = (snippetvehicle2::BaseVehicleParams*) _address;
-    _self->scale = *((physx::vehicle2::PxVehicleScale*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_BaseVehicleParams_00024Raw_setScale(JNIEnv*, jclass, jlong _address, jlong value) {
+    snippetvehicle::BaseVehicleParams* _self = (snippetvehicle::BaseVehicleParams*) _address;
+    _self->scale = *((physx::PxVehicleScale*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_BaseVehicleParams_00024Raw_getSuspensionStateCalculationParams(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::BaseVehicleParams* _self = (snippetvehicle2::BaseVehicleParams*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_BaseVehicleParams_00024Raw_getSuspensionStateCalculationParams(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::BaseVehicleParams* _self = (snippetvehicle::BaseVehicleParams*) _address;
     return (jlong) &_self->suspensionStateCalculationParams;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_BaseVehicleParams_00024Raw_setSuspensionStateCalculationParams(JNIEnv*, jclass, jlong _address, jlong value) {
-    snippetvehicle2::BaseVehicleParams* _self = (snippetvehicle2::BaseVehicleParams*) _address;
-    _self->suspensionStateCalculationParams = *((physx::vehicle2::PxVehicleSuspensionStateCalculationParams*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_BaseVehicleParams_00024Raw_setSuspensionStateCalculationParams(JNIEnv*, jclass, jlong _address, jlong value) {
+    snippetvehicle::BaseVehicleParams* _self = (snippetvehicle::BaseVehicleParams*) _address;
+    _self->suspensionStateCalculationParams = *((physx::PxVehicleSuspensionStateCalculationParams*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_BaseVehicleParams_00024Raw_getBrakeResponseParams(JNIEnv*, jclass, jlong _address, jint _index) {
-    snippetvehicle2::BaseVehicleParams* _self = (snippetvehicle2::BaseVehicleParams*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_BaseVehicleParams_00024Raw_getBrakeResponseParams(JNIEnv*, jclass, jlong _address, jint _index) {
+    snippetvehicle::BaseVehicleParams* _self = (snippetvehicle::BaseVehicleParams*) _address;
     return (jlong) &_self->brakeResponseParams[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_BaseVehicleParams_00024Raw_setBrakeResponseParams(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
-    snippetvehicle2::BaseVehicleParams* _self = (snippetvehicle2::BaseVehicleParams*) _address;
-    _self->brakeResponseParams[_index] = *((physx::vehicle2::PxVehicleBrakeCommandResponseParams*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_BaseVehicleParams_00024Raw_setBrakeResponseParams(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
+    snippetvehicle::BaseVehicleParams* _self = (snippetvehicle::BaseVehicleParams*) _address;
+    _self->brakeResponseParams[_index] = *((physx::PxVehicleBrakeCommandResponseParams*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_BaseVehicleParams_00024Raw_getSteerResponseParams(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::BaseVehicleParams* _self = (snippetvehicle2::BaseVehicleParams*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_BaseVehicleParams_00024Raw_getSteerResponseParams(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::BaseVehicleParams* _self = (snippetvehicle::BaseVehicleParams*) _address;
     return (jlong) &_self->steerResponseParams;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_BaseVehicleParams_00024Raw_setSteerResponseParams(JNIEnv*, jclass, jlong _address, jlong value) {
-    snippetvehicle2::BaseVehicleParams* _self = (snippetvehicle2::BaseVehicleParams*) _address;
-    _self->steerResponseParams = *((physx::vehicle2::PxVehicleSteerCommandResponseParams*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_BaseVehicleParams_00024Raw_setSteerResponseParams(JNIEnv*, jclass, jlong _address, jlong value) {
+    snippetvehicle::BaseVehicleParams* _self = (snippetvehicle::BaseVehicleParams*) _address;
+    _self->steerResponseParams = *((physx::PxVehicleSteerCommandResponseParams*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_BaseVehicleParams_00024Raw_getAckermannParams(JNIEnv*, jclass, jlong _address, jint _index) {
-    snippetvehicle2::BaseVehicleParams* _self = (snippetvehicle2::BaseVehicleParams*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_BaseVehicleParams_00024Raw_getAckermannParams(JNIEnv*, jclass, jlong _address, jint _index) {
+    snippetvehicle::BaseVehicleParams* _self = (snippetvehicle::BaseVehicleParams*) _address;
     return (jlong) &_self->ackermannParams[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_BaseVehicleParams_00024Raw_setAckermannParams(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
-    snippetvehicle2::BaseVehicleParams* _self = (snippetvehicle2::BaseVehicleParams*) _address;
-    _self->ackermannParams[_index] = *((physx::vehicle2::PxVehicleAckermannParams*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_BaseVehicleParams_00024Raw_setAckermannParams(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
+    snippetvehicle::BaseVehicleParams* _self = (snippetvehicle::BaseVehicleParams*) _address;
+    _self->ackermannParams[_index] = *((physx::PxVehicleAckermannParams*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_BaseVehicleParams_00024Raw_getSuspensionParams(JNIEnv*, jclass, jlong _address, jint _index) {
-    snippetvehicle2::BaseVehicleParams* _self = (snippetvehicle2::BaseVehicleParams*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_BaseVehicleParams_00024Raw_getSuspensionParams(JNIEnv*, jclass, jlong _address, jint _index) {
+    snippetvehicle::BaseVehicleParams* _self = (snippetvehicle::BaseVehicleParams*) _address;
     return (jlong) &_self->suspensionParams[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_BaseVehicleParams_00024Raw_setSuspensionParams(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
-    snippetvehicle2::BaseVehicleParams* _self = (snippetvehicle2::BaseVehicleParams*) _address;
-    _self->suspensionParams[_index] = *((physx::vehicle2::PxVehicleSuspensionParams*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_BaseVehicleParams_00024Raw_setSuspensionParams(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
+    snippetvehicle::BaseVehicleParams* _self = (snippetvehicle::BaseVehicleParams*) _address;
+    _self->suspensionParams[_index] = *((physx::PxVehicleSuspensionParams*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_BaseVehicleParams_00024Raw_getSuspensionComplianceParams(JNIEnv*, jclass, jlong _address, jint _index) {
-    snippetvehicle2::BaseVehicleParams* _self = (snippetvehicle2::BaseVehicleParams*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_BaseVehicleParams_00024Raw_getSuspensionComplianceParams(JNIEnv*, jclass, jlong _address, jint _index) {
+    snippetvehicle::BaseVehicleParams* _self = (snippetvehicle::BaseVehicleParams*) _address;
     return (jlong) &_self->suspensionComplianceParams[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_BaseVehicleParams_00024Raw_setSuspensionComplianceParams(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
-    snippetvehicle2::BaseVehicleParams* _self = (snippetvehicle2::BaseVehicleParams*) _address;
-    _self->suspensionComplianceParams[_index] = *((physx::vehicle2::PxVehicleSuspensionComplianceParams*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_BaseVehicleParams_00024Raw_setSuspensionComplianceParams(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
+    snippetvehicle::BaseVehicleParams* _self = (snippetvehicle::BaseVehicleParams*) _address;
+    _self->suspensionComplianceParams[_index] = *((physx::PxVehicleSuspensionComplianceParams*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_BaseVehicleParams_00024Raw_getSuspensionForceParams(JNIEnv*, jclass, jlong _address, jint _index) {
-    snippetvehicle2::BaseVehicleParams* _self = (snippetvehicle2::BaseVehicleParams*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_BaseVehicleParams_00024Raw_getSuspensionForceParams(JNIEnv*, jclass, jlong _address, jint _index) {
+    snippetvehicle::BaseVehicleParams* _self = (snippetvehicle::BaseVehicleParams*) _address;
     return (jlong) &_self->suspensionForceParams[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_BaseVehicleParams_00024Raw_setSuspensionForceParams(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
-    snippetvehicle2::BaseVehicleParams* _self = (snippetvehicle2::BaseVehicleParams*) _address;
-    _self->suspensionForceParams[_index] = *((physx::vehicle2::PxVehicleSuspensionForceParams*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_BaseVehicleParams_00024Raw_setSuspensionForceParams(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
+    snippetvehicle::BaseVehicleParams* _self = (snippetvehicle::BaseVehicleParams*) _address;
+    _self->suspensionForceParams[_index] = *((physx::PxVehicleSuspensionForceParams*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_BaseVehicleParams_00024Raw_getAntiRollForceParams(JNIEnv*, jclass, jlong _address, jint _index) {
-    snippetvehicle2::BaseVehicleParams* _self = (snippetvehicle2::BaseVehicleParams*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_BaseVehicleParams_00024Raw_getAntiRollForceParams(JNIEnv*, jclass, jlong _address, jint _index) {
+    snippetvehicle::BaseVehicleParams* _self = (snippetvehicle::BaseVehicleParams*) _address;
     return (jlong) &_self->antiRollForceParams[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_BaseVehicleParams_00024Raw_setAntiRollForceParams(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
-    snippetvehicle2::BaseVehicleParams* _self = (snippetvehicle2::BaseVehicleParams*) _address;
-    _self->antiRollForceParams[_index] = *((physx::vehicle2::PxVehicleAntiRollForceParams*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_BaseVehicleParams_00024Raw_setAntiRollForceParams(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
+    snippetvehicle::BaseVehicleParams* _self = (snippetvehicle::BaseVehicleParams*) _address;
+    _self->antiRollForceParams[_index] = *((physx::PxVehicleAntiRollForceParams*) value);
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_BaseVehicleParams_00024Raw_getNbAntiRollForceParams(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::BaseVehicleParams* _self = (snippetvehicle2::BaseVehicleParams*) _address;
+JNIEXPORT jint JNICALL Java_physx_vehicle_BaseVehicleParams_00024Raw_getNbAntiRollForceParams(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::BaseVehicleParams* _self = (snippetvehicle::BaseVehicleParams*) _address;
     return (jint) _self->nbAntiRollForceParams;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_BaseVehicleParams_00024Raw_setNbAntiRollForceParams(JNIEnv*, jclass, jlong _address, jint value) {
-    snippetvehicle2::BaseVehicleParams* _self = (snippetvehicle2::BaseVehicleParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_BaseVehicleParams_00024Raw_setNbAntiRollForceParams(JNIEnv*, jclass, jlong _address, jint value) {
+    snippetvehicle::BaseVehicleParams* _self = (snippetvehicle::BaseVehicleParams*) _address;
     _self->nbAntiRollForceParams = value;
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_BaseVehicleParams_00024Raw_getTireForceParams(JNIEnv*, jclass, jlong _address, jint _index) {
-    snippetvehicle2::BaseVehicleParams* _self = (snippetvehicle2::BaseVehicleParams*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_BaseVehicleParams_00024Raw_getTireForceParams(JNIEnv*, jclass, jlong _address, jint _index) {
+    snippetvehicle::BaseVehicleParams* _self = (snippetvehicle::BaseVehicleParams*) _address;
     return (jlong) &_self->tireForceParams[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_BaseVehicleParams_00024Raw_setTireForceParams(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
-    snippetvehicle2::BaseVehicleParams* _self = (snippetvehicle2::BaseVehicleParams*) _address;
-    _self->tireForceParams[_index] = *((physx::vehicle2::PxVehicleTireForceParams*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_BaseVehicleParams_00024Raw_setTireForceParams(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
+    snippetvehicle::BaseVehicleParams* _self = (snippetvehicle::BaseVehicleParams*) _address;
+    _self->tireForceParams[_index] = *((physx::PxVehicleTireForceParams*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_BaseVehicleParams_00024Raw_getWheelParams(JNIEnv*, jclass, jlong _address, jint _index) {
-    snippetvehicle2::BaseVehicleParams* _self = (snippetvehicle2::BaseVehicleParams*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_BaseVehicleParams_00024Raw_getWheelParams(JNIEnv*, jclass, jlong _address, jint _index) {
+    snippetvehicle::BaseVehicleParams* _self = (snippetvehicle::BaseVehicleParams*) _address;
     return (jlong) &_self->wheelParams[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_BaseVehicleParams_00024Raw_setWheelParams(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
-    snippetvehicle2::BaseVehicleParams* _self = (snippetvehicle2::BaseVehicleParams*) _address;
-    _self->wheelParams[_index] = *((physx::vehicle2::PxVehicleWheelParams*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_BaseVehicleParams_00024Raw_setWheelParams(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
+    snippetvehicle::BaseVehicleParams* _self = (snippetvehicle::BaseVehicleParams*) _address;
+    _self->wheelParams[_index] = *((physx::PxVehicleWheelParams*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_BaseVehicleParams_00024Raw_getRigidBodyParams(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::BaseVehicleParams* _self = (snippetvehicle2::BaseVehicleParams*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_BaseVehicleParams_00024Raw_getRigidBodyParams(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::BaseVehicleParams* _self = (snippetvehicle::BaseVehicleParams*) _address;
     return (jlong) &_self->rigidBodyParams;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_BaseVehicleParams_00024Raw_setRigidBodyParams(JNIEnv*, jclass, jlong _address, jlong value) {
-    snippetvehicle2::BaseVehicleParams* _self = (snippetvehicle2::BaseVehicleParams*) _address;
-    _self->rigidBodyParams = *((physx::vehicle2::PxVehicleRigidBodyParams*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_BaseVehicleParams_00024Raw_setRigidBodyParams(JNIEnv*, jclass, jlong _address, jlong value) {
+    snippetvehicle::BaseVehicleParams* _self = (snippetvehicle::BaseVehicleParams*) _address;
+    _self->rigidBodyParams = *((physx::PxVehicleRigidBodyParams*) value);
 }
 
 // BaseVehicleState
-JNIEXPORT jint JNICALL Java_physx_vehicle2_BaseVehicleState__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(snippetvehicle2::BaseVehicleState);
+JNIEXPORT jint JNICALL Java_physx_vehicle_BaseVehicleState__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(snippetvehicle::BaseVehicleState);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_BaseVehicleState_00024Raw_BaseVehicleState(JNIEnv*, jclass) {
-    return (jlong) new snippetvehicle2::BaseVehicleState();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_BaseVehicleState_00024Raw_BaseVehicleState(JNIEnv*, jclass) {
+    return (jlong) new snippetvehicle::BaseVehicleState();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_BaseVehicleState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::BaseVehicleState* self = (snippetvehicle2::BaseVehicleState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_BaseVehicleState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::BaseVehicleState* self = (snippetvehicle::BaseVehicleState*) _address;
     self->setToDefault();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_BaseVehicleState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (snippetvehicle2::BaseVehicleState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_BaseVehicleState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (snippetvehicle::BaseVehicleState*) _address;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_BaseVehicleState_00024Raw_getBrakeCommandResponseStates(JNIEnv*, jclass, jlong _address, jint _index) {
-    snippetvehicle2::BaseVehicleState* _self = (snippetvehicle2::BaseVehicleState*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_BaseVehicleState_00024Raw_getBrakeCommandResponseStates(JNIEnv*, jclass, jlong _address, jint _index) {
+    snippetvehicle::BaseVehicleState* _self = (snippetvehicle::BaseVehicleState*) _address;
     return (jfloat) _self->brakeCommandResponseStates[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_BaseVehicleState_00024Raw_setBrakeCommandResponseStates(JNIEnv*, jclass, jlong _address, jint _index, jfloat value) {
-    snippetvehicle2::BaseVehicleState* _self = (snippetvehicle2::BaseVehicleState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_BaseVehicleState_00024Raw_setBrakeCommandResponseStates(JNIEnv*, jclass, jlong _address, jint _index, jfloat value) {
+    snippetvehicle::BaseVehicleState* _self = (snippetvehicle::BaseVehicleState*) _address;
     _self->brakeCommandResponseStates[_index] = value;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_BaseVehicleState_00024Raw_getSteerCommandResponseStates(JNIEnv*, jclass, jlong _address, jint _index) {
-    snippetvehicle2::BaseVehicleState* _self = (snippetvehicle2::BaseVehicleState*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_BaseVehicleState_00024Raw_getSteerCommandResponseStates(JNIEnv*, jclass, jlong _address, jint _index) {
+    snippetvehicle::BaseVehicleState* _self = (snippetvehicle::BaseVehicleState*) _address;
     return (jfloat) _self->steerCommandResponseStates[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_BaseVehicleState_00024Raw_setSteerCommandResponseStates(JNIEnv*, jclass, jlong _address, jint _index, jfloat value) {
-    snippetvehicle2::BaseVehicleState* _self = (snippetvehicle2::BaseVehicleState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_BaseVehicleState_00024Raw_setSteerCommandResponseStates(JNIEnv*, jclass, jlong _address, jint _index, jfloat value) {
+    snippetvehicle::BaseVehicleState* _self = (snippetvehicle::BaseVehicleState*) _address;
     _self->steerCommandResponseStates[_index] = value;
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_BaseVehicleState_00024Raw_getActuationStates(JNIEnv*, jclass, jlong _address, jint _index) {
-    snippetvehicle2::BaseVehicleState* _self = (snippetvehicle2::BaseVehicleState*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_BaseVehicleState_00024Raw_getActuationStates(JNIEnv*, jclass, jlong _address, jint _index) {
+    snippetvehicle::BaseVehicleState* _self = (snippetvehicle::BaseVehicleState*) _address;
     return (jlong) &_self->actuationStates[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_BaseVehicleState_00024Raw_setActuationStates(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
-    snippetvehicle2::BaseVehicleState* _self = (snippetvehicle2::BaseVehicleState*) _address;
-    _self->actuationStates[_index] = *((physx::vehicle2::PxVehicleWheelActuationState*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_BaseVehicleState_00024Raw_setActuationStates(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
+    snippetvehicle::BaseVehicleState* _self = (snippetvehicle::BaseVehicleState*) _address;
+    _self->actuationStates[_index] = *((physx::PxVehicleWheelActuationState*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_BaseVehicleState_00024Raw_getRoadGeomStates(JNIEnv*, jclass, jlong _address, jint _index) {
-    snippetvehicle2::BaseVehicleState* _self = (snippetvehicle2::BaseVehicleState*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_BaseVehicleState_00024Raw_getRoadGeomStates(JNIEnv*, jclass, jlong _address, jint _index) {
+    snippetvehicle::BaseVehicleState* _self = (snippetvehicle::BaseVehicleState*) _address;
     return (jlong) &_self->roadGeomStates[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_BaseVehicleState_00024Raw_setRoadGeomStates(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
-    snippetvehicle2::BaseVehicleState* _self = (snippetvehicle2::BaseVehicleState*) _address;
-    _self->roadGeomStates[_index] = *((physx::vehicle2::PxVehicleRoadGeometryState*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_BaseVehicleState_00024Raw_setRoadGeomStates(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
+    snippetvehicle::BaseVehicleState* _self = (snippetvehicle::BaseVehicleState*) _address;
+    _self->roadGeomStates[_index] = *((physx::PxVehicleRoadGeometryState*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_BaseVehicleState_00024Raw_getSuspensionStates(JNIEnv*, jclass, jlong _address, jint _index) {
-    snippetvehicle2::BaseVehicleState* _self = (snippetvehicle2::BaseVehicleState*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_BaseVehicleState_00024Raw_getSuspensionStates(JNIEnv*, jclass, jlong _address, jint _index) {
+    snippetvehicle::BaseVehicleState* _self = (snippetvehicle::BaseVehicleState*) _address;
     return (jlong) &_self->suspensionStates[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_BaseVehicleState_00024Raw_setSuspensionStates(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
-    snippetvehicle2::BaseVehicleState* _self = (snippetvehicle2::BaseVehicleState*) _address;
-    _self->suspensionStates[_index] = *((physx::vehicle2::PxVehicleSuspensionState*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_BaseVehicleState_00024Raw_setSuspensionStates(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
+    snippetvehicle::BaseVehicleState* _self = (snippetvehicle::BaseVehicleState*) _address;
+    _self->suspensionStates[_index] = *((physx::PxVehicleSuspensionState*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_BaseVehicleState_00024Raw_getSuspensionComplianceStates(JNIEnv*, jclass, jlong _address, jint _index) {
-    snippetvehicle2::BaseVehicleState* _self = (snippetvehicle2::BaseVehicleState*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_BaseVehicleState_00024Raw_getSuspensionComplianceStates(JNIEnv*, jclass, jlong _address, jint _index) {
+    snippetvehicle::BaseVehicleState* _self = (snippetvehicle::BaseVehicleState*) _address;
     return (jlong) &_self->suspensionComplianceStates[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_BaseVehicleState_00024Raw_setSuspensionComplianceStates(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
-    snippetvehicle2::BaseVehicleState* _self = (snippetvehicle2::BaseVehicleState*) _address;
-    _self->suspensionComplianceStates[_index] = *((physx::vehicle2::PxVehicleSuspensionComplianceState*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_BaseVehicleState_00024Raw_setSuspensionComplianceStates(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
+    snippetvehicle::BaseVehicleState* _self = (snippetvehicle::BaseVehicleState*) _address;
+    _self->suspensionComplianceStates[_index] = *((physx::PxVehicleSuspensionComplianceState*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_BaseVehicleState_00024Raw_getSuspensionForces(JNIEnv*, jclass, jlong _address, jint _index) {
-    snippetvehicle2::BaseVehicleState* _self = (snippetvehicle2::BaseVehicleState*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_BaseVehicleState_00024Raw_getSuspensionForces(JNIEnv*, jclass, jlong _address, jint _index) {
+    snippetvehicle::BaseVehicleState* _self = (snippetvehicle::BaseVehicleState*) _address;
     return (jlong) &_self->suspensionForces[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_BaseVehicleState_00024Raw_setSuspensionForces(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
-    snippetvehicle2::BaseVehicleState* _self = (snippetvehicle2::BaseVehicleState*) _address;
-    _self->suspensionForces[_index] = *((physx::vehicle2::PxVehicleSuspensionForce*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_BaseVehicleState_00024Raw_setSuspensionForces(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
+    snippetvehicle::BaseVehicleState* _self = (snippetvehicle::BaseVehicleState*) _address;
+    _self->suspensionForces[_index] = *((physx::PxVehicleSuspensionForce*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_BaseVehicleState_00024Raw_getAntiRollTorque(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::BaseVehicleState* _self = (snippetvehicle2::BaseVehicleState*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_BaseVehicleState_00024Raw_getAntiRollTorque(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::BaseVehicleState* _self = (snippetvehicle::BaseVehicleState*) _address;
     return (jlong) &_self->antiRollTorque;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_BaseVehicleState_00024Raw_setAntiRollTorque(JNIEnv*, jclass, jlong _address, jlong value) {
-    snippetvehicle2::BaseVehicleState* _self = (snippetvehicle2::BaseVehicleState*) _address;
-    _self->antiRollTorque = *((physx::vehicle2::PxVehicleAntiRollTorque*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_BaseVehicleState_00024Raw_setAntiRollTorque(JNIEnv*, jclass, jlong _address, jlong value) {
+    snippetvehicle::BaseVehicleState* _self = (snippetvehicle::BaseVehicleState*) _address;
+    _self->antiRollTorque = *((physx::PxVehicleAntiRollTorque*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_BaseVehicleState_00024Raw_getTireGripStates(JNIEnv*, jclass, jlong _address, jint _index) {
-    snippetvehicle2::BaseVehicleState* _self = (snippetvehicle2::BaseVehicleState*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_BaseVehicleState_00024Raw_getTireGripStates(JNIEnv*, jclass, jlong _address, jint _index) {
+    snippetvehicle::BaseVehicleState* _self = (snippetvehicle::BaseVehicleState*) _address;
     return (jlong) &_self->tireGripStates[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_BaseVehicleState_00024Raw_setTireGripStates(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
-    snippetvehicle2::BaseVehicleState* _self = (snippetvehicle2::BaseVehicleState*) _address;
-    _self->tireGripStates[_index] = *((physx::vehicle2::PxVehicleTireGripState*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_BaseVehicleState_00024Raw_setTireGripStates(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
+    snippetvehicle::BaseVehicleState* _self = (snippetvehicle::BaseVehicleState*) _address;
+    _self->tireGripStates[_index] = *((physx::PxVehicleTireGripState*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_BaseVehicleState_00024Raw_getTireDirectionStates(JNIEnv*, jclass, jlong _address, jint _index) {
-    snippetvehicle2::BaseVehicleState* _self = (snippetvehicle2::BaseVehicleState*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_BaseVehicleState_00024Raw_getTireDirectionStates(JNIEnv*, jclass, jlong _address, jint _index) {
+    snippetvehicle::BaseVehicleState* _self = (snippetvehicle::BaseVehicleState*) _address;
     return (jlong) &_self->tireDirectionStates[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_BaseVehicleState_00024Raw_setTireDirectionStates(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
-    snippetvehicle2::BaseVehicleState* _self = (snippetvehicle2::BaseVehicleState*) _address;
-    _self->tireDirectionStates[_index] = *((physx::vehicle2::PxVehicleTireDirectionState*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_BaseVehicleState_00024Raw_setTireDirectionStates(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
+    snippetvehicle::BaseVehicleState* _self = (snippetvehicle::BaseVehicleState*) _address;
+    _self->tireDirectionStates[_index] = *((physx::PxVehicleTireDirectionState*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_BaseVehicleState_00024Raw_getTireSpeedStates(JNIEnv*, jclass, jlong _address, jint _index) {
-    snippetvehicle2::BaseVehicleState* _self = (snippetvehicle2::BaseVehicleState*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_BaseVehicleState_00024Raw_getTireSpeedStates(JNIEnv*, jclass, jlong _address, jint _index) {
+    snippetvehicle::BaseVehicleState* _self = (snippetvehicle::BaseVehicleState*) _address;
     return (jlong) &_self->tireSpeedStates[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_BaseVehicleState_00024Raw_setTireSpeedStates(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
-    snippetvehicle2::BaseVehicleState* _self = (snippetvehicle2::BaseVehicleState*) _address;
-    _self->tireSpeedStates[_index] = *((physx::vehicle2::PxVehicleTireSpeedState*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_BaseVehicleState_00024Raw_setTireSpeedStates(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
+    snippetvehicle::BaseVehicleState* _self = (snippetvehicle::BaseVehicleState*) _address;
+    _self->tireSpeedStates[_index] = *((physx::PxVehicleTireSpeedState*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_BaseVehicleState_00024Raw_getTireSlipStates(JNIEnv*, jclass, jlong _address, jint _index) {
-    snippetvehicle2::BaseVehicleState* _self = (snippetvehicle2::BaseVehicleState*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_BaseVehicleState_00024Raw_getTireSlipStates(JNIEnv*, jclass, jlong _address, jint _index) {
+    snippetvehicle::BaseVehicleState* _self = (snippetvehicle::BaseVehicleState*) _address;
     return (jlong) &_self->tireSlipStates[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_BaseVehicleState_00024Raw_setTireSlipStates(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
-    snippetvehicle2::BaseVehicleState* _self = (snippetvehicle2::BaseVehicleState*) _address;
-    _self->tireSlipStates[_index] = *((physx::vehicle2::PxVehicleTireSlipState*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_BaseVehicleState_00024Raw_setTireSlipStates(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
+    snippetvehicle::BaseVehicleState* _self = (snippetvehicle::BaseVehicleState*) _address;
+    _self->tireSlipStates[_index] = *((physx::PxVehicleTireSlipState*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_BaseVehicleState_00024Raw_getTireCamberAngleStates(JNIEnv*, jclass, jlong _address, jint _index) {
-    snippetvehicle2::BaseVehicleState* _self = (snippetvehicle2::BaseVehicleState*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_BaseVehicleState_00024Raw_getTireCamberAngleStates(JNIEnv*, jclass, jlong _address, jint _index) {
+    snippetvehicle::BaseVehicleState* _self = (snippetvehicle::BaseVehicleState*) _address;
     return (jlong) &_self->tireCamberAngleStates[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_BaseVehicleState_00024Raw_setTireCamberAngleStates(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
-    snippetvehicle2::BaseVehicleState* _self = (snippetvehicle2::BaseVehicleState*) _address;
-    _self->tireCamberAngleStates[_index] = *((physx::vehicle2::PxVehicleTireCamberAngleState*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_BaseVehicleState_00024Raw_setTireCamberAngleStates(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
+    snippetvehicle::BaseVehicleState* _self = (snippetvehicle::BaseVehicleState*) _address;
+    _self->tireCamberAngleStates[_index] = *((physx::PxVehicleTireCamberAngleState*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_BaseVehicleState_00024Raw_getTireStickyStates(JNIEnv*, jclass, jlong _address, jint _index) {
-    snippetvehicle2::BaseVehicleState* _self = (snippetvehicle2::BaseVehicleState*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_BaseVehicleState_00024Raw_getTireStickyStates(JNIEnv*, jclass, jlong _address, jint _index) {
+    snippetvehicle::BaseVehicleState* _self = (snippetvehicle::BaseVehicleState*) _address;
     return (jlong) &_self->tireStickyStates[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_BaseVehicleState_00024Raw_setTireStickyStates(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
-    snippetvehicle2::BaseVehicleState* _self = (snippetvehicle2::BaseVehicleState*) _address;
-    _self->tireStickyStates[_index] = *((physx::vehicle2::PxVehicleTireStickyState*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_BaseVehicleState_00024Raw_setTireStickyStates(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
+    snippetvehicle::BaseVehicleState* _self = (snippetvehicle::BaseVehicleState*) _address;
+    _self->tireStickyStates[_index] = *((physx::PxVehicleTireStickyState*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_BaseVehicleState_00024Raw_getTireForces(JNIEnv*, jclass, jlong _address, jint _index) {
-    snippetvehicle2::BaseVehicleState* _self = (snippetvehicle2::BaseVehicleState*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_BaseVehicleState_00024Raw_getTireForces(JNIEnv*, jclass, jlong _address, jint _index) {
+    snippetvehicle::BaseVehicleState* _self = (snippetvehicle::BaseVehicleState*) _address;
     return (jlong) &_self->tireForces[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_BaseVehicleState_00024Raw_setTireForces(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
-    snippetvehicle2::BaseVehicleState* _self = (snippetvehicle2::BaseVehicleState*) _address;
-    _self->tireForces[_index] = *((physx::vehicle2::PxVehicleTireForce*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_BaseVehicleState_00024Raw_setTireForces(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
+    snippetvehicle::BaseVehicleState* _self = (snippetvehicle::BaseVehicleState*) _address;
+    _self->tireForces[_index] = *((physx::PxVehicleTireForce*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_BaseVehicleState_00024Raw_getWheelRigidBody1dStates(JNIEnv*, jclass, jlong _address, jint _index) {
-    snippetvehicle2::BaseVehicleState* _self = (snippetvehicle2::BaseVehicleState*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_BaseVehicleState_00024Raw_getWheelRigidBody1dStates(JNIEnv*, jclass, jlong _address, jint _index) {
+    snippetvehicle::BaseVehicleState* _self = (snippetvehicle::BaseVehicleState*) _address;
     return (jlong) &_self->wheelRigidBody1dStates[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_BaseVehicleState_00024Raw_setWheelRigidBody1dStates(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
-    snippetvehicle2::BaseVehicleState* _self = (snippetvehicle2::BaseVehicleState*) _address;
-    _self->wheelRigidBody1dStates[_index] = *((physx::vehicle2::PxVehicleWheelRigidBody1dState*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_BaseVehicleState_00024Raw_setWheelRigidBody1dStates(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
+    snippetvehicle::BaseVehicleState* _self = (snippetvehicle::BaseVehicleState*) _address;
+    _self->wheelRigidBody1dStates[_index] = *((physx::PxVehicleWheelRigidBody1dState*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_BaseVehicleState_00024Raw_getWheelLocalPoses(JNIEnv*, jclass, jlong _address, jint _index) {
-    snippetvehicle2::BaseVehicleState* _self = (snippetvehicle2::BaseVehicleState*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_BaseVehicleState_00024Raw_getWheelLocalPoses(JNIEnv*, jclass, jlong _address, jint _index) {
+    snippetvehicle::BaseVehicleState* _self = (snippetvehicle::BaseVehicleState*) _address;
     return (jlong) &_self->wheelLocalPoses[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_BaseVehicleState_00024Raw_setWheelLocalPoses(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
-    snippetvehicle2::BaseVehicleState* _self = (snippetvehicle2::BaseVehicleState*) _address;
-    _self->wheelLocalPoses[_index] = *((physx::vehicle2::PxVehicleWheelLocalPose*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_BaseVehicleState_00024Raw_setWheelLocalPoses(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
+    snippetvehicle::BaseVehicleState* _self = (snippetvehicle::BaseVehicleState*) _address;
+    _self->wheelLocalPoses[_index] = *((physx::PxVehicleWheelLocalPose*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_BaseVehicleState_00024Raw_getRigidBodyState(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::BaseVehicleState* _self = (snippetvehicle2::BaseVehicleState*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_BaseVehicleState_00024Raw_getRigidBodyState(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::BaseVehicleState* _self = (snippetvehicle::BaseVehicleState*) _address;
     return (jlong) &_self->rigidBodyState;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_BaseVehicleState_00024Raw_setRigidBodyState(JNIEnv*, jclass, jlong _address, jlong value) {
-    snippetvehicle2::BaseVehicleState* _self = (snippetvehicle2::BaseVehicleState*) _address;
-    _self->rigidBodyState = *((physx::vehicle2::PxVehicleRigidBodyState*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_BaseVehicleState_00024Raw_setRigidBodyState(JNIEnv*, jclass, jlong _address, jlong value) {
+    snippetvehicle::BaseVehicleState* _self = (snippetvehicle::BaseVehicleState*) _address;
+    _self->rigidBodyState = *((physx::PxVehicleRigidBodyState*) value);
 }
 
 // PhysXIntegrationParams
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PhysXIntegrationParams__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(snippetvehicle2::PhysXIntegrationParams);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PhysXIntegrationParams__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(snippetvehicle::PhysXIntegrationParams);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PhysXIntegrationParams_00024Raw_PhysXIntegrationParams(JNIEnv*, jclass) {
-    return (jlong) new snippetvehicle2::PhysXIntegrationParams();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PhysXIntegrationParams_00024Raw_PhysXIntegrationParams(JNIEnv*, jclass) {
+    return (jlong) new snippetvehicle::PhysXIntegrationParams();
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PhysXIntegrationParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
-    snippetvehicle2::PhysXIntegrationParams* self = (snippetvehicle2::PhysXIntegrationParams*) _address;
-    static thread_local snippetvehicle2::PhysXIntegrationParams _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
-    _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PhysXIntegrationParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
+    snippetvehicle::PhysXIntegrationParams* self = (snippetvehicle::PhysXIntegrationParams*) _address;
+    static thread_local snippetvehicle::PhysXIntegrationParams _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
+    _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
     return (jlong) &_cache;
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_PhysXIntegrationParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address, jlong axleDesc) {
-    snippetvehicle2::PhysXIntegrationParams* self = (snippetvehicle2::PhysXIntegrationParams*) _address;
-    return (jboolean) self->isValid(*((physx::vehicle2::PxVehicleAxleDescription*) axleDesc));
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_PhysXIntegrationParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address, jlong axleDesc) {
+    snippetvehicle::PhysXIntegrationParams* self = (snippetvehicle::PhysXIntegrationParams*) _address;
+    return (jboolean) self->isValid(*((physx::PxVehicleAxleDescription*) axleDesc));
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PhysXIntegrationParams_00024Raw_create(JNIEnv*, jclass, jlong _address, jlong axleDesc, jlong roadQueryFilterData, jlong roadQueryFilterCallback, jlong materialFrictions, jint nbMaterialFrictions, jfloat defaultFriction, jlong physxActorCMassLocalPose, jlong actorGeometry, jlong physxActorBoxShapeLocalPose, jint roadGeometryQueryType) {
-    snippetvehicle2::PhysXIntegrationParams* self = (snippetvehicle2::PhysXIntegrationParams*) _address;
-    self->create(*((physx::vehicle2::PxVehicleAxleDescription*) axleDesc), *((physx::PxQueryFilterData*) roadQueryFilterData), (physx::PxQueryFilterCallback*) roadQueryFilterCallback, (physx::vehicle2::PxVehiclePhysXMaterialFriction*) materialFrictions, nbMaterialFrictions, defaultFriction, *((physx::PxTransform*) physxActorCMassLocalPose), *((physx::PxGeometry*) actorGeometry), *((physx::PxTransform*) physxActorBoxShapeLocalPose), (PxVehiclePhysXRoadGeometryQueryTypeEnum) roadGeometryQueryType);
+JNIEXPORT void JNICALL Java_physx_vehicle_PhysXIntegrationParams_00024Raw_create(JNIEnv*, jclass, jlong _address, jlong axleDesc, jlong roadQueryFilterData, jlong roadQueryFilterCallback, jlong materialFrictions, jint nbMaterialFrictions, jfloat defaultFriction, jlong physxActorCMassLocalPose, jlong actorGeometry, jlong physxActorBoxShapeLocalPose, jint roadGeometryQueryType) {
+    snippetvehicle::PhysXIntegrationParams* self = (snippetvehicle::PhysXIntegrationParams*) _address;
+    self->create(*((physx::PxVehicleAxleDescription*) axleDesc), *((physx::PxQueryFilterData*) roadQueryFilterData), (physx::PxQueryFilterCallback*) roadQueryFilterCallback, (physx::PxVehiclePhysXMaterialFriction*) materialFrictions, nbMaterialFrictions, defaultFriction, *((physx::PxTransform*) physxActorCMassLocalPose), *((physx::PxGeometry*) actorGeometry), *((physx::PxTransform*) physxActorBoxShapeLocalPose), (PxVehiclePhysXRoadGeometryQueryTypeEnum) roadGeometryQueryType);
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PhysXIntegrationParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (snippetvehicle2::PhysXIntegrationParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PhysXIntegrationParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (snippetvehicle::PhysXIntegrationParams*) _address;
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PhysXIntegrationParams_00024Raw_getPhysxRoadGeometryQueryParams(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::PhysXIntegrationParams* _self = (snippetvehicle2::PhysXIntegrationParams*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PhysXIntegrationParams_00024Raw_getPhysxRoadGeometryQueryParams(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::PhysXIntegrationParams* _self = (snippetvehicle::PhysXIntegrationParams*) _address;
     return (jlong) &_self->physxRoadGeometryQueryParams;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PhysXIntegrationParams_00024Raw_setPhysxRoadGeometryQueryParams(JNIEnv*, jclass, jlong _address, jlong value) {
-    snippetvehicle2::PhysXIntegrationParams* _self = (snippetvehicle2::PhysXIntegrationParams*) _address;
-    _self->physxRoadGeometryQueryParams = *((physx::vehicle2::PxVehiclePhysXRoadGeometryQueryParams*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_PhysXIntegrationParams_00024Raw_setPhysxRoadGeometryQueryParams(JNIEnv*, jclass, jlong _address, jlong value) {
+    snippetvehicle::PhysXIntegrationParams* _self = (snippetvehicle::PhysXIntegrationParams*) _address;
+    _self->physxRoadGeometryQueryParams = *((physx::PxVehiclePhysXRoadGeometryQueryParams*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PhysXIntegrationParams_00024Raw_getPhysxMaterialFrictionParams(JNIEnv*, jclass, jlong _address, jint _index) {
-    snippetvehicle2::PhysXIntegrationParams* _self = (snippetvehicle2::PhysXIntegrationParams*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PhysXIntegrationParams_00024Raw_getPhysxMaterialFrictionParams(JNIEnv*, jclass, jlong _address, jint _index) {
+    snippetvehicle::PhysXIntegrationParams* _self = (snippetvehicle::PhysXIntegrationParams*) _address;
     return (jlong) &_self->physxMaterialFrictionParams[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PhysXIntegrationParams_00024Raw_setPhysxMaterialFrictionParams(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
-    snippetvehicle2::PhysXIntegrationParams* _self = (snippetvehicle2::PhysXIntegrationParams*) _address;
-    _self->physxMaterialFrictionParams[_index] = *((physx::vehicle2::PxVehiclePhysXMaterialFrictionParams*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_PhysXIntegrationParams_00024Raw_setPhysxMaterialFrictionParams(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
+    snippetvehicle::PhysXIntegrationParams* _self = (snippetvehicle::PhysXIntegrationParams*) _address;
+    _self->physxMaterialFrictionParams[_index] = *((physx::PxVehiclePhysXMaterialFrictionParams*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PhysXIntegrationParams_00024Raw_getPhysxSuspensionLimitConstraintParams(JNIEnv*, jclass, jlong _address, jint _index) {
-    snippetvehicle2::PhysXIntegrationParams* _self = (snippetvehicle2::PhysXIntegrationParams*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PhysXIntegrationParams_00024Raw_getPhysxSuspensionLimitConstraintParams(JNIEnv*, jclass, jlong _address, jint _index) {
+    snippetvehicle::PhysXIntegrationParams* _self = (snippetvehicle::PhysXIntegrationParams*) _address;
     return (jlong) &_self->physxSuspensionLimitConstraintParams[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PhysXIntegrationParams_00024Raw_setPhysxSuspensionLimitConstraintParams(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
-    snippetvehicle2::PhysXIntegrationParams* _self = (snippetvehicle2::PhysXIntegrationParams*) _address;
-    _self->physxSuspensionLimitConstraintParams[_index] = *((physx::vehicle2::PxVehiclePhysXSuspensionLimitConstraintParams*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_PhysXIntegrationParams_00024Raw_setPhysxSuspensionLimitConstraintParams(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
+    snippetvehicle::PhysXIntegrationParams* _self = (snippetvehicle::PhysXIntegrationParams*) _address;
+    _self->physxSuspensionLimitConstraintParams[_index] = *((physx::PxVehiclePhysXSuspensionLimitConstraintParams*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PhysXIntegrationParams_00024Raw_getPhysxActorCMassLocalPose(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::PhysXIntegrationParams* _self = (snippetvehicle2::PhysXIntegrationParams*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PhysXIntegrationParams_00024Raw_getPhysxActorCMassLocalPose(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::PhysXIntegrationParams* _self = (snippetvehicle::PhysXIntegrationParams*) _address;
     return (jlong) &_self->physxActorCMassLocalPose;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PhysXIntegrationParams_00024Raw_setPhysxActorCMassLocalPose(JNIEnv*, jclass, jlong _address, jlong value) {
-    snippetvehicle2::PhysXIntegrationParams* _self = (snippetvehicle2::PhysXIntegrationParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PhysXIntegrationParams_00024Raw_setPhysxActorCMassLocalPose(JNIEnv*, jclass, jlong _address, jlong value) {
+    snippetvehicle::PhysXIntegrationParams* _self = (snippetvehicle::PhysXIntegrationParams*) _address;
     _self->physxActorCMassLocalPose = *((physx::PxTransform*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PhysXIntegrationParams_00024Raw_getPhysxActorGeometry(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::PhysXIntegrationParams* _self = (snippetvehicle2::PhysXIntegrationParams*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PhysXIntegrationParams_00024Raw_getPhysxActorGeometry(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::PhysXIntegrationParams* _self = (snippetvehicle::PhysXIntegrationParams*) _address;
     return (jlong) _self->physxActorGeometry;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PhysXIntegrationParams_00024Raw_setPhysxActorGeometry(JNIEnv*, jclass, jlong _address, jlong value) {
-    snippetvehicle2::PhysXIntegrationParams* _self = (snippetvehicle2::PhysXIntegrationParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PhysXIntegrationParams_00024Raw_setPhysxActorGeometry(JNIEnv*, jclass, jlong _address, jlong value) {
+    snippetvehicle::PhysXIntegrationParams* _self = (snippetvehicle::PhysXIntegrationParams*) _address;
     _self->physxActorGeometry = (physx::PxGeometry*) value;
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PhysXIntegrationParams_00024Raw_getPhysxActorBoxShapeLocalPose(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::PhysXIntegrationParams* _self = (snippetvehicle2::PhysXIntegrationParams*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PhysXIntegrationParams_00024Raw_getPhysxActorBoxShapeLocalPose(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::PhysXIntegrationParams* _self = (snippetvehicle::PhysXIntegrationParams*) _address;
     return (jlong) &_self->physxActorBoxShapeLocalPose;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PhysXIntegrationParams_00024Raw_setPhysxActorBoxShapeLocalPose(JNIEnv*, jclass, jlong _address, jlong value) {
-    snippetvehicle2::PhysXIntegrationParams* _self = (snippetvehicle2::PhysXIntegrationParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PhysXIntegrationParams_00024Raw_setPhysxActorBoxShapeLocalPose(JNIEnv*, jclass, jlong _address, jlong value) {
+    snippetvehicle::PhysXIntegrationParams* _self = (snippetvehicle::PhysXIntegrationParams*) _address;
     _self->physxActorBoxShapeLocalPose = *((physx::PxTransform*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PhysXIntegrationParams_00024Raw_getPhysxWheelShapeLocalPoses(JNIEnv*, jclass, jlong _address, jint _index) {
-    snippetvehicle2::PhysXIntegrationParams* _self = (snippetvehicle2::PhysXIntegrationParams*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PhysXIntegrationParams_00024Raw_getPhysxWheelShapeLocalPoses(JNIEnv*, jclass, jlong _address, jint _index) {
+    snippetvehicle::PhysXIntegrationParams* _self = (snippetvehicle::PhysXIntegrationParams*) _address;
     return (jlong) &_self->physxWheelShapeLocalPoses[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PhysXIntegrationParams_00024Raw_setPhysxWheelShapeLocalPoses(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
-    snippetvehicle2::PhysXIntegrationParams* _self = (snippetvehicle2::PhysXIntegrationParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PhysXIntegrationParams_00024Raw_setPhysxWheelShapeLocalPoses(JNIEnv*, jclass, jlong _address, jint _index, jlong value) {
+    snippetvehicle::PhysXIntegrationParams* _self = (snippetvehicle::PhysXIntegrationParams*) _address;
     _self->physxWheelShapeLocalPoses[_index] = *((physx::PxTransform*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PhysXIntegrationParams_00024Raw_getPhysxActorShapeFlags(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::PhysXIntegrationParams* _self = (snippetvehicle2::PhysXIntegrationParams*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PhysXIntegrationParams_00024Raw_getPhysxActorShapeFlags(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::PhysXIntegrationParams* _self = (snippetvehicle::PhysXIntegrationParams*) _address;
     return (jlong) &_self->physxActorShapeFlags;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PhysXIntegrationParams_00024Raw_setPhysxActorShapeFlags(JNIEnv*, jclass, jlong _address, jlong value) {
-    snippetvehicle2::PhysXIntegrationParams* _self = (snippetvehicle2::PhysXIntegrationParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PhysXIntegrationParams_00024Raw_setPhysxActorShapeFlags(JNIEnv*, jclass, jlong _address, jlong value) {
+    snippetvehicle::PhysXIntegrationParams* _self = (snippetvehicle::PhysXIntegrationParams*) _address;
     _self->physxActorShapeFlags = *((physx::PxShapeFlags*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PhysXIntegrationParams_00024Raw_getPhysxActorSimulationFilterData(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::PhysXIntegrationParams* _self = (snippetvehicle2::PhysXIntegrationParams*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PhysXIntegrationParams_00024Raw_getPhysxActorSimulationFilterData(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::PhysXIntegrationParams* _self = (snippetvehicle::PhysXIntegrationParams*) _address;
     return (jlong) &_self->physxActorSimulationFilterData;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PhysXIntegrationParams_00024Raw_setPhysxActorSimulationFilterData(JNIEnv*, jclass, jlong _address, jlong value) {
-    snippetvehicle2::PhysXIntegrationParams* _self = (snippetvehicle2::PhysXIntegrationParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PhysXIntegrationParams_00024Raw_setPhysxActorSimulationFilterData(JNIEnv*, jclass, jlong _address, jlong value) {
+    snippetvehicle::PhysXIntegrationParams* _self = (snippetvehicle::PhysXIntegrationParams*) _address;
     _self->physxActorSimulationFilterData = *((physx::PxFilterData*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PhysXIntegrationParams_00024Raw_getPhysxActorQueryFilterData(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::PhysXIntegrationParams* _self = (snippetvehicle2::PhysXIntegrationParams*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PhysXIntegrationParams_00024Raw_getPhysxActorQueryFilterData(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::PhysXIntegrationParams* _self = (snippetvehicle::PhysXIntegrationParams*) _address;
     return (jlong) &_self->physxActorQueryFilterData;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PhysXIntegrationParams_00024Raw_setPhysxActorQueryFilterData(JNIEnv*, jclass, jlong _address, jlong value) {
-    snippetvehicle2::PhysXIntegrationParams* _self = (snippetvehicle2::PhysXIntegrationParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PhysXIntegrationParams_00024Raw_setPhysxActorQueryFilterData(JNIEnv*, jclass, jlong _address, jlong value) {
+    snippetvehicle::PhysXIntegrationParams* _self = (snippetvehicle::PhysXIntegrationParams*) _address;
     _self->physxActorQueryFilterData = *((physx::PxFilterData*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PhysXIntegrationParams_00024Raw_getPhysxActorWheelShapeFlags(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::PhysXIntegrationParams* _self = (snippetvehicle2::PhysXIntegrationParams*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PhysXIntegrationParams_00024Raw_getPhysxActorWheelShapeFlags(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::PhysXIntegrationParams* _self = (snippetvehicle::PhysXIntegrationParams*) _address;
     return (jlong) &_self->physxActorWheelShapeFlags;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PhysXIntegrationParams_00024Raw_setPhysxActorWheelShapeFlags(JNIEnv*, jclass, jlong _address, jlong value) {
-    snippetvehicle2::PhysXIntegrationParams* _self = (snippetvehicle2::PhysXIntegrationParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PhysXIntegrationParams_00024Raw_setPhysxActorWheelShapeFlags(JNIEnv*, jclass, jlong _address, jlong value) {
+    snippetvehicle::PhysXIntegrationParams* _self = (snippetvehicle::PhysXIntegrationParams*) _address;
     _self->physxActorWheelShapeFlags = *((physx::PxShapeFlags*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PhysXIntegrationParams_00024Raw_getPhysxActorWheelSimulationFilterData(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::PhysXIntegrationParams* _self = (snippetvehicle2::PhysXIntegrationParams*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PhysXIntegrationParams_00024Raw_getPhysxActorWheelSimulationFilterData(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::PhysXIntegrationParams* _self = (snippetvehicle::PhysXIntegrationParams*) _address;
     return (jlong) &_self->physxActorWheelSimulationFilterData;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PhysXIntegrationParams_00024Raw_setPhysxActorWheelSimulationFilterData(JNIEnv*, jclass, jlong _address, jlong value) {
-    snippetvehicle2::PhysXIntegrationParams* _self = (snippetvehicle2::PhysXIntegrationParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PhysXIntegrationParams_00024Raw_setPhysxActorWheelSimulationFilterData(JNIEnv*, jclass, jlong _address, jlong value) {
+    snippetvehicle::PhysXIntegrationParams* _self = (snippetvehicle::PhysXIntegrationParams*) _address;
     _self->physxActorWheelSimulationFilterData = *((physx::PxFilterData*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PhysXIntegrationParams_00024Raw_getPhysxActorWheelQueryFilterData(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::PhysXIntegrationParams* _self = (snippetvehicle2::PhysXIntegrationParams*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PhysXIntegrationParams_00024Raw_getPhysxActorWheelQueryFilterData(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::PhysXIntegrationParams* _self = (snippetvehicle::PhysXIntegrationParams*) _address;
     return (jlong) &_self->physxActorWheelQueryFilterData;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PhysXIntegrationParams_00024Raw_setPhysxActorWheelQueryFilterData(JNIEnv*, jclass, jlong _address, jlong value) {
-    snippetvehicle2::PhysXIntegrationParams* _self = (snippetvehicle2::PhysXIntegrationParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PhysXIntegrationParams_00024Raw_setPhysxActorWheelQueryFilterData(JNIEnv*, jclass, jlong _address, jlong value) {
+    snippetvehicle::PhysXIntegrationParams* _self = (snippetvehicle::PhysXIntegrationParams*) _address;
     _self->physxActorWheelQueryFilterData = *((physx::PxFilterData*) value);
 }
 
 // PhysXIntegrationState
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PhysXIntegrationState__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(snippetvehicle2::PhysXIntegrationState);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PhysXIntegrationState__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(snippetvehicle::PhysXIntegrationState);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PhysXIntegrationState_00024Raw_PhysXIntegrationState(JNIEnv*, jclass) {
-    return (jlong) new snippetvehicle2::PhysXIntegrationState();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PhysXIntegrationState_00024Raw_PhysXIntegrationState(JNIEnv*, jclass) {
+    return (jlong) new snippetvehicle::PhysXIntegrationState();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PhysXIntegrationState_00024Raw_destroyState(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::PhysXIntegrationState* self = (snippetvehicle2::PhysXIntegrationState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PhysXIntegrationState_00024Raw_destroyState(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::PhysXIntegrationState* self = (snippetvehicle::PhysXIntegrationState*) _address;
     self->destroyState();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PhysXIntegrationState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::PhysXIntegrationState* self = (snippetvehicle2::PhysXIntegrationState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PhysXIntegrationState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::PhysXIntegrationState* self = (snippetvehicle::PhysXIntegrationState*) _address;
     self->setToDefault();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PhysXIntegrationState_00024Raw_create(JNIEnv*, jclass, jlong _address, jlong baseParams, jlong physxParams, jlong physics, jlong params, jlong defaultMaterial) {
-    snippetvehicle2::PhysXIntegrationState* self = (snippetvehicle2::PhysXIntegrationState*) _address;
-    self->create(*((snippetvehicle2::BaseVehicleParams*) baseParams), *((snippetvehicle2::PhysXIntegrationParams*) physxParams), *((physx::PxPhysics*) physics), *((physx::PxCookingParams*) params), *((physx::PxMaterial*) defaultMaterial));
+JNIEXPORT void JNICALL Java_physx_vehicle_PhysXIntegrationState_00024Raw_create(JNIEnv*, jclass, jlong _address, jlong baseParams, jlong physxParams, jlong physics, jlong params, jlong defaultMaterial) {
+    snippetvehicle::PhysXIntegrationState* self = (snippetvehicle::PhysXIntegrationState*) _address;
+    self->create(*((snippetvehicle::BaseVehicleParams*) baseParams), *((snippetvehicle::PhysXIntegrationParams*) physxParams), *((physx::PxPhysics*) physics), *((physx::PxCookingParams*) params), *((physx::PxMaterial*) defaultMaterial));
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PhysXIntegrationState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (snippetvehicle2::PhysXIntegrationState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PhysXIntegrationState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (snippetvehicle::PhysXIntegrationState*) _address;
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PhysXIntegrationState_00024Raw_getPhysxActor(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::PhysXIntegrationState* _self = (snippetvehicle2::PhysXIntegrationState*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PhysXIntegrationState_00024Raw_getPhysxActor(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::PhysXIntegrationState* _self = (snippetvehicle::PhysXIntegrationState*) _address;
     return (jlong) &_self->physxActor;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PhysXIntegrationState_00024Raw_setPhysxActor(JNIEnv*, jclass, jlong _address, jlong value) {
-    snippetvehicle2::PhysXIntegrationState* _self = (snippetvehicle2::PhysXIntegrationState*) _address;
-    _self->physxActor = *((physx::vehicle2::PxVehiclePhysXActor*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_PhysXIntegrationState_00024Raw_setPhysxActor(JNIEnv*, jclass, jlong _address, jlong value) {
+    snippetvehicle::PhysXIntegrationState* _self = (snippetvehicle::PhysXIntegrationState*) _address;
+    _self->physxActor = *((physx::PxVehiclePhysXActor*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PhysXIntegrationState_00024Raw_getPhysxSteerState(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::PhysXIntegrationState* _self = (snippetvehicle2::PhysXIntegrationState*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PhysXIntegrationState_00024Raw_getPhysxSteerState(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::PhysXIntegrationState* _self = (snippetvehicle::PhysXIntegrationState*) _address;
     return (jlong) &_self->physxSteerState;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PhysXIntegrationState_00024Raw_setPhysxSteerState(JNIEnv*, jclass, jlong _address, jlong value) {
-    snippetvehicle2::PhysXIntegrationState* _self = (snippetvehicle2::PhysXIntegrationState*) _address;
-    _self->physxSteerState = *((physx::vehicle2::PxVehiclePhysXSteerState*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_PhysXIntegrationState_00024Raw_setPhysxSteerState(JNIEnv*, jclass, jlong _address, jlong value) {
+    snippetvehicle::PhysXIntegrationState* _self = (snippetvehicle::PhysXIntegrationState*) _address;
+    _self->physxSteerState = *((physx::PxVehiclePhysXSteerState*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PhysXIntegrationState_00024Raw_getPhysxConstraints(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::PhysXIntegrationState* _self = (snippetvehicle2::PhysXIntegrationState*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PhysXIntegrationState_00024Raw_getPhysxConstraints(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::PhysXIntegrationState* _self = (snippetvehicle::PhysXIntegrationState*) _address;
     return (jlong) &_self->physxConstraints;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PhysXIntegrationState_00024Raw_setPhysxConstraints(JNIEnv*, jclass, jlong _address, jlong value) {
-    snippetvehicle2::PhysXIntegrationState* _self = (snippetvehicle2::PhysXIntegrationState*) _address;
-    _self->physxConstraints = *((physx::vehicle2::PxVehiclePhysXConstraints*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_PhysXIntegrationState_00024Raw_setPhysxConstraints(JNIEnv*, jclass, jlong _address, jlong value) {
+    snippetvehicle::PhysXIntegrationState* _self = (snippetvehicle::PhysXIntegrationState*) _address;
+    _self->physxConstraints = *((physx::PxVehiclePhysXConstraints*) value);
 }
 
 // DirectDrivetrainParams
-JNIEXPORT jint JNICALL Java_physx_vehicle2_DirectDrivetrainParams__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(snippetvehicle2::DirectDrivetrainParams);
+JNIEXPORT jint JNICALL Java_physx_vehicle_DirectDrivetrainParams__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(snippetvehicle::DirectDrivetrainParams);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_DirectDrivetrainParams_00024Raw_DirectDrivetrainParams(JNIEnv*, jclass) {
-    return (jlong) new snippetvehicle2::DirectDrivetrainParams();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_DirectDrivetrainParams_00024Raw_DirectDrivetrainParams(JNIEnv*, jclass) {
+    return (jlong) new snippetvehicle::DirectDrivetrainParams();
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_DirectDrivetrainParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
-    snippetvehicle2::DirectDrivetrainParams* self = (snippetvehicle2::DirectDrivetrainParams*) _address;
-    static thread_local snippetvehicle2::DirectDrivetrainParams _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
-    _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
+JNIEXPORT jlong JNICALL Java_physx_vehicle_DirectDrivetrainParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
+    snippetvehicle::DirectDrivetrainParams* self = (snippetvehicle::DirectDrivetrainParams*) _address;
+    static thread_local snippetvehicle::DirectDrivetrainParams _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
+    _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
     return (jlong) &_cache;
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_DirectDrivetrainParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address, jlong axleDesc) {
-    snippetvehicle2::DirectDrivetrainParams* self = (snippetvehicle2::DirectDrivetrainParams*) _address;
-    return (jboolean) self->isValid(*((physx::vehicle2::PxVehicleAxleDescription*) axleDesc));
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_DirectDrivetrainParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address, jlong axleDesc) {
+    snippetvehicle::DirectDrivetrainParams* self = (snippetvehicle::DirectDrivetrainParams*) _address;
+    return (jboolean) self->isValid(*((physx::PxVehicleAxleDescription*) axleDesc));
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_DirectDrivetrainParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (snippetvehicle2::DirectDrivetrainParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_DirectDrivetrainParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (snippetvehicle::DirectDrivetrainParams*) _address;
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_DirectDrivetrainParams_00024Raw_getDirectDriveThrottleResponseParams(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::DirectDrivetrainParams* _self = (snippetvehicle2::DirectDrivetrainParams*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_DirectDrivetrainParams_00024Raw_getDirectDriveThrottleResponseParams(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::DirectDrivetrainParams* _self = (snippetvehicle::DirectDrivetrainParams*) _address;
     return (jlong) &_self->directDriveThrottleResponseParams;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_DirectDrivetrainParams_00024Raw_setDirectDriveThrottleResponseParams(JNIEnv*, jclass, jlong _address, jlong value) {
-    snippetvehicle2::DirectDrivetrainParams* _self = (snippetvehicle2::DirectDrivetrainParams*) _address;
-    _self->directDriveThrottleResponseParams = *((physx::vehicle2::PxVehicleDirectDriveThrottleCommandResponseParams*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_DirectDrivetrainParams_00024Raw_setDirectDriveThrottleResponseParams(JNIEnv*, jclass, jlong _address, jlong value) {
+    snippetvehicle::DirectDrivetrainParams* _self = (snippetvehicle::DirectDrivetrainParams*) _address;
+    _self->directDriveThrottleResponseParams = *((physx::PxVehicleDirectDriveThrottleCommandResponseParams*) value);
 }
 
 // DirectDrivetrainState
-JNIEXPORT jint JNICALL Java_physx_vehicle2_DirectDrivetrainState__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(snippetvehicle2::DirectDrivetrainState);
+JNIEXPORT jint JNICALL Java_physx_vehicle_DirectDrivetrainState__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(snippetvehicle::DirectDrivetrainState);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_DirectDrivetrainState_00024Raw_DirectDrivetrainState(JNIEnv*, jclass) {
-    return (jlong) new snippetvehicle2::DirectDrivetrainState();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_DirectDrivetrainState_00024Raw_DirectDrivetrainState(JNIEnv*, jclass) {
+    return (jlong) new snippetvehicle::DirectDrivetrainState();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_DirectDrivetrainState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::DirectDrivetrainState* self = (snippetvehicle2::DirectDrivetrainState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_DirectDrivetrainState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::DirectDrivetrainState* self = (snippetvehicle::DirectDrivetrainState*) _address;
     self->setToDefault();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_DirectDrivetrainState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (snippetvehicle2::DirectDrivetrainState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_DirectDrivetrainState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (snippetvehicle::DirectDrivetrainState*) _address;
 }
-JNIEXPORT jfloat JNICALL Java_physx_vehicle2_DirectDrivetrainState_00024Raw_getDirectDriveThrottleResponseStates(JNIEnv*, jclass, jlong _address, jint _index) {
-    snippetvehicle2::DirectDrivetrainState* _self = (snippetvehicle2::DirectDrivetrainState*) _address;
+JNIEXPORT jfloat JNICALL Java_physx_vehicle_DirectDrivetrainState_00024Raw_getDirectDriveThrottleResponseStates(JNIEnv*, jclass, jlong _address, jint _index) {
+    snippetvehicle::DirectDrivetrainState* _self = (snippetvehicle::DirectDrivetrainState*) _address;
     return (jfloat) _self->directDriveThrottleResponseStates[_index];
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_DirectDrivetrainState_00024Raw_setDirectDriveThrottleResponseStates(JNIEnv*, jclass, jlong _address, jint _index, jfloat value) {
-    snippetvehicle2::DirectDrivetrainState* _self = (snippetvehicle2::DirectDrivetrainState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_DirectDrivetrainState_00024Raw_setDirectDriveThrottleResponseStates(JNIEnv*, jclass, jlong _address, jint _index, jfloat value) {
+    snippetvehicle::DirectDrivetrainState* _self = (snippetvehicle::DirectDrivetrainState*) _address;
     _self->directDriveThrottleResponseStates[_index] = value;
 }
 
 // EngineDrivetrainParams
-JNIEXPORT jint JNICALL Java_physx_vehicle2_EngineDrivetrainParams__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(snippetvehicle2::EngineDrivetrainParams);
+JNIEXPORT jint JNICALL Java_physx_vehicle_EngineDrivetrainParams__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(snippetvehicle::EngineDrivetrainParams);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_EngineDrivetrainParams_00024Raw_EngineDrivetrainParams(JNIEnv*, jclass) {
-    return (jlong) new snippetvehicle2::EngineDrivetrainParams();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_EngineDrivetrainParams_00024Raw_EngineDrivetrainParams(JNIEnv*, jclass) {
+    return (jlong) new snippetvehicle::EngineDrivetrainParams();
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_EngineDrivetrainParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
-    snippetvehicle2::EngineDrivetrainParams* self = (snippetvehicle2::EngineDrivetrainParams*) _address;
-    static thread_local snippetvehicle2::EngineDrivetrainParams _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
-    _cache = self->transformAndScale(*((physx::vehicle2::PxVehicleFrame*) srcFrame), *((physx::vehicle2::PxVehicleFrame*) trgFrame), *((physx::vehicle2::PxVehicleScale*) srcScale), *((physx::vehicle2::PxVehicleScale*) trgScale));
+JNIEXPORT jlong JNICALL Java_physx_vehicle_EngineDrivetrainParams_00024Raw_transformAndScale(JNIEnv*, jclass, jlong _address, jlong srcFrame, jlong trgFrame, jlong srcScale, jlong trgScale) {
+    snippetvehicle::EngineDrivetrainParams* self = (snippetvehicle::EngineDrivetrainParams*) _address;
+    static thread_local snippetvehicle::EngineDrivetrainParams _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
+    _cache = self->transformAndScale(*((physx::PxVehicleFrame*) srcFrame), *((physx::PxVehicleFrame*) trgFrame), *((physx::PxVehicleScale*) srcScale), *((physx::PxVehicleScale*) trgScale));
     return (jlong) &_cache;
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_EngineDrivetrainParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address, jlong axleDesc) {
-    snippetvehicle2::EngineDrivetrainParams* self = (snippetvehicle2::EngineDrivetrainParams*) _address;
-    return (jboolean) self->isValid(*((physx::vehicle2::PxVehicleAxleDescription*) axleDesc));
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_EngineDrivetrainParams_00024Raw_isValid(JNIEnv*, jclass, jlong _address, jlong axleDesc) {
+    snippetvehicle::EngineDrivetrainParams* self = (snippetvehicle::EngineDrivetrainParams*) _address;
+    return (jboolean) self->isValid(*((physx::PxVehicleAxleDescription*) axleDesc));
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_EngineDrivetrainParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (snippetvehicle2::EngineDrivetrainParams*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_EngineDrivetrainParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (snippetvehicle::EngineDrivetrainParams*) _address;
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_EngineDrivetrainParams_00024Raw_getAutoboxParams(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::EngineDrivetrainParams* _self = (snippetvehicle2::EngineDrivetrainParams*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_EngineDrivetrainParams_00024Raw_getAutoboxParams(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::EngineDrivetrainParams* _self = (snippetvehicle::EngineDrivetrainParams*) _address;
     return (jlong) &_self->autoboxParams;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_EngineDrivetrainParams_00024Raw_setAutoboxParams(JNIEnv*, jclass, jlong _address, jlong value) {
-    snippetvehicle2::EngineDrivetrainParams* _self = (snippetvehicle2::EngineDrivetrainParams*) _address;
-    _self->autoboxParams = *((physx::vehicle2::PxVehicleAutoboxParams*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_EngineDrivetrainParams_00024Raw_setAutoboxParams(JNIEnv*, jclass, jlong _address, jlong value) {
+    snippetvehicle::EngineDrivetrainParams* _self = (snippetvehicle::EngineDrivetrainParams*) _address;
+    _self->autoboxParams = *((physx::PxVehicleAutoboxParams*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_EngineDrivetrainParams_00024Raw_getClutchCommandResponseParams(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::EngineDrivetrainParams* _self = (snippetvehicle2::EngineDrivetrainParams*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_EngineDrivetrainParams_00024Raw_getClutchCommandResponseParams(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::EngineDrivetrainParams* _self = (snippetvehicle::EngineDrivetrainParams*) _address;
     return (jlong) &_self->clutchCommandResponseParams;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_EngineDrivetrainParams_00024Raw_setClutchCommandResponseParams(JNIEnv*, jclass, jlong _address, jlong value) {
-    snippetvehicle2::EngineDrivetrainParams* _self = (snippetvehicle2::EngineDrivetrainParams*) _address;
-    _self->clutchCommandResponseParams = *((physx::vehicle2::PxVehicleClutchCommandResponseParams*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_EngineDrivetrainParams_00024Raw_setClutchCommandResponseParams(JNIEnv*, jclass, jlong _address, jlong value) {
+    snippetvehicle::EngineDrivetrainParams* _self = (snippetvehicle::EngineDrivetrainParams*) _address;
+    _self->clutchCommandResponseParams = *((physx::PxVehicleClutchCommandResponseParams*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_EngineDrivetrainParams_00024Raw_getEngineParams(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::EngineDrivetrainParams* _self = (snippetvehicle2::EngineDrivetrainParams*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_EngineDrivetrainParams_00024Raw_getEngineParams(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::EngineDrivetrainParams* _self = (snippetvehicle::EngineDrivetrainParams*) _address;
     return (jlong) &_self->engineParams;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_EngineDrivetrainParams_00024Raw_setEngineParams(JNIEnv*, jclass, jlong _address, jlong value) {
-    snippetvehicle2::EngineDrivetrainParams* _self = (snippetvehicle2::EngineDrivetrainParams*) _address;
-    _self->engineParams = *((physx::vehicle2::PxVehicleEngineParams*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_EngineDrivetrainParams_00024Raw_setEngineParams(JNIEnv*, jclass, jlong _address, jlong value) {
+    snippetvehicle::EngineDrivetrainParams* _self = (snippetvehicle::EngineDrivetrainParams*) _address;
+    _self->engineParams = *((physx::PxVehicleEngineParams*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_EngineDrivetrainParams_00024Raw_getGearBoxParams(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::EngineDrivetrainParams* _self = (snippetvehicle2::EngineDrivetrainParams*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_EngineDrivetrainParams_00024Raw_getGearBoxParams(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::EngineDrivetrainParams* _self = (snippetvehicle::EngineDrivetrainParams*) _address;
     return (jlong) &_self->gearBoxParams;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_EngineDrivetrainParams_00024Raw_setGearBoxParams(JNIEnv*, jclass, jlong _address, jlong value) {
-    snippetvehicle2::EngineDrivetrainParams* _self = (snippetvehicle2::EngineDrivetrainParams*) _address;
-    _self->gearBoxParams = *((physx::vehicle2::PxVehicleGearboxParams*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_EngineDrivetrainParams_00024Raw_setGearBoxParams(JNIEnv*, jclass, jlong _address, jlong value) {
+    snippetvehicle::EngineDrivetrainParams* _self = (snippetvehicle::EngineDrivetrainParams*) _address;
+    _self->gearBoxParams = *((physx::PxVehicleGearboxParams*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_EngineDrivetrainParams_00024Raw_getMultiWheelDifferentialParams(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::EngineDrivetrainParams* _self = (snippetvehicle2::EngineDrivetrainParams*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_EngineDrivetrainParams_00024Raw_getMultiWheelDifferentialParams(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::EngineDrivetrainParams* _self = (snippetvehicle::EngineDrivetrainParams*) _address;
     return (jlong) &_self->multiWheelDifferentialParams;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_EngineDrivetrainParams_00024Raw_setMultiWheelDifferentialParams(JNIEnv*, jclass, jlong _address, jlong value) {
-    snippetvehicle2::EngineDrivetrainParams* _self = (snippetvehicle2::EngineDrivetrainParams*) _address;
-    _self->multiWheelDifferentialParams = *((physx::vehicle2::PxVehicleMultiWheelDriveDifferentialParams*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_EngineDrivetrainParams_00024Raw_setMultiWheelDifferentialParams(JNIEnv*, jclass, jlong _address, jlong value) {
+    snippetvehicle::EngineDrivetrainParams* _self = (snippetvehicle::EngineDrivetrainParams*) _address;
+    _self->multiWheelDifferentialParams = *((physx::PxVehicleMultiWheelDriveDifferentialParams*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_EngineDrivetrainParams_00024Raw_getFourWheelDifferentialParams(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::EngineDrivetrainParams* _self = (snippetvehicle2::EngineDrivetrainParams*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_EngineDrivetrainParams_00024Raw_getFourWheelDifferentialParams(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::EngineDrivetrainParams* _self = (snippetvehicle::EngineDrivetrainParams*) _address;
     return (jlong) &_self->fourWheelDifferentialParams;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_EngineDrivetrainParams_00024Raw_setFourWheelDifferentialParams(JNIEnv*, jclass, jlong _address, jlong value) {
-    snippetvehicle2::EngineDrivetrainParams* _self = (snippetvehicle2::EngineDrivetrainParams*) _address;
-    _self->fourWheelDifferentialParams = *((physx::vehicle2::PxVehicleFourWheelDriveDifferentialParams*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_EngineDrivetrainParams_00024Raw_setFourWheelDifferentialParams(JNIEnv*, jclass, jlong _address, jlong value) {
+    snippetvehicle::EngineDrivetrainParams* _self = (snippetvehicle::EngineDrivetrainParams*) _address;
+    _self->fourWheelDifferentialParams = *((physx::PxVehicleFourWheelDriveDifferentialParams*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_EngineDrivetrainParams_00024Raw_getTankDifferentialParams(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::EngineDrivetrainParams* _self = (snippetvehicle2::EngineDrivetrainParams*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_EngineDrivetrainParams_00024Raw_getTankDifferentialParams(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::EngineDrivetrainParams* _self = (snippetvehicle::EngineDrivetrainParams*) _address;
     return (jlong) &_self->tankDifferentialParams;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_EngineDrivetrainParams_00024Raw_setTankDifferentialParams(JNIEnv*, jclass, jlong _address, jlong value) {
-    snippetvehicle2::EngineDrivetrainParams* _self = (snippetvehicle2::EngineDrivetrainParams*) _address;
-    _self->tankDifferentialParams = *((physx::vehicle2::PxVehicleTankDriveDifferentialParams*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_EngineDrivetrainParams_00024Raw_setTankDifferentialParams(JNIEnv*, jclass, jlong _address, jlong value) {
+    snippetvehicle::EngineDrivetrainParams* _self = (snippetvehicle::EngineDrivetrainParams*) _address;
+    _self->tankDifferentialParams = *((physx::PxVehicleTankDriveDifferentialParams*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_EngineDrivetrainParams_00024Raw_getClutchParams(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::EngineDrivetrainParams* _self = (snippetvehicle2::EngineDrivetrainParams*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_EngineDrivetrainParams_00024Raw_getClutchParams(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::EngineDrivetrainParams* _self = (snippetvehicle::EngineDrivetrainParams*) _address;
     return (jlong) &_self->clutchParams;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_EngineDrivetrainParams_00024Raw_setClutchParams(JNIEnv*, jclass, jlong _address, jlong value) {
-    snippetvehicle2::EngineDrivetrainParams* _self = (snippetvehicle2::EngineDrivetrainParams*) _address;
-    _self->clutchParams = *((physx::vehicle2::PxVehicleClutchParams*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_EngineDrivetrainParams_00024Raw_setClutchParams(JNIEnv*, jclass, jlong _address, jlong value) {
+    snippetvehicle::EngineDrivetrainParams* _self = (snippetvehicle::EngineDrivetrainParams*) _address;
+    _self->clutchParams = *((physx::PxVehicleClutchParams*) value);
 }
 
 // EngineDrivetrainState
-JNIEXPORT jint JNICALL Java_physx_vehicle2_EngineDrivetrainState__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(snippetvehicle2::EngineDrivetrainState);
+JNIEXPORT jint JNICALL Java_physx_vehicle_EngineDrivetrainState__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(snippetvehicle::EngineDrivetrainState);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_EngineDrivetrainState_00024Raw_EngineDrivetrainState(JNIEnv*, jclass) {
-    return (jlong) new snippetvehicle2::EngineDrivetrainState();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_EngineDrivetrainState_00024Raw_EngineDrivetrainState(JNIEnv*, jclass) {
+    return (jlong) new snippetvehicle::EngineDrivetrainState();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_EngineDrivetrainState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::EngineDrivetrainState* self = (snippetvehicle2::EngineDrivetrainState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_EngineDrivetrainState_00024Raw_setToDefault(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::EngineDrivetrainState* self = (snippetvehicle::EngineDrivetrainState*) _address;
     self->setToDefault();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_EngineDrivetrainState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (snippetvehicle2::EngineDrivetrainState*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_EngineDrivetrainState_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (snippetvehicle::EngineDrivetrainState*) _address;
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_EngineDrivetrainState_00024Raw_getThrottleCommandResponseState(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::EngineDrivetrainState* _self = (snippetvehicle2::EngineDrivetrainState*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_EngineDrivetrainState_00024Raw_getThrottleCommandResponseState(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::EngineDrivetrainState* _self = (snippetvehicle::EngineDrivetrainState*) _address;
     return (jlong) &_self->throttleCommandResponseState;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_EngineDrivetrainState_00024Raw_setThrottleCommandResponseState(JNIEnv*, jclass, jlong _address, jlong value) {
-    snippetvehicle2::EngineDrivetrainState* _self = (snippetvehicle2::EngineDrivetrainState*) _address;
-    _self->throttleCommandResponseState = *((physx::vehicle2::PxVehicleEngineDriveThrottleCommandResponseState*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_EngineDrivetrainState_00024Raw_setThrottleCommandResponseState(JNIEnv*, jclass, jlong _address, jlong value) {
+    snippetvehicle::EngineDrivetrainState* _self = (snippetvehicle::EngineDrivetrainState*) _address;
+    _self->throttleCommandResponseState = *((physx::PxVehicleEngineDriveThrottleCommandResponseState*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_EngineDrivetrainState_00024Raw_getAutoboxState(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::EngineDrivetrainState* _self = (snippetvehicle2::EngineDrivetrainState*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_EngineDrivetrainState_00024Raw_getAutoboxState(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::EngineDrivetrainState* _self = (snippetvehicle::EngineDrivetrainState*) _address;
     return (jlong) &_self->autoboxState;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_EngineDrivetrainState_00024Raw_setAutoboxState(JNIEnv*, jclass, jlong _address, jlong value) {
-    snippetvehicle2::EngineDrivetrainState* _self = (snippetvehicle2::EngineDrivetrainState*) _address;
-    _self->autoboxState = *((physx::vehicle2::PxVehicleAutoboxState*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_EngineDrivetrainState_00024Raw_setAutoboxState(JNIEnv*, jclass, jlong _address, jlong value) {
+    snippetvehicle::EngineDrivetrainState* _self = (snippetvehicle::EngineDrivetrainState*) _address;
+    _self->autoboxState = *((physx::PxVehicleAutoboxState*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_EngineDrivetrainState_00024Raw_getClutchCommandResponseState(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::EngineDrivetrainState* _self = (snippetvehicle2::EngineDrivetrainState*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_EngineDrivetrainState_00024Raw_getClutchCommandResponseState(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::EngineDrivetrainState* _self = (snippetvehicle::EngineDrivetrainState*) _address;
     return (jlong) &_self->clutchCommandResponseState;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_EngineDrivetrainState_00024Raw_setClutchCommandResponseState(JNIEnv*, jclass, jlong _address, jlong value) {
-    snippetvehicle2::EngineDrivetrainState* _self = (snippetvehicle2::EngineDrivetrainState*) _address;
-    _self->clutchCommandResponseState = *((physx::vehicle2::PxVehicleClutchCommandResponseState*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_EngineDrivetrainState_00024Raw_setClutchCommandResponseState(JNIEnv*, jclass, jlong _address, jlong value) {
+    snippetvehicle::EngineDrivetrainState* _self = (snippetvehicle::EngineDrivetrainState*) _address;
+    _self->clutchCommandResponseState = *((physx::PxVehicleClutchCommandResponseState*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_EngineDrivetrainState_00024Raw_getDifferentialState(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::EngineDrivetrainState* _self = (snippetvehicle2::EngineDrivetrainState*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_EngineDrivetrainState_00024Raw_getDifferentialState(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::EngineDrivetrainState* _self = (snippetvehicle::EngineDrivetrainState*) _address;
     return (jlong) &_self->differentialState;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_EngineDrivetrainState_00024Raw_setDifferentialState(JNIEnv*, jclass, jlong _address, jlong value) {
-    snippetvehicle2::EngineDrivetrainState* _self = (snippetvehicle2::EngineDrivetrainState*) _address;
-    _self->differentialState = *((physx::vehicle2::PxVehicleDifferentialState*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_EngineDrivetrainState_00024Raw_setDifferentialState(JNIEnv*, jclass, jlong _address, jlong value) {
+    snippetvehicle::EngineDrivetrainState* _self = (snippetvehicle::EngineDrivetrainState*) _address;
+    _self->differentialState = *((physx::PxVehicleDifferentialState*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_EngineDrivetrainState_00024Raw_getWheelConstraintGroupState(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::EngineDrivetrainState* _self = (snippetvehicle2::EngineDrivetrainState*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_EngineDrivetrainState_00024Raw_getWheelConstraintGroupState(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::EngineDrivetrainState* _self = (snippetvehicle::EngineDrivetrainState*) _address;
     return (jlong) &_self->wheelConstraintGroupState;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_EngineDrivetrainState_00024Raw_setWheelConstraintGroupState(JNIEnv*, jclass, jlong _address, jlong value) {
-    snippetvehicle2::EngineDrivetrainState* _self = (snippetvehicle2::EngineDrivetrainState*) _address;
-    _self->wheelConstraintGroupState = *((physx::vehicle2::PxVehicleWheelConstraintGroupState*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_EngineDrivetrainState_00024Raw_setWheelConstraintGroupState(JNIEnv*, jclass, jlong _address, jlong value) {
+    snippetvehicle::EngineDrivetrainState* _self = (snippetvehicle::EngineDrivetrainState*) _address;
+    _self->wheelConstraintGroupState = *((physx::PxVehicleWheelConstraintGroupState*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_EngineDrivetrainState_00024Raw_getEngineState(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::EngineDrivetrainState* _self = (snippetvehicle2::EngineDrivetrainState*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_EngineDrivetrainState_00024Raw_getEngineState(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::EngineDrivetrainState* _self = (snippetvehicle::EngineDrivetrainState*) _address;
     return (jlong) &_self->engineState;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_EngineDrivetrainState_00024Raw_setEngineState(JNIEnv*, jclass, jlong _address, jlong value) {
-    snippetvehicle2::EngineDrivetrainState* _self = (snippetvehicle2::EngineDrivetrainState*) _address;
-    _self->engineState = *((physx::vehicle2::PxVehicleEngineState*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_EngineDrivetrainState_00024Raw_setEngineState(JNIEnv*, jclass, jlong _address, jlong value) {
+    snippetvehicle::EngineDrivetrainState* _self = (snippetvehicle::EngineDrivetrainState*) _address;
+    _self->engineState = *((physx::PxVehicleEngineState*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_EngineDrivetrainState_00024Raw_getGearboxState(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::EngineDrivetrainState* _self = (snippetvehicle2::EngineDrivetrainState*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_EngineDrivetrainState_00024Raw_getGearboxState(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::EngineDrivetrainState* _self = (snippetvehicle::EngineDrivetrainState*) _address;
     return (jlong) &_self->gearboxState;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_EngineDrivetrainState_00024Raw_setGearboxState(JNIEnv*, jclass, jlong _address, jlong value) {
-    snippetvehicle2::EngineDrivetrainState* _self = (snippetvehicle2::EngineDrivetrainState*) _address;
-    _self->gearboxState = *((physx::vehicle2::PxVehicleGearboxState*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_EngineDrivetrainState_00024Raw_setGearboxState(JNIEnv*, jclass, jlong _address, jlong value) {
+    snippetvehicle::EngineDrivetrainState* _self = (snippetvehicle::EngineDrivetrainState*) _address;
+    _self->gearboxState = *((physx::PxVehicleGearboxState*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_EngineDrivetrainState_00024Raw_getClutchState(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::EngineDrivetrainState* _self = (snippetvehicle2::EngineDrivetrainState*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_EngineDrivetrainState_00024Raw_getClutchState(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::EngineDrivetrainState* _self = (snippetvehicle::EngineDrivetrainState*) _address;
     return (jlong) &_self->clutchState;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_EngineDrivetrainState_00024Raw_setClutchState(JNIEnv*, jclass, jlong _address, jlong value) {
-    snippetvehicle2::EngineDrivetrainState* _self = (snippetvehicle2::EngineDrivetrainState*) _address;
-    _self->clutchState = *((physx::vehicle2::PxVehicleClutchSlipState*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_EngineDrivetrainState_00024Raw_setClutchState(JNIEnv*, jclass, jlong _address, jlong value) {
+    snippetvehicle::EngineDrivetrainState* _self = (snippetvehicle::EngineDrivetrainState*) _address;
+    _self->clutchState = *((physx::PxVehicleClutchSlipState*) value);
 }
 
 // BaseVehicle
-JNIEXPORT jint JNICALL Java_physx_vehicle2_BaseVehicle__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(snippetvehicle2::BaseVehicle);
+JNIEXPORT jint JNICALL Java_physx_vehicle_BaseVehicle__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(snippetvehicle::BaseVehicle);
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_BaseVehicle_00024Raw_initialize(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::BaseVehicle* self = (snippetvehicle2::BaseVehicle*) _address;
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_BaseVehicle_00024Raw_initialize(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::BaseVehicle* self = (snippetvehicle::BaseVehicle*) _address;
     return (jboolean) self->initialize();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_BaseVehicle_00024Raw_destroyState(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::BaseVehicle* self = (snippetvehicle2::BaseVehicle*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_BaseVehicle_00024Raw_destroyState(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::BaseVehicle* self = (snippetvehicle::BaseVehicle*) _address;
     self->destroyState();
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_BaseVehicle_00024Raw_initComponentSequence(JNIEnv*, jclass, jlong _address, jboolean addPhysXBeginEndComponents) {
-    snippetvehicle2::BaseVehicle* self = (snippetvehicle2::BaseVehicle*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_BaseVehicle_00024Raw_initComponentSequence(JNIEnv*, jclass, jlong _address, jboolean addPhysXBeginEndComponents) {
+    snippetvehicle::BaseVehicle* self = (snippetvehicle::BaseVehicle*) _address;
     self->initComponentSequence(addPhysXBeginEndComponents);
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_BaseVehicle_00024Raw_step(JNIEnv*, jclass, jlong _address, jfloat dt, jlong context) {
-    snippetvehicle2::BaseVehicle* self = (snippetvehicle2::BaseVehicle*) _address;
-    self->step(dt, *((physx::vehicle2::PxVehicleSimulationContext*) context));
+JNIEXPORT void JNICALL Java_physx_vehicle_BaseVehicle_00024Raw_step(JNIEnv*, jclass, jlong _address, jfloat dt, jlong context) {
+    snippetvehicle::BaseVehicle* self = (snippetvehicle::BaseVehicle*) _address;
+    self->step(dt, *((physx::PxVehicleSimulationContext*) context));
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_BaseVehicle_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (snippetvehicle2::BaseVehicle*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_BaseVehicle_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (snippetvehicle::BaseVehicle*) _address;
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_BaseVehicle_00024Raw_getBaseParams(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::BaseVehicle* _self = (snippetvehicle2::BaseVehicle*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_BaseVehicle_00024Raw_getBaseParams(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::BaseVehicle* _self = (snippetvehicle::BaseVehicle*) _address;
     return (jlong) &_self->baseParams;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_BaseVehicle_00024Raw_setBaseParams(JNIEnv*, jclass, jlong _address, jlong value) {
-    snippetvehicle2::BaseVehicle* _self = (snippetvehicle2::BaseVehicle*) _address;
-    _self->baseParams = *((snippetvehicle2::BaseVehicleParams*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_BaseVehicle_00024Raw_setBaseParams(JNIEnv*, jclass, jlong _address, jlong value) {
+    snippetvehicle::BaseVehicle* _self = (snippetvehicle::BaseVehicle*) _address;
+    _self->baseParams = *((snippetvehicle::BaseVehicleParams*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_BaseVehicle_00024Raw_getBaseState(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::BaseVehicle* _self = (snippetvehicle2::BaseVehicle*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_BaseVehicle_00024Raw_getBaseState(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::BaseVehicle* _self = (snippetvehicle::BaseVehicle*) _address;
     return (jlong) &_self->baseState;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_BaseVehicle_00024Raw_setBaseState(JNIEnv*, jclass, jlong _address, jlong value) {
-    snippetvehicle2::BaseVehicle* _self = (snippetvehicle2::BaseVehicle*) _address;
-    _self->baseState = *((snippetvehicle2::BaseVehicleState*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_BaseVehicle_00024Raw_setBaseState(JNIEnv*, jclass, jlong _address, jlong value) {
+    snippetvehicle::BaseVehicle* _self = (snippetvehicle::BaseVehicle*) _address;
+    _self->baseState = *((snippetvehicle::BaseVehicleState*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_BaseVehicle_00024Raw_getComponentSequence(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::BaseVehicle* _self = (snippetvehicle2::BaseVehicle*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_BaseVehicle_00024Raw_getComponentSequence(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::BaseVehicle* _self = (snippetvehicle::BaseVehicle*) _address;
     return (jlong) &_self->componentSequence;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_BaseVehicle_00024Raw_setComponentSequence(JNIEnv*, jclass, jlong _address, jlong value) {
-    snippetvehicle2::BaseVehicle* _self = (snippetvehicle2::BaseVehicle*) _address;
-    _self->componentSequence = *((physx::vehicle2::PxVehicleComponentSequence*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_BaseVehicle_00024Raw_setComponentSequence(JNIEnv*, jclass, jlong _address, jlong value) {
+    snippetvehicle::BaseVehicle* _self = (snippetvehicle::BaseVehicle*) _address;
+    _self->componentSequence = *((physx::PxVehicleComponentSequence*) value);
 }
-JNIEXPORT jbyte JNICALL Java_physx_vehicle2_BaseVehicle_00024Raw_getComponentSequenceSubstepGroupHandle(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::BaseVehicle* _self = (snippetvehicle2::BaseVehicle*) _address;
+JNIEXPORT jbyte JNICALL Java_physx_vehicle_BaseVehicle_00024Raw_getComponentSequenceSubstepGroupHandle(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::BaseVehicle* _self = (snippetvehicle::BaseVehicle*) _address;
     return (jbyte) _self->componentSequenceSubstepGroupHandle;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_BaseVehicle_00024Raw_setComponentSequenceSubstepGroupHandle(JNIEnv*, jclass, jlong _address, jbyte value) {
-    snippetvehicle2::BaseVehicle* _self = (snippetvehicle2::BaseVehicle*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_BaseVehicle_00024Raw_setComponentSequenceSubstepGroupHandle(JNIEnv*, jclass, jlong _address, jbyte value) {
+    snippetvehicle::BaseVehicle* _self = (snippetvehicle::BaseVehicle*) _address;
     _self->componentSequenceSubstepGroupHandle = value;
 }
 
 // PhysXActorVehicle
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PhysXActorVehicle__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(snippetvehicle2::PhysXActorVehicle);
+JNIEXPORT jint JNICALL Java_physx_vehicle_PhysXActorVehicle__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(snippetvehicle::PhysXActorVehicle);
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_PhysXActorVehicle_00024Raw_initialize(JNIEnv*, jclass, jlong _address, jlong physics, jlong params, jlong defaultMaterial) {
-    snippetvehicle2::PhysXActorVehicle* self = (snippetvehicle2::PhysXActorVehicle*) _address;
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_PhysXActorVehicle_00024Raw_initialize(JNIEnv*, jclass, jlong _address, jlong physics, jlong params, jlong defaultMaterial) {
+    snippetvehicle::PhysXActorVehicle* self = (snippetvehicle::PhysXActorVehicle*) _address;
     return (jboolean) self->initialize(*((physx::PxPhysics*) physics), *((physx::PxCookingParams*) params), *((physx::PxMaterial*) defaultMaterial));
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PhysXActorVehicle_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (snippetvehicle2::PhysXActorVehicle*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_PhysXActorVehicle_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (snippetvehicle::PhysXActorVehicle*) _address;
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PhysXActorVehicle_00024Raw_getPhysXParams(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::PhysXActorVehicle* _self = (snippetvehicle2::PhysXActorVehicle*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PhysXActorVehicle_00024Raw_getPhysXParams(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::PhysXActorVehicle* _self = (snippetvehicle::PhysXActorVehicle*) _address;
     return (jlong) &_self->physXParams;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PhysXActorVehicle_00024Raw_setPhysXParams(JNIEnv*, jclass, jlong _address, jlong value) {
-    snippetvehicle2::PhysXActorVehicle* _self = (snippetvehicle2::PhysXActorVehicle*) _address;
-    _self->physXParams = *((snippetvehicle2::PhysXIntegrationParams*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_PhysXActorVehicle_00024Raw_setPhysXParams(JNIEnv*, jclass, jlong _address, jlong value) {
+    snippetvehicle::PhysXActorVehicle* _self = (snippetvehicle::PhysXActorVehicle*) _address;
+    _self->physXParams = *((snippetvehicle::PhysXIntegrationParams*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PhysXActorVehicle_00024Raw_getPhysXState(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::PhysXActorVehicle* _self = (snippetvehicle2::PhysXActorVehicle*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PhysXActorVehicle_00024Raw_getPhysXState(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::PhysXActorVehicle* _self = (snippetvehicle::PhysXActorVehicle*) _address;
     return (jlong) &_self->physXState;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PhysXActorVehicle_00024Raw_setPhysXState(JNIEnv*, jclass, jlong _address, jlong value) {
-    snippetvehicle2::PhysXActorVehicle* _self = (snippetvehicle2::PhysXActorVehicle*) _address;
-    _self->physXState = *((snippetvehicle2::PhysXIntegrationState*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_PhysXActorVehicle_00024Raw_setPhysXState(JNIEnv*, jclass, jlong _address, jlong value) {
+    snippetvehicle::PhysXActorVehicle* _self = (snippetvehicle::PhysXActorVehicle*) _address;
+    _self->physXState = *((snippetvehicle::PhysXIntegrationState*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_PhysXActorVehicle_00024Raw_getCommandState(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::PhysXActorVehicle* _self = (snippetvehicle2::PhysXActorVehicle*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_PhysXActorVehicle_00024Raw_getCommandState(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::PhysXActorVehicle* _self = (snippetvehicle::PhysXActorVehicle*) _address;
     return (jlong) &_self->commandState;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_PhysXActorVehicle_00024Raw_setCommandState(JNIEnv*, jclass, jlong _address, jlong value) {
-    snippetvehicle2::PhysXActorVehicle* _self = (snippetvehicle2::PhysXActorVehicle*) _address;
-    _self->commandState = *((physx::vehicle2::PxVehicleCommandState*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_PhysXActorVehicle_00024Raw_setCommandState(JNIEnv*, jclass, jlong _address, jlong value) {
+    snippetvehicle::PhysXActorVehicle* _self = (snippetvehicle::PhysXActorVehicle*) _address;
+    _self->commandState = *((physx::PxVehicleCommandState*) value);
 }
 
 // DirectDriveVehicle
-JNIEXPORT jint JNICALL Java_physx_vehicle2_DirectDriveVehicle__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(snippetvehicle2::DirectDriveVehicle);
+JNIEXPORT jint JNICALL Java_physx_vehicle_DirectDriveVehicle__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(snippetvehicle::DirectDriveVehicle);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_DirectDriveVehicle_00024Raw_DirectDriveVehicle(JNIEnv*, jclass) {
-    return (jlong) new snippetvehicle2::DirectDriveVehicle();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_DirectDriveVehicle_00024Raw_DirectDriveVehicle(JNIEnv*, jclass) {
+    return (jlong) new snippetvehicle::DirectDriveVehicle();
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_DirectDriveVehicle_00024Raw_initialize__JJJJ(JNIEnv*, jclass, jlong _address, jlong physics, jlong params, jlong defaultMaterial) {
-    snippetvehicle2::DirectDriveVehicle* self = (snippetvehicle2::DirectDriveVehicle*) _address;
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_DirectDriveVehicle_00024Raw_initialize__JJJJ(JNIEnv*, jclass, jlong _address, jlong physics, jlong params, jlong defaultMaterial) {
+    snippetvehicle::DirectDriveVehicle* self = (snippetvehicle::DirectDriveVehicle*) _address;
     return (jboolean) self->initialize(*((physx::PxPhysics*) physics), *((physx::PxCookingParams*) params), *((physx::PxMaterial*) defaultMaterial));
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_DirectDriveVehicle_00024Raw_initialize__JJJJZ(JNIEnv*, jclass, jlong _address, jlong physics, jlong params, jlong defaultMaterial, jboolean addPhysXBeginEndComponents) {
-    snippetvehicle2::DirectDriveVehicle* self = (snippetvehicle2::DirectDriveVehicle*) _address;
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_DirectDriveVehicle_00024Raw_initialize__JJJJZ(JNIEnv*, jclass, jlong _address, jlong physics, jlong params, jlong defaultMaterial, jboolean addPhysXBeginEndComponents) {
+    snippetvehicle::DirectDriveVehicle* self = (snippetvehicle::DirectDriveVehicle*) _address;
     return (jboolean) self->initialize(*((physx::PxPhysics*) physics), *((physx::PxCookingParams*) params), *((physx::PxMaterial*) defaultMaterial), addPhysXBeginEndComponents);
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_DirectDriveVehicle_00024Raw_initComponentSequence(JNIEnv*, jclass, jlong _address, jboolean addPhysXBeginEndComponents) {
-    snippetvehicle2::DirectDriveVehicle* self = (snippetvehicle2::DirectDriveVehicle*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_DirectDriveVehicle_00024Raw_initComponentSequence(JNIEnv*, jclass, jlong _address, jboolean addPhysXBeginEndComponents) {
+    snippetvehicle::DirectDriveVehicle* self = (snippetvehicle::DirectDriveVehicle*) _address;
     self->initComponentSequence(addPhysXBeginEndComponents);
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_DirectDriveVehicle_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (snippetvehicle2::DirectDriveVehicle*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_DirectDriveVehicle_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (snippetvehicle::DirectDriveVehicle*) _address;
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_DirectDriveVehicle_00024Raw_getDirectDriveParams(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::DirectDriveVehicle* _self = (snippetvehicle2::DirectDriveVehicle*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_DirectDriveVehicle_00024Raw_getDirectDriveParams(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::DirectDriveVehicle* _self = (snippetvehicle::DirectDriveVehicle*) _address;
     return (jlong) &_self->directDriveParams;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_DirectDriveVehicle_00024Raw_setDirectDriveParams(JNIEnv*, jclass, jlong _address, jlong value) {
-    snippetvehicle2::DirectDriveVehicle* _self = (snippetvehicle2::DirectDriveVehicle*) _address;
-    _self->directDriveParams = *((snippetvehicle2::DirectDrivetrainParams*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_DirectDriveVehicle_00024Raw_setDirectDriveParams(JNIEnv*, jclass, jlong _address, jlong value) {
+    snippetvehicle::DirectDriveVehicle* _self = (snippetvehicle::DirectDriveVehicle*) _address;
+    _self->directDriveParams = *((snippetvehicle::DirectDrivetrainParams*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_DirectDriveVehicle_00024Raw_getDirectDriveState(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::DirectDriveVehicle* _self = (snippetvehicle2::DirectDriveVehicle*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_DirectDriveVehicle_00024Raw_getDirectDriveState(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::DirectDriveVehicle* _self = (snippetvehicle::DirectDriveVehicle*) _address;
     return (jlong) &_self->directDriveState;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_DirectDriveVehicle_00024Raw_setDirectDriveState(JNIEnv*, jclass, jlong _address, jlong value) {
-    snippetvehicle2::DirectDriveVehicle* _self = (snippetvehicle2::DirectDriveVehicle*) _address;
-    _self->directDriveState = *((snippetvehicle2::DirectDrivetrainState*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_DirectDriveVehicle_00024Raw_setDirectDriveState(JNIEnv*, jclass, jlong _address, jlong value) {
+    snippetvehicle::DirectDriveVehicle* _self = (snippetvehicle::DirectDriveVehicle*) _address;
+    _self->directDriveState = *((snippetvehicle::DirectDrivetrainState*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_DirectDriveVehicle_00024Raw_getTransmissionCommandState(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::DirectDriveVehicle* _self = (snippetvehicle2::DirectDriveVehicle*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_DirectDriveVehicle_00024Raw_getTransmissionCommandState(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::DirectDriveVehicle* _self = (snippetvehicle::DirectDriveVehicle*) _address;
     return (jlong) &_self->transmissionCommandState;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_DirectDriveVehicle_00024Raw_setTransmissionCommandState(JNIEnv*, jclass, jlong _address, jlong value) {
-    snippetvehicle2::DirectDriveVehicle* _self = (snippetvehicle2::DirectDriveVehicle*) _address;
-    _self->transmissionCommandState = *((physx::vehicle2::PxVehicleDirectDriveTransmissionCommandState*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_DirectDriveVehicle_00024Raw_setTransmissionCommandState(JNIEnv*, jclass, jlong _address, jlong value) {
+    snippetvehicle::DirectDriveVehicle* _self = (snippetvehicle::DirectDriveVehicle*) _address;
+    _self->transmissionCommandState = *((physx::PxVehicleDirectDriveTransmissionCommandState*) value);
 }
 
 // EngineDriveVehicle
-JNIEXPORT jint JNICALL Java_physx_vehicle2_EngineDriveVehicle__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(snippetvehicle2::EngineDriveVehicle);
+JNIEXPORT jint JNICALL Java_physx_vehicle_EngineDriveVehicle__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(snippetvehicle::EngineDriveVehicle);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_EngineDriveVehicle_00024Raw_EngineDriveVehicle(JNIEnv*, jclass) {
-    return (jlong) new snippetvehicle2::EngineDriveVehicle();
+JNIEXPORT jlong JNICALL Java_physx_vehicle_EngineDriveVehicle_00024Raw_EngineDriveVehicle(JNIEnv*, jclass) {
+    return (jlong) new snippetvehicle::EngineDriveVehicle();
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_EngineDriveVehicle_00024Raw_initialize__JJJJI(JNIEnv*, jclass, jlong _address, jlong physics, jlong params, jlong defaultMaterial, jint differentialType) {
-    snippetvehicle2::EngineDriveVehicle* self = (snippetvehicle2::EngineDriveVehicle*) _address;
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_EngineDriveVehicle_00024Raw_initialize__JJJJI(JNIEnv*, jclass, jlong _address, jlong physics, jlong params, jlong defaultMaterial, jint differentialType) {
+    snippetvehicle::EngineDriveVehicle* self = (snippetvehicle::EngineDriveVehicle*) _address;
     return (jboolean) self->initialize(*((physx::PxPhysics*) physics), *((physx::PxCookingParams*) params), *((physx::PxMaterial*) defaultMaterial), (EngineDriveVehicleEnum) differentialType);
 }
-JNIEXPORT jboolean JNICALL Java_physx_vehicle2_EngineDriveVehicle_00024Raw_initialize__JJJJIZ(JNIEnv*, jclass, jlong _address, jlong physics, jlong params, jlong defaultMaterial, jint differentialType, jboolean addPhysXBeginEndComponents) {
-    snippetvehicle2::EngineDriveVehicle* self = (snippetvehicle2::EngineDriveVehicle*) _address;
+JNIEXPORT jboolean JNICALL Java_physx_vehicle_EngineDriveVehicle_00024Raw_initialize__JJJJIZ(JNIEnv*, jclass, jlong _address, jlong physics, jlong params, jlong defaultMaterial, jint differentialType, jboolean addPhysXBeginEndComponents) {
+    snippetvehicle::EngineDriveVehicle* self = (snippetvehicle::EngineDriveVehicle*) _address;
     return (jboolean) self->initialize(*((physx::PxPhysics*) physics), *((physx::PxCookingParams*) params), *((physx::PxMaterial*) defaultMaterial), (EngineDriveVehicleEnum) differentialType, addPhysXBeginEndComponents);
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_EngineDriveVehicle_00024Raw_initComponentSequence(JNIEnv*, jclass, jlong _address, jboolean addPhysXBeginEndComponents) {
-    snippetvehicle2::EngineDriveVehicle* self = (snippetvehicle2::EngineDriveVehicle*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_EngineDriveVehicle_00024Raw_initComponentSequence(JNIEnv*, jclass, jlong _address, jboolean addPhysXBeginEndComponents) {
+    snippetvehicle::EngineDriveVehicle* self = (snippetvehicle::EngineDriveVehicle*) _address;
     self->initComponentSequence(addPhysXBeginEndComponents);
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_EngineDriveVehicle_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (snippetvehicle2::EngineDriveVehicle*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_EngineDriveVehicle_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (snippetvehicle::EngineDriveVehicle*) _address;
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_EngineDriveVehicle_00024Raw_getEngineDriveParams(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::EngineDriveVehicle* _self = (snippetvehicle2::EngineDriveVehicle*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_EngineDriveVehicle_00024Raw_getEngineDriveParams(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::EngineDriveVehicle* _self = (snippetvehicle::EngineDriveVehicle*) _address;
     return (jlong) &_self->engineDriveParams;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_EngineDriveVehicle_00024Raw_setEngineDriveParams(JNIEnv*, jclass, jlong _address, jlong value) {
-    snippetvehicle2::EngineDriveVehicle* _self = (snippetvehicle2::EngineDriveVehicle*) _address;
-    _self->engineDriveParams = *((snippetvehicle2::EngineDrivetrainParams*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_EngineDriveVehicle_00024Raw_setEngineDriveParams(JNIEnv*, jclass, jlong _address, jlong value) {
+    snippetvehicle::EngineDriveVehicle* _self = (snippetvehicle::EngineDriveVehicle*) _address;
+    _self->engineDriveParams = *((snippetvehicle::EngineDrivetrainParams*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_EngineDriveVehicle_00024Raw_getEngineDriveState(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::EngineDriveVehicle* _self = (snippetvehicle2::EngineDriveVehicle*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_EngineDriveVehicle_00024Raw_getEngineDriveState(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::EngineDriveVehicle* _self = (snippetvehicle::EngineDriveVehicle*) _address;
     return (jlong) &_self->engineDriveState;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_EngineDriveVehicle_00024Raw_setEngineDriveState(JNIEnv*, jclass, jlong _address, jlong value) {
-    snippetvehicle2::EngineDriveVehicle* _self = (snippetvehicle2::EngineDriveVehicle*) _address;
-    _self->engineDriveState = *((snippetvehicle2::EngineDrivetrainState*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_EngineDriveVehicle_00024Raw_setEngineDriveState(JNIEnv*, jclass, jlong _address, jlong value) {
+    snippetvehicle::EngineDriveVehicle* _self = (snippetvehicle::EngineDriveVehicle*) _address;
+    _self->engineDriveState = *((snippetvehicle::EngineDrivetrainState*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_EngineDriveVehicle_00024Raw_getTransmissionCommandState(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::EngineDriveVehicle* _self = (snippetvehicle2::EngineDriveVehicle*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_EngineDriveVehicle_00024Raw_getTransmissionCommandState(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::EngineDriveVehicle* _self = (snippetvehicle::EngineDriveVehicle*) _address;
     return (jlong) &_self->transmissionCommandState;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_EngineDriveVehicle_00024Raw_setTransmissionCommandState(JNIEnv*, jclass, jlong _address, jlong value) {
-    snippetvehicle2::EngineDriveVehicle* _self = (snippetvehicle2::EngineDriveVehicle*) _address;
-    _self->transmissionCommandState = *((physx::vehicle2::PxVehicleEngineDriveTransmissionCommandState*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_EngineDriveVehicle_00024Raw_setTransmissionCommandState(JNIEnv*, jclass, jlong _address, jlong value) {
+    snippetvehicle::EngineDriveVehicle* _self = (snippetvehicle::EngineDriveVehicle*) _address;
+    _self->transmissionCommandState = *((physx::PxVehicleEngineDriveTransmissionCommandState*) value);
 }
-JNIEXPORT jlong JNICALL Java_physx_vehicle2_EngineDriveVehicle_00024Raw_getTankDriveTransmissionCommandState(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::EngineDriveVehicle* _self = (snippetvehicle2::EngineDriveVehicle*) _address;
+JNIEXPORT jlong JNICALL Java_physx_vehicle_EngineDriveVehicle_00024Raw_getTankDriveTransmissionCommandState(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::EngineDriveVehicle* _self = (snippetvehicle::EngineDriveVehicle*) _address;
     return (jlong) &_self->tankDriveTransmissionCommandState;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_EngineDriveVehicle_00024Raw_setTankDriveTransmissionCommandState(JNIEnv*, jclass, jlong _address, jlong value) {
-    snippetvehicle2::EngineDriveVehicle* _self = (snippetvehicle2::EngineDriveVehicle*) _address;
-    _self->tankDriveTransmissionCommandState = *((physx::vehicle2::PxVehicleTankDriveTransmissionCommandState*) value);
+JNIEXPORT void JNICALL Java_physx_vehicle_EngineDriveVehicle_00024Raw_setTankDriveTransmissionCommandState(JNIEnv*, jclass, jlong _address, jlong value) {
+    snippetvehicle::EngineDriveVehicle* _self = (snippetvehicle::EngineDriveVehicle*) _address;
+    _self->tankDriveTransmissionCommandState = *((physx::PxVehicleTankDriveTransmissionCommandState*) value);
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_EngineDriveVehicle_00024Raw_getDifferentialType(JNIEnv*, jclass, jlong _address) {
-    snippetvehicle2::EngineDriveVehicle* _self = (snippetvehicle2::EngineDriveVehicle*) _address;
+JNIEXPORT jint JNICALL Java_physx_vehicle_EngineDriveVehicle_00024Raw_getDifferentialType(JNIEnv*, jclass, jlong _address) {
+    snippetvehicle::EngineDriveVehicle* _self = (snippetvehicle::EngineDriveVehicle*) _address;
     return (jint) _self->differentialType;
 }
-JNIEXPORT void JNICALL Java_physx_vehicle2_EngineDriveVehicle_00024Raw_setDifferentialType(JNIEnv*, jclass, jlong _address, jint value) {
-    snippetvehicle2::EngineDriveVehicle* _self = (snippetvehicle2::EngineDriveVehicle*) _address;
+JNIEXPORT void JNICALL Java_physx_vehicle_EngineDriveVehicle_00024Raw_setDifferentialType(JNIEnv*, jclass, jlong _address, jint value) {
+    snippetvehicle::EngineDriveVehicle* _self = (snippetvehicle::EngineDriveVehicle*) _address;
     _self->differentialType = (EngineDriveVehicleEnum) value;
 }
 
 // PxVehicleAxesEnum
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleAxesEnum__1getePosX(JNIEnv*, jclass) {
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleAxesEnum__1getePosX(JNIEnv*, jclass) {
     return PxVehicleAxesEnum::ePosX;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleAxesEnum__1geteNegX(JNIEnv*, jclass) {
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleAxesEnum__1geteNegX(JNIEnv*, jclass) {
     return PxVehicleAxesEnum::eNegX;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleAxesEnum__1getePosY(JNIEnv*, jclass) {
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleAxesEnum__1getePosY(JNIEnv*, jclass) {
     return PxVehicleAxesEnum::ePosY;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleAxesEnum__1geteNegY(JNIEnv*, jclass) {
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleAxesEnum__1geteNegY(JNIEnv*, jclass) {
     return PxVehicleAxesEnum::eNegY;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleAxesEnum__1getePosZ(JNIEnv*, jclass) {
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleAxesEnum__1getePosZ(JNIEnv*, jclass) {
     return PxVehicleAxesEnum::ePosZ;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleAxesEnum__1geteNegZ(JNIEnv*, jclass) {
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleAxesEnum__1geteNegZ(JNIEnv*, jclass) {
     return PxVehicleAxesEnum::eNegZ;
 }
 
 // PxVehicleClutchAccuracyModeEnum
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleClutchAccuracyModeEnum__1geteESTIMATE(JNIEnv*, jclass) {
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleClutchAccuracyModeEnum__1geteESTIMATE(JNIEnv*, jclass) {
     return PxVehicleClutchAccuracyModeEnum::eESTIMATE;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleClutchAccuracyModeEnum__1geteBEST_1POSSIBLE(JNIEnv*, jclass) {
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleClutchAccuracyModeEnum__1geteBEST_1POSSIBLE(JNIEnv*, jclass) {
     return PxVehicleClutchAccuracyModeEnum::eBEST_POSSIBLE;
 }
 
 // PxVehicleCommandNonLinearResponseParamsEnum
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleCommandNonLinearResponseParamsEnum__1geteMAX_1NB_1COMMAND_1VALUES(JNIEnv*, jclass) {
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleCommandNonLinearResponseParamsEnum__1geteMAX_1NB_1COMMAND_1VALUES(JNIEnv*, jclass) {
     return PxVehicleCommandNonLinearResponseParamsEnum::eMAX_NB_COMMAND_VALUES;
 }
 
 // PxVehicleCommandValueResponseTableEnum
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleCommandValueResponseTableEnum__1geteMAX_1NB_1SPEED_1RESPONSES(JNIEnv*, jclass) {
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleCommandValueResponseTableEnum__1geteMAX_1NB_1SPEED_1RESPONSES(JNIEnv*, jclass) {
     return PxVehicleCommandValueResponseTableEnum::eMAX_NB_SPEED_RESPONSES;
 }
 
 // PxVehicleDirectDriveTransmissionCommandStateEnum
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleDirectDriveTransmissionCommandStateEnum__1geteREVERSE(JNIEnv*, jclass) {
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleDirectDriveTransmissionCommandStateEnum__1geteREVERSE(JNIEnv*, jclass) {
     return PxVehicleDirectDriveTransmissionCommandStateEnum::eREVERSE;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleDirectDriveTransmissionCommandStateEnum__1geteNEUTRAL(JNIEnv*, jclass) {
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleDirectDriveTransmissionCommandStateEnum__1geteNEUTRAL(JNIEnv*, jclass) {
     return PxVehicleDirectDriveTransmissionCommandStateEnum::eNEUTRAL;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleDirectDriveTransmissionCommandStateEnum__1geteFORWARD(JNIEnv*, jclass) {
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleDirectDriveTransmissionCommandStateEnum__1geteFORWARD(JNIEnv*, jclass) {
     return PxVehicleDirectDriveTransmissionCommandStateEnum::eFORWARD;
 }
 
 // PxVehicleEngineDriveTransmissionCommandStateEnum
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleEngineDriveTransmissionCommandStateEnum__1geteAUTOMATIC_1GEAR(JNIEnv*, jclass) {
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleEngineDriveTransmissionCommandStateEnum__1geteAUTOMATIC_1GEAR(JNIEnv*, jclass) {
     return PxVehicleEngineDriveTransmissionCommandStateEnum::eAUTOMATIC_GEAR;
 }
 
 // PxVehicleGearboxParamsEnum
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleGearboxParamsEnum__1geteMAX_1NB_1GEARS(JNIEnv*, jclass) {
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleGearboxParamsEnum__1geteMAX_1NB_1GEARS(JNIEnv*, jclass) {
     return PxVehicleGearboxParamsEnum::eMAX_NB_GEARS;
 }
 
 // PxVehicleLimitsEnum
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleLimitsEnum__1geteMAX_1NB_1WHEELS(JNIEnv*, jclass) {
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleLimitsEnum__1geteMAX_1NB_1WHEELS(JNIEnv*, jclass) {
     return PxVehicleLimitsEnum::eMAX_NB_WHEELS;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleLimitsEnum__1geteMAX_1NB_1AXLES(JNIEnv*, jclass) {
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleLimitsEnum__1geteMAX_1NB_1AXLES(JNIEnv*, jclass) {
     return PxVehicleLimitsEnum::eMAX_NB_AXLES;
 }
 
 // PxVehiclePhysXActorUpdateModeEnum
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehiclePhysXActorUpdateModeEnum__1geteAPPLY_1VELOCITY(JNIEnv*, jclass) {
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehiclePhysXActorUpdateModeEnum__1geteAPPLY_1VELOCITY(JNIEnv*, jclass) {
     return PxVehiclePhysXActorUpdateModeEnum::eAPPLY_VELOCITY;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehiclePhysXActorUpdateModeEnum__1geteAPPLY_1ACCELERATION(JNIEnv*, jclass) {
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehiclePhysXActorUpdateModeEnum__1geteAPPLY_1ACCELERATION(JNIEnv*, jclass) {
     return PxVehiclePhysXActorUpdateModeEnum::eAPPLY_ACCELERATION;
 }
 
 // PxVehiclePhysXConstraintLimitsEnum
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehiclePhysXConstraintLimitsEnum__1geteNB_1DOFS_1PER_1PXCONSTRAINT(JNIEnv*, jclass) {
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehiclePhysXConstraintLimitsEnum__1geteNB_1DOFS_1PER_1PXCONSTRAINT(JNIEnv*, jclass) {
     return PxVehiclePhysXConstraintLimitsEnum::eNB_DOFS_PER_PXCONSTRAINT;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehiclePhysXConstraintLimitsEnum__1geteNB_1DOFS_1PER_1WHEEL(JNIEnv*, jclass) {
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehiclePhysXConstraintLimitsEnum__1geteNB_1DOFS_1PER_1WHEEL(JNIEnv*, jclass) {
     return PxVehiclePhysXConstraintLimitsEnum::eNB_DOFS_PER_WHEEL;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehiclePhysXConstraintLimitsEnum__1geteNB_1WHEELS_1PER_1PXCONSTRAINT(JNIEnv*, jclass) {
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehiclePhysXConstraintLimitsEnum__1geteNB_1WHEELS_1PER_1PXCONSTRAINT(JNIEnv*, jclass) {
     return PxVehiclePhysXConstraintLimitsEnum::eNB_WHEELS_PER_PXCONSTRAINT;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehiclePhysXConstraintLimitsEnum__1geteNB_1CONSTRAINTS_1PER_1VEHICLE(JNIEnv*, jclass) {
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehiclePhysXConstraintLimitsEnum__1geteNB_1CONSTRAINTS_1PER_1VEHICLE(JNIEnv*, jclass) {
     return PxVehiclePhysXConstraintLimitsEnum::eNB_CONSTRAINTS_PER_VEHICLE;
 }
 
 // PxVehiclePhysXRoadGeometryQueryTypeEnum
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehiclePhysXRoadGeometryQueryTypeEnum__1geteNONE(JNIEnv*, jclass) {
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehiclePhysXRoadGeometryQueryTypeEnum__1geteNONE(JNIEnv*, jclass) {
     return PxVehiclePhysXRoadGeometryQueryTypeEnum::eNONE;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehiclePhysXRoadGeometryQueryTypeEnum__1geteRAYCAST(JNIEnv*, jclass) {
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehiclePhysXRoadGeometryQueryTypeEnum__1geteRAYCAST(JNIEnv*, jclass) {
     return PxVehiclePhysXRoadGeometryQueryTypeEnum::eRAYCAST;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehiclePhysXRoadGeometryQueryTypeEnum__1geteSWEEP(JNIEnv*, jclass) {
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehiclePhysXRoadGeometryQueryTypeEnum__1geteSWEEP(JNIEnv*, jclass) {
     return PxVehiclePhysXRoadGeometryQueryTypeEnum::eSWEEP;
 }
 
 // PxVehiclePhysXSuspensionLimitConstraintParamsDirectionSpecifierEnum
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehiclePhysXSuspensionLimitConstraintParamsDirectionSpecifierEnum__1geteSUSPENSION(JNIEnv*, jclass) {
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehiclePhysXSuspensionLimitConstraintParamsDirectionSpecifierEnum__1geteSUSPENSION(JNIEnv*, jclass) {
     return PxVehiclePhysXSuspensionLimitConstraintParamsDirectionSpecifierEnum::eSUSPENSION;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehiclePhysXSuspensionLimitConstraintParamsDirectionSpecifierEnum__1geteROAD_1GEOMETRY_1NORMAL(JNIEnv*, jclass) {
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehiclePhysXSuspensionLimitConstraintParamsDirectionSpecifierEnum__1geteROAD_1GEOMETRY_1NORMAL(JNIEnv*, jclass) {
     return PxVehiclePhysXSuspensionLimitConstraintParamsDirectionSpecifierEnum::eROAD_GEOMETRY_NORMAL;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehiclePhysXSuspensionLimitConstraintParamsDirectionSpecifierEnum__1geteNONE(JNIEnv*, jclass) {
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehiclePhysXSuspensionLimitConstraintParamsDirectionSpecifierEnum__1geteNONE(JNIEnv*, jclass) {
     return PxVehiclePhysXSuspensionLimitConstraintParamsDirectionSpecifierEnum::eNONE;
 }
 
 // PxVehicleSimulationContextTypeEnum
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleSimulationContextTypeEnum__1geteDEFAULT(JNIEnv*, jclass) {
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleSimulationContextTypeEnum__1geteDEFAULT(JNIEnv*, jclass) {
     return PxVehicleSimulationContextTypeEnum::eDEFAULT;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleSimulationContextTypeEnum__1getePHYSX(JNIEnv*, jclass) {
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleSimulationContextTypeEnum__1getePHYSX(JNIEnv*, jclass) {
     return PxVehicleSimulationContextTypeEnum::ePHYSX;
 }
 
 // PxVehicleSuspensionJounceCalculationTypeEnum
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleSuspensionJounceCalculationTypeEnum__1geteRAYCAST(JNIEnv*, jclass) {
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleSuspensionJounceCalculationTypeEnum__1geteRAYCAST(JNIEnv*, jclass) {
     return PxVehicleSuspensionJounceCalculationTypeEnum::eRAYCAST;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleSuspensionJounceCalculationTypeEnum__1geteSWEEP(JNIEnv*, jclass) {
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleSuspensionJounceCalculationTypeEnum__1geteSWEEP(JNIEnv*, jclass) {
     return PxVehicleSuspensionJounceCalculationTypeEnum::eSWEEP;
 }
 
 // PxVehicleTireDirectionModesEnum
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleTireDirectionModesEnum__1geteLONGITUDINAL(JNIEnv*, jclass) {
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleTireDirectionModesEnum__1geteLONGITUDINAL(JNIEnv*, jclass) {
     return PxVehicleTireDirectionModesEnum::eLONGITUDINAL;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_PxVehicleTireDirectionModesEnum__1geteLATERAL(JNIEnv*, jclass) {
+JNIEXPORT jint JNICALL Java_physx_vehicle_PxVehicleTireDirectionModesEnum__1geteLATERAL(JNIEnv*, jclass) {
     return PxVehicleTireDirectionModesEnum::eLATERAL;
 }
 
 // EngineDriveVehicleEnum
-JNIEXPORT jint JNICALL Java_physx_vehicle2_EngineDriveVehicleEnum__1geteDIFFTYPE_1FOURWHEELDRIVE(JNIEnv*, jclass) {
+JNIEXPORT jint JNICALL Java_physx_vehicle_EngineDriveVehicleEnum__1geteDIFFTYPE_1FOURWHEELDRIVE(JNIEnv*, jclass) {
     return EngineDriveVehicleEnum::eDIFFTYPE_FOURWHEELDRIVE;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_EngineDriveVehicleEnum__1geteDIFFTYPE_1MULTIWHEELDRIVE(JNIEnv*, jclass) {
+JNIEXPORT jint JNICALL Java_physx_vehicle_EngineDriveVehicleEnum__1geteDIFFTYPE_1MULTIWHEELDRIVE(JNIEnv*, jclass) {
     return EngineDriveVehicleEnum::eDIFFTYPE_MULTIWHEELDRIVE;
 }
-JNIEXPORT jint JNICALL Java_physx_vehicle2_EngineDriveVehicleEnum__1geteDIFFTYPE_1TANKDRIVE(JNIEnv*, jclass) {
+JNIEXPORT jint JNICALL Java_physx_vehicle_EngineDriveVehicleEnum__1geteDIFFTYPE_1TANKDRIVE(JNIEnv*, jclass) {
     return EngineDriveVehicleEnum::eDIFFTYPE_TANKDRIVE;
 }
 

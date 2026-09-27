@@ -60,7 +60,7 @@ ADD_CUSTOM_COMMAND(
 )
 ADD_CUSTOM_TARGET(physx-js-bindings ALL DEPENDS glue.js glue.o)
 
-SET(PHYSX_TARGETS PhysX PhysXCharacterKinematic PhysXCommon PhysXCooking PhysXExtensions PhysXFoundation PhysXVehicle2 PhysXPvdSDK)
+SET(PHYSX_TARGETS PhysX PhysXCharacterKinematic PhysXCommon PhysXCooking PhysXExtensions PhysXFoundation PhysXVehicle PhysXPvdSDK)
 FOREACH(_TARGET ${PHYSX_TARGETS})
 	LIST(APPEND PHYSX_LIBS $<TARGET_FILE:${_TARGET}>)
 ENDFOREACH()

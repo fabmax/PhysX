@@ -416,26 +416,26 @@ struct PxTopLevelFunctions {
 struct PxVehicleTopLevelFunctions {
 
     static bool InitVehicleExtension(physx::PxFoundation& foundation) {
-        return physx::vehicle2::PxInitVehicleExtension(foundation);
+        return physx::PxInitVehicleExtension(foundation);
     }
 
     static void CloseVehicleExtension() {
-        physx::vehicle2::PxCloseVehicleExtension();
+        physx::PxCloseVehicleExtension();
     }
 
     static bool VehicleComputeSprungMasses(physx::PxU32 nbSprungMasses, Vector_PxVec3& sprungMassCoordinates, physx::PxReal totalMass, PxVehicleAxesEnum gravityDirection, Vector_PxReal& sprungMasses) {
-        return physx::vehicle2::PxVehicleComputeSprungMasses(nbSprungMasses, sprungMassCoordinates.data(), totalMass, gravityDirection, sprungMasses.data());
+        return physx::PxVehicleComputeSprungMasses(nbSprungMasses, sprungMassCoordinates.data(), totalMass, gravityDirection, sprungMasses.data());
     }
 
-    static physx::PxConvexMesh* VehicleUnitCylinderSweepMeshCreate(const physx::vehicle2::PxVehicleFrame& vehicleFrame, physx::PxPhysics& physics, const physx::PxCookingParams& params) {
-        return physx::vehicle2::PxVehicleUnitCylinderSweepMeshCreate(vehicleFrame, physics, params);
+    static physx::PxConvexMesh* VehicleUnitCylinderSweepMeshCreate(const physx::PxVehicleFrame& vehicleFrame, physx::PxPhysics& physics, const physx::PxCookingParams& params) {
+        return physx::PxVehicleUnitCylinderSweepMeshCreate(vehicleFrame, physics, params);
     }
 
     static void VehicleUnitCylinderSweepMeshDestroy(physx::PxConvexMesh* mesh) {
-        physx::vehicle2::PxVehicleUnitCylinderSweepMeshDestroy(mesh);
+        physx::PxVehicleUnitCylinderSweepMeshDestroy(mesh);
     }
 
-    static const physx::PxU32 MAX_NB_ENGINE_TORQUE_CURVE_ENTRIES = physx::vehicle2::PxVehicleEngineParams::eMAX_NB_ENGINE_TORQUE_CURVE_ENTRIES;
+    static const physx::PxU32 MAX_NB_ENGINE_TORQUE_CURVE_ENTRIES = physx::PxVehicleEngineParams::eMAX_NB_ENGINE_TORQUE_CURVE_ENTRIES;
 };
 
 struct PxExtensionTopLevelFunctions {
@@ -449,11 +449,11 @@ struct PxExtensionTopLevelFunctions {
 };
 
 struct PxVehicleTireForceParamsExt {
-    static void setFrictionVsSlip(physx::vehicle2::PxVehicleTireForceParams* tireForceParams, int i, int j, float value) {
+    static void setFrictionVsSlip(physx::PxVehicleTireForceParams* tireForceParams, int i, int j, float value) {
         tireForceParams->frictionVsSlip[i][j] = value;
     }
 
-    static void setLoadFilter(physx::vehicle2::PxVehicleTireForceParams* tireForceParams, int i, int j, float value) {
+    static void setLoadFilter(physx::PxVehicleTireForceParams* tireForceParams, int i, int j, float value) {
         tireForceParams->loadFilter[i][j] = value;
     }
 };

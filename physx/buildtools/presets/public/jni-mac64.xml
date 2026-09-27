@@ -12,6 +12,6 @@
   </CMakeSwitches>
   <CMakeParams>
     <cmakeParam name="CMAKE_INSTALL_PREFIX" value="install/jni-mac64/PhysX" comment="Install path relative to PhysX SDK root" />
-    <cmakeParam name="CMAKE_OSX_DEPLOYMENT_TARGET" value="11.0" comment="macOS minimum deployment target" />
+    <cmakeParam name="CMAKE_OSX_DEPLOYMENT_TARGET" value="12.0" comment="macOS minimum deployment target" />
   </CMakeParams>
 </preset>

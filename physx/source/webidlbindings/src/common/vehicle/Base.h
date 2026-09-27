@@ -28,13 +28,12 @@
 
 #pragma once
 
-#include "vehicle2/PxVehicleAPI.h"
+#include "vehicle/PxVehicleAPI.h"
 
-namespace snippetvehicle2
+namespace snippetvehicle
 {
 
 using namespace physx;
-using namespace physx::vehicle2;
 
 struct BaseVehicleParams
 {
@@ -345,4 +344,4 @@ public:
 	PxU8 componentSequenceSubstepGroupHandle;
 };
 
-}//namespace snippetvehicle2
+}//namespace snippetvehicle

@@ -5,9 +5,9 @@
 #include <cstring> // for memcpy
 
 // typedefs for vehicle lookup tables
-typedef physx::vehicle2::PxVehicleFixedSizeLookupTable<physx::PxReal,3> PxVehicleFixedSizeLookupTableFloat_3;
-typedef physx::vehicle2::PxVehicleFixedSizeLookupTable<physx::PxVec3,3> PxVehicleFixedSizeLookupTableVec3_3;
-typedef physx::vehicle2::PxVehicleFixedSizeLookupTable<physx::PxReal,8> PxVehicleTorqueCurveLookupTable;
+typedef physx::PxVehicleFixedSizeLookupTable<physx::PxReal,3> PxVehicleFixedSizeLookupTableFloat_3;
+typedef physx::PxVehicleFixedSizeLookupTable<physx::PxVec3,3> PxVehicleFixedSizeLookupTableVec3_3;
+typedef physx::PxVehicleFixedSizeLookupTable<physx::PxReal,8> PxVehicleTorqueCurveLookupTable;
 
 // typedefs for pointer types
 typedef const physx::PxU8* PxU8ConstPtr;
@@ -175,21 +175,21 @@ typedef physx::PxTriangleMeshFlag::Enum PxTriangleMeshFlagEnum;
 typedef physx::PxSdfBitsPerSubgridPixel::Enum PxSdfBitsPerSubgridPixelEnum;
 typedef physx::PxTriggerPairFlag::Enum PxTriggerPairFlagEnum;
 typedef physx::PxVisualizationParameter::Enum PxVisualizationParameterEnum;
-typedef physx::vehicle2::PxVehicleAxes::Enum PxVehicleAxesEnum;
-typedef physx::vehicle2::PxVehicleClutchAccuracyMode::Enum PxVehicleClutchAccuracyModeEnum;
-typedef physx::vehicle2::PxVehicleCommandNonLinearResponseParams::Enum PxVehicleCommandNonLinearResponseParamsEnum;
-typedef physx::vehicle2::PxVehicleCommandValueResponseTable::Enum PxVehicleCommandValueResponseTableEnum;
-typedef physx::vehicle2::PxVehicleDirectDriveTransmissionCommandState::Enum PxVehicleDirectDriveTransmissionCommandStateEnum;
-typedef physx::vehicle2::PxVehicleEngineDriveTransmissionCommandState::Enum PxVehicleEngineDriveTransmissionCommandStateEnum;
-typedef physx::vehicle2::PxVehicleGearboxParams::Enum PxVehicleGearboxParamsEnum;
-typedef physx::vehicle2::PxVehicleLimits::Enum PxVehicleLimitsEnum;
-typedef physx::vehicle2::PxVehiclePhysXActorUpdateMode::Enum PxVehiclePhysXActorUpdateModeEnum;
-typedef physx::vehicle2::PxVehiclePhysXConstraintLimits::Enum PxVehiclePhysXConstraintLimitsEnum;
-typedef physx::vehicle2::PxVehiclePhysXRoadGeometryQueryType::Enum PxVehiclePhysXRoadGeometryQueryTypeEnum;
-typedef physx::vehicle2::PxVehiclePhysXSuspensionLimitConstraintParams::DirectionSpecifier PxVehiclePhysXSuspensionLimitConstraintParamsDirectionSpecifierEnum;
-typedef physx::vehicle2::PxVehicleSimulationContextType::Enum PxVehicleSimulationContextTypeEnum;
-typedef physx::vehicle2::PxVehicleSuspensionJounceCalculationType::Enum PxVehicleSuspensionJounceCalculationTypeEnum;
-typedef physx::vehicle2::PxVehicleTireDirectionModes::Enum PxVehicleTireDirectionModesEnum;
+typedef physx::PxVehicleAxes::Enum PxVehicleAxesEnum;
+typedef physx::PxVehicleClutchAccuracyMode::Enum PxVehicleClutchAccuracyModeEnum;
+typedef physx::PxVehicleCommandNonLinearResponseParams::Enum PxVehicleCommandNonLinearResponseParamsEnum;
+typedef physx::PxVehicleCommandValueResponseTable::Enum PxVehicleCommandValueResponseTableEnum;
+typedef physx::PxVehicleDirectDriveTransmissionCommandState::Enum PxVehicleDirectDriveTransmissionCommandStateEnum;
+typedef physx::PxVehicleEngineDriveTransmissionCommandState::Enum PxVehicleEngineDriveTransmissionCommandStateEnum;
+typedef physx::PxVehicleGearboxParams::Enum PxVehicleGearboxParamsEnum;
+typedef physx::PxVehicleLimits::Enum PxVehicleLimitsEnum;
+typedef physx::PxVehiclePhysXActorUpdateMode::Enum PxVehiclePhysXActorUpdateModeEnum;
+typedef physx::PxVehiclePhysXConstraintLimits::Enum PxVehiclePhysXConstraintLimitsEnum;
+typedef physx::PxVehiclePhysXRoadGeometryQueryType::Enum PxVehiclePhysXRoadGeometryQueryTypeEnum;
+typedef physx::PxVehiclePhysXSuspensionLimitConstraintParams::DirectionSpecifier PxVehiclePhysXSuspensionLimitConstraintParamsDirectionSpecifierEnum;
+typedef physx::PxVehicleSimulationContextType::Enum PxVehicleSimulationContextTypeEnum;
+typedef physx::PxVehicleSuspensionJounceCalculationType::Enum PxVehicleSuspensionJounceCalculationTypeEnum;
+typedef physx::PxVehicleTireDirectionModes::Enum PxVehicleTireDirectionModesEnum;
 
 typedef physx::PxConvexCore::Box PxConvexCoreBox;
 typedef physx::PxConvexCore::Cone PxConvexCoreCone;
