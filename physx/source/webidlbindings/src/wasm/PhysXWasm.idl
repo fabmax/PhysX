@@ -1818,7 +1818,7 @@ interface PxMaterialPtr {
 
 [Prefix="physx::"]
 interface PxMeshFlags {
-    void PxMeshFlags(octet flags);
+    void PxMeshFlags(unsigned short flags);
     boolean isSet(PxMeshFlagEnum flag);
     void raise(PxMeshFlagEnum flag);
     void clear(PxMeshFlagEnum flag);
@@ -1888,6 +1888,8 @@ interface PxObstacleContext {
 [Prefix="physx::"]
 interface PxOmniPvd {
     boolean startSampling();
+    boolean stopSampling();
+    boolean isSampling();
     void release();
 };
 
@@ -2244,6 +2246,8 @@ interface PxRigidBody {
     float getMaxLinearVelocity();
     void setMaxAngularVelocity(float maxAngVel);
     float getMaxAngularVelocity();
+    [Value] PxVec3 getLinearAcceleration();
+    [Value] PxVec3 getAngularAcceleration();
     void addForce([Const, Ref] PxVec3 force, optional PxForceModeEnum mode, optional boolean autowake);
     void addTorque([Const, Ref] PxVec3 torque, optional PxForceModeEnum mode, optional boolean autowake);
     void clearForce(PxForceModeEnum mode);
@@ -2281,7 +2285,7 @@ interface PxRigidBodyExt {
 
 [Prefix="physx::"]
 interface PxRigidBodyFlags {
-    void PxRigidBodyFlags(octet flags);
+    void PxRigidBodyFlags(unsigned short flags);
     boolean isSet(PxRigidBodyFlagEnum flag);
     void raise(PxRigidBodyFlagEnum flag);
     void clear(PxRigidBodyFlagEnum flag);
@@ -2923,6 +2927,7 @@ interface PxTriangleMeshDesc {
     void PxTriangleMeshDesc();
     [Const, Value] attribute PxTypedBoundedData_PxU16Const materialIndices;
     attribute PxSDFDesc sdfDesc;
+    attribute float geomEpsilon;
 };
 PxTriangleMeshDesc implements PxSimpleTriangleMesh;
 
@@ -3996,6 +4001,8 @@ enum PxArticulationCacheFlagEnum {
     "PxArticulationCacheFlagEnum::eLINK_INCOMING_JOINT_FORCE",
     "PxArticulationCacheFlagEnum::eJOINT_TARGET_POSITIONS",
     "PxArticulationCacheFlagEnum::eJOINT_TARGET_VELOCITIES",
+    "PxArticulationCacheFlagEnum::eLINK_FORCE",
+    "PxArticulationCacheFlagEnum::eLINK_TORQUE",
     "PxArticulationCacheFlagEnum::eALL"
 };
 
@@ -4015,6 +4022,7 @@ enum PxArticulationJointTypeEnum {
     "PxArticulationJointTypeEnum::eFIX",
     "PxArticulationJointTypeEnum::ePRISMATIC",
     "PxArticulationJointTypeEnum::eREVOLUTE",
+    "PxArticulationJointTypeEnum::eREVOLUTE_UNWRAPPED",
     "PxArticulationJointTypeEnum::eSPHERICAL",
     "PxArticulationJointTypeEnum::eUNDEFINED"
 };
@@ -4163,7 +4171,8 @@ enum PxD6DriveEnum {
 };
 
 enum PxD6JointDriveFlagEnum {
-    "PxD6JointDriveFlagEnum::eACCELERATION"
+    "PxD6JointDriveFlagEnum::eACCELERATION",
+    "PxD6JointDriveFlagEnum::eOUTPUT_FORCE"
 };
 
 enum PxD6MotionEnum {
@@ -4223,7 +4232,8 @@ enum PxFilterFlagEnum {
 
 enum PxFilterObjectFlagEnum {
     "PxFilterObjectFlagEnum::eKINEMATIC",
-    "PxFilterObjectFlagEnum::eTRIGGER"
+    "PxFilterObjectFlagEnum::eTRIGGER",
+    "PxFilterObjectFlagEnum::eCUSTOM_GEOMETRY"
 };
 
 enum PxForceModeEnum {
@@ -4301,6 +4311,7 @@ enum PxMeshFlagEnum {
 };
 
 enum PxMeshGeometryFlagEnum {
+    "PxMeshGeometryFlagEnum::eTIGHT_BOUNDS",
     "PxMeshGeometryFlagEnum::eDOUBLE_SIDED"
 };
 
@@ -4314,6 +4325,7 @@ enum PxMeshPreprocessingFlagEnum {
     "PxMeshPreprocessingFlagEnum::eDISABLE_CLEAN_MESH",
     "PxMeshPreprocessingFlagEnum::eDISABLE_ACTIVE_EDGES_PRECOMPUTE",
     "PxMeshPreprocessingFlagEnum::eFORCE_32BIT_INDICES",
+    "PxMeshPreprocessingFlagEnum::eENABLE_VERT_MAPPING",
     "PxMeshPreprocessingFlagEnum::eENABLE_INERTIA"
 };
 
@@ -4374,7 +4386,8 @@ enum PxQueryFlagEnum {
     "PxQueryFlagEnum::ePREFILTER",
     "PxQueryFlagEnum::ePOSTFILTER",
     "PxQueryFlagEnum::eANY_HIT",
-    "PxQueryFlagEnum::eNO_BLOCK"
+    "PxQueryFlagEnum::eNO_BLOCK",
+    "PxQueryFlagEnum::eDISABLE_HARDCODED_FILTER"
 };
 
 enum PxQueryHitType {
@@ -4397,7 +4410,10 @@ enum PxRigidBodyFlagEnum {
     "PxRigidBodyFlagEnum::eENABLE_POSE_INTEGRATION_PREVIEW",
     "PxRigidBodyFlagEnum::eENABLE_SPECULATIVE_CCD",
     "PxRigidBodyFlagEnum::eENABLE_CCD_MAX_CONTACT_IMPULSE",
-    "PxRigidBodyFlagEnum::eRETAIN_ACCELERATIONS"
+    "PxRigidBodyFlagEnum::eRETAIN_ACCELERATIONS",
+    "PxRigidBodyFlagEnum::eFORCE_KINE_KINE_NOTIFICATIONS",
+    "PxRigidBodyFlagEnum::eFORCE_STATIC_KINE_NOTIFICATIONS",
+    "PxRigidBodyFlagEnum::eENABLE_GYROSCOPIC_FORCES"
 };
 
 enum PxRigidDynamicLockFlagEnum {
@@ -4423,7 +4439,11 @@ enum PxSceneFlagEnum {
     "PxSceneFlagEnum::eENABLE_GPU_DYNAMICS",
     "PxSceneFlagEnum::eENABLE_ENHANCED_DETERMINISM",
     "PxSceneFlagEnum::eENABLE_FRICTION_EVERY_ITERATION",
+    "PxSceneFlagEnum::eENABLE_EXTERNAL_FORCES_EVERY_ITERATION_TGS",
     "PxSceneFlagEnum::eENABLE_DIRECT_GPU_API",
+    "PxSceneFlagEnum::eENABLE_BODY_ACCELERATIONS",
+    "PxSceneFlagEnum::eDISABLE_SLEEPING",
+    "PxSceneFlagEnum::eSOLVE_ARTICULATION_CONTACT_LAST",
     "PxSceneFlagEnum::eMUTABLE_FLAGS"
 };
 
@@ -4489,7 +4509,8 @@ enum PxTriangleMeshAnalysisResultEnum {
 
 enum PxTriangleMeshFlagEnum {
     "PxTriangleMeshFlagEnum::e16_BIT_INDICES",
-    "PxTriangleMeshFlagEnum::eADJACENCY_INFO"
+    "PxTriangleMeshFlagEnum::eADJACENCY_INFO",
+    "PxTriangleMeshFlagEnum::ePREFER_NO_SDF_PROJ"
 };
 
 enum PxTriggerPairFlagEnum {
@@ -4588,7 +4609,10 @@ enum PxVisualizationParameterEnum {
     "PxVisualizationParameterEnum::eCONTACT_POINT",
     "PxVisualizationParameterEnum::eCONTACT_NORMAL",
     "PxVisualizationParameterEnum::eCONTACT_ERROR",
-    "PxVisualizationParameterEnum::eCONTACT_FORCE",
+    "PxVisualizationParameterEnum::eCONTACT_IMPULSE",
+    "PxVisualizationParameterEnum::eFRICTION_POINT",
+    "PxVisualizationParameterEnum::eFRICTION_NORMAL",
+    "PxVisualizationParameterEnum::eFRICTION_IMPULSE",
     "PxVisualizationParameterEnum::eACTOR_AXES",
     "PxVisualizationParameterEnum::eCOLLISION_AABBS",
     "PxVisualizationParameterEnum::eCOLLISION_SHAPES",

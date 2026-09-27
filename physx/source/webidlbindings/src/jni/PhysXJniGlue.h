@@ -3484,6 +3484,14 @@ JNIEXPORT void JNICALL Java_physx_cooking_PxTriangleMeshDesc_00024Raw_setSdfDesc
     physx::PxTriangleMeshDesc* _self = (physx::PxTriangleMeshDesc*) _address;
     _self->sdfDesc = (physx::PxSDFDesc*) value;
 }
+JNIEXPORT jfloat JNICALL Java_physx_cooking_PxTriangleMeshDesc_00024Raw_getGeomEpsilon(JNIEnv*, jclass, jlong _address) {
+    physx::PxTriangleMeshDesc* _self = (physx::PxTriangleMeshDesc*) _address;
+    return (jfloat) _self->geomEpsilon;
+}
+JNIEXPORT void JNICALL Java_physx_cooking_PxTriangleMeshDesc_00024Raw_setGeomEpsilon(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxTriangleMeshDesc* _self = (physx::PxTriangleMeshDesc*) _address;
+    _self->geomEpsilon = value;
+}
 
 // PxConvexFlagEnum
 JNIEXPORT jint JNICALL Java_physx_cooking_PxConvexFlagEnum__1gete16_1BIT_1INDICES(JNIEnv*, jclass) {
@@ -3536,6 +3544,9 @@ JNIEXPORT jint JNICALL Java_physx_cooking_PxMeshPreprocessingFlagEnum__1geteDISA
 }
 JNIEXPORT jint JNICALL Java_physx_cooking_PxMeshPreprocessingFlagEnum__1geteFORCE_132BIT_1INDICES(JNIEnv*, jclass) {
     return PxMeshPreprocessingFlagEnum::eFORCE_32BIT_INDICES;
+}
+JNIEXPORT jint JNICALL Java_physx_cooking_PxMeshPreprocessingFlagEnum__1geteENABLE_1VERT_1MAPPING(JNIEnv*, jclass) {
+    return PxMeshPreprocessingFlagEnum::eENABLE_VERT_MAPPING;
 }
 JNIEXPORT jint JNICALL Java_physx_cooking_PxMeshPreprocessingFlagEnum__1geteENABLE_1INERTIA(JNIEnv*, jclass) {
     return PxMeshPreprocessingFlagEnum::eENABLE_INERTIA;
@@ -5216,6 +5227,9 @@ JNIEXPORT jint JNICALL Java_physx_extensions_PxD6DriveEnum__1geteSWING2(JNIEnv*,
 JNIEXPORT jint JNICALL Java_physx_extensions_PxD6JointDriveFlagEnum__1geteACCELERATION(JNIEnv*, jclass) {
     return PxD6JointDriveFlagEnum::eACCELERATION;
 }
+JNIEXPORT jint JNICALL Java_physx_extensions_PxD6JointDriveFlagEnum__1geteOUTPUT_1FORCE(JNIEnv*, jclass) {
+    return PxD6JointDriveFlagEnum::eOUTPUT_FORCE;
+}
 
 // PxD6MotionEnum
 JNIEXPORT jint JNICALL Java_physx_extensions_PxD6MotionEnum__1geteLOCKED(JNIEnv*, jclass) {
@@ -6269,10 +6283,10 @@ JNIEXPORT void JNICALL Java_physx_geometry_PxHullPolygon_00024Raw_setMIndexBase(
 JNIEXPORT jint JNICALL Java_physx_geometry_PxMeshFlags__1_1sizeOf(JNIEnv*, jclass) {
     return sizeof(physx::PxMeshFlags);
 }
-JNIEXPORT jlong JNICALL Java_physx_geometry_PxMeshFlags_00024Raw_PxMeshFlags_1placed(JNIEnv*, jclass, jlong _placement_address, jbyte flags) {
+JNIEXPORT jlong JNICALL Java_physx_geometry_PxMeshFlags_00024Raw_PxMeshFlags_1placed(JNIEnv*, jclass, jlong _placement_address, jshort flags) {
     return (jlong) new((void*)_placement_address) physx::PxMeshFlags(flags);
 }
-JNIEXPORT jlong JNICALL Java_physx_geometry_PxMeshFlags_00024Raw_PxMeshFlags(JNIEnv*, jclass, jbyte flags) {
+JNIEXPORT jlong JNICALL Java_physx_geometry_PxMeshFlags_00024Raw_PxMeshFlags(JNIEnv*, jclass, jshort flags) {
     return (jlong) new physx::PxMeshFlags(flags);
 }
 JNIEXPORT jboolean JNICALL Java_physx_geometry_PxMeshFlags_00024Raw_isSet(JNIEnv*, jclass, jlong _address, jint flag) {
@@ -6981,6 +6995,9 @@ JNIEXPORT jint JNICALL Java_physx_geometry_PxMeshFlagEnum__1gete16_1BIT_1INDICES
 }
 
 // PxMeshGeometryFlagEnum
+JNIEXPORT jint JNICALL Java_physx_geometry_PxMeshGeometryFlagEnum__1geteTIGHT_1BOUNDS(JNIEnv*, jclass) {
+    return PxMeshGeometryFlagEnum::eTIGHT_BOUNDS;
+}
 JNIEXPORT jint JNICALL Java_physx_geometry_PxMeshGeometryFlagEnum__1geteDOUBLE_1SIDED(JNIEnv*, jclass) {
     return PxMeshGeometryFlagEnum::eDOUBLE_SIDED;
 }
@@ -7059,6 +7076,9 @@ JNIEXPORT jint JNICALL Java_physx_geometry_PxTriangleMeshFlagEnum__1gete16_1BIT_
 }
 JNIEXPORT jint JNICALL Java_physx_geometry_PxTriangleMeshFlagEnum__1geteADJACENCY_1INFO(JNIEnv*, jclass) {
     return PxTriangleMeshFlagEnum::eADJACENCY_INFO;
+}
+JNIEXPORT jint JNICALL Java_physx_geometry_PxTriangleMeshFlagEnum__1getePREFER_1NO_1SDF_1PROJ(JNIEnv*, jclass) {
+    return PxTriangleMeshFlagEnum::ePREFER_NO_SDF_PROJ;
 }
 
 // PxScene
@@ -10053,6 +10073,18 @@ JNIEXPORT jfloat JNICALL Java_physx_physics_PxRigidBody_00024Raw_getMaxAngularVe
     physx::PxRigidBody* self = (physx::PxRigidBody*) _address;
     return (jfloat) self->getMaxAngularVelocity();
 }
+JNIEXPORT jlong JNICALL Java_physx_physics_PxRigidBody_00024Raw_getLinearAcceleration(JNIEnv*, jclass, jlong _address) {
+    physx::PxRigidBody* self = (physx::PxRigidBody*) _address;
+    static thread_local physx::PxVec3 _cache = self->getLinearAcceleration();
+    _cache = self->getLinearAcceleration();
+    return (jlong) &_cache;
+}
+JNIEXPORT jlong JNICALL Java_physx_physics_PxRigidBody_00024Raw_getAngularAcceleration(JNIEnv*, jclass, jlong _address) {
+    physx::PxRigidBody* self = (physx::PxRigidBody*) _address;
+    static thread_local physx::PxVec3 _cache = self->getAngularAcceleration();
+    _cache = self->getAngularAcceleration();
+    return (jlong) &_cache;
+}
 JNIEXPORT void JNICALL Java_physx_physics_PxRigidBody_00024Raw_addForce__JJ(JNIEnv*, jclass, jlong _address, jlong force) {
     physx::PxRigidBody* self = (physx::PxRigidBody*) _address;
     self->addForce(*((physx::PxVec3*) force));
@@ -10144,10 +10176,10 @@ JNIEXPORT jfloat JNICALL Java_physx_physics_PxRigidBody_00024Raw_getContactSlopC
 JNIEXPORT jint JNICALL Java_physx_physics_PxRigidBodyFlags__1_1sizeOf(JNIEnv*, jclass) {
     return sizeof(physx::PxRigidBodyFlags);
 }
-JNIEXPORT jlong JNICALL Java_physx_physics_PxRigidBodyFlags_00024Raw_PxRigidBodyFlags_1placed(JNIEnv*, jclass, jlong _placement_address, jbyte flags) {
+JNIEXPORT jlong JNICALL Java_physx_physics_PxRigidBodyFlags_00024Raw_PxRigidBodyFlags_1placed(JNIEnv*, jclass, jlong _placement_address, jshort flags) {
     return (jlong) new((void*)_placement_address) physx::PxRigidBodyFlags(flags);
 }
-JNIEXPORT jlong JNICALL Java_physx_physics_PxRigidBodyFlags_00024Raw_PxRigidBodyFlags(JNIEnv*, jclass, jbyte flags) {
+JNIEXPORT jlong JNICALL Java_physx_physics_PxRigidBodyFlags_00024Raw_PxRigidBodyFlags(JNIEnv*, jclass, jshort flags) {
     return (jlong) new physx::PxRigidBodyFlags(flags);
 }
 JNIEXPORT jboolean JNICALL Java_physx_physics_PxRigidBodyFlags_00024Raw_isSet(JNIEnv*, jclass, jlong _address, jint flag) {
@@ -11631,8 +11663,20 @@ JNIEXPORT jint JNICALL Java_physx_physics_PxSceneFlagEnum__1geteENABLE_1ENHANCED
 JNIEXPORT jint JNICALL Java_physx_physics_PxSceneFlagEnum__1geteENABLE_1FRICTION_1EVERY_1ITERATION(JNIEnv*, jclass) {
     return PxSceneFlagEnum::eENABLE_FRICTION_EVERY_ITERATION;
 }
+JNIEXPORT jint JNICALL Java_physx_physics_PxSceneFlagEnum__1geteENABLE_1EXTERNAL_1FORCES_1EVERY_1ITERATION_1TGS(JNIEnv*, jclass) {
+    return PxSceneFlagEnum::eENABLE_EXTERNAL_FORCES_EVERY_ITERATION_TGS;
+}
 JNIEXPORT jint JNICALL Java_physx_physics_PxSceneFlagEnum__1geteENABLE_1DIRECT_1GPU_1API(JNIEnv*, jclass) {
     return PxSceneFlagEnum::eENABLE_DIRECT_GPU_API;
+}
+JNIEXPORT jint JNICALL Java_physx_physics_PxSceneFlagEnum__1geteENABLE_1BODY_1ACCELERATIONS(JNIEnv*, jclass) {
+    return PxSceneFlagEnum::eENABLE_BODY_ACCELERATIONS;
+}
+JNIEXPORT jint JNICALL Java_physx_physics_PxSceneFlagEnum__1geteDISABLE_1SLEEPING(JNIEnv*, jclass) {
+    return PxSceneFlagEnum::eDISABLE_SLEEPING;
+}
+JNIEXPORT jint JNICALL Java_physx_physics_PxSceneFlagEnum__1geteSOLVE_1ARTICULATION_1CONTACT_1LAST(JNIEnv*, jclass) {
+    return PxSceneFlagEnum::eSOLVE_ARTICULATION_CONTACT_LAST;
 }
 JNIEXPORT jint JNICALL Java_physx_physics_PxSceneFlagEnum__1geteMUTABLE_1FLAGS(JNIEnv*, jclass) {
     return PxSceneFlagEnum::eMUTABLE_FLAGS;
@@ -11703,6 +11747,12 @@ JNIEXPORT jint JNICALL Java_physx_physics_PxArticulationCacheFlagEnum__1geteJOIN
 JNIEXPORT jint JNICALL Java_physx_physics_PxArticulationCacheFlagEnum__1geteJOINT_1TARGET_1VELOCITIES(JNIEnv*, jclass) {
     return PxArticulationCacheFlagEnum::eJOINT_TARGET_VELOCITIES;
 }
+JNIEXPORT jint JNICALL Java_physx_physics_PxArticulationCacheFlagEnum__1geteLINK_1FORCE(JNIEnv*, jclass) {
+    return PxArticulationCacheFlagEnum::eLINK_FORCE;
+}
+JNIEXPORT jint JNICALL Java_physx_physics_PxArticulationCacheFlagEnum__1geteLINK_1TORQUE(JNIEnv*, jclass) {
+    return PxArticulationCacheFlagEnum::eLINK_TORQUE;
+}
 JNIEXPORT jint JNICALL Java_physx_physics_PxArticulationCacheFlagEnum__1geteALL(JNIEnv*, jclass) {
     return PxArticulationCacheFlagEnum::eALL;
 }
@@ -11738,6 +11788,9 @@ JNIEXPORT jint JNICALL Java_physx_physics_PxArticulationJointTypeEnum__1getePRIS
 }
 JNIEXPORT jint JNICALL Java_physx_physics_PxArticulationJointTypeEnum__1geteREVOLUTE(JNIEnv*, jclass) {
     return PxArticulationJointTypeEnum::eREVOLUTE;
+}
+JNIEXPORT jint JNICALL Java_physx_physics_PxArticulationJointTypeEnum__1geteREVOLUTE_1UNWRAPPED(JNIEnv*, jclass) {
+    return PxArticulationJointTypeEnum::eREVOLUTE_UNWRAPPED;
 }
 JNIEXPORT jint JNICALL Java_physx_physics_PxArticulationJointTypeEnum__1geteSPHERICAL(JNIEnv*, jclass) {
     return PxArticulationJointTypeEnum::eSPHERICAL;
@@ -11822,6 +11875,9 @@ JNIEXPORT jint JNICALL Java_physx_physics_PxQueryFlagEnum__1geteANY_1HIT(JNIEnv*
 JNIEXPORT jint JNICALL Java_physx_physics_PxQueryFlagEnum__1geteNO_1BLOCK(JNIEnv*, jclass) {
     return PxQueryFlagEnum::eNO_BLOCK;
 }
+JNIEXPORT jint JNICALL Java_physx_physics_PxQueryFlagEnum__1geteDISABLE_1HARDCODED_1FILTER(JNIEnv*, jclass) {
+    return PxQueryFlagEnum::eDISABLE_HARDCODED_FILTER;
+}
 
 // PxQueryHitType
 JNIEXPORT jint JNICALL Java_physx_physics_PxQueryHitType__1geteNONE(JNIEnv*, jclass) {
@@ -11900,6 +11956,15 @@ JNIEXPORT jint JNICALL Java_physx_physics_PxRigidBodyFlagEnum__1geteENABLE_1CCD_
 }
 JNIEXPORT jint JNICALL Java_physx_physics_PxRigidBodyFlagEnum__1geteRETAIN_1ACCELERATIONS(JNIEnv*, jclass) {
     return PxRigidBodyFlagEnum::eRETAIN_ACCELERATIONS;
+}
+JNIEXPORT jint JNICALL Java_physx_physics_PxRigidBodyFlagEnum__1geteFORCE_1KINE_1KINE_1NOTIFICATIONS(JNIEnv*, jclass) {
+    return PxRigidBodyFlagEnum::eFORCE_KINE_KINE_NOTIFICATIONS;
+}
+JNIEXPORT jint JNICALL Java_physx_physics_PxRigidBodyFlagEnum__1geteFORCE_1STATIC_1KINE_1NOTIFICATIONS(JNIEnv*, jclass) {
+    return PxRigidBodyFlagEnum::eFORCE_STATIC_KINE_NOTIFICATIONS;
+}
+JNIEXPORT jint JNICALL Java_physx_physics_PxRigidBodyFlagEnum__1geteENABLE_1GYROSCOPIC_1FORCES(JNIEnv*, jclass) {
+    return PxRigidBodyFlagEnum::eENABLE_GYROSCOPIC_FORCES;
 }
 
 // PxRigidDynamicLockFlagEnum
@@ -12075,6 +12140,9 @@ JNIEXPORT jint JNICALL Java_physx_physics_PxFilterObjectFlagEnum__1geteKINEMATIC
 }
 JNIEXPORT jint JNICALL Java_physx_physics_PxFilterObjectFlagEnum__1geteTRIGGER(JNIEnv*, jclass) {
     return PxFilterObjectFlagEnum::eTRIGGER;
+}
+JNIEXPORT jint JNICALL Java_physx_physics_PxFilterObjectFlagEnum__1geteCUSTOM_1GEOMETRY(JNIEnv*, jclass) {
+    return PxFilterObjectFlagEnum::eCUSTOM_GEOMETRY;
 }
 
 // PxForceModeEnum
@@ -13601,6 +13669,14 @@ JNIEXPORT jboolean JNICALL Java_physx_support_PxOmniPvd_00024Raw_startSampling(J
     physx::PxOmniPvd* self = (physx::PxOmniPvd*) _address;
     return (jboolean) self->startSampling();
 }
+JNIEXPORT jboolean JNICALL Java_physx_support_PxOmniPvd_00024Raw_stopSampling(JNIEnv*, jclass, jlong _address) {
+    physx::PxOmniPvd* self = (physx::PxOmniPvd*) _address;
+    return (jboolean) self->stopSampling();
+}
+JNIEXPORT jboolean JNICALL Java_physx_support_PxOmniPvd_00024Raw_isSampling(JNIEnv*, jclass, jlong _address) {
+    physx::PxOmniPvd* self = (physx::PxOmniPvd*) _address;
+    return (jboolean) self->isSampling();
+}
 JNIEXPORT void JNICALL Java_physx_support_PxOmniPvd_00024Raw_release(JNIEnv*, jclass, jlong _address) {
     physx::PxOmniPvd* self = (physx::PxOmniPvd*) _address;
     self->release();
@@ -13663,8 +13739,17 @@ JNIEXPORT jint JNICALL Java_physx_support_PxVisualizationParameterEnum__1geteCON
 JNIEXPORT jint JNICALL Java_physx_support_PxVisualizationParameterEnum__1geteCONTACT_1ERROR(JNIEnv*, jclass) {
     return PxVisualizationParameterEnum::eCONTACT_ERROR;
 }
-JNIEXPORT jint JNICALL Java_physx_support_PxVisualizationParameterEnum__1geteCONTACT_1FORCE(JNIEnv*, jclass) {
-    return PxVisualizationParameterEnum::eCONTACT_FORCE;
+JNIEXPORT jint JNICALL Java_physx_support_PxVisualizationParameterEnum__1geteCONTACT_1IMPULSE(JNIEnv*, jclass) {
+    return PxVisualizationParameterEnum::eCONTACT_IMPULSE;
+}
+JNIEXPORT jint JNICALL Java_physx_support_PxVisualizationParameterEnum__1geteFRICTION_1POINT(JNIEnv*, jclass) {
+    return PxVisualizationParameterEnum::eFRICTION_POINT;
+}
+JNIEXPORT jint JNICALL Java_physx_support_PxVisualizationParameterEnum__1geteFRICTION_1NORMAL(JNIEnv*, jclass) {
+    return PxVisualizationParameterEnum::eFRICTION_NORMAL;
+}
+JNIEXPORT jint JNICALL Java_physx_support_PxVisualizationParameterEnum__1geteFRICTION_1IMPULSE(JNIEnv*, jclass) {
+    return PxVisualizationParameterEnum::eFRICTION_IMPULSE;
 }
 JNIEXPORT jint JNICALL Java_physx_support_PxVisualizationParameterEnum__1geteACTOR_1AXES(JNIEnv*, jclass) {
     return PxVisualizationParameterEnum::eACTOR_AXES;
