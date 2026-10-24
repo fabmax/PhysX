@@ -166,7 +166,6 @@ ELSE()
 	INCLUDE(PhysX.cmake)
 	INCLUDE(PhysXCharacterKinematic.cmake)
 	INCLUDE(PhysXCommon.cmake)
-	INCLUDE(PhysXCooking.cmake)
 	INCLUDE(PhysXExtensions.cmake)
 	INCLUDE(PhysXVehicle.cmake)
 	INCLUDE(SceneQuery.cmake)
@@ -179,7 +178,6 @@ ELSE()
 	SET_PROPERTY(TARGET PhysX PROPERTY FOLDER "PhysX SDK")
 	SET_PROPERTY(TARGET PhysXCharacterKinematic PROPERTY FOLDER "PhysX SDK")
 	SET_PROPERTY(TARGET PhysXCommon PROPERTY FOLDER "PhysX SDK")
-	SET_PROPERTY(TARGET PhysXCooking PROPERTY FOLDER "PhysX SDK")
 	SET_PROPERTY(TARGET PhysXExtensions PROPERTY FOLDER "PhysX SDK")
 	SET_PROPERTY(TARGET PhysXVehicle PROPERTY FOLDER "PhysX SDK")
 	SET_PROPERTY(TARGET LowLevel PROPERTY FOLDER "PhysX SDK")
@@ -192,7 +190,7 @@ ELSE()
 	SET_PROPERTY(TARGET PhysXFoundation PROPERTY FOLDER "PhysX SDK")
 
 
-	SET(PHYSXDISTRO_LIBS PhysXFoundation PhysX PhysXCharacterKinematic PhysXPvdSDK PhysXCommon PhysXCooking PhysXExtensions PhysXVehicle)
+	SET(PHYSXDISTRO_LIBS PhysXFoundation PhysX PhysXCharacterKinematic PhysXPvdSDK PhysXCommon PhysXExtensions PhysXVehicle)
 
 
 	INSTALL(
