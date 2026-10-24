@@ -1908,6 +1908,14 @@ JNIEXPORT jlong JNICALL Java_physx_common_PxBoundedData_00024Raw_PxBoundedData(J
 JNIEXPORT void JNICALL Java_physx_common_PxBoundedData_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
     delete (physx::PxBoundedData*) _address;
 }
+JNIEXPORT jint JNICALL Java_physx_common_PxBoundedData_00024Raw_getStride(JNIEnv*, jclass, jlong _address) {
+    physx::PxBoundedData* _self = (physx::PxBoundedData*) _address;
+    return (jint) _self->stride;
+}
+JNIEXPORT void JNICALL Java_physx_common_PxBoundedData_00024Raw_setStride(JNIEnv*, jclass, jlong _address, jint value) {
+    physx::PxBoundedData* _self = (physx::PxBoundedData*) _address;
+    _self->stride = value;
+}
 JNIEXPORT jint JNICALL Java_physx_common_PxBoundedData_00024Raw_getCount(JNIEnv*, jclass, jlong _address) {
     physx::PxBoundedData* _self = (physx::PxBoundedData*) _address;
     return (jint) _self->count;
@@ -1915,6 +1923,14 @@ JNIEXPORT jint JNICALL Java_physx_common_PxBoundedData_00024Raw_getCount(JNIEnv*
 JNIEXPORT void JNICALL Java_physx_common_PxBoundedData_00024Raw_setCount(JNIEnv*, jclass, jlong _address, jint value) {
     physx::PxBoundedData* _self = (physx::PxBoundedData*) _address;
     _self->count = value;
+}
+JNIEXPORT jlong JNICALL Java_physx_common_PxBoundedData_00024Raw_getData(JNIEnv*, jclass, jlong _address) {
+    physx::PxBoundedData* _self = (physx::PxBoundedData*) _address;
+    return (jlong) _self->data;
+}
+JNIEXPORT void JNICALL Java_physx_common_PxBoundedData_00024Raw_setData(JNIEnv*, jclass, jlong _address, jlong value) {
+    physx::PxBoundedData* _self = (physx::PxBoundedData*) _address;
+    _self->data = (void*) value;
 }
 
 // PxBounds3
@@ -2546,30 +2562,6 @@ JNIEXPORT jint JNICALL Java_physx_common_PxRefCounted_00024Raw_getReferenceCount
 JNIEXPORT void JNICALL Java_physx_common_PxRefCounted_00024Raw_acquireReference(JNIEnv*, jclass, jlong _address) {
     physx::PxRefCounted* self = (physx::PxRefCounted*) _address;
     self->acquireReference();
-}
-
-// PxStridedData
-JNIEXPORT jint JNICALL Java_physx_common_PxStridedData__1_1sizeOf(JNIEnv*, jclass) {
-    return sizeof(physx::PxStridedData);
-}
-JNIEXPORT void JNICALL Java_physx_common_PxStridedData_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
-    delete (physx::PxStridedData*) _address;
-}
-JNIEXPORT jint JNICALL Java_physx_common_PxStridedData_00024Raw_getStride(JNIEnv*, jclass, jlong _address) {
-    physx::PxStridedData* _self = (physx::PxStridedData*) _address;
-    return (jint) _self->stride;
-}
-JNIEXPORT void JNICALL Java_physx_common_PxStridedData_00024Raw_setStride(JNIEnv*, jclass, jlong _address, jint value) {
-    physx::PxStridedData* _self = (physx::PxStridedData*) _address;
-    _self->stride = value;
-}
-JNIEXPORT jlong JNICALL Java_physx_common_PxStridedData_00024Raw_getData(JNIEnv*, jclass, jlong _address) {
-    physx::PxStridedData* _self = (physx::PxStridedData*) _address;
-    return (jlong) _self->data;
-}
-JNIEXPORT void JNICALL Java_physx_common_PxStridedData_00024Raw_setData(JNIEnv*, jclass, jlong _address, jlong value) {
-    physx::PxStridedData* _self = (physx::PxStridedData*) _address;
-    _self->data = (void*) value;
 }
 
 // PxTolerancesScale
@@ -6082,7 +6074,7 @@ JNIEXPORT jlong JNICALL Java_physx_geometry_PxHeightFieldDesc_00024Raw_getSample
 }
 JNIEXPORT void JNICALL Java_physx_geometry_PxHeightFieldDesc_00024Raw_setSamples(JNIEnv*, jclass, jlong _address, jlong value) {
     physx::PxHeightFieldDesc* _self = (physx::PxHeightFieldDesc*) _address;
-    _self->samples = *((physx::PxStridedData*) value);
+    _self->samples = *((physx::PxBoundedData*) value);
 }
 JNIEXPORT jfloat JNICALL Java_physx_geometry_PxHeightFieldDesc_00024Raw_getConvexEdgeThreshold(JNIEnv*, jclass, jlong _address) {
     physx::PxHeightFieldDesc* _self = (physx::PxHeightFieldDesc*) _address;
@@ -7357,10 +7349,6 @@ JNIEXPORT jfloat JNICALL Java_physx_physics_PxScene_00024Raw_getFrictionCorrelat
     physx::PxScene* self = (physx::PxScene*) _address;
     return (jfloat) self->getFrictionCorrelationDistance();
 }
-JNIEXPORT jint JNICALL Java_physx_physics_PxScene_00024Raw_getFrictionType(JNIEnv*, jclass, jlong _address) {
-    physx::PxScene* self = (physx::PxScene*) _address;
-    return (jint) self->getFrictionType();
-}
 JNIEXPORT jint JNICALL Java_physx_physics_PxScene_00024Raw_getSolverType(JNIEnv*, jclass, jlong _address) {
     physx::PxScene* self = (physx::PxScene*) _address;
     return (jint) self->getSolverType();
@@ -7624,14 +7612,6 @@ JNIEXPORT jlong JNICALL Java_physx_physics_PxSceneDesc_00024Raw_getLimits(JNIEnv
 JNIEXPORT void JNICALL Java_physx_physics_PxSceneDesc_00024Raw_setLimits(JNIEnv*, jclass, jlong _address, jlong value) {
     physx::PxSceneDesc* _self = (physx::PxSceneDesc*) _address;
     _self->limits = *((physx::PxSceneLimits*) value);
-}
-JNIEXPORT jint JNICALL Java_physx_physics_PxSceneDesc_00024Raw_getFrictionType(JNIEnv*, jclass, jlong _address) {
-    physx::PxSceneDesc* _self = (physx::PxSceneDesc*) _address;
-    return (jint) _self->frictionType;
-}
-JNIEXPORT void JNICALL Java_physx_physics_PxSceneDesc_00024Raw_setFrictionType(JNIEnv*, jclass, jlong _address, jint value) {
-    physx::PxSceneDesc* _self = (physx::PxSceneDesc*) _address;
-    _self->frictionType = (PxFrictionTypeEnum) value;
 }
 JNIEXPORT jint JNICALL Java_physx_physics_PxSceneDesc_00024Raw_getSolverType(JNIEnv*, jclass, jlong _address) {
     physx::PxSceneDesc* _self = (physx::PxSceneDesc*) _address;
@@ -8294,17 +8274,11 @@ JNIEXPORT jlong JNICALL Java_physx_physics_PxArticulationDrive_00024Raw_PxArticu
 JNIEXPORT jlong JNICALL Java_physx_physics_PxArticulationDrive_00024Raw_PxArticulationDrive_1placed__JFFJI(JNIEnv*, jclass, jlong _placement_address, jfloat stiffness, jfloat damping, jlong envelope, jint driveType) {
     return (jlong) new((void*)_placement_address) physx::PxArticulationDrive(stiffness, damping, *((physx::PxPerformanceEnvelope*) envelope), (PxArticulationDriveTypeEnum) driveType);
 }
-JNIEXPORT jlong JNICALL Java_physx_physics_PxArticulationDrive_00024Raw_PxArticulationDrive_1placed__JFFFI(JNIEnv*, jclass, jlong _placement_address, jfloat stiffness, jfloat damping, jfloat maxForce, jint driveType) {
-    return (jlong) new((void*)_placement_address) physx::PxArticulationDrive(stiffness, damping, maxForce, (PxArticulationDriveTypeEnum) driveType);
-}
 JNIEXPORT jlong JNICALL Java_physx_physics_PxArticulationDrive_00024Raw_PxArticulationDrive__(JNIEnv*, jclass) {
     return (jlong) new physx::PxArticulationDrive();
 }
 JNIEXPORT jlong JNICALL Java_physx_physics_PxArticulationDrive_00024Raw_PxArticulationDrive__FFJI(JNIEnv*, jclass, jfloat stiffness, jfloat damping, jlong envelope, jint driveType) {
     return (jlong) new physx::PxArticulationDrive(stiffness, damping, *((physx::PxPerformanceEnvelope*) envelope), (PxArticulationDriveTypeEnum) driveType);
-}
-JNIEXPORT jlong JNICALL Java_physx_physics_PxArticulationDrive_00024Raw_PxArticulationDrive__FFFI(JNIEnv*, jclass, jfloat stiffness, jfloat damping, jfloat maxForce, jint driveType) {
-    return (jlong) new physx::PxArticulationDrive(stiffness, damping, maxForce, (PxArticulationDriveTypeEnum) driveType);
 }
 JNIEXPORT void JNICALL Java_physx_physics_PxArticulationDrive_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
     delete (physx::PxArticulationDrive*) _address;
@@ -8324,14 +8298,6 @@ JNIEXPORT jfloat JNICALL Java_physx_physics_PxArticulationDrive_00024Raw_getDamp
 JNIEXPORT void JNICALL Java_physx_physics_PxArticulationDrive_00024Raw_setDamping(JNIEnv*, jclass, jlong _address, jfloat value) {
     physx::PxArticulationDrive* _self = (physx::PxArticulationDrive*) _address;
     _self->damping = value;
-}
-JNIEXPORT jfloat JNICALL Java_physx_physics_PxArticulationDrive_00024Raw_getMaxForce(JNIEnv*, jclass, jlong _address) {
-    physx::PxArticulationDrive* _self = (physx::PxArticulationDrive*) _address;
-    return (jfloat) _self->maxForce;
-}
-JNIEXPORT void JNICALL Java_physx_physics_PxArticulationDrive_00024Raw_setMaxForce(JNIEnv*, jclass, jlong _address, jfloat value) {
-    physx::PxArticulationDrive* _self = (physx::PxArticulationDrive*) _address;
-    _self->maxForce = value;
 }
 JNIEXPORT jlong JNICALL Java_physx_physics_PxArticulationDrive_00024Raw_getEnvelope(JNIEnv*, jclass, jlong _address) {
     physx::PxArticulationDrive* _self = (physx::PxArticulationDrive*) _address;
@@ -8510,21 +8476,23 @@ JNIEXPORT jfloat JNICALL Java_physx_physics_PxArticulationJointReducedCoordinate
     physx::PxArticulationJointReducedCoordinate* self = (physx::PxArticulationJointReducedCoordinate*) _address;
     return (jfloat) self->getArmature((PxArticulationAxisEnum) axis);
 }
-JNIEXPORT void JNICALL Java_physx_physics_PxArticulationJointReducedCoordinate_00024Raw_setFrictionCoefficient(JNIEnv*, jclass, jlong _address, jfloat coefficient) {
+JNIEXPORT void JNICALL Java_physx_physics_PxArticulationJointReducedCoordinate_00024Raw_setFrictionParams(JNIEnv*, jclass, jlong _address, jint axis, jlong jointFrictionParams) {
     physx::PxArticulationJointReducedCoordinate* self = (physx::PxArticulationJointReducedCoordinate*) _address;
-    self->setFrictionCoefficient(coefficient);
+    self->setFrictionParams((PxArticulationAxisEnum) axis, *((physx::PxJointFrictionParams*) jointFrictionParams));
 }
-JNIEXPORT jfloat JNICALL Java_physx_physics_PxArticulationJointReducedCoordinate_00024Raw_getFrictionCoefficient(JNIEnv*, jclass, jlong _address) {
+JNIEXPORT jlong JNICALL Java_physx_physics_PxArticulationJointReducedCoordinate_00024Raw_getFrictionParams(JNIEnv*, jclass, jlong _address, jint axis) {
     physx::PxArticulationJointReducedCoordinate* self = (physx::PxArticulationJointReducedCoordinate*) _address;
-    return (jfloat) self->getFrictionCoefficient();
+    static thread_local physx::PxJointFrictionParams _cache = self->getFrictionParams((PxArticulationAxisEnum) axis);
+    _cache = self->getFrictionParams((PxArticulationAxisEnum) axis);
+    return (jlong) &_cache;
 }
-JNIEXPORT void JNICALL Java_physx_physics_PxArticulationJointReducedCoordinate_00024Raw_setMaxJointVelocity(JNIEnv*, jclass, jlong _address, jfloat maxJointV) {
+JNIEXPORT void JNICALL Java_physx_physics_PxArticulationJointReducedCoordinate_00024Raw_setMaxJointVelocity(JNIEnv*, jclass, jlong _address, jint axis, jfloat maxJointV) {
     physx::PxArticulationJointReducedCoordinate* self = (physx::PxArticulationJointReducedCoordinate*) _address;
-    self->setMaxJointVelocity(maxJointV);
+    self->setMaxJointVelocity((PxArticulationAxisEnum) axis, maxJointV);
 }
-JNIEXPORT jfloat JNICALL Java_physx_physics_PxArticulationJointReducedCoordinate_00024Raw_getMaxJointVelocity(JNIEnv*, jclass, jlong _address) {
+JNIEXPORT jfloat JNICALL Java_physx_physics_PxArticulationJointReducedCoordinate_00024Raw_getMaxJointVelocity(JNIEnv*, jclass, jlong _address, jint axis) {
     physx::PxArticulationJointReducedCoordinate* self = (physx::PxArticulationJointReducedCoordinate*) _address;
-    return (jfloat) self->getMaxJointVelocity();
+    return (jfloat) self->getMaxJointVelocity((PxArticulationAxisEnum) axis);
 }
 JNIEXPORT void JNICALL Java_physx_physics_PxArticulationJointReducedCoordinate_00024Raw_setJointPosition(JNIEnv*, jclass, jlong _address, jint axis, jfloat jointPos) {
     physx::PxArticulationJointReducedCoordinate* self = (physx::PxArticulationJointReducedCoordinate*) _address;
@@ -9078,6 +9046,50 @@ JNIEXPORT jfloat JNICALL Java_physx_physics_PxArticulationTendonLimit_00024Raw_g
 JNIEXPORT void JNICALL Java_physx_physics_PxArticulationTendonLimit_00024Raw_setHighLimit(JNIEnv*, jclass, jlong _address, jfloat value) {
     physx::PxArticulationTendonLimit* _self = (physx::PxArticulationTendonLimit*) _address;
     _self->highLimit = value;
+}
+
+// PxJointFrictionParams
+JNIEXPORT jint JNICALL Java_physx_physics_PxJointFrictionParams__1_1sizeOf(JNIEnv*, jclass) {
+    return sizeof(physx::PxJointFrictionParams);
+}
+JNIEXPORT jlong JNICALL Java_physx_physics_PxJointFrictionParams_00024Raw_PxJointFrictionParams_1placed__J(JNIEnv*, jclass, jlong _placement_address) {
+    return (jlong) new((void*)_placement_address) physx::PxJointFrictionParams();
+}
+JNIEXPORT jlong JNICALL Java_physx_physics_PxJointFrictionParams_00024Raw_PxJointFrictionParams_1placed__JFFF(JNIEnv*, jclass, jlong _placement_address, jfloat staticFrictionEffort, jfloat dynamicFrictionEffort, jfloat viscousFrictionCoefficient) {
+    return (jlong) new((void*)_placement_address) physx::PxJointFrictionParams(staticFrictionEffort, dynamicFrictionEffort, viscousFrictionCoefficient);
+}
+JNIEXPORT jlong JNICALL Java_physx_physics_PxJointFrictionParams_00024Raw_PxJointFrictionParams__(JNIEnv*, jclass) {
+    return (jlong) new physx::PxJointFrictionParams();
+}
+JNIEXPORT jlong JNICALL Java_physx_physics_PxJointFrictionParams_00024Raw_PxJointFrictionParams__FFF(JNIEnv*, jclass, jfloat staticFrictionEffort, jfloat dynamicFrictionEffort, jfloat viscousFrictionCoefficient) {
+    return (jlong) new physx::PxJointFrictionParams(staticFrictionEffort, dynamicFrictionEffort, viscousFrictionCoefficient);
+}
+JNIEXPORT void JNICALL Java_physx_physics_PxJointFrictionParams_00024Raw_destroy(JNIEnv*, jclass, jlong _address) {
+    delete (physx::PxJointFrictionParams*) _address;
+}
+JNIEXPORT jfloat JNICALL Java_physx_physics_PxJointFrictionParams_00024Raw_getStaticFrictionEffort(JNIEnv*, jclass, jlong _address) {
+    physx::PxJointFrictionParams* _self = (physx::PxJointFrictionParams*) _address;
+    return (jfloat) _self->staticFrictionEffort;
+}
+JNIEXPORT void JNICALL Java_physx_physics_PxJointFrictionParams_00024Raw_setStaticFrictionEffort(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxJointFrictionParams* _self = (physx::PxJointFrictionParams*) _address;
+    _self->staticFrictionEffort = value;
+}
+JNIEXPORT jfloat JNICALL Java_physx_physics_PxJointFrictionParams_00024Raw_getDynamicFrictionEffort(JNIEnv*, jclass, jlong _address) {
+    physx::PxJointFrictionParams* _self = (physx::PxJointFrictionParams*) _address;
+    return (jfloat) _self->dynamicFrictionEffort;
+}
+JNIEXPORT void JNICALL Java_physx_physics_PxJointFrictionParams_00024Raw_setDynamicFrictionEffort(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxJointFrictionParams* _self = (physx::PxJointFrictionParams*) _address;
+    _self->dynamicFrictionEffort = value;
+}
+JNIEXPORT jfloat JNICALL Java_physx_physics_PxJointFrictionParams_00024Raw_getViscousFrictionCoefficient(JNIEnv*, jclass, jlong _address) {
+    physx::PxJointFrictionParams* _self = (physx::PxJointFrictionParams*) _address;
+    return (jfloat) _self->viscousFrictionCoefficient;
+}
+JNIEXPORT void JNICALL Java_physx_physics_PxJointFrictionParams_00024Raw_setViscousFrictionCoefficient(JNIEnv*, jclass, jlong _address, jfloat value) {
+    physx::PxJointFrictionParams* _self = (physx::PxJointFrictionParams*) _address;
+    _self->viscousFrictionCoefficient = value;
 }
 
 // PxSpatialForce
@@ -12223,14 +12235,6 @@ JNIEXPORT jint JNICALL Java_physx_physics_PxForceModeEnum__1geteVELOCITY_1CHANGE
 }
 JNIEXPORT jint JNICALL Java_physx_physics_PxForceModeEnum__1geteACCELERATION(JNIEnv*, jclass) {
     return PxForceModeEnum::eACCELERATION;
-}
-
-// PxFrictionTypeEnum
-JNIEXPORT jint JNICALL Java_physx_physics_PxFrictionTypeEnum__1getePATCH(JNIEnv*, jclass) {
-    return PxFrictionTypeEnum::ePATCH;
-}
-JNIEXPORT jint JNICALL Java_physx_physics_PxFrictionTypeEnum__1geteFRICTION_1COUNT(JNIEnv*, jclass) {
-    return PxFrictionTypeEnum::eFRICTION_COUNT;
 }
 
 // PxMaterialFlagEnum

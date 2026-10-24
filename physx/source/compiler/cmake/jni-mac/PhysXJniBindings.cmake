@@ -64,7 +64,6 @@ TARGET_LINK_LIBRARIES(PhysXJniBindings
 	PUBLIC PhysXCommon
 	PUBLIC PhysXFoundation
 	PUBLIC PhysXExtensions
-	PUBLIC PhysXCooking
 	PUBLIC PhysXVehicle
 	PUBLIC PhysXTask
 	PUBLIC PhysXCharacterKinematic

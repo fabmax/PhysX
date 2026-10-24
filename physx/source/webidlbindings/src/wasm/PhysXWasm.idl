@@ -506,7 +506,6 @@ interface PxArticulationDrive {
     void PxArticulationDrive(float stiffness, float damping, [Const, Ref] PxPerformanceEnvelope envelope, PxArticulationDriveTypeEnum driveType);
     attribute float stiffness;
     attribute float damping;
-    attribute float maxForce;
     [Value] attribute PxPerformanceEnvelope envelope;
     attribute PxArticulationDriveTypeEnum driveType;
 };
@@ -552,10 +551,10 @@ interface PxArticulationJointReducedCoordinate {
     float getDriveVelocity(PxArticulationAxisEnum axis);
     void setArmature(PxArticulationAxisEnum axis, float armature);
     float getArmature(PxArticulationAxisEnum axis);
-    void setFrictionCoefficient(float coefficient);
-    float getFrictionCoefficient();
-    void setMaxJointVelocity(float maxJointV);
-    float getMaxJointVelocity();
+    void setFrictionParams(PxArticulationAxisEnum axis, [Const, Ref] PxJointFrictionParams jointFrictionParams);
+    [Value] PxJointFrictionParams getFrictionParams(PxArticulationAxisEnum axis);
+    void setMaxJointVelocity(PxArticulationAxisEnum axis, float maxJointV);
+    float getMaxJointVelocity(PxArticulationAxisEnum axis);
     void setJointPosition(PxArticulationAxisEnum axis, float jointPos);
     float getJointPosition(PxArticulationAxisEnum axis);
     void setJointVelocity(PxArticulationAxisEnum axis, float jointVel);
@@ -748,9 +747,10 @@ interface PxBaseTask {
 [Prefix="physx::"]
 interface PxBoundedData {
     void PxBoundedData();
+    attribute unsigned long stride;
     attribute unsigned long count;
+    [Const] attribute VoidPtr data;
 };
-PxBoundedData implements PxStridedData;
 
 [Prefix="physx::"]
 interface PxBounds3 {
@@ -1595,7 +1595,7 @@ interface PxHeightFieldDesc {
     attribute unsigned long nbRows;
     attribute unsigned long nbColumns;
     attribute PxHeightFieldFormatEnum format;
-    [Value] attribute PxStridedData samples;
+    [Value] attribute PxBoundedData samples;
     attribute float convexEdgeThreshold;
     [Value] attribute PxHeightFieldFlags flags;
 };
@@ -1699,6 +1699,15 @@ interface PxJointAngularLimitPair {
     attribute float lower;
 };
 PxJointAngularLimitPair implements PxJointLimitParameters;
+
+[Prefix="physx::"]
+interface PxJointFrictionParams {
+    void PxJointFrictionParams();
+    void PxJointFrictionParams(float staticFrictionEffort, float dynamicFrictionEffort, float viscousFrictionCoefficient);
+    attribute float staticFrictionEffort;
+    attribute float dynamicFrictionEffort;
+    attribute float viscousFrictionCoefficient;
+};
 
 [Prefix="physx::"]
 interface PxJointLimitCone {
@@ -2412,7 +2421,6 @@ interface PxScene {
     float getFrictionOffsetThreshold();
     void setFrictionCorrelationDistance(float t);
     float getFrictionCorrelationDistance();
-    PxFrictionTypeEnum getFrictionType();
     PxSolverTypeEnum getSolverType();
     [Const, Ref] PxRenderBuffer getRenderBuffer();
     boolean setVisualizationParameter(PxVisualizationParameterEnum param, float value);
@@ -2464,7 +2472,6 @@ interface PxSceneDesc {
     attribute PxPairFilteringModeEnum staticKineFilteringMode;
     attribute PxBroadPhaseTypeEnum broadPhaseType;
     [Value] attribute PxSceneLimits limits;
-    attribute PxFrictionTypeEnum frictionType;
     attribute PxSolverTypeEnum solverType;
     attribute float bounceThresholdVelocity;
     attribute float frictionOffsetThreshold;
@@ -2718,12 +2725,6 @@ interface PxSpring {
     void PxSpring(float stiffness, float damping);
     attribute float stiffness;
     attribute float damping;
-};
-
-[Prefix="physx::"]
-interface PxStridedData {
-    attribute unsigned long stride;
-    [Const] attribute VoidPtr data;
 };
 
 interface PxSweepBuffer10 {
@@ -4251,11 +4252,6 @@ enum PxForceModeEnum {
     "PxForceModeEnum::eIMPULSE",
     "PxForceModeEnum::eVELOCITY_CHANGE",
     "PxForceModeEnum::eACCELERATION"
-};
-
-enum PxFrictionTypeEnum {
-    "PxFrictionTypeEnum::ePATCH",
-    "PxFrictionTypeEnum::eFRICTION_COUNT"
 };
 
 enum PxGeometryTypeEnum {

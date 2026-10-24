@@ -138,7 +138,6 @@ typedef physx::PxErrorCode::Enum PxErrorCodeEnum;
 typedef physx::PxFilterFlag::Enum PxFilterFlagEnum;
 typedef physx::PxFilterObjectFlag::Enum PxFilterObjectFlagEnum;
 typedef physx::PxForceMode::Enum PxForceModeEnum;
-typedef physx::PxFrictionType::Enum PxFrictionTypeEnum;
 typedef physx::PxGeometryType::Enum PxGeometryTypeEnum;
 typedef physx::PxHeightFieldFlag::Enum PxHeightFieldFlagEnum;
 typedef physx::PxHeightFieldFormat::Enum PxHeightFieldFormatEnum;
