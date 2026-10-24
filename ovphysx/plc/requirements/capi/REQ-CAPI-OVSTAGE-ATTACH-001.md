@@ -3,7 +3,7 @@
 
 ---
 id: REQ-CAPI-OVSTAGE-ATTACH-001
-title: Fail-Closed Unsealed Articulation Attach
+title: Direct OVStage Attachment
 status: implemented
 owner: ovphysx
 ---
@@ -19,8 +19,9 @@ sentinel and is not a valid public attach ordinal.
 ## Acceptance Criteria
 
 - AC-1: An unreadable `usd-schemas` query/read during initial articulation and
-  joint enumeration returns `OVPHYSX_API_ERROR`, leaves no partial attachment,
-  and permits the same Stage to be retried after sealing.
+  joint enumeration fails an accepted task, leaves no partial attachment,
+  and preserves the schema-scan cause in the collected task error. The same
+  Stage can be retried after sealing; the retry's task completes successfully.
 - AC-2: Attachment does not reject solely because the Stage's global minimum
   write floor is below the requested ordinal. A valid attribute-scoped seal
   succeeds when it covers all data selected by the physics scan, even if an
@@ -28,6 +29,18 @@ sentinel and is not a valid public attach ordinal.
 - AC-3: `ovphysx_attach_ovstage()` with `read_ordinal == 0` returns
   `OVPHYSX_API_INVALID_ARGUMENT`, leaves the instance unattached, and does not
   call through to runtime attach.
+
+- AC-4: `ovphysx_attach_ovstage()` always supplies a zero compatibility USD
+  stage id and never resolves or calls `ovstage_get_usd_stage_id`. It attaches
+  through the caller-owned ovstage data and sealed ordinal alone.
+
+- AC-5: Attach returns `ovphysx_enqueue_result_t`. Argument, handle and
+  already-attached checks reject without a task or
+  attachment mutation. Runtime attach failures after admission produce failed
+  tasks even when executed inline. The caller retains the Stage and readable
+  sealed snapshot through completion, and retains an attached Stage until
+  successful detach or destruction. Failed rollback may retain attachment
+  ownership; the synchronous attachment-state query reports that ownership.
 
 ## Test References
 
@@ -40,5 +53,6 @@ sentinel and is not a valid public attach ordinal.
 
 ## Dependencies
 
-- REQ-PARSE-SCAN-001 (runtime scan failure detection)
-- REQ-SIM-OVSTAGE-ATTACH-001 (runtime attach-result propagation and rollback)
+- ovphysx/ovruntime/source/omni.physics.parse/ScanBackend.cpp (runtime scan failure detection)
+- ovphysx/ovruntime/source/omni.physx/plugins/usdLoad/LoadUsd.cpp (attach-result propagation and rollback)
+- ovphysx/ovruntime/include/omni/physx/RuntimeError.h (runtime cause captured at the synchronous attach boundary)

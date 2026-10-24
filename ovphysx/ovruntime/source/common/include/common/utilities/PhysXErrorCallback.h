@@ -1,6 +1,11 @@
 // SPDX-FileCopyrightText: Copyright (c) 2018-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+/**
+ * @implements REQ-RUNTIME-ERROR-001
+ * @covers AC-3 AC-4
+ */
+
 #pragma once
 
 #include <carb/logging/Log.h>
@@ -10,6 +15,7 @@
 #include <PxPhysicsAPI.h>
 #include <cudamanager/PxCudaContext.h>
 #include <omni/physx/IPhysx.h>
+#include <omni/physx/RuntimeError.h>
 
 // AD: hardcode this here to avoid pulling in CUDA headers.
 #define CUDA_OUT_OF_MEMORY 2
@@ -21,9 +27,6 @@ public:
         : mErrorEventType(0),
           mNumErrors(0),
           mMaxNumErrors(0xffffffff)
-#if PX_SUPPORT_GPU_PHYSX        
-        , mCudaContextManager(nullptr)
-#endif        
     {
     }
 
@@ -53,6 +56,8 @@ public:
         }
         else if(code & ::physx::PxErrorCode::eABORT)
         {
+            // Capture only the SDK cause; the log also carries its source file and line.
+            omni::physx::recordRuntimeError(message);
             CARB_LOG_ERROR("PhysX ABORT error: %s, FILE %s, LINE %d", message, file, line);
             sendTooManyErrorsStopSimulationEvent();
         }
@@ -64,6 +69,7 @@ public:
                 customErrMsg = message;
             }
 
+            omni::physx::recordRuntimeError(customErrMsg.c_str());
             CARB_LOG_ERROR("PhysX error: %s, FILE %s, LINE %d", customErrMsg.c_str(), file, line);
 
             if (mEventStream)
@@ -76,22 +82,7 @@ public:
                 {
                     sendTooManyErrorsStopSimulationEvent();
                 }
-#if PX_SUPPORT_GPU_PHYSX
-                // Ignore out-of-memory errors: they can occur before a valid scene exists, where we fall back
-                // to CPU and must not stop the timeline. We still catch real errors via the abort case above.
 
-                if (mCudaContextManager)
-                {
-                    physx::PxCUresult error = mCudaContextManager->getCudaContext()->getLastError();
-                    if ((error > 0) && (error != CUDA_OUT_OF_MEMORY))
-                    {
-                        CARB_LOG_ERROR(
-                            "Cuda context manager error, simulation will be stopped and new cuda context manager will be created.");
-                        sendErrorEvent(mEventStream, omni::physx::ePhysxCudaError,
-                                       std::make_pair("errorString", customErrMsg.c_str()));
-                    }
-                }
-#endif
             }
             mNumErrors++;
         }
@@ -102,12 +93,7 @@ public:
         mEventStream = eventStream;
     }
 
-#if PX_SUPPORT_GPU_PHYSX            
-    void setCudaContextManager(::physx::PxCudaContextManager* man)
-    {
-        mCudaContextManager = man;
-    }
-#endif
+
 
     void invalidateEventStream()
     {
@@ -144,7 +130,5 @@ private:
     carb::events::EventType         mErrorEventType;
     uint32_t                        mNumErrors;
     uint32_t                        mMaxNumErrors;
-#if PX_SUPPORT_GPU_PHYSX            
-    ::physx::PxCudaContextManager*  mCudaContextManager;
-#endif
+
 };

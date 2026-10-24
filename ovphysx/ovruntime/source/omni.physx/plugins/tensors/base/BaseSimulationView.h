@@ -1,17 +1,23 @@
 // SPDX-FileCopyrightText: Copyright (c) 2020-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+// @implements REQ-ATTACH-VIEWS-001
+// @covers AC-1 AC-2 AC-3
+
 #pragma once
 
 /**
  * @implements REQ-TENSOR-VIEW-001
- * @covers AC-1
+ * @covers AC-1 AC-12
  *
  * @implements REQ-TENSOR-ATTACH-001
  * @covers AC-1 AC-2
  *
  * @implements REQ-PUBLICAPI-001
  * @covers AC-36 AC-37 AC-38 AC-40
+ *
+ * @implements REQ-READ-SDF-001
+ * @covers AC-1 AC-6
  */
 
 #include <private/omni/physx/PhysxUsd.h>
@@ -50,18 +56,8 @@ using omni::physics::tensors::ObjectType;
 class BaseSimulationView : public omni::physics::tensors::ISimulationView
 {
 public:
-    // `notifyWhenSimStopped` opts this view's destruction subscription out of the simulation-stopped
-    // gate in shouldDeliverObjectChangeNotification(). Default false, the delivery a user-created
-    // view gets: its owner rebuilds it around stage edits.
-    //
-    // A BACKEND-CACHED view must pass true. It outlives the call that built it and is handed to
-    // later reads without the consumer knowing it exists, so a destruction it never hears about
-    // leaves it holding freed actors -- and actors ARE destroyed while stopped, stage edits being
-    // when that happens. Only destructions that raise a notification are covered; stage teardown is
-    // handled separately by resetStage() dropping the attach's cache entries.
     explicit BaseSimulationView(usdparser::AttachedStage* attachedStage,
-                                ::physx::PxScene* scene,
-                                bool notifyWhenSimStopped = false);
+                                ::physx::PxScene* scene);
 
     virtual ~BaseSimulationView() override;
 
@@ -99,9 +95,6 @@ public:
                                    std::unordered_set<const ::physx::PxArticulationReducedCoordinate*>& seenArtis);
 
     void processRigidBodyEntries(const std::vector<std::string>& patterns, std::vector<RigidBodyEntry>& entries);
-    void findMatchingRigidBodies(const std::string& pattern,
-                                 std::vector<RigidBodyEntry>& entriesRet,
-                                 std::unordered_set<const ::physx::PxRigidBody*>& seenBodies);
 
     void setNoMatchLoggingQuiet(bool quiet) override;
     bool isNoMatchLoggingQuiet() const override;
@@ -197,12 +190,9 @@ public:
 
     bool check() const override;
 
-    void release(bool recursive) override;
-    static void onPhysXObjectDeletedCallback(omni::physics::parse::ObjectKey key,
-                                             usdparser::ObjectId objectId,
-                                             PhysXType type,
-                                             void* userData);
-    static void onAllPhysXObjectDeletedCallback(void* userData);                                             
+    bool release(bool recursive) override;
+    static void onPhysXObjectDeletedCallback(const omni::physx::PhysicsObjectChangeEvent& event, void* userData);
+    static void onAllPhysXObjectDeletedCallback(omni::physics::AttachHandle attach, void* userData);
 
     // physics scene properties
     bool setGravity(const carb::Float3& gravity) override;
@@ -223,7 +213,8 @@ public:
                                               float damping,
                                               ::physx::PxCombineMode::Enum frictionCombineMode,
                                               ::physx::PxCombineMode::Enum restitutionCombineMode,
-                                              ::physx::PxCombineMode::Enum dampingCombineMode);
+                                              ::physx::PxCombineMode::Enum dampingCombineMode,
+                                              ::physx::PxMaterialFlags flags = ::physx::PxMaterialFlags());
 
     // Build the shared-material pool key for a set of properties. The float
     // components use a representation that round-trips a float32 exactly, so two
@@ -234,7 +225,8 @@ public:
                                        float damping,
                                        ::physx::PxCombineMode::Enum frictionCombineMode,
                                        ::physx::PxCombineMode::Enum restitutionCombineMode,
-                                       ::physx::PxCombineMode::Enum dampingCombineMode);
+                                       ::physx::PxCombineMode::Enum dampingCombineMode,
+                                       ::physx::PxMaterialFlags flags);
 
     // Drop one reference to a pooled material. When the last reference is
     // released, every pool entry that references it is removed (looked up by
@@ -246,6 +238,7 @@ public:
     {
         return isValid;
     }
+    bool isSelectionCurrent() const override;
     void invalidate() override;
     bool hasRigidBody(::physx::PxRigidBody* body) const;
     bool hasArticulation(::physx::PxArticulationReducedCoordinate* arti) const;
@@ -280,6 +273,7 @@ protected:
     // dies at detach -- invalidate() clears it, and SimulationBackend::reset() /
     // resetStage() invalidate every view before the attach goes away.
     usdparser::AttachedStage* mAttachedStage = nullptr;
+    const omni::physics::AttachHandle mAttachHandle;
     ::physx::PxScene* mScene = nullptr;
     BaseSimulationDataPtr mSimData;
     bool mNoMatchLoggingQuiet = false;
@@ -294,9 +288,40 @@ protected:
     std::vector<BasePointInstancerView*> mPointInstancerViews;
 
 private:
+    // Reuse eligibility only: record, source or matching-policy changes leave existing views live.
+    const uint64_t mSelectionRecordEpoch;
+    const uint64_t mSelectionReadOrdinal;
+    const bool mSelectionRecursiveLeafMatch;
     omni::physx::SubscriptionId subscriptionObjId;
     std::mutex mMutex;
 };
+
+// The unified two-pass path resolver (source-routed PathPatternMatcher pass + internal
+// path<->object-DB pass), factored out of BaseSimulationView::findMatchingPaths so the
+// session query (OvxPhysicsRead's prim-set selection) resolves identical membership through
+// the exact same code the tensor-binding views use -- including the internal-DB pass that
+// alone matches physics-only objects (PhysX-replicator clones). `keysRet` is appended to.
+void resolveMatchingObjectKeys(const usdparser::AttachedStage* attachedStage, const std::string& pattern,
+                               std::vector<omni::physics::parse::ObjectKey>& keysRet);
+void resolveMatchingObjectKeysBatch(const usdparser::AttachedStage* attachedStage,
+                                    const std::vector<std::string>& patterns,
+                                    std::vector<std::vector<omni::physics::parse::ObjectKey>>& keysRet);
+
+// The articulation `key` belongs to -- the articulation itself, one of its links, or one of its
+// joints -- or null for anything else. The articulation view maps every matched object through this,
+// and so does the session query's prim-set selection for an articulation query, so both select the
+// same articulations for the same match.
+::physx::PxArticulationReducedCoordinate* resolveOwningArticulation(const usdparser::AttachedStage* attachedStage,
+                                                                    omni::physics::parse::ObjectKey key);
+
+// The SDF collision shape `key` names, or null when it names none: an object the source knows must carry
+// PhysicsCollisionAPI and PhysxSDFMeshCollisionAPI (a runtime clone the source does not know is judged by
+// its PhysX shape alone), and its PhysX shape must be a triangle mesh with a non-empty SDF. The SDF shape
+// view selects its shapes through this, and so does the session's SDF_SHAPE query (ADR-0048), so both
+// accept the same shapes. `warn` logs why a key is rejected.
+::physx::PxShape* sdfShapeFor(const usdparser::AttachedStage* attachedStage,
+                              omni::physics::parse::ObjectKey key,
+                              bool warn);
 } // namespace tensors
 } // namespace physx
 } // namespace omni

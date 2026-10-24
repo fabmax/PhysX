@@ -97,12 +97,12 @@ class _InstancerBuffers:
 class _OvStageOutputContext:
     """Short-lived OVStage wrappers used by one output call."""
 
-    def __init__(self, physx: "PhysX"):
+    def __init__(self, physx: "PhysX", caller: str = "OvStageOutputCache"):
         import ovstage
 
         stage = physx._attached_ovstage
         if stage is None:
-            raise RuntimeError("OvStageOutputCache requires an attached OVStage")
+            raise RuntimeError(f"{caller} requires an attached OVStage")
         required = (
             "get_attribute_write_floor",
             "read_attributes",
@@ -112,17 +112,19 @@ class _OvStageOutputContext:
             "advance_write_floor",
         )
         if any(not hasattr(stage, method) for method in required):
-            raise RuntimeError("OvStageOutputCache requires attachment with an ovstage.Stage object")
+            raise RuntimeError(f"{caller} requires attachment with an ovstage.Stage object")
 
         self._physx = physx
         self._stage = stage
-        self._attach_handle = physx.get_attach_handle()
-        if not self._attach_handle:
-            raise RuntimeError("OvStageOutputCache requires a live ovphysx attachment")
-        self._paths = ovstage.PathDictionary(stage)
+        self._attachment_query = 0
+        self._paths = None
         self._closed = False
         self._token_names = {}
         try:
+            self._attachment_query = physx._capture_attachment_query()
+            if not physx._is_query_valid(self._attachment_query) or not physx.is_stage_attached(stage):
+                raise RuntimeError(f"{caller} requires attachment with the current ovstage.Stage object")
+            self._paths = ovstage.PathDictionary(stage)
             self._tokens = {
                 name: self._paths.intern_token(name)
                 for name in (
@@ -140,7 +142,7 @@ class _OvStageOutputContext:
             raise RuntimeError("OvStageOutputCache is closed")
         if self._physx._attached_ovstage is not self._stage:
             raise RuntimeError("OvStageOutputCache cannot be reused with another OVStage")
-        if self._physx.get_attach_handle() != self._attach_handle:
+        if not self._physx._is_query_valid(self._attachment_query):
             raise RuntimeError("OvStageOutputCache cannot be reused after detach or reattach")
 
     def _current_write_floor(self):
@@ -167,13 +169,39 @@ class _OvStageOutputContext:
         import warp as wp
 
         tensor = group.tensor(tensor_index)
-        if int(tensor.dtype.bits) != bits or int(tensor.dtype.lanes or 1) != lanes:
-            raise RuntimeError(f"point-instancer {name} must use float{bits} elements with {lanes} lanes")
+        if int(tensor.dtype.code) != 2 or int(tensor.dtype.bits) != bits or int(tensor.dtype.lanes or 1) not in (1, lanes):
+            raise RuntimeError(f"point-instancer {name} must use float{bits} elements with {lanes} components")
         if int(group.raw.data.cuda_sync.wait_event):
             self._physx._order_warp_stream_after_group(group.raw, wp)
         borrowed = wp.from_dlpack(group.dlpack(tensor_index))
         if len(borrowed.shape) != 2 or borrowed.shape[1] != lanes:
             raise RuntimeError(f"point-instancer {name} must have shape [N, {lanes}]")
+        return borrowed
+
+    def _world_matrix_array(self, group):
+        import warp as wp
+
+        tensor = group.tensor(0)
+        if (group.is_array or int(tensor.dtype.code) != 2 or int(tensor.dtype.bits) != 64
+                or int(tensor.dtype.lanes or 1) not in (1, 16)):
+            raise RuntimeError("omni:fabric:worldMatrix must contain float64 matrices")
+        if int(group.raw.data.cuda_sync.wait_event):
+            self._physx._order_warp_stream_after_group(group.raw, wp)
+        borrowed = wp.from_dlpack(group.dlpack(0))
+        if borrowed.dtype == wp.float64 and len(borrowed.shape) == 3 and borrowed.shape[1:] == (4, 4):
+            if borrowed.strides[1:] != (32, 8):
+                raise RuntimeError("omni:fabric:worldMatrix component axes must be contiguous")
+            # Collapse only component axes. Warp.reshape requires the entire
+            # array contiguous, whereas OVStage may expose padded/sliced rows.
+            view = wp.array(
+                ptr=borrowed.ptr, dtype=wp.float64, shape=(borrowed.shape[0], 16),
+                strides=(borrowed.strides[0], 8), device=borrowed.device,
+                pinned=borrowed.pinned, copy=False,
+            )
+            view._ref = borrowed
+            borrowed = view
+        if borrowed.dtype != wp.float64 or len(borrowed.shape) != 2 or borrowed.shape[1] != 16:
+            raise RuntimeError("omni:fabric:worldMatrix must have shape [N, 4, 4] or [N, 16]")
         return borrowed
 
     def _capture_world_scales(self, prim_list, path_tuple, device):
@@ -192,16 +220,7 @@ class _OvStageOutputContext:
                 with group:
                     if group.is_delete:
                         continue
-                    if group.is_array:
-                        raise RuntimeError("omni:fabric:worldMatrix must be a fixed-size attribute")
-                    tensor = group.tensor(0)
-                    if int(tensor.dtype.bits) != 64 or int(tensor.dtype.lanes or 1) != 16:
-                        raise RuntimeError("omni:fabric:worldMatrix must use float64 elements with 16 lanes")
-                    if int(group.raw.data.cuda_sync.wait_event):
-                        self._physx._order_warp_stream_after_group(group.raw, wp)
-                    borrowed = wp.from_dlpack(group.dlpack(0))
-                    if borrowed.dtype != wp.float64 or len(borrowed.shape) != 2 or borrowed.shape[1] != 16:
-                        raise RuntimeError("omni:fabric:worldMatrix must have shape [N, 16]")
+                    borrowed = self._world_matrix_array(group)
 
                     full_group = (
                         group.prim_count == len(path_tuple)
@@ -339,14 +358,26 @@ class _OvStageOutputContext:
                 yield positions, orientations
 
     def close(self) -> None:
-        """Release OVStage wrappers. Safe to call repeatedly."""
+        """Release the native validity query and OVStage wrappers, once."""
         if self._closed:
             return
         self._closed = True
         paths = self._paths
         self._paths = None
-        if paths is not None:
-            paths.destroy()
+        query = self._attachment_query
+        self._attachment_query = 0
+        try:
+            if paths is not None:
+                paths.destroy()
+        finally:
+            self._physx._release_attachment_query(query)
+
+    def __del__(self):
+        # GC may run off-thread; defer native release to the owning thread.
+        query = getattr(self, "_attachment_query", 0)
+        if query:
+            self._attachment_query = 0
+            self._physx._release_attachment_query(query, defer=True)
 
     def __enter__(self):
         self._check_bound()
@@ -421,12 +452,7 @@ class _OvStageOutputContext:
                 with group:
                     if group.is_delete:
                         continue
-                    tensor = group.tensor(0)
-                    if group.is_array or int(tensor.dtype.bits) != 64 or int(tensor.dtype.lanes or 1) != 16:
-                        raise RuntimeError("omni:fabric:worldMatrix must use float64 elements with 16 lanes")
-                    if int(group.raw.data.cuda_sync.wait_event):
-                        self._physx._order_warp_stream_after_group(group.raw, wp)
-                    borrowed = wp.from_dlpack(group.dlpack(0))
+                    borrowed = self._world_matrix_array(group)
                     full_group = (
                         group.prim_count == count
                         and group.prim_offset == 0
@@ -689,9 +715,22 @@ def step_and_write_to_ovstage(
 
     Returns:
         Number of OVStage attributes written.
+
+    Raises:
+        RuntimeError: No OVStage is attached, or ``cache`` is bound to a
+            different ``PhysX`` instance, a different attachment, or is
+            closed.
+        TypeError: ``cache`` is neither ``None`` nor an ``OvStageOutputCache``,
+            or ``outputs`` is not a mapping of ``SimObjectType`` to a sequence
+            of attribute-name strings.
+        ValueError: ``outputs`` selects only one of ``position`` /
+            ``orientation`` for a rigid body, articulation link, or vehicle
+            wheel. Fixed-pose types must select both together, since the
+            helper composes a world matrix from the pair; select neither, or
+            both, to avoid this.
     """
     if cache is None:
-        with _OvStageOutputContext(physx) as context:
+        with _OvStageOutputContext(physx, caller="step_and_write_to_ovstage") as context:
             return _step_and_write_to_ovstage(physx, dt, output_ordinal, context, outputs, retain=False)
     if not isinstance(cache, OvStageOutputCache):
         raise TypeError("cache must be an OvStageOutputCache or None")
@@ -724,15 +763,23 @@ def _step_and_write_to_ovstage(physx, dt, output_ordinal, cache, outputs, *, ret
                 raise ValueError(f"{object_type.name} position and orientation must be selected together")
         validated_outputs.append((object_type, names))
 
+    physx.step_sync(dt)
+    written = _write_to_ovstage(physx, output_ordinal, cache, validated_outputs, retain=retain)
+    stage.advance_write_floor(ordinal=output_ordinal).wait()
+    return written
+
+
+def _write_to_ovstage(physx, output_ordinal, cache, validated_outputs, *, retain):
+    """Publish validated output without stepping or sealing the stage."""
     import ovstage
     import warp as wp
 
     from .._utils_kernels import compose_world_xforms, merge_instancer_poses
 
-    physx.step_sync(dt)
+    stage = cache._stage
     written = 0
     for object_type, attribute_names in validated_outputs:
-        with physx.read(object_type, attribute_names, scope=ObjectScope.ALL) as result:
+        with physx.read_sync(object_type, attribute_names, scope=ObjectScope.ALL) as result:
             regular_groups = []
             pose_groups = {}
             for group in result.groups:
@@ -905,7 +952,6 @@ def _step_and_write_to_ovstage(physx, dt, output_ordinal, cache, outputs, *, ret
                     finally:
                         stage.release_query(query).wait()
 
-    stage.advance_write_floor(ordinal=output_ordinal).wait()
     return written
 
 

@@ -23,6 +23,7 @@
 #include "test_utilities.h"
 
 #include <ovphysx/ovphysx.h>
+#include <ovphysx/ovphysx_attributes.h>
 
 #include <gtest/gtest.h>
 
@@ -59,8 +60,9 @@ ovstage_cuda_sync_t noSync()
 TEST_F(PhysXTestFixture, JointLimitOnAFreeAxisIsRefusedAndWritesNothing)
 {
     ASSERT_TRUE(attach_usd_with_ovstage(m_handle, "tests/data/CartPole.usda")) << "Failed to attach CartPole.usda";
-    // A session refuses reads/writes before the first step, and the limit getters need a stepped
-    // articulation to resolve.
+    // Reads and joint-limit getters need a stepped articulation. On CPU a pre-step write
+    // would apply (AC-5a); this case still steps because the limit column is resolved after
+    // the first step.
     for (int i = 0; i < 3; ++i)
         ASSERT_EQ(ovphysx_step_sync(m_handle, 1.0f / 60.0f).status, OVPHYSX_API_SUCCESS);
 
@@ -71,13 +73,17 @@ TEST_F(PhysXTestFixture, JointLimitOnAFreeAxisIsRefusedAndWritesNothing)
     auto readLimits = [&]() {
         std::vector<float> out;
         ovphysx_query_handle_t rq = 0;
-        EXPECT_EQ(ovphysx_query(m_handle, OVPHYSX_OBJECT_ARTICULATION_JOINT, OVPHYSX_SCOPE_ALL, &rq).status,
+        EXPECT_EQ(test_utils::complete_task(m_handle, ovphysx_query(m_handle, OVPHYSX_QUERY_TARGET_ARTICULATION_JOINT, OVPHYSX_SCOPE_ALL, &rq, nullptr)).status,
                   OVPHYSX_API_SUCCESS);
         ovphysx_read_handle_t rh = 0;
-        EXPECT_EQ(ovphysx_read(m_handle, rq, &limitAttr, 1, &rh).status, OVPHYSX_API_SUCCESS);
+        EXPECT_EQ(test_utils::complete_task(m_handle, ovphysx_read(m_handle, rq, &limitAttr, 1, &rh, nullptr)).status, OVPHYSX_API_SUCCESS);
         const ovstage_read_group_t* g = nullptr;
-        while (ovphysx_fetch_read_next(m_handle, rh, &g).status == OVPHYSX_API_SUCCESS)
+        for (;;)
         {
+            const ovphysx_result_t fetch = test_utils::complete_task(m_handle, ovphysx_fetch_read_next(m_handle, rh, &g));
+            EXPECT_EQ(fetch.status, OVPHYSX_API_SUCCESS) << test_utils::last_task_error();
+            if (fetch.status != OVPHYSX_API_SUCCESS || !g)
+                break;
             for (uint32_t ti = 0; g->data.tensors && ti < g->data.tensor_count; ++ti)
             {
                 const DLTensor& t = g->data.tensors[ti];
@@ -88,10 +94,10 @@ TEST_F(PhysXTestFixture, JointLimitOnAFreeAxisIsRefusedAndWritesNothing)
                 const float* p = static_cast<const float*>(t.data);
                 out.insert(out.end(), p, p + n);
             }
-            ovphysx_release_group(m_handle, rh, g->read_group_id);
+            test_utils::complete_task(m_handle, ovphysx_release_group(m_handle, rh, g->read_group_id));
         }
-        ovphysx_release_read(m_handle, rh);
-        ovphysx_release_query(m_handle, rq);
+        test_utils::complete_task(m_handle, ovphysx_release_read(m_handle, rh));
+        test_utils::complete_task(m_handle, ovphysx_release_query(m_handle, rq));
         return out;
     };
 
@@ -101,15 +107,25 @@ TEST_F(PhysXTestFixture, JointLimitOnAFreeAxisIsRefusedAndWritesNothing)
     // half-filled.
     auto writeLimits = [&](auto valueAt) {
         ovphysx_query_handle_t q = 0;
-        EXPECT_EQ(ovphysx_query(m_handle, OVPHYSX_OBJECT_ARTICULATION_JOINT, OVPHYSX_SCOPE_ALL, &q).status,
+        EXPECT_EQ(test_utils::complete_task(m_handle, ovphysx_query(m_handle, OVPHYSX_QUERY_TARGET_ARTICULATION_JOINT, OVPHYSX_SCOPE_ALL, &q, nullptr)).status,
                   OVPHYSX_API_SUCCESS);
         ovphysx_write_handle_t w = 0;
-        EXPECT_EQ(ovphysx_write(m_handle, q, &limitAttr, &w).status, OVPHYSX_API_SUCCESS);
+        EXPECT_EQ(test_utils::complete_task(m_handle, ovphysx_write(m_handle, q, &limitAttr, 1, &w, nullptr)).status, OVPHYSX_API_SUCCESS);
         ovphysx_result_t worst{ OVPHYSX_API_SUCCESS };
         size_t flat = 0;
-        const ovstage_map_group_t* g = nullptr;
-        while (ovphysx_fetch_write_next(m_handle, w, &g).status == OVPHYSX_API_SUCCESS)
+        ovphysx_fetched_write_group_t fetched{};
+        for (;;)
         {
+            const ovphysx_result_t fetch = test_utils::complete_task(m_handle, ovphysx_fetch_write_next(m_handle, w, &fetched));
+            EXPECT_EQ(fetch.status, OVPHYSX_API_SUCCESS) << test_utils::last_task_error();
+            if (fetch.status != OVPHYSX_API_SUCCESS)
+            {
+                worst = fetch;
+                break;
+            }
+            const ovstage_map_group_t* g = fetched.group;
+            if (!g)
+                break;
             for (uint32_t ti = 0; g->data.tensors && ti < g->data.tensor_count; ++ti)
             {
                 const DLTensor& t = g->data.tensors[ti];
@@ -121,12 +137,12 @@ TEST_F(PhysXTestFixture, JointLimitOnAFreeAxisIsRefusedAndWritesNothing)
                 for (size_t j = 0; j < n; ++j)
                     p[j] = valueAt(flat++);
             }
-            const ovphysx_result_t c = ovphysx_commit_group(m_handle, w, g, noSync());
+            const ovphysx_result_t c = test_utils::complete_task(m_handle, ovphysx_commit_group(m_handle, w, g, noSync()));
             if (c.status != OVPHYSX_API_SUCCESS)
                 worst = c;
         }
-        ovphysx_release_write(m_handle, w);
-        ovphysx_release_query(m_handle, q);
+        test_utils::complete_task(m_handle, ovphysx_release_write(m_handle, w));
+        test_utils::complete_task(m_handle, ovphysx_release_query(m_handle, q));
         return worst;
     };
 
@@ -154,7 +170,7 @@ TEST_F(PhysXTestFixture, JointLimitOnAFreeAxisIsRefusedAndWritesNothing)
         << "writing the read-back limits back must succeed as a no-op (AC-10)";
     EXPECT_EQ(readLimits(), before) << "the no-op round-trip must not change any limit";
 
-    ovphysx_enqueue_result_t reset = ovphysx_reset_stage(m_handle);
+    ovphysx_enqueue_result_t reset = ovphysx_detach_ovstage(m_handle);
     ASSERT_EQ(reset.status, OVPHYSX_API_SUCCESS);
-    ASSERT_TRUE(waitForOperationSuccess(m_handle, reset.op_index));
+    ASSERT_TRUE(waitForTaskSuccess(m_handle, reset));
 }

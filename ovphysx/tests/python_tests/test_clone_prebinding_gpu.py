@@ -31,7 +31,7 @@ def _fill(t, block):
 
 def _read_positions(physx):
     """Every rigid body's position as one [N, 3] host array, in prim order."""
-    with physx.read(SimObjectType.RIGID_BODY, ["position"], scope=ObjectScope.ALL) as result:
+    with physx.read_sync(SimObjectType.RIGID_BODY, ["position"], scope=ObjectScope.ALL) as result:
         return np.concatenate([_to_host(g.tensors[0]).reshape(g.prim_count, -1) for g in result.groups])
 
 
@@ -62,6 +62,13 @@ def test_preclone_binding_velocity_reaches_all_envs(physx_sdk):
     physx_sdk.wait_all()
     physx_sdk.warmup()
 
+    # The same pattern must create a fresh selection after clone invalidation.
+    postclone_binding = physx_sdk.create_tensor_binding(
+        pattern="/World/envs/*/table", tensor_type=TT.RIGID_BODY_VELOCITY
+    )
+    assert postclone_binding.count == N
+    postclone_binding.destroy()
+
     # After cloning basic_simulation's single table into N envs, the tables are the scene's only
     # rigid bodies, so the whole-set session read/write reaches exactly them.
     before = _read_positions(physx_sdk)
@@ -69,10 +76,10 @@ def test_preclone_binding_velocity_reaches_all_envs(physx_sdk):
 
     # Drive every body: linear velocity x = 3.
     groups_written = 0
-    with physx_sdk.write(SimObjectType.RIGID_BODY, "linearVelocity") as w:
+    with physx_sdk.write_sync(SimObjectType.RIGID_BODY, "linearVelocity") as w:
         for grp in w.groups:
             _fill(grp.tensors[0], np.tile(np.array([3, 0, 0], np.float32), (grp.prim_count, 1)))
-            w.commit(grp)
+            w.commit_sync(grp)
             groups_written += 1
     assert groups_written > 0, "write session produced no groups; the velocity drive never happened"
     physx_sdk.wait_all()
@@ -110,7 +117,7 @@ def test_clone_invalidates_retained_gpu_contact_binding(physx_sdk):
 
     stale_forces = CudaArray((cb.sensor_count, 3), dtype=np.float32)
     with pytest.raises(RuntimeError):
-        cb.read_net_forces(stale_forces.dltensor)
+        cb.read_net_normal_forces(stale_forces.dltensor)
 
     cb = physx_sdk.create_contact_binding(
         sensor_patterns=["/World/Cube1"] + targets,
@@ -119,4 +126,4 @@ def test_clone_invalidates_retained_gpu_contact_binding(physx_sdk):
     assert cb.sensor_count == 1 + len(targets)
 
     forces = CudaArray((cb.sensor_count, 3), dtype=np.float32)
-    cb.read_net_forces(forces.dltensor)
+    cb.read_net_normal_forces(forces.dltensor)

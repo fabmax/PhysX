@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # @implements REQ-PACKAGING-DOCS-001
-# @covers AC-1 AC-2
+# @covers AC-1 AC-2 AC-3
 
 # ovphysx Python wheel smoke tests.
 # Validates the installed wheel via `python -m ovphysx` across Python versions.
@@ -33,15 +33,13 @@ message(STATUS "Found uv: ${UV_VERSION}")
 
 set(UV_CACHE_DIR_PATH "${PROJECT_ROOT}/_build/.uv_cache")
 file(MAKE_DIRECTORY "${UV_CACHE_DIR_PATH}")
-set(OVSTAGE_WHEEL_DIR "${PROJECT_ROOT}/_build/target-deps/ovstage_wheel")
-file(GLOB OVSTAGE_WHEELS "${OVSTAGE_WHEEL_DIR}/ovstage-*.whl")
-if(NOT OVSTAGE_WHEELS)
-    message(FATAL_ERROR "ovstage wheel not found in ${OVSTAGE_WHEEL_DIR}. Run the ovphysx build first.")
-endif()
+# ovstage is installed from its index (ADR-0033), not from a build-staged wheel dir.
+include("${CMAKE_CURRENT_LIST_DIR}/ovstage_index.cmake")
+ovphysx_ovstage_index_env(OVSTAGE_INDEX_ENV PACKAGE_ONLY)
 set(UV_ENV
     "UV_CACHE_DIR=${UV_CACHE_DIR_PATH}"
     "UV_NO_CONFIG=1"
-    "UV_FIND_LINKS=${OVSTAGE_WHEEL_DIR}"
+    ${OVSTAGE_INDEX_ENV}
     "UV_HTTP_TIMEOUT=300"
     "UV_SKIP_WHEEL_FILENAME_CHECK=1"
 )
@@ -76,6 +74,14 @@ set(DOCUMENTATION_SMOKE
     "${PROJECT_ROOT}/tests/python_tests/wheel_documentation_smoke.py")
 if(NOT EXISTS "${DOCUMENTATION_SMOKE}")
     message(FATAL_ERROR "Documentation smoke test not found: ${DOCUMENTATION_SMOKE}")
+endif()
+
+# CI sets this because its artifacts reach users and must all carry the same
+# rendered docs (NVBug 6717253). A local build that never rendered the
+# documentation is still testable without it.
+set(REQUIRE_RENDERED_DOCS_ARG)
+if(NOT "$ENV{OVPHYSX_REQUIRE_HTML_DOCS}" STREQUAL "" AND NOT "$ENV{OVPHYSX_REQUIRE_HTML_DOCS}" STREQUAL "0")
+    set(REQUIRE_RENDERED_DOCS_ARG "--require-rendered-docs")
 endif()
 
 set(PYTHON_VERSIONS
@@ -141,6 +147,7 @@ foreach(PY_VER ${PYTHON_VERSIONS})
         COMMAND ${CMAKE_COMMAND} -E env ${UV_ENV}
             "${OVPHYSX_UV_COMMAND}" run --python ${_VENV_DIR} --no-sync --
             python "${DOCUMENTATION_SMOKE}" --allow-unbundled-header-links
+            ${REQUIRE_RENDERED_DOCS_ARG}
         RESULT_VARIABLE _DOCUMENTATION_RESULT
         OUTPUT_VARIABLE _DOCUMENTATION_OUTPUT
         ERROR_VARIABLE _DOCUMENTATION_OUTPUT
@@ -164,6 +171,7 @@ foreach(PY_VER ${PYTHON_VERSIONS})
             python "${DOCUMENTATION_SMOKE}"
             --package-root "${PROJECT_ROOT}/_install"
             --source-docs "${PROJECT_ROOT}/docs"
+            ${REQUIRE_RENDERED_DOCS_ARG}
         RESULT_VARIABLE _SDK_DOCUMENTATION_RESULT
         OUTPUT_VARIABLE _SDK_DOCUMENTATION_OUTPUT
         ERROR_VARIABLE _SDK_DOCUMENTATION_OUTPUT

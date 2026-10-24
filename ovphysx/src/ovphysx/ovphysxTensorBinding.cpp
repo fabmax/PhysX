@@ -2,6 +2,14 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /**
+ * @implements REQ-CAPI-BINDING-SELECTION-001
+ * @covers AC-1 AC-2 AC-3 AC-4
+ *
+ * @implements REQ-CAPI-ASYNC-002
+ * @covers AC-1 AC-2 AC-3 AC-6
+ */
+
+/**
  * @implements REQ-CAPI-STRING-001
  * @covers AC-3
  *
@@ -17,7 +25,7 @@
  * @implements REQ-CAPI-CUDA-003
  * @covers AC-1 AC-2 AC-3 AC-4 AC-5
  *
- * @implements REQ-CAPI-NVTX-001
+ * @implements REQ-CAPI-PROFILER-001
  * @covers AC-5
  *
  * @implements REQ-CAPI-OBJECTTYPE-001
@@ -25,12 +33,13 @@
  */
 
 #include "ovphysx/ovphysx.h"
-#include "internal/Nvtx.h"
+#include "internal/Profiling.h"
 #include "internal/sdk/ovphysxSDK.hpp"
+#include "internal/sdk/TaskContext.hpp"
 #include "internal/sdk/DLPackConvert.h"
 #include "internal/sidecar/ovphysxInternalInterop.h"
-#include "AsyncEventManager/AsyncEventManager.hpp"
 #include <omni/physx/PhysXRuntime.h>
+#include <omni/physx/RuntimeError.h>
 
 #include <carb/Framework.h>
 #include <carb/logging/Log.h>
@@ -324,15 +333,8 @@ void destroyBindingResources(TensorBindingState& b)
             }
         }
     }
-    // Reset unconditionally so a null simView or a failed context push does not leave a dangling pointer.
-    b.wrenchSoaScratchDev = 0;
-    b.wrenchSoaScratchBytes = 0;
-
-    if (b.rbView) { b.rbView->release(); b.rbView = nullptr; }
-    if (b.artiView) { b.artiView->release(); b.artiView = nullptr; }
-    if (b.defBodyView) { b.defBodyView->release(); b.defBodyView = nullptr; }
-    if (b.defMatView) { b.defMatView->release(); b.defMatView = nullptr; }
-    if (b.simView) { b.simView->release(false); b.simView = nullptr; }
+    // The last binding releases the simulation view and its child view together.
+    b = {};
 }
 
 bool requiresRigidBodyView(ovphysx_tensor_type_t type)
@@ -1634,11 +1636,11 @@ void ovphysx_tensor_binding_cleanup_instance(InstanceData* instance)
 extern "C" {
 
 OVPHYSX_API ovphysx_result_t ovphysx_create_tensor_binding(
-    ovphysx_handle_t handle,
+    ovphysx_instance_handle_t handle,
     const ovphysx_tensor_binding_desc_t* desc,
     ovphysx_tensor_binding_handle_t* out_binding_handle)
 {
-    OVPHYSX_NVTX_ZONE("ovphysx_create_tensor_binding");
+    OVPHYSX_API_PROFILE_ZONE(create_tensor_binding);
     if (!desc || !out_binding_handle)
         return set_error(OVPHYSX_API_INVALID_ARGUMENT, "invalid parameters");
 
@@ -1689,121 +1691,83 @@ OVPHYSX_API ovphysx_result_t ovphysx_create_tensor_binding(
     if (!instance || !instance->ovstage_attached)
         return set_error(OVPHYSX_API_ERROR, "no physics stage attached");
 
-    auto* tensorApi = getTensorApi();
+    omni::physics::tensors::TensorApi* tensorApi = getTensorApi();
     if (!tensorApi)
         return set_error(OVPHYSX_API_ERROR, "TensorApi unavailable (plugins not loaded?)");
 
     TensorBindingState binding;
-    struct BindingGuard {
-        TensorBindingState* state{nullptr};
-        bool active{true};
-        ~BindingGuard() {
-            if (active && state) {
-                destroyBindingResources(*state);
-            }
-        }
-        void disarm() { active = false; }
-    } guard{&binding};
-
     binding.attachHandle = instance->attachHandle;
     binding.tensorType = desc->tensor_type;
-    // Store descriptive pattern string for debugging
-    binding.pattern = usingExplicitPaths
-        ? ("explicit_paths[" + std::to_string(desc->prim_paths_count) + "]")
-        : patterns[0];
 
-    binding.simView = tensorApi->createSimulationView(instance->attachHandle);
-    if (!binding.simView || !binding.simView->getValid())
+    // Reuse the native selection, not the attribute handle or its scratch buffers.
     {
-        return set_error(OVPHYSX_API_ERROR, "failed to create simulation view");
+        std::lock_guard<std::mutex> lock(instance->tensor_binding_mutex);
+        for (const std::pair<const ovphysx_tensor_binding_handle_t, TensorBindingState>& entry : instance->tensor_bindings)
+        {
+            const TensorBindingState& candidate = entry.second;
+            const bool sameFamily =
+                (requiresRigidBodyView(desc->tensor_type) && candidate.rbView) ||
+                (requiresArticulationView(desc->tensor_type) && candidate.artiView) ||
+                (requiresDeformableMaterialView(desc->tensor_type) && candidate.defMatView) ||
+                (requiresDeformableBodyView(desc->tensor_type) && candidate.defBodyView &&
+                 isSurfaceDeformableBodyType(desc->tensor_type) == isSurfaceDeformableBodyType(candidate.tensorType));
+            if (!sameFamily || candidate.attachHandle != instance->attachHandle ||
+                *candidate.patterns != patterns || !candidate.simView->isSelectionCurrent())
+                continue;
+            // GPU disable writes retire their own mapping immediately; GPU row reads
+            // retire it on refresh. Neither may retire a host-property binding.
+            if (candidate.rbView && candidate.simView->getDeviceOrdinal() >= 0 &&
+                (desc->tensor_type == OVPHYSX_TENSOR_RIGID_BODY_DISABLE_SIMULATION_BOOL ||
+                 candidate.tensorType == OVPHYSX_TENSOR_RIGID_BODY_DISABLE_SIMULATION_BOOL ||
+                 isCpuOnlyTensorType(desc->tensor_type) != isCpuOnlyTensorType(candidate.tensorType)))
+                continue;
+            binding.patterns = candidate.patterns;
+            binding.simView = candidate.simView;
+            binding.rbView = candidate.rbView;
+            binding.artiView = candidate.artiView;
+            binding.defBodyView = candidate.defBodyView;
+            binding.defMatView = candidate.defMatView;
+            break;
+        }
     }
 
-    // Create the view for the tensor type. TensorAPI returns nullptr when no prims
-    // match the pattern, which ovphysx treats as a valid empty binding.
+    // Null child views remain valid empty bindings. A stale selection is rebuilt
+    // without retiring older bindings that can still read their original objects.
+    if (!binding.simView)
     {
-        ScopedTensorNoMatchLogQuiet quietNoMatchLogs(binding.simView, !usingExplicitPaths);
+        binding.patterns = std::make_shared<const std::vector<std::string>>(std::move(patterns));
+        binding.simView.reset(tensorApi->createSimulationView(instance->attachHandle),
+                             [](omni::physics::tensors::ISimulationView* view) { if (view) view->release(true); });
+        if (!binding.simView || !binding.simView->getValid())
+            return set_error(OVPHYSX_API_ERROR, "failed to create simulation view");
+        ScopedTensorNoMatchLogQuiet quietNoMatchLogs(binding.simView.get(), !usingExplicitPaths);
         if (requiresRigidBodyView(desc->tensor_type))
-        {
-            binding.rbView = binding.simView->createRigidBodyView(patterns);
-            // A null view means 0 prims matched and getCount() returns 0.
-            if (binding.rbView)
-            {
-                CARB_LOG_INFO("Created rigid body binding with %u prims for pattern '%s'",
-                              binding.rbView->getCount(), binding.pattern.c_str());
-            }
-            else
-            {
-                CARB_LOG_INFO("Created valid empty rigid body binding with 0 prims for pattern '%s'",
-                              binding.pattern.c_str());
-            }
-        }
+            binding.rbView = binding.simView->createRigidBodyView(*binding.patterns);
         else if (requiresArticulationView(desc->tensor_type))
-        {
-            binding.artiView = binding.simView->createArticulationView(patterns);
-            // A null view means 0 prims matched and getCount() returns 0.
-            if (binding.artiView)
-            {
-                // Centroidal momentum is only defined for floating-base articulations, so a
-                // fixed-base match is rejected at creation instead of at read time. Every
-                // matched articulation is checked rather than the shared metatype, because a
-                // pattern can resolve to a mix of fixed- and floating-base articulations and
-                // one fixed-base entry already makes the read undefined. Empty views stay valid.
-                if (desc->tensor_type == OVPHYSX_TENSOR_ARTICULATION_CENTROIDAL_MOMENTUM_F32)
-                {
-                    const uint32_t artiCount = binding.artiView->getCount();
-                    for (uint32_t i = 0; i < artiCount; ++i)
-                    {
-                        const auto* metatype = binding.artiView->getMetatype(i);
-                        if (metatype && metatype->getFixedBase())
-                            return set_error(OVPHYSX_API_INVALID_ARGUMENT,
-                                             "centroidal momentum is only defined for floating-base "
-                                             "articulations; matched a fixed-base articulation");
-                    }
-                }
-                CARB_LOG_INFO("Created articulation binding with %u prims for pattern '%s'",
-                              binding.artiView->getCount(), binding.pattern.c_str());
-            }
-            else
-            {
-                CARB_LOG_INFO("Created valid empty articulation binding with 0 prims for pattern '%s'",
-                              binding.pattern.c_str());
-            }
-        }
+            binding.artiView = binding.simView->createArticulationView(*binding.patterns);
         else if (requiresDeformableBodyView(desc->tensor_type))
         {
             if (isSurfaceDeformableBodyType(desc->tensor_type))
-                binding.defBodyView = binding.simView->createSurfaceDeformableBodyView(patterns);
+                binding.defBodyView = binding.simView->createSurfaceDeformableBodyView(*binding.patterns);
             else
-                binding.defBodyView = binding.simView->createVolumeDeformableBodyView(patterns);
-            const char* bodyKind = isSurfaceDeformableBodyType(desc->tensor_type) ? "surface" : "volume";
-            if (binding.defBodyView)
-            {
-                CARB_LOG_INFO("Created %s deformable body binding with %u prims for pattern '%s'",
-                              bodyKind, binding.defBodyView->getCount(), binding.pattern.c_str());
-            }
-            else
-            {
-                CARB_LOG_WARN("%s deformable body binding created with 0 prims for pattern '%s'",
-                              bodyKind, binding.pattern.c_str());
-            }
+                binding.defBodyView = binding.simView->createVolumeDeformableBodyView(*binding.patterns);
         }
         else if (requiresDeformableMaterialView(desc->tensor_type))
-        {
-            binding.defMatView = binding.simView->createDeformableMaterialView(patterns);
-            if (binding.defMatView)
-            {
-                CARB_LOG_INFO("Created deformable material binding with %u prims for pattern '%s'",
-                              binding.defMatView->getCount(), binding.pattern.c_str());
-            }
-            else
-            {
-                CARB_LOG_WARN("Deformable material binding created with 0 prims for pattern '%s'",
-                              binding.pattern.c_str());
-            }
-        }
+            binding.defMatView = binding.simView->createDeformableMaterialView(*binding.patterns);
         else
-        {
             return set_error(OVPHYSX_API_INVALID_ARGUMENT, "unsupported tensor type");
+    }
+
+    // This attribute restriction also applies when another binding already owns the view.
+    if (binding.artiView && desc->tensor_type == OVPHYSX_TENSOR_ARTICULATION_CENTROIDAL_MOMENTUM_F32)
+    {
+        for (uint32_t i = 0; i < binding.artiView->getCount(); ++i)
+        {
+            const omni::physics::tensors::IArticulationMetatype* metatype = binding.artiView->getMetatype(i);
+            if (metatype && metatype->getFixedBase())
+                return set_error(OVPHYSX_API_INVALID_ARGUMENT,
+                                 "centroidal momentum is only defined for floating-base "
+                                 "articulations; matched a fixed-base articulation");
         }
     }
 
@@ -1815,16 +1779,15 @@ OVPHYSX_API ovphysx_result_t ovphysx_create_tensor_binding(
         std::lock_guard<std::mutex> lock(instance->tensor_binding_mutex);
         instance->tensor_bindings[bindingHandle] = std::move(binding);
     }
-    guard.disarm();
-
     *out_binding_handle = bindingHandle;
     return success();
 }
 
 OVPHYSX_API ovphysx_result_t ovphysx_destroy_tensor_binding(
-    ovphysx_handle_t handle,
+    ovphysx_instance_handle_t handle,
     ovphysx_tensor_binding_handle_t binding_handle)
 {
+    OVPHYSX_API_PROFILE_ZONE(destroy_tensor_binding);
     omni_sdk_physx_wait_all_pending_internal(handle);
 
     std::shared_lock<std::shared_mutex> map_lock(g_instances_mutex);
@@ -1845,10 +1808,11 @@ OVPHYSX_API ovphysx_result_t ovphysx_destroy_tensor_binding(
 }
 
 OVPHYSX_API ovphysx_result_t ovphysx_get_tensor_binding_spec(
-    ovphysx_handle_t handle,
+    ovphysx_instance_handle_t handle,
     ovphysx_tensor_binding_handle_t binding_handle,
     ovphysx_tensor_spec_t* out_spec)
 {
+    OVPHYSX_API_PROFILE_ZONE(get_tensor_binding_spec);
     if (!out_spec)
         return set_error(OVPHYSX_API_INVALID_ARGUMENT, "out_spec is NULL");
 
@@ -1891,10 +1855,11 @@ OVPHYSX_API ovphysx_result_t ovphysx_get_tensor_binding_spec(
 }
 
 OVPHYSX_API ovphysx_result_t ovphysx_get_tensor_binding_native_device(
-    ovphysx_handle_t handle,
+    ovphysx_instance_handle_t handle,
     ovphysx_tensor_binding_handle_t binding_handle,
     DLDevice* out_device)
 {
+    OVPHYSX_API_PROFILE_ZONE(get_tensor_binding_native_device);
     if (!out_device)
         return set_error(OVPHYSX_API_INVALID_ARGUMENT, "out_device is NULL");
 
@@ -1935,7 +1900,7 @@ OVPHYSX_API ovphysx_result_t ovphysx_get_tensor_binding_native_device(
 
 } // extern "C" (temporarily close for internal C++ helper)
 
-ovphysx_result_t ovphysx_warmup_if_needed(ovphysx_handle_t handle, bool is_explicit_call)
+ovphysx_result_t ovphysx_warmup_if_needed(ovphysx_instance_handle_t handle, bool is_explicit_call)
 {
     std::shared_lock<std::shared_mutex> check_lock(g_instances_mutex);
     InstanceData* instance = get_instance_ptr(handle);
@@ -1972,71 +1937,13 @@ ovphysx_result_t ovphysx_warmup_if_needed(ovphysx_handle_t handle, bool is_expli
     // tensor bindings read or write GPU simulation buffers. This stays synchronous
     // and independent of the op_index/async plumbing.
     const ovphysx_api_status_t simulate_status = omni_sdk_physx_simulate_instance(handle, kWarmupDt, 0.0f);
+    // Use the same completion path as public steps, including runtime diagnostics.
+    const ovphysx_api_status_t finish_status = omni_sdk_physx_finish_warmup(handle);
     if (simulate_status != OVPHYSX_API_SUCCESS)
-    {
-        return set_error(OVPHYSX_API_ERROR, "GPU warmup simulate() failed");
-    }
-    // Complete the warmup step with fetchResults(). fetchResults() is only called
-    // while a stage is attached (it can hang otherwise), and the internal event is
-    // completed and cleaned up so no pending state remains.
-    // NOTE: Keep in sync with the simulation wait path in ovphysx_wait_op().
-    try
-    {
-        std::shared_ptr<InstanceData> instanceShared = get_instance(handle);
-        if (!instanceShared)
-            return set_error(OVPHYSX_API_ERROR, "GPU warmup failed: invalid instance handle");
+        return {simulate_status};
+    if (finish_status != OVPHYSX_API_SUCCESS)
+        return {finish_status};
 
-        std::unique_lock<std::mutex> instance_lock(instanceShared->simulationMutex);
-
-        auto physxSim = instanceShared->carbonite ? instanceShared->carbonite->getPhysxSimulation() : nullptr;
-
-        if (physxSim && instanceShared->attachHandle != omni::physics::tensors::kNoAttach)
-        {
-            physxSim->fetchResults();
-        }
-
-        // Complete and cleanup the internal event created by omni_sdk_physx_simulate_instance().
-        if (instanceShared->pendingSimulationEvent != 0)
-        {
-            const async_event_handle_t event_to_cleanup = instanceShared->pendingSimulationEvent;
-            ovphysx::async::AsyncEventManager::complete_event(event_to_cleanup, true);
-            ovphysx::async::AsyncEventManager::cleanup_event(event_to_cleanup);
-            instanceShared->pendingSimulationEvent = 0;
-        }
-    }
-    catch (const std::exception& e)
-    {
-        std::shared_ptr<InstanceData> instanceShared = get_instance(handle);
-        if (instanceShared)
-        {
-            std::unique_lock<std::mutex> instance_lock(instanceShared->simulationMutex);
-            if (instanceShared->pendingSimulationEvent != 0)
-            {
-                const async_event_handle_t event_to_cleanup = instanceShared->pendingSimulationEvent;
-                ovphysx::async::AsyncEventManager::complete_event(event_to_cleanup, false, e.what());
-                ovphysx::async::AsyncEventManager::cleanup_event(event_to_cleanup);
-                instanceShared->pendingSimulationEvent = 0;
-            }
-        }
-        return set_error(OVPHYSX_API_ERROR, "GPU warmup fetchResults() failed");
-    }
-    catch (...)
-    {
-        std::shared_ptr<InstanceData> instanceShared = get_instance(handle);
-        if (instanceShared)
-        {
-            std::unique_lock<std::mutex> instance_lock(instanceShared->simulationMutex);
-            if (instanceShared->pendingSimulationEvent != 0)
-            {
-                const async_event_handle_t event_to_cleanup = instanceShared->pendingSimulationEvent;
-                ovphysx::async::AsyncEventManager::complete_event(event_to_cleanup, false, "Unknown exception");
-                ovphysx::async::AsyncEventManager::cleanup_event(event_to_cleanup);
-                instanceShared->pendingSimulationEvent = 0;
-            }
-        }
-        return set_error(OVPHYSX_API_ERROR, "GPU warmup fetchResults() failed");
-    }
-    
     // Re-acquire lock and set flag
     std::shared_lock<std::shared_mutex> set_lock(g_instances_mutex);
     instance = get_instance_ptr(handle);
@@ -2052,66 +1959,19 @@ ovphysx_result_t ovphysx_warmup_if_needed(ovphysx_handle_t handle, bool is_expli
 
 extern "C" {
 
-OVPHYSX_API ovphysx_result_t ovphysx_warmup(ovphysx_handle_t handle)
+OVPHYSX_API ovphysx_result_t ovphysx_warmup(ovphysx_instance_handle_t handle)
 {
+    OVPHYSX_API_PROFILE_ZONE(warmup);
     omni_sdk_physx_wait_all_pending_internal(handle);
     return ovphysx_warmup_if_needed(handle, /*is_explicit_call=*/true);
 }
 
-OVPHYSX_API ovphysx_result_t ovphysx_update_articulations_kinematic(ovphysx_handle_t handle)
-{
-    ovphysx_api_status_t wait_status = omni_sdk_physx_wait_all_pending_internal(handle);
-    if (wait_status != OVPHYSX_API_SUCCESS)
-        return set_error(wait_status, "failed to complete pending operations before kinematic articulation update");
-
-    ovphysx_api_status_t attach_status = ovphysx_ensure_physics_attached(handle);
-    if (attach_status != OVPHYSX_API_SUCCESS)
-        return set_error(attach_status, "failed to attach physics stage before kinematic articulation update");
-
-    auto instance = get_instance(handle);
-    if (!instance)
-        return set_error(OVPHYSX_API_ERROR, "invalid handle");
-    if (!instance->ovstage_attached)
-        return set_error(OVPHYSX_API_ERROR, "no physics stage attached");
-
-    auto* tensorApi = getTensorApi();
-    if (!tensorApi)
-        return set_error(OVPHYSX_API_ERROR, "TensorApi unavailable (plugins not loaded?)");
-
-    // Warmup ensures physics data is initialized before TensorAPI FK refresh.
-    {
-        ovphysx_result_t warmup_result = ovphysx_warmup_if_needed(handle, /*is_explicit_call=*/false);
-        if (warmup_result.status != OVPHYSX_API_SUCCESS)
-            return warmup_result;
-    }
-
-    omni::physics::tensors::ISimulationView* simView = tensorApi->createSimulationView(instance->attachHandle);
-    if (!simView)
-        return set_error(OVPHYSX_API_ERROR, "failed to create simulation view");
-
-    struct SimulationViewGuard
-    {
-        omni::physics::tensors::ISimulationView* view{nullptr};
-        ~SimulationViewGuard()
-        {
-            if (view)
-                view->release(false);
-        }
-    } guard{simView};
-
-    if (!simView->getValid())
-        return set_error(OVPHYSX_API_ERROR, "failed to create valid simulation view");
-
-    simView->updateArticulationsKinematic();
-    return success();
-}
-
 OVPHYSX_API ovphysx_result_t ovphysx_read_tensor_binding(
-    ovphysx_handle_t handle,
+    ovphysx_instance_handle_t handle,
     ovphysx_tensor_binding_handle_t binding_handle,
     DLTensor* dst_tensor)
 {
-    OVPHYSX_NVTX_ZONE("ovphysx_read_tensor_binding");
+    OVPHYSX_API_PROFILE_ZONE(read_tensor_binding);
     if (!dst_tensor)
         return set_error(OVPHYSX_API_INVALID_ARGUMENT, "dst_tensor is NULL");
     if (!dst_tensor->shape)
@@ -3155,12 +3015,12 @@ static ovphysx_result_t write_tensor_binding_locked(
 }
 
 OVPHYSX_API ovphysx_result_t ovphysx_write_tensor_binding(
-    ovphysx_handle_t handle,
+    ovphysx_instance_handle_t handle,
     ovphysx_tensor_binding_handle_t binding_handle,
     const DLTensor* src_tensor,
     const DLTensor* index_tensor)
 {
-    OVPHYSX_NVTX_ZONE("ovphysx_write_tensor_binding");
+    OVPHYSX_API_PROFILE_ZONE(write_tensor_binding);
     if (!src_tensor)
         return set_error(OVPHYSX_API_INVALID_ARGUMENT, "src_tensor is NULL");
     if (!src_tensor->shape)
@@ -3192,12 +3052,12 @@ OVPHYSX_API ovphysx_result_t ovphysx_write_tensor_binding(
 }
 
 OVPHYSX_API ovphysx_result_t ovphysx_write_tensor_binding_masked(
-    ovphysx_handle_t handle,
+    ovphysx_instance_handle_t handle,
     ovphysx_tensor_binding_handle_t binding_handle,
     const DLTensor* src_tensor,
     const DLTensor* mask_tensor)
 {
-    OVPHYSX_NVTX_ZONE("ovphysx_write_tensor_binding_masked");
+    OVPHYSX_API_PROFILE_ZONE(write_tensor_binding_masked);
     if (!src_tensor)
         return set_error(OVPHYSX_API_INVALID_ARGUMENT, "src_tensor is NULL");
     if (!src_tensor->shape)
@@ -3726,78 +3586,15 @@ OVPHYSX_API ovphysx_result_t ovphysx_write_tensor_binding_masked(
 // Articulation metadata queries
 // ---------------------------------------------------------------------------
 
-// Propagates root and DOF state into the link buffer for every articulation in
-// the binding via PxArticulationReducedCoordinate::updateKinematic (OMPE-94459).
-OVPHYSX_API ovphysx_result_t ovphysx_articulation_update_kinematic(
-    ovphysx_handle_t handle,
-    ovphysx_tensor_binding_handle_t binding_handle,
-    uint32_t flags)
-{
-    omni_sdk_physx_wait_all_pending_internal(handle);
-
-    std::shared_lock<std::shared_mutex> map_lock(g_instances_mutex);
-    InstanceData* instance = get_instance_ptr(handle);
-    if (!instance)
-        return set_error(OVPHYSX_API_ERROR, "invalid handle");
-
-    std::lock_guard<std::mutex> lock(instance->tensor_binding_mutex);
-    auto it = instance->tensor_bindings.find(binding_handle);
-    if (it == instance->tensor_bindings.end())
-        return set_error(OVPHYSX_API_NOT_FOUND, "binding not found");
-
-    TensorBindingState& binding = it->second;
-    // A binding created against a previous attach must not run sidecar calls
-    // against the new stage's articulations.
-    if (instance->attachHandle != binding.attachHandle)
-        return set_error(OVPHYSX_API_NOT_FOUND,
-                         "binding invalidated (stage changed); recreate binding");
-    if (!binding.artiView)
-        return set_error(OVPHYSX_API_INVALID_ARGUMENT,
-                         "update_kinematic requires an articulation tensor binding");
-
-    auto sidecarFn = g_sidecarUpdateKinematic.load(std::memory_order_acquire);
-    if (!sidecarFn)
-        return set_error(OVPHYSX_API_ERROR, "internal sidecar update_kinematic not loaded");
-
-    // Bit assignments match ovphysx_articulation_kinematic_flag_t (POSITION=0x1,
-    // VELOCITY=0x2). The sidecar re-maps them to PxArticulationKinematicFlag.
-    const uint32_t sidecarFlags = flags & (OVPHYSX_ARTICULATION_KINEMATIC_POSITION |
-                                           OVPHYSX_ARTICULATION_KINEMATIC_VELOCITY);
-    if (!sidecarFlags)
-        return success();
-
-    // The sidecar returns false for unresolvable or disposed articulations.
-    // Swallowing that would hide stale-state bugs the attach check above cannot
-    // catch, such as an articulation removed from the live stage.
-    const uint32_t count = binding.artiView->getCount();
-    bool allOk = true;
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        const char* path = binding.artiView->getUsdPrimPath(i);
-        // A null or empty path is an unresolvable articulation, the stale or
-        // disposed case this is meant to surface.
-        if (!path || !*path)
-        {
-            allOk = false;
-            continue;
-        }
-        if (!sidecarFn(path, sidecarFlags))
-            allOk = false;
-    }
-
-    return allOk ? success()
-                 : set_error(OVPHYSX_API_ERROR,
-                             "update_kinematic failed for one or more articulations in the binding");
-}
-
 // Mirrors PxRigidDynamic::wakeUp. Bodies with eDISABLE_SIMULATION set are skipped
 // because the engine refuses to wake disabled actors. Clearing that flag re-adds
 // the actor asleep, and this call brings it back active before the next simulate.
 OVPHYSX_API ovphysx_result_t ovphysx_rigid_body_view_wake_up(
-    ovphysx_handle_t handle,
+    ovphysx_instance_handle_t handle,
     ovphysx_tensor_binding_handle_t binding_handle,
     const DLTensor* indices)
 {
+    OVPHYSX_API_PROFILE_ZONE(rigid_body_view_wake_up);
     omni_sdk_physx_wait_all_pending_internal(handle);
 
     std::shared_lock<std::shared_mutex> map_lock(g_instances_mutex);
@@ -3848,10 +3645,11 @@ OVPHYSX_API ovphysx_result_t ovphysx_rigid_body_view_wake_up(
 // Mirrors PhysX SDK PxRigidDynamic::putToSleep. Symmetric counterpart to
 // ovphysx_rigid_body_view_wake_up.
 OVPHYSX_API ovphysx_result_t ovphysx_rigid_body_view_sleep(
-    ovphysx_handle_t handle,
+    ovphysx_instance_handle_t handle,
     ovphysx_tensor_binding_handle_t binding_handle,
     const DLTensor* indices)
 {
+    OVPHYSX_API_PROFILE_ZONE(rigid_body_view_sleep);
     omni_sdk_physx_wait_all_pending_internal(handle);
 
     std::shared_lock<std::shared_mutex> map_lock(g_instances_mutex);
@@ -3897,16 +3695,15 @@ OVPHYSX_API ovphysx_result_t ovphysx_rigid_body_view_sleep(
               : set_error(OVPHYSX_API_ERROR, "sleep failed for one or more bodies");
 }
 
-// OMPE-94459 (#13) / NVBugs 6560084: classify a prim by high-level TensorAPI
-// object type. Creates a transient simulation view (no binding needed) and
-// queries ISimulationView::getObjectType, mapping ObjectType onto
-// ovphysx_object_type_t. Unmatched paths yield INVALID with SUCCESS -- the call
-// succeeded, but nothing in the TensorAPI taxonomy matches that path.
+// Classifies a prim by TensorAPI object type through a transient simulation view
+// (OMPE-94459, NVBugs 6560084). An unmatched path yields INVALID with SUCCESS
+// because the call itself succeeded.
 OVPHYSX_API ovphysx_result_t ovphysx_get_object_type(
-    ovphysx_handle_t handle,
+    ovphysx_instance_handle_t handle,
     ovphysx_string_t prim_path,
     ovphysx_object_type_t* out_type)
 {
+    OVPHYSX_API_PROFILE_ZONE(get_object_type);
     if (!out_type)
         return set_error(OVPHYSX_API_INVALID_ARGUMENT, "out_type is NULL");
     *out_type = OVPHYSX_OBJECT_TYPE_INVALID;
@@ -3972,10 +3769,11 @@ OVPHYSX_API ovphysx_result_t ovphysx_get_object_type(
 }
 
 OVPHYSX_API ovphysx_result_t ovphysx_get_articulation_metadata(
-    ovphysx_handle_t handle,
+    ovphysx_instance_handle_t handle,
     ovphysx_tensor_binding_handle_t binding_handle,
     ovphysx_articulation_metadata_t* out_metadata)
 {
+    OVPHYSX_API_PROFILE_ZONE(get_articulation_metadata);
     if (!out_metadata)
         return set_error(OVPHYSX_API_INVALID_ARGUMENT, "out_metadata is NULL");
 
@@ -4017,12 +3815,13 @@ OVPHYSX_API ovphysx_result_t ovphysx_get_articulation_metadata(
 }
 
 OVPHYSX_API ovphysx_result_t ovphysx_articulation_get_dof_names(
-    ovphysx_handle_t handle,
+    ovphysx_instance_handle_t handle,
     ovphysx_tensor_binding_handle_t binding_handle,
     ovphysx_string_t* out_names,
     uint32_t max_names,
     uint32_t* out_count)
 {
+    OVPHYSX_API_PROFILE_ZONE(articulation_get_dof_names);
     if (!out_names || !out_count)
         return set_error(OVPHYSX_API_INVALID_ARGUMENT, "out_names or out_count is NULL");
 
@@ -4065,12 +3864,13 @@ OVPHYSX_API ovphysx_result_t ovphysx_articulation_get_dof_names(
 }
 
 OVPHYSX_API ovphysx_result_t ovphysx_articulation_get_body_names(
-    ovphysx_handle_t handle,
+    ovphysx_instance_handle_t handle,
     ovphysx_tensor_binding_handle_t binding_handle,
     ovphysx_string_t* out_names,
     uint32_t max_names,
     uint32_t* out_count)
 {
+    OVPHYSX_API_PROFILE_ZONE(articulation_get_body_names);
     if (!out_names || !out_count)
         return set_error(OVPHYSX_API_INVALID_ARGUMENT, "out_names or out_count is NULL");
 
@@ -4113,12 +3913,13 @@ OVPHYSX_API ovphysx_result_t ovphysx_articulation_get_body_names(
 }
 
 OVPHYSX_API ovphysx_result_t ovphysx_articulation_get_joint_names(
-    ovphysx_handle_t handle,
+    ovphysx_instance_handle_t handle,
     ovphysx_tensor_binding_handle_t binding_handle,
     ovphysx_string_t* out_names,
     uint32_t max_names,
     uint32_t* out_count)
 {
+    OVPHYSX_API_PROFILE_ZONE(articulation_get_joint_names);
     if (!out_names || !out_count)
         return set_error(OVPHYSX_API_INVALID_ARGUMENT, "out_names or out_count is NULL");
 
@@ -4161,12 +3962,13 @@ OVPHYSX_API ovphysx_result_t ovphysx_articulation_get_joint_names(
 }
 
 OVPHYSX_API ovphysx_result_t ovphysx_tensor_binding_get_prim_paths(
-    ovphysx_handle_t handle,
+    ovphysx_instance_handle_t handle,
     ovphysx_tensor_binding_handle_t binding_handle,
     ovphysx_string_t* out_paths,
     uint32_t max_paths,
     uint32_t* out_count)
 {
+    OVPHYSX_API_PROFILE_ZONE(tensor_binding_get_prim_paths);
     if (!out_paths || !out_count)
         return set_error(OVPHYSX_API_INVALID_ARGUMENT, "out_paths or out_count is NULL");
 

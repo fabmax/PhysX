@@ -10,6 +10,39 @@ import pytest
 from wheel_documentation_smoke import _broken_relative_links, validate
 
 
+@pytest.mark.parametrize("fence", ["```", "~~~"])
+def test_fenced_code_is_not_scanned_as_links(tmp_path: Path, fence: str) -> None:
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "index.md").write_text(
+        f"{fence}cpp\n"
+        "const auto cleanup = [&](uint64_t& handle, auto function) {};\n"
+        "[example](not-a-link.md)\n"
+        f"{fence}\n"
+        "[missing](missing.md)\n",
+        encoding="utf-8",
+    )
+
+    assert _broken_relative_links(tmp_path) == ["docs/index.md:5: missing.md"]
+
+
+@pytest.mark.parametrize("opener, non_closer", [
+    ("````", "```"), ("~~~", "```"), ("```", "~~~"), ("```", "```cpp"),
+])
+def test_code_fence_requires_matching_closer(tmp_path: Path, opener: str, non_closer: str) -> None:
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "index.md").write_text(
+        f"{opener}\n{non_closer}\n"
+        "[example](not-a-link.md)\n"
+        f"{opener}\n"
+        "[missing](missing.md)\n",
+        encoding="utf-8",
+    )
+
+    assert _broken_relative_links(tmp_path) == ["docs/index.md:5: missing.md"]
+
+
 def test_supported_markdown_destinations_with_whitespace(tmp_path: Path) -> None:
     package_root = tmp_path / "package"
     docs = package_root / "docs"
@@ -105,3 +138,72 @@ def test_validate_compares_raw_documentation_bytes(tmp_path: Path) -> None:
 
     with pytest.raises(RuntimeError, match="RST or image content differs"):
         validate(package_root, source_docs)
+
+
+def _portable_docs_package(tmp_path: Path) -> tuple[Path, Path]:
+    """Build the artifact shape the aarch64 wheel had: portable docs, no html/."""
+    source_docs = tmp_path / "source-docs"
+    package_root = tmp_path / "package"
+    package_docs = package_root / "docs"
+    source_docs.mkdir()
+    package_docs.mkdir(parents=True)
+    (source_docs / "index.md").write_text("# Index\n", encoding="utf-8")
+    (package_docs / "index.md").write_text("# Index\n", encoding="utf-8")
+    return package_root, source_docs
+
+
+def _add_rendered_docs(package_root: Path, *, headers: bool = True) -> Path:
+    rendered = package_root / "docs" / "html"
+    downloads = rendered / "_downloads" / "7e283c7a99c85402f12c8ca292dd4f25"
+    downloads.mkdir(parents=True)
+    (rendered / "index.html").write_text("<html></html>\n", encoding="utf-8")
+    if headers:
+        for name in (
+            "ovphysx.h",
+            "ovphysx_attributes.h",
+            "ovphysx_types.h",
+            "ovphysx_config.h",
+            "ovphysx_geometry_query.h",
+            "ovphysx_legacy.h",
+            "ovphysx_legacy_config.h",
+            "ovphysx_legacy_types.h",
+        ):
+            (downloads / name).write_text("/* header */\n", encoding="utf-8")
+    return rendered
+
+
+def test_validate_ignores_absent_rendered_docs_by_default(tmp_path: Path) -> None:
+    package_root, source_docs = _portable_docs_package(tmp_path)
+
+    validate(package_root, source_docs)
+
+
+def test_validate_rejects_absent_rendered_docs_when_required(tmp_path: Path) -> None:
+    package_root, source_docs = _portable_docs_package(tmp_path)
+
+    with pytest.raises(RuntimeError, match="rendered documentation tree is absent"):
+        validate(package_root, source_docs, require_rendered_docs=True)
+
+
+def test_validate_rejects_rendered_docs_without_downloadable_headers(tmp_path: Path) -> None:
+    package_root, source_docs = _portable_docs_package(tmp_path)
+    _add_rendered_docs(package_root, headers=False)
+
+    with pytest.raises(RuntimeError, match="downloadable C headers are absent"):
+        validate(package_root, source_docs, require_rendered_docs=True)
+
+
+def test_validate_rejects_rendered_docs_without_index(tmp_path: Path) -> None:
+    package_root, source_docs = _portable_docs_package(tmp_path)
+    rendered = _add_rendered_docs(package_root)
+    (rendered / "index.html").unlink()
+
+    with pytest.raises(RuntimeError, match="no index.html"):
+        validate(package_root, source_docs, require_rendered_docs=True)
+
+
+def test_validate_accepts_complete_rendered_docs(tmp_path: Path) -> None:
+    package_root, source_docs = _portable_docs_package(tmp_path)
+    _add_rendered_docs(package_root)
+
+    validate(package_root, source_docs, require_rendered_docs=True)

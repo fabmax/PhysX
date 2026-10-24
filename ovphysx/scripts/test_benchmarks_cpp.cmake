@@ -40,6 +40,7 @@ cmake_minimum_required(VERSION 3.16)
 get_filename_component(SCRIPT_DIR "${CMAKE_CURRENT_LIST_FILE}" DIRECTORY)
 include("${SCRIPT_DIR}/crossplatform_helpers.cmake")
 include("${SCRIPT_DIR}/build_common.cmake")
+include("${SCRIPT_DIR}/fetch_test_schemas.cmake")
 include("${SCRIPT_DIR}/benchmark_driver_common.cmake")
 
 set(INSTALL_DIR "${PROJECT_ROOT}/_install")
@@ -218,7 +219,7 @@ if(RUN_CPU)
     run_bench_pass("cpu" FALSE "" "" FALSE)
 endif()
 if(RUN_CPU_ST)
-    # Single-threaded baseline. --threads=1 sets the /physics/numThreads
+    # Single-threaded baseline. --threads=1 sets the /persistent/physics/numThreads
     # Carbonite setting before PhysX bootstrap so the dispatcher runs one
     # worker. Scoped to cubes20, the cheap minimal scene where the contrast
     # with the multithreaded pass is the signal.

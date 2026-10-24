@@ -5,6 +5,10 @@
 # @covers AC-4
 # @implements REQ-PACKAGING-CLOSURE-001
 # @covers AC-2
+# @implements REQ-PACKAGING-BUILDNUM-001
+# @covers AC-5
+# @implements REQ-PACKAGING-OVSTAGEVERSION-001
+# @covers AC-1 AC-3
 
 cmake_minimum_required(VERSION 3.16)
 
@@ -53,6 +57,12 @@ endif()
 include("${CMAKE_CURRENT_SOURCE_DIR}/scripts/crossplatform_helpers.cmake")
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/CarbPlatform.cmake")
 
+# Version reported by the built binaries. OVPHYSX_VERSION stays the VERSION-file
+# value that project() and the component variables above were parsed from; the
+# build number only ever reaches the stamped strings.
+apply_build_number("${OVPHYSX_VERSION}" OVPHYSX_VERSION_FULL)
+message(STATUS "ovphysx version: ${OVPHYSX_VERSION_FULL}")
+
 # -Werror is on in CI builds, which use the baseline compiler where all warnings
 # are clean. A host build with a newer compiler keeps warnings visible but non-fatal.
 # CI is detected via the provider-agnostic CI env var or the OMNI_REPO_BUILD_NO_DOCKER flag.
@@ -82,6 +92,7 @@ endif()
 function(ovphysx_apply_compiler_defaults _target)
     cmake_parse_arguments(ARG "" "" "GCC_SUPPRESSIONS;MSVC_SUPPRESSIONS" ${ARGN})
     if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        target_link_options(${_target} PRIVATE "-Wl,--build-id=sha1")
         target_compile_options(${_target} PRIVATE
             # Core flags (from CompilerDefaults.cmake)
             $<$<COMPILE_LANGUAGE:C,CXX>:-Wall>
@@ -89,6 +100,8 @@ function(ovphysx_apply_compiler_defaults _target)
             $<$<COMPILE_LANGUAGE:C,CXX>:-fvisibility=hidden>
             $<$<COMPILE_LANGUAGE:C,CXX>:-fstack-protector-strong>
             $<$<COMPILE_LANGUAGE:C,CXX>:-pthread>
+            # Preserve source lines for symbols from the exact optimized release.
+            $<$<COMPILE_LANGUAGE:C,CXX>:-g>
             # Common suppressions for ovphysx code (triggered by USD/PhysX/Carbonite headers)
             $<$<COMPILE_LANGUAGE:C,CXX>:-Wno-unused-parameter>
             $<$<COMPILE_LANGUAGE:C,CXX>:-Wno-unused-variable>
@@ -118,6 +131,10 @@ function(ovphysx_apply_compiler_defaults _target)
                 $<$<COMPILE_LANGUAGE:C,CXX>:-Werror>)
         endif()
     elseif(MSVC)
+        target_compile_options(${_target} PRIVATE $<$<COMPILE_LANGUAGE:C,CXX>:/Zi>)
+        target_link_options(${_target} PRIVATE /DEBUG:FULL
+            $<$<OR:$<CONFIG:Release>,$<CONFIG:Checked>>:/OPT:REF>
+            $<$<OR:$<CONFIG:Release>,$<CONFIG:Checked>>:/OPT:ICF>)
         # Suppressions aligned with the ovruntime/source/pch/UsdPCH.h pragma block.
         # ovruntime scopes these via #pragma warning(push/pop) around USD/PhysX
         # includes in its precompiled header. ovphysx has no PCH, so they are
@@ -313,7 +330,6 @@ endif()
 # ovruntime as CMake subproject
 # ============================================================================
 option(OVPHYSX_DEV_PHYSX "Build PhysX SDK from source (passed to ovruntime)" OFF)
-option(OVPHYSX_DEV_SCHEMA "Use locally-built physics schema (passed to ovruntime)" OFF)
 
 set(OVRUNTIME_DIR "${CMAKE_CURRENT_SOURCE_DIR}/ovruntime")
 
@@ -339,15 +355,11 @@ endif()
 # and libovphysx has no USD link-time dependency. USD is still needed to BUILD and RUN
 # the tests and samples. The product payload resolves its USD from the application's
 # ovstage runtime (see scripts/package_deps.py).
-# DEV_PHYSX/DEV_SCHEMA must stay in sync with the OVPHYSX_ options on every
+# DEV_PHYSX must stay in sync with the OVPHYSX_ option on every
 # reconfigure when top-level, but respect parent overrides when subdirectory.
 get_property(_has_ovr_devphysx CACHE OVRUNTIME_DEV_PHYSX PROPERTY VALUE SET)
 if(OVPHYSX_IS_TOP_LEVEL OR NOT _has_ovr_devphysx)
     set(OVRUNTIME_DEV_PHYSX ${OVPHYSX_DEV_PHYSX} CACHE BOOL "" FORCE)
-endif()
-get_property(_has_ovr_devschema CACHE OVRUNTIME_DEV_SCHEMA PROPERTY VALUE SET)
-if(OVPHYSX_IS_TOP_LEVEL OR NOT _has_ovr_devschema)
-    set(OVRUNTIME_DEV_SCHEMA ${OVPHYSX_DEV_SCHEMA} CACHE BOOL "" FORCE)
 endif()
 set(OVRUNTIME_RUNTIME_DEPS_CONFIG "${OVPHYSX_RUNTIME_DEPS_CONFIG}" CACHE STRING "" FORCE)
 
@@ -668,22 +680,39 @@ add_dependencies(ovruntime_runtime_libs
 )
 
 add_library(ovphysx SHARED
-    src/AsyncEventManager/AsyncEventManager.cpp
-    src/AsyncEventManager/AsyncEventManagerC.cpp
     src/CarboniteLoader/CarboniteLoader.cpp
     src/ovphysx/ovphysx_ABI_check.cpp
     src/ovphysx/CpuFeatureCheck.cpp
+    src/ovphysx/GlobalState.cpp
     src/ovphysx/LogManager.cpp
-    src/ovphysx/Nvtx.cpp
+    src/ovphysx/Profiling.cpp
+    src/ovphysx/OvStageOutput.cpp
     src/ovphysx/ovphysx.cpp
+    companion/src/Companion.cpp
+    companion/src/Preview.cpp
+    companion/src/Mesh.cpp
+    companion/src/Native.cpp
+    companion/src/CustomInterfaces.cpp
+    companion/src/Cooking.cpp
+    companion/src/Cct.cpp
+    companion/src/Events.cpp
+    companion/src/Inspection.cpp
+    companion/src/Interaction.cpp
+    companion/src/NativeAccess.cpp
+    companion/src/Queries.cpp
+    companion/src/Mass.cpp
+    companion/src/Configuration.cpp
+    companion/src/Vehicle.cpp
+    companion/src/Debug.cpp
+    companion/src/Ovd.cpp
     src/ovphysx/ovphysxTensorBinding.cpp
     src/ovphysx/ovphysxContactBinding.cpp
     src/ovphysx/ovphysxSdfView.cpp
     src/ovphysx/PhysXWrapper.cpp
     src/ovphysx/TensorBindingWrapper.cpp
     src/ovphysx/ovphysxPhysXInterop.cpp
+    src/ovphysx/ovphysxDebugRenderSession.cpp
     src/ovphysx/ovphysxObjectChangeCallbacks.cpp
-    src/ovphysx/ovphysxContactReport.cpp
     src/ovphysx/ovphysxSceneQuery.cpp
     src/ovphysx/ovphysxSidecarLoader.cpp
     src/ovphysx/ovphysxTestHelpers.cpp
@@ -739,6 +768,7 @@ target_include_directories(ovphysx
     PUBLIC
         $<BUILD_INTERFACE:${OVPHYSX_GENERATED_INCLUDE_DIR}>
         $<BUILD_INTERFACE:${OVPHYSX_PUBLIC_INCLUDE_DIR}>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/companion/include>
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/src/include
         ${CMAKE_CURRENT_SOURCE_DIR}/include
@@ -759,38 +789,9 @@ target_include_directories(ovphysx SYSTEM PRIVATE
     ${LOCAL_TARGET_DEPS}/gsl/include
 )
 
-# NVTX range instrumentation for Nsight Systems. NVTX 3 is header-only and ships
-# inside the CUDA package ovruntime already pulls, so nothing is linked or
-# redistributed. Ranges are emitted only when enabled at runtime, so this stays
-# compiled in for release builds and shipped wheels.
-#
-# Missing headers are a hard error, unlike in ovruntime: ovphysx links the CUDA
-# stubs unconditionally below, so a missing header set means a broken environment
-# rather than a reduced-capability build. -DOVPHYSX_ENABLE_NVTX=OFF drops only the
-# ovphysx domain. The PhysX domain follows ovruntime's own detection.
-option(OVPHYSX_ENABLE_NVTX "Compile in NVTX range instrumentation for Nsight Systems" ON)
-if(OVPHYSX_ENABLE_NVTX)
-    # Honour an explicit -DCUDA_DIR= the way ovruntime does, falling back to the
-    # staged dependency. Probing only the staged path would fail a build that
-    # points CUDA elsewhere, even though the headers are present there.
-    if(DEFINED CUDA_DIR)
-        set(OVPHYSX_NVTX_INCLUDE_DIR "${CUDA_DIR}/include")
-    else()
-        set(OVPHYSX_NVTX_INCLUDE_DIR "${OVRUNTIME_TARGET_DEPS}/cuda/include")
-    endif()
-    if(NOT EXISTS "${OVPHYSX_NVTX_INCLUDE_DIR}/nvtx3/nvToolsExt.h")
-        message(FATAL_ERROR
-            "NVTX 3 headers not found at ${OVPHYSX_NVTX_INCLUDE_DIR}/nvtx3. They come from the "
-            "CUDA target dependency: run ovruntime/pull_dependencies.bat (or .sh) first, or point "
-            "-DCUDA_DIR= at a toolkit that provides them. "
-            "To build without profiling support, pass -DOVPHYSX_ENABLE_NVTX=OFF.")
-    endif()
-    target_include_directories(ovphysx SYSTEM PRIVATE ${OVPHYSX_NVTX_INCLUDE_DIR})
-    target_compile_definitions(ovphysx PRIVATE OVPHYSX_NVTX_ENABLED=1)
-    message(STATUS "NVTX instrumentation: enabled (headers: ${OVPHYSX_NVTX_INCLUDE_DIR}/nvtx3)")
-else()
-    message(STATUS "NVTX instrumentation: disabled (OVPHYSX_ENABLE_NVTX=OFF)")
-endif()
+# Source-link consumers also compile the native companion and need its fingerprint.
+include("${CMAKE_CURRENT_SOURCE_DIR}/companion/cmake/NativeSdk.cmake")
+
 # Single install interface. Generated headers (version.h) are installed
 # to the same include/ directory, so one entry suffices.
 set_property(TARGET ovphysx APPEND PROPERTY
@@ -836,21 +837,64 @@ foreach(PLUGIN_NAME ${CARB_STATIC_PLUGIN_NAMES})
     list(APPEND CARB_STATIC_PLUGIN_LIBS ${_CARB_STATIC_PLUGIN_LIB})
 endforeach()
 
+# Carbonite's NVTX profiler backend, which publishes the CARB_PROFILE_* zones of the
+# ovphysx C API and the omni.physx runtime as NVTX ranges when that backend is
+# selected. It is the only profiler backend the carb package builds a static library
+# for; the others ship as plugin shims. It is optional rather than
+# required: a package without it produces a build where selecting NVTX warns and
+# records nothing, which is preferable to failing to configure. Kept out of
+# CARB_STATIC_PLUGIN_NAMES above for exactly that reason.
+unset(CARB_PROFILER_NVTX_STATIC_LIB)
+unset(CARB_PROFILER_NVTX_STATIC_LIB CACHE)
+find_library(CARB_PROFILER_NVTX_STATIC_LIB carb.profiler-nvtx.static PATHS ${CARB_STATIC_LIB_DIR} NO_DEFAULT_PATH)
+if(CARB_PROFILER_NVTX_STATIC_LIB)
+    list(APPEND CARB_STATIC_PLUGIN_LIBS ${CARB_PROFILER_NVTX_STATIC_LIB})
+    set(OVPHYSX_CARB_NVTX_BACKEND 1)
+    message(STATUS "Found carb.profiler-nvtx.static: ${CARB_PROFILER_NVTX_STATIC_LIB}")
+else()
+    set(OVPHYSX_CARB_NVTX_BACKEND 0)
+    message(STATUS "carb.profiler-nvtx.static not found in ${CARB_STATIC_LIB_DIR} -- "
+                   "the NVTX profiler backend will be unavailable")
+endif()
+
 set(CARB_STATIC_INCLUDE_DIR "${LOCAL_TARGET_DEPS}/carb_sdk_static/include")
 if(NOT EXISTS "${CARB_STATIC_INCLUDE_DIR}")
     message(FATAL_ERROR "Static Carbonite include directory not found: ${CARB_STATIC_INCLUDE_DIR}")
 endif()
 target_include_directories(ovphysx BEFORE PRIVATE ${CARB_STATIC_INCLUDE_DIR})
 target_compile_definitions(ovphysx PRIVATE
+    $<$<CONFIG:Debug>:_DEBUG>
     CARB_STATIC_PLUGIN_BUILD=1
+    OVPHYSX_CARB_NVTX_BACKEND=${OVPHYSX_CARB_NVTX_BACKEND}
     CARB_PLUGIN_CLIENT_NAME=omni_physx_sdk
     carb_ErrorApi=carb_ErrorApi_latest
     carb_Framework=carb_Framework_latest
     carb_filesystem_IFileSystem=carb_filesystem_IFileSystem_latest
     carb_dictionary_IDictionary=carb_dictionary_IDictionary_latest
+    # Match the runtime and static Carbonite task-helper layouts.
+    $<$<COMPILE_LANGUAGE:CXX>:carb_tasking_ITasking=carb_tasking_ITasking_latest>
 )
 target_link_libraries(ovphysx PRIVATE ${CARB_STATIC_LIBRARY} ${CARB_STATIC_PLUGIN_LIBS})
-target_link_libraries(ovphysx PRIVATE OvruntimePhysXCudaShim OvruntimePhysX)
+target_link_libraries(ovphysx PRIVATE OvruntimePhysXCudaShim OvruntimePhysX OvruntimeCommon)
+
+# Reuse ovruntime's CUDA setup in this directory scope, including its Windows
+# nvcc command and architecture policy.
+get_directory_property(CUDA_DIR DIRECTORY "${OVRUNTIME_DIR}" DEFINITION CUDA_DIR)
+set(OVRUNTIME_ROOT_DIR "${OVRUNTIME_DIR}")
+include("${OVRUNTIME_DIR}/cmake/CudaUtils.cmake")
+ovruntime_target_add_cuda_sources(ovphysx
+    SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/ovphysx/OvStageOutputCuda.cu"
+    INCLUDE_DIRS ${OVSTAGE_INCLUDE_DIRS}
+                 "${_OVPHYSX_PHYSX_INCLUDE_SOURCE}"
+                 "${CARB_SDK_INCLUDE_DIR}"
+)
+target_include_directories(ovphysx SYSTEM PRIVATE "${CUDA_DIR}/include")
+set_target_properties(ovphysx PROPERTIES
+    CUDA_ARCHITECTURES "${OVRUNTIME_CUDA_ARCHITECTURES}"
+    CUDA_STANDARD 17
+    CUDA_STANDARD_REQUIRED ON
+    CUDA_VISIBILITY_PRESET hidden
+)
 
 # OvruntimePhysX is a static archive. Its private external dependencies are
 # linked into the final owner binary, so ovphysx must provide the matching
@@ -881,7 +925,7 @@ else()
 endif()
 
 if(WIN32)
-    target_link_libraries(ovphysx PRIVATE shlwapi pathcch winmm)
+    target_link_libraries(ovphysx PRIVATE shlwapi pathcch winmm advapi32)
     target_compile_options(ovphysx PRIVATE /wd4211)
 else()
     # dlopen/dlsym for runtime driver loading
@@ -946,6 +990,13 @@ endif()
 # Group headers for IDEs (optional)
 source_group(TREE ${OVPHYSX_PUBLIC_INCLUDE_DIR} FILES
     ${OVPHYSX_PUBLIC_INCLUDE_DIR}/ovphysx/ovphysx.h
+    ${OVPHYSX_PUBLIC_INCLUDE_DIR}/ovphysx/ovphysx_attributes.h
+    ${OVPHYSX_PUBLIC_INCLUDE_DIR}/ovphysx/ovphysx_config.h
+    ${OVPHYSX_PUBLIC_INCLUDE_DIR}/ovphysx/ovphysx_geometry_query.h
+    ${OVPHYSX_PUBLIC_INCLUDE_DIR}/ovphysx/ovphysx_legacy.h
+    ${OVPHYSX_PUBLIC_INCLUDE_DIR}/ovphysx/ovphysx_legacy_config.h
+    ${OVPHYSX_PUBLIC_INCLUDE_DIR}/ovphysx/ovphysx_legacy_types.h
+    ${OVPHYSX_PUBLIC_INCLUDE_DIR}/ovphysx/ovphysx_types.h
     ${OVPHYSX_PUBLIC_INCLUDE_DIR}/ovphysx/experimental/Helpers.hpp
     ${OVPHYSX_PUBLIC_INCLUDE_DIR}/ovphysx/experimental/ovphysx.hpp
     ${OVPHYSX_PUBLIC_INCLUDE_DIR}/ovphysx/experimental/TensorBinding.hpp
@@ -1004,11 +1055,24 @@ endif()
 include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
 
+
 # Set installation directories
 set(CMAKE_INSTALL_INCLUDEDIR "include")
 set(CMAKE_INSTALL_LIBDIR "lib")
 set(CMAKE_INSTALL_BINDIR "bin")
 set(OVPHYSX_PLUGINSDIR "plugins")
+
+install(FILES "${OVPHYSX_GENERATED_INCLUDE_DIR}/ovphysx_companion/native_build.h"
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/ovphysx_companion)
+install(FILES
+    "${OVRUNTIME_DIR}/include/omni/physx/NativeParameters.h"
+    "${OVRUNTIME_DIR}/include/omni/physx/IPhysxCustomJoint.h"
+    "${OVRUNTIME_DIR}/include/omni/physx/IPhysxCustomGeometry.h"
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/omni/physx)
+install(FILES "${OVRUNTIME_DIR}/include/omni/physics/AttachHandle.h"
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/omni/physics)
+install(FILES "${OVRUNTIME_DIR}/include/omni/physics/parse/Handles.h"
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/omni/physics/parse)
 
 # Install the library
 install(TARGETS ovphysx
@@ -1041,10 +1105,16 @@ install(DIRECTORY ${OVPHYSX_PUBLIC_INCLUDE_DIR}/
     FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp"
 )
 
+# Companion entry points live in the existing library, with separate headers.
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/companion/include/"
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp"
+)
+
 # ovstage is not installed: no headers, library, runtime, or Python package.
-# It remains a required external dependency. Native SDK consumers provide the
-# matching OVStage native package, which ovphysxConfig.cmake resolves through
-# find_dependency(ovstage).
+# It remains a required external dependency. ovphysxConfig.cmake resolves it from
+# CMAKE_PREFIX_PATH when the application supplies one, and otherwise bootstraps the
+# pinned native package via lib/cmake/ovphysx/OvstageBootstrap.cmake (ADR-0033).
 #
 # The notice stays because OVStage is the required application-supplied scene
 # population dependency represented by the installed companion target.
@@ -1080,6 +1150,14 @@ install(EXPORT ovphysxTargets
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/ovphysx
 )
 
+# Derive the installed dependency requirement from the source fetcher's pin.
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/ReadOvstageVersion.cmake")
+ovphysx_read_ovstage_version(
+    "${CMAKE_CURRENT_SOURCE_DIR}/scripts/fetch_ovstage_release.py"
+    OVPHYSX_OVSTAGE_VERSION OVPHYSX_OVSTAGE_CMAKE_VERSION)
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/scripts/fetch_ovstage_release.py")
+
 # Create the config file
 configure_package_config_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/cmake/ovphysxConfig.cmake.in"
@@ -1095,11 +1173,17 @@ write_basic_package_version_file(
     COMPATIBILITY AnyNewerVersion
 )
 
-# Install the config files
+# Install the package config and its OVStage bootstrap (ADR-0033).
 install(FILES
     "${CMAKE_CURRENT_BINARY_DIR}/ovphysxConfig.cmake"
     "${CMAKE_CURRENT_BINARY_DIR}/ovphysxConfigVersion.cmake"
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/OvstageBootstrap.cmake"
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/ovphysx
+)
+
+# Ship the fetcher used by the bootstrap.
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/scripts/fetch_ovstage_release.py"
+    DESTINATION scripts
 )
 
 # ==============================================================================
@@ -1139,12 +1223,13 @@ install(FILES
 # Multi-config generators need --config passed to cmake -P scripts.
 # Single-config generators use CMAKE_BUILD_TYPE.
 if(CMAKE_CONFIGURATION_TYPES)
-    set(_SCRIPT_BUILD_TYPE_ARG "-DBUILD_TYPE=$<CONFIG>")
+    set(_SCRIPT_BUILD_ARGS "-DBUILD_TYPE=$<CONFIG>")
     set(_CTEST_CONFIG_ARGS -C $<CONFIG>)
 else()
-    set(_SCRIPT_BUILD_TYPE_ARG "-DBUILD_TYPE=${CMAKE_BUILD_TYPE}")
+    set(_SCRIPT_BUILD_ARGS "-DBUILD_TYPE=${CMAKE_BUILD_TYPE}")
     set(_CTEST_CONFIG_ARGS)
 endif()
+list(APPEND _SCRIPT_BUILD_ARGS "-DBUILD_DIR=${CMAKE_CURRENT_BINARY_DIR}")
 set(_SCRIPT_RUNTIME_DEPS_ARG "-DOVPHYSX_USE_RELEASE_RUNTIME_DEPS=${OVPHYSX_USE_RELEASE_RUNTIME_DEPS}")
 
 # The source-link sample runs a nested configure from CTest/custom-target
@@ -1157,7 +1242,7 @@ ovphysx_write_source_link_context("${_SOURCE_LINK_CONTEXT_FILE}")
 
 # --- install_sdk: assemble _install/ ---
 add_custom_target(install_sdk
-    COMMAND ${CMAKE_COMMAND} ${_SCRIPT_BUILD_TYPE_ARG} ${_SCRIPT_RUNTIME_DEPS_ARG}
+    COMMAND ${CMAKE_COMMAND} ${_SCRIPT_BUILD_ARGS} ${_SCRIPT_RUNTIME_DEPS_ARG}
         -P "${CMAKE_CURRENT_SOURCE_DIR}/scripts/install.cmake"
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
     COMMENT "Assembling SDK in _install/"
@@ -1167,7 +1252,7 @@ add_dependencies(install_sdk ovphysx ovphysx_internal ovruntime_runtime_libs)
 
 # --- package_sdk: create SDK archive in _dist/ ---
 add_custom_target(package_sdk
-    COMMAND ${CMAKE_COMMAND} ${_SCRIPT_BUILD_TYPE_ARG} ${_SCRIPT_RUNTIME_DEPS_ARG}
+    COMMAND ${CMAKE_COMMAND} ${_SCRIPT_BUILD_ARGS} ${_SCRIPT_RUNTIME_DEPS_ARG}
         -P "${CMAKE_CURRENT_SOURCE_DIR}/scripts/package_sdk.cmake"
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
     COMMENT "Creating SDK archive in _dist/"
@@ -1177,7 +1262,7 @@ add_dependencies(package_sdk install_sdk)
 
 # --- build_wheel: stage and build wheel into _dist/ ---
 add_custom_target(build_wheel
-    COMMAND ${CMAKE_COMMAND} ${_SCRIPT_BUILD_TYPE_ARG} ${_SCRIPT_RUNTIME_DEPS_ARG}
+    COMMAND ${CMAKE_COMMAND} ${_SCRIPT_BUILD_ARGS} ${_SCRIPT_RUNTIME_DEPS_ARG}
         -P "${CMAKE_CURRENT_SOURCE_DIR}/scripts/build_wheel.cmake"
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
     COMMENT "Building Python wheel into _dist/"
@@ -1188,7 +1273,7 @@ add_dependencies(build_wheel install_sdk)
 # --- Individual test targets ---
 
 add_custom_target(test_cpp
-    COMMAND ${CMAKE_COMMAND} ${_SCRIPT_BUILD_TYPE_ARG}
+    COMMAND ${CMAKE_COMMAND} ${_SCRIPT_BUILD_ARGS}
         -P "${CMAKE_CURRENT_SOURCE_DIR}/scripts/test_cpp.cmake"
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
     COMMENT "Running C++ unit tests"
@@ -1197,7 +1282,7 @@ add_custom_target(test_cpp
 add_dependencies(test_cpp install_sdk)
 
 add_custom_target(test_cpp_samples
-    COMMAND ${CMAKE_COMMAND} ${_SCRIPT_BUILD_TYPE_ARG}
+    COMMAND ${CMAKE_COMMAND} ${_SCRIPT_BUILD_ARGS}
         -P "${CMAKE_CURRENT_SOURCE_DIR}/scripts/test_cpp_samples.cmake"
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
     COMMENT "Running C++ sample applications"
@@ -1206,7 +1291,7 @@ add_custom_target(test_cpp_samples
 add_dependencies(test_cpp_samples install_sdk)
 
 add_custom_target(test_source_link
-    COMMAND ${CMAKE_COMMAND} ${_SCRIPT_BUILD_TYPE_ARG}
+    COMMAND ${CMAKE_COMMAND} ${_SCRIPT_BUILD_ARGS}
         "-DOVPHYSX_DEV_PHYSX=${OVRUNTIME_DEV_PHYSX}"
         "-DSOURCE_LINK_CONTEXT_FILE=${_SOURCE_LINK_CONTEXT_FILE}"
         -P "${CMAKE_CURRENT_SOURCE_DIR}/scripts/test_source_link.cmake"
@@ -1219,7 +1304,7 @@ add_custom_target(test_source_link
 add_dependencies(test_source_link install_sdk)
 
 add_custom_target(test_python_runtime
-    COMMAND ${CMAKE_COMMAND} ${_SCRIPT_BUILD_TYPE_ARG}
+    COMMAND ${CMAKE_COMMAND} ${_SCRIPT_BUILD_ARGS}
         -P "${CMAKE_CURRENT_SOURCE_DIR}/scripts/test_python_runtime.cmake"
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
     COMMENT "Running Python runtime tests"
@@ -1228,7 +1313,7 @@ add_custom_target(test_python_runtime
 add_dependencies(test_python_runtime install_sdk)
 
 add_custom_target(test_python_wheel
-    COMMAND ${CMAKE_COMMAND} ${_SCRIPT_BUILD_TYPE_ARG}
+    COMMAND ${CMAKE_COMMAND} ${_SCRIPT_BUILD_ARGS}
         -P "${CMAKE_CURRENT_SOURCE_DIR}/scripts/test_python_wheel.cmake"
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
     COMMENT "Running Python wheel smoke tests"
@@ -1237,7 +1322,7 @@ add_custom_target(test_python_wheel
 add_dependencies(test_python_wheel build_wheel)
 
 add_custom_target(test_python_samples
-    COMMAND ${CMAKE_COMMAND} ${_SCRIPT_BUILD_TYPE_ARG}
+    COMMAND ${CMAKE_COMMAND} ${_SCRIPT_BUILD_ARGS}
         -P "${CMAKE_CURRENT_SOURCE_DIR}/scripts/test_python_samples.cmake"
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
     COMMENT "Running Python sample applications"
@@ -1252,7 +1337,7 @@ add_dependencies(test_python_samples build_wheel)
 # out with a clear message if the binary is missing.
 
 add_custom_target(test_benchmarks_cpp
-    COMMAND ${CMAKE_COMMAND} ${_SCRIPT_BUILD_TYPE_ARG}
+    COMMAND ${CMAKE_COMMAND} ${_SCRIPT_BUILD_ARGS}
         -P "${CMAKE_CURRENT_SOURCE_DIR}/scripts/test_benchmarks_cpp.cmake"
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
     COMMENT "Running C++ benchmark suite"
@@ -1264,7 +1349,7 @@ if(OVPHYSX_BUILD_BENCHMARKS)
 endif()
 
 add_custom_target(test_benchmarks_python
-    COMMAND ${CMAKE_COMMAND} ${_SCRIPT_BUILD_TYPE_ARG}
+    COMMAND ${CMAKE_COMMAND} ${_SCRIPT_BUILD_ARGS}
         -P "${CMAKE_CURRENT_SOURCE_DIR}/scripts/test_benchmarks_python.cmake"
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
     COMMENT "Running Python benchmark suite"
@@ -1277,7 +1362,7 @@ add_dependencies(test_benchmarks_python install_sdk)
 # tests/benchmarks/tests/producer_inventory.json exactly. See
 # scripts/test_benchmark_contract.cmake.
 add_custom_target(test_benchmark_contract
-    COMMAND ${CMAKE_COMMAND} ${_SCRIPT_BUILD_TYPE_ARG}
+    COMMAND ${CMAKE_COMMAND} ${_SCRIPT_BUILD_ARGS}
         -P "${CMAKE_CURRENT_SOURCE_DIR}/scripts/test_benchmark_contract.cmake"
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
     COMMENT "Running L1B benchmark inventory contract"
@@ -1293,7 +1378,7 @@ endif()
 # discover and run them via labels (ctest -L runtime, ctest -L wheel).
 
 add_test(NAME cpp-unit
-    COMMAND ${CMAKE_COMMAND} ${_SCRIPT_BUILD_TYPE_ARG}
+    COMMAND ${CMAKE_COMMAND} ${_SCRIPT_BUILD_ARGS}
         -P "${CMAKE_CURRENT_SOURCE_DIR}/scripts/test_cpp.cmake"
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
 )
@@ -1302,7 +1387,7 @@ set_tests_properties(cpp-unit PROPERTIES
 )
 
 add_test(NAME cpp-samples
-    COMMAND ${CMAKE_COMMAND} ${_SCRIPT_BUILD_TYPE_ARG}
+    COMMAND ${CMAKE_COMMAND} ${_SCRIPT_BUILD_ARGS}
         -P "${CMAKE_CURRENT_SOURCE_DIR}/scripts/test_cpp_samples.cmake"
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
 )
@@ -1311,7 +1396,7 @@ set_tests_properties(cpp-samples PROPERTIES
 )
 
 add_test(NAME source-link
-    COMMAND ${CMAKE_COMMAND} ${_SCRIPT_BUILD_TYPE_ARG}
+    COMMAND ${CMAKE_COMMAND} ${_SCRIPT_BUILD_ARGS}
         "-DOVPHYSX_DEV_PHYSX=${OVRUNTIME_DEV_PHYSX}"
         "-DSOURCE_LINK_CONTEXT_FILE=${_SOURCE_LINK_CONTEXT_FILE}"
         -P "${CMAKE_CURRENT_SOURCE_DIR}/scripts/test_source_link.cmake"
@@ -1322,7 +1407,7 @@ set_tests_properties(source-link PROPERTIES
 )
 
 add_test(NAME python-runtime
-    COMMAND ${CMAKE_COMMAND} ${_SCRIPT_BUILD_TYPE_ARG}
+    COMMAND ${CMAKE_COMMAND} ${_SCRIPT_BUILD_ARGS}
         -P "${CMAKE_CURRENT_SOURCE_DIR}/scripts/test_python_runtime.cmake"
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
 )
@@ -1332,7 +1417,7 @@ set_tests_properties(python-runtime PROPERTIES
 )
 
 add_test(NAME python-wheel
-    COMMAND ${CMAKE_COMMAND} ${_SCRIPT_BUILD_TYPE_ARG}
+    COMMAND ${CMAKE_COMMAND} ${_SCRIPT_BUILD_ARGS}
         -P "${CMAKE_CURRENT_SOURCE_DIR}/scripts/test_python_wheel.cmake"
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
 )
@@ -1341,7 +1426,7 @@ set_tests_properties(python-wheel PROPERTIES
 )
 
 add_test(NAME python-samples
-    COMMAND ${CMAKE_COMMAND} ${_SCRIPT_BUILD_TYPE_ARG}
+    COMMAND ${CMAKE_COMMAND} ${_SCRIPT_BUILD_ARGS}
         -P "${CMAKE_CURRENT_SOURCE_DIR}/scripts/test_python_samples.cmake"
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
 )
@@ -1352,7 +1437,7 @@ set_tests_properties(python-samples PROPERTIES
 # Benchmarks: registered with the `benchmarks` label only, so `ctest -L benchmarks`
 # runs them and `validate_all` excludes them via `-LE benchmarks`.
 add_test(NAME benchmarks-cpp
-    COMMAND ${CMAKE_COMMAND} ${_SCRIPT_BUILD_TYPE_ARG}
+    COMMAND ${CMAKE_COMMAND} ${_SCRIPT_BUILD_ARGS}
         -P "${CMAKE_CURRENT_SOURCE_DIR}/scripts/test_benchmarks_cpp.cmake"
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
 )
@@ -1361,7 +1446,7 @@ set_tests_properties(benchmarks-cpp PROPERTIES
 )
 
 add_test(NAME benchmarks-python
-    COMMAND ${CMAKE_COMMAND} ${_SCRIPT_BUILD_TYPE_ARG}
+    COMMAND ${CMAKE_COMMAND} ${_SCRIPT_BUILD_ARGS}
         -P "${CMAKE_CURRENT_SOURCE_DIR}/scripts/test_benchmarks_python.cmake"
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
 )
@@ -1370,7 +1455,7 @@ set_tests_properties(benchmarks-python PROPERTIES
 )
 
 add_test(NAME benchmark-contract
-    COMMAND ${CMAKE_COMMAND} ${_SCRIPT_BUILD_TYPE_ARG}
+    COMMAND ${CMAKE_COMMAND} ${_SCRIPT_BUILD_ARGS}
         -P "${CMAKE_CURRENT_SOURCE_DIR}/scripts/test_benchmark_contract.cmake"
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
 )

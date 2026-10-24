@@ -1,9 +1,24 @@
 // SPDX-FileCopyrightText: Copyright (c) 2018-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+// @implements REQ-ATTACH-SERVICES-001
+// @covers AC-3
+
+// @implements REQ-REPLICATE-002
+// @covers AC-3 AC-5 AC-6
+
+// @implements REQ-ATTACH-LIFETIME-001
+// @covers AC-3
+
 /**
+ * @implements REQ-PROPS-MAT-001
+ * @covers AC-2 AC-3
+ *
+ * @implements REQ-RUNTIME-ERROR-001
+ * @covers AC-3
+ *
  * @implements REQ-REPLICATE-001
- * @covers AC-2 AC-4 AC-6 AC-11
+ * @covers AC-2 AC-4 AC-6 AC-11 AC-12
  *
  * @implements REQ-SIM-OVSTAGE-ATTACH-001
  * @covers AC-2
@@ -15,8 +30,11 @@
 // private in-memory representation (`sdfPathToInt`). External callers must use
 // `IPhysx::resolveObjectKey(path).handle`. See IPhysxReplicator.h.
 
+#include <omni/physx/RuntimeError.h>
+#include "ScopedNoticeLock.h"
 #include <PxPhysicsAPI.h>
 #include "PhysXReplicator.h"
+#include "RuntimeExecution.h"
 #include "OmniPhysX.h"
 #include "PhysXMirror.h"
 #include "PhysXTools.h"
@@ -40,7 +58,6 @@
 
 #include <regex>
 
-
 using namespace ::physx;
 using namespace carb::tasking;
 using namespace omni::physx::usdparser;
@@ -59,7 +76,6 @@ namespace omni
 {
     namespace physx
     {
-
 
         template <typename T>
         class InternalPtrAllocator
@@ -229,69 +245,9 @@ namespace omni
             clear();
         }
 
-        bool PhysXReplicator::attach(uint64_t stageId, PhysXUsdPhysicsInterface* usdPhysicsInt, bool attachStage)
-        {
-            mExcludePathSet.clear();
-
-            // Create the AttachedStage/Source first so a live Source exists on both paths
-            // before replicationAttachFn fires below (a no-op on the ovstage path).
-            if (!usdparser::UsdLoad::getUsdLoad()->attachReplicatorCreateSource(stageId, usdPhysicsInt, attachStage))
-            {
-                return false;
-            }
-
-            // Both identities appear in this function on purpose, and they are not interchangeable.
-            // The callbacks below report an *attach* (ADR-0016), while attachReplicatorFinish()
-            // performs the USD attach's parse and needs a *stage* id -- the ADR-0013 survival
-            // clause for the entry points that name the stage object rather than the attach.
-            // kActiveAttach is a defensive fallback: the AttachedStage always exists by here.
-            auto reportedAttachHandle = [&]() -> AttachHandle
-            {
-                const AttachedStage* attachedStage = UsdLoad::getUsdLoad()->getAttachedStage(stageId);
-                return attachedStage ? attachedStage->getAttachHandle() : kActiveAttach;
-            };
-
-            // Full parse about to happen, we need to exclude paths defined by the callback.
-            if (mCallback.replicationAttachFn)
-            {
-                uint32_t numPaths = 0;
-                uint64_t* paths = nullptr;
-                mCallback.replicationAttachFn(reportedAttachHandle(), numPaths, paths, mCallback.userData);
-                if (numPaths && paths)
-                {
-                    for (uint32_t i = 0; i < numPaths; i++)
-                    {
-                        mExcludePathSet.insert(omni::physics::parse::ObjectKey{ paths[i] });
-                    }
-                }
-            }
-            if (!usdparser::UsdLoad::getUsdLoad()->attachReplicatorFinish(stageId, mExcludePathSet, attachStage))
-            {
-                return false;
-            }
-
-            // Full parse is done, we can start to replicate notify the attach end
-            if (mCallback.replicationAttachEndFn)
-            {
-                mCallback.replicationAttachEndFn(reportedAttachHandle(), mCallback.userData);
-            }
-            return true;
-        }
-
         // Textual equivalent of SdfPath::ReplacePrefix: pathToUpdate is always replicatePath or
         // a namespace descendant of it, so a prefix-with-boundary-check replace is exact. A
         // non-matching pathToUpdate is returned unchanged, as ReplacePrefix would.
-        std::string getNewObjectPath(std::string_view pathToUpdate, std::string_view replicatePath,
-                                     std::string_view newReplicatePath)
-        {
-            const bool isPrefix = pathToUpdate.size() >= replicatePath.size() &&
-                pathToUpdate.compare(0, replicatePath.size(), replicatePath) == 0 &&
-                (pathToUpdate.size() == replicatePath.size() || pathToUpdate[replicatePath.size()] == '/');
-            if (!isPrefix)
-                return std::string(pathToUpdate);
-            return std::string(newReplicatePath) + std::string(pathToUpdate.substr(replicatePath.size()));
-        }
-
         // World pose for clone `cloneIdx` from the caller's flat [N*7] transform array
         // (px,py,pz, qx,qy,qz,qw -- matching the tensor pose format). Returns false when no
         // transform was supplied for this clone, leaving the copy co-located on the source.
@@ -390,7 +346,7 @@ namespace omni
             // rejected the same way -- not silently narrowed to the explicit owner while the
             // ownerless body is later parsed into the default scene and omitted from replication
             // (mirrorHierarchy enumerates only the one resolved scene).
-            PhysXScene* defaultScene = OmniPhysX::getInstance().getPhysXSetup().getPhysXScene(0);
+            PhysXScene* defaultScene = attachedStage.getDefaultPhysXScene();
             const omni::physics::parse::ObjectKey defaultSceneKey =
                 defaultScene ? defaultScene->getSceneSdfPath() : omni::physics::parse::ObjectKey{};
 
@@ -442,15 +398,8 @@ namespace omni
             return consistent;
         }
 
-        // Single source of truth for "which InternalDatabase record does this PxBase clone belong
-        // to" -- both processObjectFn's per-object dispatch and the numReplications>=128 parallel
-        // branch's pre-intern loop (see the "Pre-intern every clone ObjectKey" comment further down)
-        // must stay in lock-step on every PxConcreteType case the replicator clones: the
-        // pre-intern loop's whole memory-safety argument is that it inserts every key a worker
-        // thread will later look up WITHOUT locking, so a case handled by one switch and missed by
-        // the other reintroduces a heap-corrupting data race in release builds. Returns SIZE_MAX
-        // for a PxConcreteType this replicator does not clone, or a PxConstraint whose external
-        // reference is not a PxJoint.
+        // Resolve the source record for both destination-key preparation and metadata copying.
+        // Returns SIZE_MAX for objects without replicated metadata, including non-joint constraints.
         size_t replicatorIdForPxBase(PxBase& object)
         {
             switch (object.getConcreteType())
@@ -494,10 +443,10 @@ namespace omni
             if (numReplications == 0)
                 return false;
 
-            AttachedStage* attachedStage = UsdLoad::getUsdLoad()->resolveAttach(attachHandle);
+            AttachedStage* attachedStage = UsdLoad::getUsdLoad()->getAttachedStageByHandle(attachHandle);
             if (!attachedStage)
             {
-                CARB_LOG_ERROR("Attached Stage not found for replication. AttachHandle: %llu",
+                OVX_RUNTIME_ERROR("Attached Stage not found for replication. AttachHandle: %llu",
                                static_cast<unsigned long long>(attachHandle));
                 return false;
             }
@@ -519,7 +468,7 @@ namespace omni
                 const omni::physics::parse::IPhysicsSource* source = attachedStage->getSource();
                 if (source && !source->exists(topKey))
                 {
-                    CARB_LOG_ERROR("Prim to replicate not found in USD stage. AttachHandle: %llu",
+                    OVX_RUNTIME_ERROR("Prim to replicate not found in USD stage. AttachHandle: %llu",
                                    static_cast<unsigned long long>(attachHandle));
                     return false;
                 }
@@ -552,8 +501,7 @@ namespace omni
                 return result;
             };
 
-            internal::InternalPhysXDatabase& db = OmniPhysX::getInstance().getInternalPhysXDatabase();
-            PhysXSetup& physxSetupForSceneResolve = OmniPhysX::getInstance().getPhysXSetup();
+            internal::InternalPhysXDatabase& db = (*attachedStage).getInternalPhysXDatabase();
 
             // ADR-0016, "Replicator scene lookup" residue (2026-08-16 addendum): PhysXScenesMap is
             // keyed by a scene's runtime ObjectId, never by a stage id or an attach handle, so
@@ -571,12 +519,12 @@ namespace omni
             // used to cost). A mixed-scene subtree is rejected here, loudly, instead of silently
             // cloning only the part that happens to share the first-resolved scene.
             ObjectId resolvedSceneId = kInvalidObjectId;
-            if (physxSetupForSceneResolve.getPhysXScenes().size() > 1)
+            if (attachedStage->getPhysXScenes().size() > 1)
             {
                 omni::physics::parse::ObjectKey subtreeOwner;
                 if (!resolveSubtreeSimulationOwner(*attachedStage, topKey, subtreeOwner))
                 {
-                    CARB_LOG_ERROR(
+                    OVX_RUNTIME_ERROR(
                         "Cannot replicate '%s': its subtree contains bodies with different simulation owners "
                         "(physics:simulationOwner); a single replicate() call clones into exactly one PhysX "
                         "scene. AttachHandle: %llu",
@@ -588,7 +536,7 @@ namespace omni
                     resolvedSceneId = objectDb->findEntry(subtreeOwner, eScene);
                     if (resolvedSceneId == kInvalidObjectId)
                     {
-                        CARB_LOG_ERROR(
+                        OVX_RUNTIME_ERROR(
                             "Cannot replicate '%s': its simulation owner '%s' does not resolve to a registered "
                             "PhysX scene. AttachHandle: %llu",
                             attachedStage->textFor(topKey), attachedStage->textFor(subtreeOwner),
@@ -607,11 +555,11 @@ namespace omni
             {
                 resolvedSceneId = findSubtreeSceneId(db, *attachedStage, enumerateSubtree());
             }
-            PhysXScene* scene = physxSetupForSceneResolve.getPhysXScene(
+            PhysXScene* scene = attachedStage->getPhysXScene(
                 resolvedSceneId != kInvalidObjectId ? static_cast<size_t>(resolvedSceneId) : 0);
             if (!scene)
             {
-                CARB_LOG_ERROR("PhysX Scene not found for replication. AttachHandle: %llu",
+                OVX_RUNTIME_ERROR("PhysX Scene not found for replication. AttachHandle: %llu",
                                static_cast<unsigned long long>(attachHandle));
                 return false;
             }
@@ -682,14 +630,14 @@ namespace omni
                 CARB_PROFILE_ZONE(0, "PhysXReplicator::replicate::source");
                 PHYSICS_PROFILE("PhysXReplicator::replicate::source");
                 // Block the USD notification to get recursive callback
-                UsdLoad::getUsdLoad()->blockUSDUpdate(true);
+                { ScopedNoticeBlock blockNotices(*attachedStage, true, false);
 
                 const std::vector<std::string> updateRoots{ std::string(attachedStage->textFor(topKey)) };
-                loadPhysicsFromPrimitive(*attachedStage, updateRoots);
+                loadPhysicsFromPrimitive(*attachedStage, updateRoots, /*applyAttachmentExclusions=*/false);
                 // Process batched changes while USD notices remain blocked.
                 attachedStage->getPhysXPhysicsInterface()->finishSetup(*attachedStage);
 
-                UsdLoad::getUsdLoad()->blockUSDUpdate(false);
+                }
             }
             else
             {
@@ -724,7 +672,7 @@ namespace omni
                 // Nothing was created under the source, so physxPtrs would come out empty and the
                 // serializer would clone nothing while replicate() reported success. That silent
                 // empty clone is the failure mode this whole path has to avoid, so say so instead.
-                CARB_LOG_ERROR(
+                OVX_RUNTIME_ERROR(
                     "Nothing to replicate: no physics object was created under '%s' (AttachHandle: %llu). "
                     "The source subtree carries no physics, or it failed to parse.",
                     attachedStage->textFor(topKey), static_cast<unsigned long long>(attachHandle));
@@ -746,7 +694,7 @@ namespace omni
                 const ObjectId reDerivedSceneId = findSubtreeSceneId(db, *attachedStage, sourceSubtree);
                 if (reDerivedSceneId != kInvalidObjectId && reDerivedSceneId != resolvedSceneId)
                 {
-                    PhysXScene* resolvedScene = physxSetupForSceneResolve.getPhysXScene(static_cast<size_t>(reDerivedSceneId));
+                    PhysXScene* resolvedScene = attachedStage->getPhysXScene(static_cast<size_t>(reDerivedSceneId));
                     if (resolvedScene)
                     {
                         scene = resolvedScene;
@@ -912,9 +860,13 @@ namespace omni
                 {
                     omni::physics::parse::ObjectKey newReplicateKey;
                     PxCollection* collection;
+                    std::vector<omni::physics::parse::ObjectKey> objectKeys;
+                    std::vector<omni::physics::parse::ObjectKey> shapeSourceKeys;
+                    std::vector<omni::physics::parse::ObjectKey> schemaKeys;
                     std::vector<std::pair<PxRigidActor*, PxTransform>> rigidTransforms;
                     std::vector<std::pair<PxArticulationReducedCoordinate*, PxTransform>> articulationTransforms;
                     std::vector<InternalActor*> internalActors;
+                    std::vector<PxArticulationReducedCoordinate*> articulations;
                     std::vector<std::pair<PxActor*, const char*>> actorNames;
                     std::vector<std::pair<PxArticulationReducedCoordinate*, const char*>> articulationNames;
                     std::vector<std::pair<PxJoint*, const char*>> jointNames;
@@ -931,41 +883,53 @@ namespace omni
                     uint32_t envIdInt;
                 };
 
-                // Environments are cloned in parallel (parallelFor below). Record creation routes
-                // a path string -> ObjectKey through attachedStage->keyFor(), which would mutate the
-                // shared source intern table (push_back/realloc) on a cache miss; concurrent
-                // pathFor()/getWorldTransform() calls read the same table unlocked. This code has
-                // no synchronization for that read/write pair by design — instead, every clone
-                // path this dispatch will need is pre-interned serially, on this thread, before
-                // parallelFor starts (see the pre-intern loop right before the dispatch below), so
-                // every keyFor()/pathFor() call made from a worker thread is a guaranteed cache hit
-                // — a pure, non-mutating lookup on a table that no longer grows during the parallel
-                // window. internMutex below no longer protects that invariant (pre-interning does);
-                // it still serializes resolveClone's own keyFor/pathFor pair against sibling
-                // environment tasks calling it concurrently, though with pre-interning in place
-                // those calls no longer mutate the table either.
-                MutexWrapper internMutex;
-
-                // Debug-only self-check for resolveClone below: once the pre-intern loop (further
-                // down) has serially inserted every clone ObjectKey a parallel dispatch will touch,
-                // preInternedClonePathsPtr points at the recorded set and resolveClone asserts its
-                // own keyFor(clonePath) call is a lookup into it, not a fresh insert -- so a
-                // PxConcreteType case handled by processObjectFn's dispatch but missed by the
-                // pre-intern loop's mirror (see replicatorIdForPxBase) fails loudly on the first
-                // parallel clone instead of racing. Stays null for the i==0 / forceSyncReplication
-                // paths, which never go through the pre-intern loop and do not need the invariant
-                // (they never run concurrently with a sibling).
-#if CARB_ASSERT_ENABLED
-                std::unordered_set<omni::physics::parse::ObjectKey, omni::physics::parse::ObjectKey::Hash> preInternedClonePaths;
-#endif
-                const std::unordered_set<omni::physics::parse::ObjectKey, omni::physics::parse::ObjectKey::Hash>* preInternedClonePathsPtr = nullptr;
+                std::unordered_map<omni::physics::parse::ObjectKey, size_t,
+                    omni::physics::parse::ObjectKey::Hash> schemaIndices;
+                for (size_t i = 0; i < schemaAPIFlagsStorage.size(); ++i)
+                    schemaIndices.emplace(schemaAPIFlagsStorage[i].first, i);
+                // Native workers derive their keys from source-owned paths; external
+                // sources prepare the same data serially before existence warm-up.
+                const auto resolveCloneKeys = [&](ProcessReplicationData& data)
+                {
+                    data.objectKeys.resize(data.collection->getNbObjects());
+                    data.shapeSourceKeys.resize(data.objectKeys.size());
+                    data.schemaKeys.resize(schemaAPIFlagsStorage.size());
+                    for (uint32_t o = 0; o < data.objectKeys.size(); ++o)
+                    {
+                        const size_t id = replicatorIdForPxBase(data.collection->getObject(o));
+                        if (id == SIZE_MAX)
+                            continue;
+                        const InternalDatabase::Record& record = db.getRecords()[id];
+                        const omni::physics::parse::ObjectKey sourceKey = record.mKey;
+                        data.objectKeys[o] = attachedStage->getSource()->replacePathPrefix(
+                            sourceKey, replicateKey, data.newReplicateKey);
+                        if (record.mType == ePTShape || record.mType == ePTCompoundShape)
+                        {
+                            const InternalShape* shape = static_cast<const InternalShape*>(record.mInternalPtr);
+                            if (shape->mSourceGprim.valid())
+                                data.shapeSourceKeys[o] = attachedStage->getSource()->replacePathPrefix(
+                                    shape->mSourceGprim, replicateKey, data.newReplicateKey);
+                        }
+                        const auto schema = schemaIndices.find(sourceKey);
+                        if (schema != schemaIndices.end())
+                            data.schemaKeys[schema->second] = data.objectKeys[o];
+                    }
+                    for (size_t i = 0; i < data.schemaKeys.size(); ++i)
+                    {
+                        if (!data.schemaKeys[i].valid())
+                            data.schemaKeys[i] = attachedStage->getSource()->replacePathPrefix(
+                                schemaAPIFlagsStorage[i].first, replicateKey, data.newReplicateKey);
+                    }
+                };
 
                 auto processReplicationFn = [this, memblockAligned, alignedSize, mirrorMemoryAligned, mirrorMemorySize, path,
-                    &attachedStage, &db, &physxSetup, sharedCollection, scene, objectDb, &internMutex, &preInternedClonePathsPtr,
-                    materialResolveEnabled, numReplications, useEnvIDs, &contactReportMap, replicateKey, sourceRootPoseInv](
+                    &attachedStage, &db, &physxSetup, sharedCollection, scene, objectDb,
+                    materialResolveEnabled, numReplications, useEnvIDs, &contactReportMap, sourceRootPoseInv, &resolveCloneKeys](
                         uint32_t i, bool recordsReady, size_t recordsStart, size_t recordsOffset,
                         ProcessReplicationData& processReplicationData, ReplicatorMemory& replicatorMemory) -> void
                 {
+                    if (processReplicationData.objectKeys.empty())
+                        resolveCloneKeys(processReplicationData);
                     const omni::physics::parse::ObjectKey newReplicateKey = processReplicationData.newReplicateKey;
 
                     // process hierarchy
@@ -1044,34 +1008,13 @@ namespace omni
                     };
 
                     auto processObjectFn = [this, i, numReplications, useEnvIDs, &attachedStage, &compoundShapes, &db, scene, objectDb,
-                        materialResolveEnabled, &oldMaterialNewMaterialTable, &newShapeShapeIdTable, &internMutex, preInternedClonePathsPtr,
-                                            &contactReportMap, replicateKey, newReplicateKey, sourceRootPoseInv](PxBase& object, size_t& recordsIndex,
-                                                      ReplicatorMemoryView& memoryView,
-                                                      ProcessReplicationData& processReplicationData) -> void
+                        materialResolveEnabled, &oldMaterialNewMaterialTable, &newShapeShapeIdTable, &contactReportMap,
+                        newReplicateKey, sourceRootPoseInv](PxBase& object, omni::physics::parse::ObjectKey newKey,
+                                                          omni::physics::parse::ObjectKey sourceGprim,
+                                                          size_t& recordsIndex, ReplicatorMemoryView& memoryView,
+                                                          ProcessReplicationData& processReplicationData) -> void
                     {
-                        // preInternedClonePathsPtr's only use below is inside CARB_ASSERT, which
-                        // compiles away entirely with assertions disabled -- without this, a Clang
-                        // -Wall -Wextra -Werror release build sees an unused lambda capture (the
-                        // nested resolveClone lambda no longer references it once CARB_ASSERT is
-                        // gone, so this outer capture has nothing left using it).
-                        (void)preInternedClonePathsPtr;
-
-                        // Resolve the source path, derive the clone path, and intern its key in a
-                        // single critical section. Sibling environment tasks share internMutex, so
-                        // doing all the intern-table access for one object under one lock keeps it to
-                        // a single lock per processObject rather than locking per textFor/keyFor call.
-                        omni::physics::parse::ObjectKey cloneKey;
-                        auto resolveClone = [&](omni::physics::parse::ObjectKey sourceKey) -> omni::physics::parse::ObjectKey
-                        {
-                            std::lock_guard<MutexWrapper> lock(internMutex);
-                            const std::string clonePathStr = getNewObjectPath(attachedStage->textViewFor(sourceKey),
-                                                                              attachedStage->textViewFor(replicateKey),
-                                                                              attachedStage->textViewFor(newReplicateKey));
-                            cloneKey = attachedStage->keyFor(std::string_view(clonePathStr));
-                            CARB_ASSERT(!preInternedClonePathsPtr || preInternedClonePathsPtr->count(cloneKey) != 0);
-                            return cloneKey;
-                        };
-                        omni::physics::parse::ObjectKey newKey;
+                        CARB_ASSERT(newKey.valid() || replicatorIdForPxBase(object) == SIZE_MAX);
                         const PxType objectType = object.getConcreteType();
                         switch (objectType)
                         {
@@ -1082,7 +1025,6 @@ namespace omni
                             PxRigidActor& actor = (PxRigidActor&)object;
                             const size_t id = replicatorIdForPxBase(object);
                             const internal::InternalDatabase::Record& record = db.getRecords()[id];
-                            newKey = resolveClone(record.mKey);
 
                             // Whether an authored clone prim exists.
                             bool hasClonePrim = false;
@@ -1113,7 +1055,7 @@ namespace omni
                                     if (hasClonePrim)
                                     {
                                         clonePivotPose = toTransform(
-                                            internal::getWorldTransform(*attachedStage, cloneKey, omni::physics::parse::ReadTime::defaultTime()));
+                                            internal::getWorldTransform(*attachedStage, newKey, omni::physics::parse::ReadTime::defaultTime()));
                                     }
                                     else
                                     {
@@ -1141,7 +1083,7 @@ namespace omni
                                         if (hasClonePrim)
                                         {
                                             tr = toTransform(
-                                                internal::getWorldTransform(*attachedStage, cloneKey, omni::physics::parse::ReadTime::defaultTime()));
+                                                internal::getWorldTransform(*attachedStage, newKey, omni::physics::parse::ReadTime::defaultTime()));
                                         }
                                         else
                                         {
@@ -1190,18 +1132,18 @@ namespace omni
                             {
                                 internalActor = new (memoryView.actorAllocatorIt.getAlignedMemory()) InternalActor(scene,
                                     (actor.is<PxRigidBody>() && !(actor.is<PxRigidBody>()->getRigidBodyFlags() & PxRigidBodyFlag::eKINEMATIC)) ? true : false,
-                                    nullptr, localSpaceVelocities, cloneKey);
+                                    nullptr, localSpaceVelocities, newKey);
                                 internalActor->mOwnsMemory = false;
 
-                                outId = recordsIndex ? db.addRecordAtIndex(recordsIndex++, ePTActor, &actor, internalActor, cloneKey) : db.addRecord(ePTActor, &actor, internalActor, cloneKey);
+                                outId = recordsIndex ? db.addRecordAtIndex(recordsIndex++, ePTActor, &actor, internalActor, newKey) : db.addRecord(ePTActor, &actor, internalActor, newKey);
                                 processReplicationData.objectDbEntries.push_back({ newKey, eBody, outId });
                             }
                             else
                             {
-                                internalActor = new (memoryView.linkAllocatorIt.getAlignedMemory()) InternalLink(scene, nullptr, cloneKey);
+                                internalActor = new (memoryView.linkAllocatorIt.getAlignedMemory()) InternalLink(scene, nullptr, newKey);
                                 internalActor->mOwnsMemory = false;
 
-                                outId = recordsIndex ? db.addRecordAtIndex(recordsIndex++, ePTLink, &actor, internalActor, cloneKey) : db.addRecord(ePTLink, &actor, internalActor, cloneKey);
+                                outId = recordsIndex ? db.addRecordAtIndex(recordsIndex++, ePTLink, &actor, internalActor, newKey) : db.addRecord(ePTLink, &actor, internalActor, newKey);
                                 processReplicationData.objectDbEntries.push_back({ newKey, eArticulationLink, outId });
                             }
                             processReplicationData.internalActors.push_back(internalActor);
@@ -1222,7 +1164,6 @@ namespace omni
                             PxArticulationReducedCoordinate& articulation = (PxArticulationReducedCoordinate&)object;
                             const size_t id = replicatorIdForPxBase(object);
                             const internal::InternalDatabase::Record& record = db.getRecords()[id];
-                            newKey = resolveClone(record.mKey);
                             const InternalArticulation* cloneArticulation = (InternalArticulation*)record.mInternalPtr;
                             const PxArticulationReducedCoordinate* clonePxArticulation = (PxArticulationReducedCoordinate*)record.mPtr;
 
@@ -1237,8 +1178,9 @@ namespace omni
                             intArt->mEnableSelfCollision = cloneArticulation->mEnableSelfCollision;
                             intArt->mStaticRootBodyKey = cloneArticulation->mStaticRootBodyKey;
                             intArt->mAggregate = articulation.getAggregate();
+                            processReplicationData.articulations.push_back(&articulation);
 
-                            const ObjectId outId = recordsIndex ? db.addRecordAtIndex(recordsIndex++, ePTArticulation, &articulation, intArt, cloneKey) : db.addRecord(ePTArticulation, &articulation, intArt, cloneKey);
+                            const ObjectId outId = recordsIndex ? db.addRecordAtIndex(recordsIndex++, ePTArticulation, &articulation, intArt, newKey) : db.addRecord(ePTArticulation, &articulation, intArt, newKey);
                             processReplicationData.objectDbEntries.push_back({ newKey, eArticulation, outId });
                             articulation.userData = (void*)(outId);
                         }
@@ -1248,7 +1190,6 @@ namespace omni
                             PxArticulationJointReducedCoordinate& joint = (PxArticulationJointReducedCoordinate&)object;
                             const size_t id = replicatorIdForPxBase(object);
                             const internal::InternalDatabase::Record& record = db.getRecords()[id];
-                            newKey = resolveClone(record.mKey);
                             const InternalJoint* cloneJoint = (InternalJoint*)record.mInternalPtr;
                             const PxArticulationJointReducedCoordinate* clonePxJoint = (PxArticulationJointReducedCoordinate*)record.mPtr;
 
@@ -1257,7 +1198,7 @@ namespace omni
 
                             intJoint->copy(*cloneJoint);
 
-                            const ObjectId jointObjId = recordsIndex ? db.addRecordAtIndex(recordsIndex++, ePTLinkJoint, &joint, intJoint, cloneKey) : db.addRecord(ePTLinkJoint, &joint, intJoint, cloneKey);
+                            const ObjectId jointObjId = recordsIndex ? db.addRecordAtIndex(recordsIndex++, ePTLinkJoint, &joint, intJoint, newKey) : db.addRecord(ePTLinkJoint, &joint, intJoint, newKey);
                             joint.userData = (void*)jointObjId;
                             processReplicationData.objectDbEntries.push_back({ newKey, eArticulationJoint, jointObjId });
                         }
@@ -1267,7 +1208,6 @@ namespace omni
                             PxArticulationTendonJoint& tendonJoint = (PxArticulationTendonJoint&)object;
                             const size_t id = replicatorIdForPxBase(object);
                             const internal::InternalDatabase::Record& record = db.getRecords()[id];
-                            newKey = resolveClone(record.mKey);
                             const InternalTendonAxis* cloneIntAxis = (InternalTendonAxis*)record.mInternalPtr;
 
                             InternalTendonAxis* intTendon = new (memoryView.tendonAxisAllocatorIt.getAlignedMemory()) InternalTendonAxis();
@@ -1275,7 +1215,7 @@ namespace omni
 
                             intTendon->instanceName = cloneIntAxis->instanceName;
 
-                            const ObjectId tendonObjId = recordsIndex ? db.addRecordAtIndex(recordsIndex++, ePTFixedTendonAxis, &tendonJoint, intTendon, cloneKey) : db.addRecord(ePTFixedTendonAxis, &tendonJoint, intTendon, cloneKey);
+                            const ObjectId tendonObjId = recordsIndex ? db.addRecordAtIndex(recordsIndex++, ePTFixedTendonAxis, &tendonJoint, intTendon, newKey) : db.addRecord(ePTFixedTendonAxis, &tendonJoint, intTendon, newKey);
 
                             if (tendonJoint.getParent() == nullptr)
                                 processReplicationData.objectDbEntries.push_back({ newKey, eTendonFixed, tendonObjId });
@@ -1289,7 +1229,6 @@ namespace omni
                             PxArticulationAttachment& articulationAttachment = (PxArticulationAttachment&)object;
                             const size_t id = replicatorIdForPxBase(object);
                             const internal::InternalDatabase::Record& record = db.getRecords()[id];
-                            newKey = resolveClone(record.mKey);
                             const InternalTendonAttachment* cloneIntAttachment = (InternalTendonAttachment*)record.mInternalPtr;
 
                             InternalTendonAttachment* internalAttachment = new (memoryView.tendonAttachmentAllocatorIt.getAlignedMemory()) InternalTendonAttachment();
@@ -1299,8 +1238,8 @@ namespace omni
                             internalAttachment->initLength = cloneIntAttachment->initLength;
                             internalAttachment->instanceName = cloneIntAttachment->instanceName;
 
-                            const ObjectId tendonObjId = recordsIndex ? db.addRecordAtIndex(recordsIndex++, ePTTendonAttachment, &articulationAttachment, internalAttachment, cloneKey) :
-                                db.addRecord(ePTTendonAttachment, &articulationAttachment, internalAttachment, cloneKey);
+                            const ObjectId tendonObjId = recordsIndex ? db.addRecordAtIndex(recordsIndex++, ePTTendonAttachment, &articulationAttachment, internalAttachment, newKey) :
+                                db.addRecord(ePTTendonAttachment, &articulationAttachment, internalAttachment, newKey);
                             processReplicationData.objectDbEntries.push_back({ newKey, eTendonAttachment, tendonObjId });
                             articulationAttachment.userData = (void*)tendonObjId;
                         }
@@ -1314,7 +1253,6 @@ namespace omni
                             {
                                 const size_t id = replicatorIdForPxBase(object);
                                 const internal::InternalDatabase::Record& record = db.getRecords()[id];
-                                newKey = resolveClone(record.mKey);
 
                                 PxRigidActor* actor0 = nullptr;
                                 PxRigidActor* actor1 = nullptr;
@@ -1337,7 +1275,7 @@ namespace omni
 
                                 intJoint->copy(*cloneJoint);
 
-                                const ObjectId jointObjId = recordsIndex ? db.addRecordAtIndex(recordsIndex++, ePTJoint, joint, intJoint, cloneKey) : db.addRecord(ePTJoint, joint, intJoint, cloneKey);
+                                const ObjectId jointObjId = recordsIndex ? db.addRecordAtIndex(recordsIndex++, ePTJoint, joint, intJoint, newKey) : db.addRecord(ePTJoint, joint, intJoint, newKey);
                                 joint->userData = (void*)jointObjId;
                                 processReplicationData.objectDbEntries.push_back({ newKey, eJoint, jointObjId });
                             }
@@ -1348,8 +1286,6 @@ namespace omni
                             PxShape& shape = (PxShape&)object;
                             const size_t id = replicatorIdForPxBase(object);
                             const internal::InternalDatabase::Record& record = db.getRecords()[id];
-
-                            newKey = resolveClone(record.mKey);
                             const InternalShape* cloneShape = (InternalShape*)record.mInternalPtr;
                             const PxShape* clonePxShape = nullptr;
                             if (record.mType == ePTShape)
@@ -1397,9 +1333,11 @@ namespace omni
                                 InternalShape* internalShape =
                                     new (memoryView.shapeAllocatorIt.getAlignedMemory()) InternalShape(scene, cloneShape->mScale, cloneShape->mMaterialId);
                                 internalShape->mOwnsMemory = false;
+                                internalShape->mSourceGprim = sourceGprim;
+                                internalShape->mMaterialId = cloneShape->mMaterialId;
 
                                 internalShape->mMassInfo = cloneShape->mMassInfo;
-                                const ObjectId outId = recordsIndex ? db.addRecordAtIndex(recordsIndex++, ePTShape, &shape, internalShape, cloneKey) : db.addRecord(ePTShape, &shape, internalShape, cloneKey);
+                                const ObjectId outId = recordsIndex ? db.addRecordAtIndex(recordsIndex++, ePTShape, &shape, internalShape, newKey) : db.addRecord(ePTShape, &shape, internalShape, newKey);
                                 if (cloneShape->mMaterialId != kInvalidObjectId)
                                 {
                                     if (!materialResolveEnabled)
@@ -1424,6 +1362,8 @@ namespace omni
                                     InternalShape* internalShape =
                                         new (memoryView.shapeAllocatorIt.getAlignedMemory()) InternalShape(scene, cloneShape->mScale, cloneShape->mMaterialId);
                                     internalShape->mOwnsMemory = false;
+                                    internalShape->mSourceGprim = sourceGprim;
+                                    internalShape->mMaterialId = cloneShape->mMaterialId;
 
                                     internalShape->mMassInfo = cloneShape->mMassInfo;
 
@@ -1435,7 +1375,7 @@ namespace omni
                                     std::vector<::physx::PxShape*>& cShapes = const_cast<std::vector<::physx::PxShape*>&>(newShape->getShapes());
                                     cShapes.push_back(&shape);
 
-                                    const ObjectId outId = recordsIndex ? db.addRecordAtIndex(recordsIndex++, ePTCompoundShape, newShape, internalShape, cloneKey) : db.addRecord(ePTCompoundShape, newShape, internalShape, cloneKey);
+                                    const ObjectId outId = recordsIndex ? db.addRecordAtIndex(recordsIndex++, ePTCompoundShape, newShape, internalShape, newKey) : db.addRecord(ePTCompoundShape, newShape, internalShape, newKey);
                                     if (cloneShape->mMaterialId != kInvalidObjectId)
                                     {
                                         if (!materialResolveEnabled)
@@ -1474,14 +1414,12 @@ namespace omni
                             PxMaterial& material = (PxMaterial&)object;
                             const size_t id = replicatorIdForPxBase(object);
                             const internal::InternalDatabase::Record& record = db.getRecords()[id];
-
-                            newKey = resolveClone(record.mKey);
                             const InternalMaterial* cloneMaterial = (InternalMaterial*)record.mInternalPtr;
 
                             InternalMaterial* internalMat = new (memoryView.materialAllocatorIt.getAlignedMemory()) InternalMaterial(cloneMaterial->mDensity);
                             internalMat->mOwnsMemory = false;
 
-                            const ObjectId outId = recordsIndex ? db.addRecordAtIndex(recordsIndex++, ePTMaterial, &material, internalMat, cloneKey) : db.addRecord(ePTMaterial, &material, internalMat, cloneKey);
+                            const ObjectId outId = recordsIndex ? db.addRecordAtIndex(recordsIndex++, ePTMaterial, &material, internalMat, newKey) : db.addRecord(ePTMaterial, &material, internalMat, newKey);
                             material.userData = (void*)(outId);
                             processReplicationData.objectDbEntries.push_back({ newKey, eMaterial, outId });
                             oldMaterialNewMaterialTable.push_back({ id, internalMat, outId });
@@ -1492,7 +1430,6 @@ namespace omni
                             PxArticulationMimicJoint& mimicJoint = (PxArticulationMimicJoint&)object;
                             const size_t id = replicatorIdForPxBase(object);
                             const internal::InternalDatabase::Record& record = db.getRecords()[id];
-                            newKey = resolveClone(record.mKey);
                             const InternalMimicJoint* cloneIntMimicJoint = (InternalMimicJoint*)record.mInternalPtr;
                             usdparser::ObjectType usdObjectType = cloneIntMimicJoint->getObjectType();
 
@@ -1500,7 +1437,7 @@ namespace omni
                             intMimicJoint->mOwnsMemory = false;
                             processReplicationData.mimicJointPairs.push_back(std::make_pair(scene->getInternalScene(), intMimicJoint));
 
-                            const ObjectId mimicJointObjId = recordsIndex ? db.addRecordAtIndex(recordsIndex++, ePTMimicJoint, &mimicJoint, intMimicJoint, cloneKey) : db.addRecord(ePTMimicJoint, &mimicJoint, intMimicJoint, cloneKey);
+                            const ObjectId mimicJointObjId = recordsIndex ? db.addRecordAtIndex(recordsIndex++, ePTMimicJoint, &mimicJoint, intMimicJoint, newKey) : db.addRecord(ePTMimicJoint, &mimicJoint, intMimicJoint, newKey);
 
                             processReplicationData.objectDbEntries.push_back({ newKey, usdObjectType, mimicJointObjId });
                             mimicJoint.userData = (void*)mimicJointObjId;
@@ -1510,14 +1447,10 @@ namespace omni
                             break;
                         }
 
-                        if (newKey.valid())
-                            processReplicationData.hierarchyStorage.second.addPrimSubtree(
-                                std::string(attachedStage->textFor(newKey)), std::string(attachedStage->textFor(newReplicateKey)));
                     };
 
                     oldMaterialNewMaterialTable.clear();
                     newShapeShapeIdTable.clear();
-
 
                     if (i != 0)
                     {
@@ -1527,7 +1460,8 @@ namespace omni
                         for (uint32_t o = 0; o < nbObjects; o++)
                         {
                             PxBase& object = processReplicationData.collection->getObject(o);
-                            processObjectFn(object, recordsIndex, memoryView, processReplicationData);
+                            processObjectFn(object, processReplicationData.objectKeys[o], processReplicationData.shapeSourceKeys[o],
+                                recordsIndex, memoryView, processReplicationData);
                         }
                         CARB_ASSERT(recordsIndex == recordsStart + (i + 1) * recordsOffset);
                     }
@@ -1547,10 +1481,25 @@ namespace omni
                         for (uint32_t o = 0; o < nbObjects; o++)
                         {
                             PxBase& object = processReplicationData.collection->getObject(o);
-                            processObjectFn(object, recordsIndex, memoryView, processReplicationData);
+                            processObjectFn(object, processReplicationData.objectKeys[o], processReplicationData.shapeSourceKeys[o],
+                                recordsIndex, memoryView, processReplicationData);
                         }
                         CARB_ASSERT(recordsIndex == 0);
                     }                    
+
+                    // Several physics objects can name one prim. Build each hierarchy
+                    // path once, using the already retained clone-root text.
+                    std::vector<omni::physics::parse::ObjectKey> hierarchyKeys = processReplicationData.objectKeys;
+                    std::sort(hierarchyKeys.begin(), hierarchyKeys.end(),
+                        [](omni::physics::parse::ObjectKey left, omni::physics::parse::ObjectKey right)
+                        { return left.handle < right.handle; });
+                    hierarchyKeys.erase(std::unique(hierarchyKeys.begin(), hierarchyKeys.end()), hierarchyKeys.end());
+                    for (const omni::physics::parse::ObjectKey key : hierarchyKeys)
+                    {
+                        if (key.valid())
+                            processReplicationData.hierarchyStorage.second.addPrimSubtree(
+                                std::string(attachedStage->textFor(key)), processReplicationData.hierarchyStorage.first);
+                    }
 
                     // resolve material clone
                     for (const std::pair<InternalShape*, size_t>& shapePair : newShapeShapeIdTable)
@@ -1565,6 +1514,9 @@ namespace omni
                                 InternalMaterial* newIntMaterial = oldMaterialNewMaterialTable[k].newMaterial;
                                 newIntMaterial->addShapeId(shapeId);
                                 shape->mMaterialId = oldMaterialNewMaterialTable[k].newMaterialId;
+                                CompoundShape* compoundShape = static_cast<CompoundShape*>(db.getTypedRecord(ePTCompoundShape, shapeId));
+                                if (compoundShape)
+                                    compoundShape->mMaterialId = shape->mMaterialId;
                                 break;
                             }
                         }
@@ -1582,8 +1534,9 @@ namespace omni
                     for (uint32_t i = 0; i < numReplications; i++)
                     {
                         uint64_t newHierarchyPath = 0;
-                        if (mCallback.hierarchyRenameFn)
+                        if (!mCancelled.load(std::memory_order_acquire) && mCallback.hierarchyRenameFn)
                         {
+                            RuntimeCallbackScope callbackScope;
                             newHierarchyPath = mCallback.hierarchyRenameFn(path, i, mCallback.userData);
                         }
                         replicationOutData[i].newReplicateKey =
@@ -1666,6 +1619,15 @@ namespace omni
                     PHYSICS_PROFILE("PhysXReplicator::replicate::proccessReplication");
                     CARB_PROFILE_ZONE(0, "PhysXReplicator::replicate:proccessReplication");
                     const uint32_t minReplications = 128;
+                    // Resolve each destination once, before workers read the shared intern table.
+                    // External sources retain their serial preparation and existence
+                    // warm-up window. Native rows resolve on their worker, interleaved
+                    // with object processing instead of one global key-lookup burst.
+                    if (attachedStage->hasExternalSource())
+                    {
+                        for (ProcessReplicationData& data : replicationOutData)
+                            resolveCloneKeys(data);
+                    }
                     const size_t preRecordsSize = db.getRecords().size();
                     processReplicationFn(0, false, 0, 0, replicationOutData[0], replicatorMemory);
                     const size_t postRecordsSize = db.getRecords().size();
@@ -1673,9 +1635,16 @@ namespace omni
                     const size_t newRecordsSize = postRecordsSize + recordsOffset * (numReplications - 1);
                     db.getRecords().resize(newRecordsSize);
 
-                    const bool updateUSD = OmniPhysX::getInstance().getCachedSettings().updateToUsd &&
-                        !(SimulationCallbacks::getSimulationCallbacks()->checkGlobalSimulationFlags(GlobalSimulationFlag::eTRANSFORMATION | GlobalSimulationFlag::eSKIP_WRITE));
-                    const bool updateUSDVelocities = OmniPhysX::getInstance().getCachedSettings().updateVelocitiesToUsd;
+                    // Write-back settings only apply when this attach has a write sink. An
+                    // ovstage attach deliberately has none, even when its population helper's
+                    // backing UsdStage is still resident. Treating the process-global velocity
+                    // setting as sufficient forced ovstage clones through the serial USD path
+                    // and emitted a false warning despite having nowhere to write.
+                    const bool hasDataWrite = attachedStage->getDataWrite() != nullptr;
+                    const bool updateUSD = hasDataWrite && attachedStage->getCachedSettings().updateToUsd &&
+                        !(attachedStage->getSimulationCallbacks().checkGlobalSimulationFlags(GlobalSimulationFlag::eTRANSFORMATION | GlobalSimulationFlag::eSKIP_WRITE));
+                    const bool updateUSDVelocities =
+                        hasDataWrite && attachedStage->getCachedSettings().updateVelocitiesToUsd;
                     bool forceSyncReplication = false;
                     if (updateUSD || updateUSDVelocities)
                     {
@@ -1695,66 +1664,39 @@ namespace omni
                     }
                     else
                     {
-                        // Pre-intern every clone ObjectKey this parallelFor dispatch will touch,
-                        // serially, before any worker starts, mirroring resolveClone's key
-                        // derivation. The concurrent reads inside processObjectFn are then pure,
-                        // non-mutating intern-table reads: no thread can observe a keyFor()
-                        // reallocation triggered by a sibling, so no lock is needed there.
-                        //
-                        // The same loop collects each clone key and its parent so their existence
-                        // can be resolved in ONE batched source query below.
-                        std::vector<omni::physics::parse::ObjectKey> existenceProbe;
-                        std::unordered_set<omni::physics::parse::ObjectKey, omni::physics::parse::ObjectKey::Hash> existenceProbeSeen;
-                        const omni::physics::parse::IPhysicsSource* preSource = attachedStage->getSource();
-                        auto probeKey = [&](omni::physics::parse::ObjectKey k)
+                        if (attachedStage->hasExternalSource())
                         {
-                            if (k.valid() && existenceProbeSeen.insert(k).second)
-                                existenceProbe.push_back(k);
-                        };
-                        for (uint32_t i = 1; i < numReplications; i++)
-                        {
-                            const omni::physics::parse::ObjectKey newReplicateKeyI = replicationOutData[i].newReplicateKey;
-                            PxCollection* collection = replicationOutData[i].collection;
-                            const uint32_t nbObjects = collection->getNbObjects();
-                            for (uint32_t o = 0; o < nbObjects; o++)
+                            // Batch existence checks for the already-resolved clone keys and their parents.
+                            std::vector<omni::physics::parse::ObjectKey> existenceProbe;
+                            std::unordered_set<omni::physics::parse::ObjectKey, omni::physics::parse::ObjectKey::Hash> existenceProbeSeen;
+                            const omni::physics::parse::IPhysicsSource* preSource = attachedStage->getSource();
+                            auto probeKey = [&](omni::physics::parse::ObjectKey k)
                             {
-                                PxBase& object = collection->getObject(o);
-                                const size_t id = replicatorIdForPxBase(object);
-                                if (id == SIZE_MAX)
-                                    continue;
-
-                                const internal::InternalDatabase::Record& record = db.getRecords()[id];
-                                const std::string clonePathStr = getNewObjectPath(attachedStage->textViewFor(record.mKey),
-                                                                                  attachedStage->textViewFor(replicateKey),
-                                                                                  attachedStage->textViewFor(newReplicateKeyI));
-                                const omni::physics::parse::ObjectKey clonePathKey = attachedStage->keyFor(std::string_view(clonePathStr));
-#if CARB_ASSERT_ENABLED
-                                preInternedClonePaths.insert(clonePathKey);
-#endif
-                                if (preSource)
+                                if (k.valid() && existenceProbeSeen.insert(k).second)
+                                    existenceProbe.push_back(k);
+                            };
+                            for (uint32_t i = 1; i < numReplications; i++)
+                            {
+                                for (omni::physics::parse::ObjectKey key : replicationOutData[i].objectKeys)
                                 {
-                                    // processObjectFn asks exists(cloneKey) per object and
-                                    // InternalActor's nested-body walk asks exists(parent(cloneKey)).
-                                    probeKey(clonePathKey);
-                                    probeKey(preSource->getParent(clonePathKey));
+                                    if (preSource && key.valid())
+                                    {
+                                        probeKey(key);
+                                        probeKey(preSource->getParent(key));
+                                    }
                                 }
                             }
-                        }
-#if CARB_ASSERT_ENABLED
-                        preInternedClonePathsPtr = &preInternedClonePaths;
-#endif
 
-                        // Resolve every clone-path existence answer the parallel window will
-                        // need in a single query. Backends that answer exists() from memory
-                        // (USD) are unaffected; the ovstage source otherwise pays one blocking
-                        // usd-path round trip per key, held under its own mutex, which turns
-                        // the parallel dispatch into a serial convoy (hours for 1023 envs).
-                        if (preSource && !existenceProbe.empty())
-                        {
-                            std::vector<bool> probeExists;
-                            preSource->existsBatch(existenceProbe, probeExists);
-                        }
+                            // External sources can otherwise pay a blocking path query per
+                            // key while holding their mutex. Warm this window in one batch;
+                            // native sources query memory directly without a duplicate probe.
+                            if (preSource && !existenceProbe.empty())
+                            {
+                                std::vector<bool> probeExists;
+                                preSource->existsBatch(existenceProbe, probeExists);
+                            }
 
+                        }
                         auto&& computeFunc = [this, processReplicationFn, preRecordsSize, recordsOffset, &replicationOutData, &replicatorMemory](uint32_t batchIndex)
                         {
                             processReplicationFn(batchIndex, true, preRecordsSize, recordsOffset, replicationOutData[batchIndex], replicatorMemory);
@@ -1834,8 +1776,12 @@ namespace omni
 
                 auto nonPhysxTask = tasking->addTask(Priority::eHigh, nullptr, [&] {
                     CARB_PROFILE_ZONE(0, "PhysXReplicator::replicate:proccessReplicationData");
-                    for (const ProcessReplicationData& data : replicationOutData)
+                    for (ProcessReplicationData& data : replicationOutData)
                     {
+                        // The attachment must release cloned articulations before
+                        // their serialized backing storage, independently of SDK shutdown.
+                        for (PxArticulationReducedCoordinate* articulation : data.articulations)
+                            scene->getInternalScene()->mArticulations.push_back(articulation);
                         for (InternalActor* ia : data.internalActors)
                         {
                             scene->getInternalScene()->addActor(*ia);
@@ -1853,17 +1799,11 @@ namespace omni
                             p.first->addShapeId(p.second);
                         }
                         // fixup the schemAPIFlags
-                        for (const std::pair<omni::physics::parse::ObjectKey, uint32_t>& p : schemaAPIFlagsStorage)
-                        {
-                            const std::string newPathStr = getNewObjectPath(attachedStage->textViewFor(p.first),
-                                                                            attachedStage->textViewFor(replicateKey),
-                                                                            attachedStage->textViewFor(data.newReplicateKey));
-                            const omni::physics::parse::ObjectKey newSchemaKey = attachedStage->keyFor(std::string_view(newPathStr));
-                            objectDb->setSchemaAPI(newSchemaKey, p.second);
-                        }
+                        for (size_t i = 0; i < schemaAPIFlagsStorage.size(); ++i)
+                            objectDb->setSchemaAPI(data.schemaKeys[i], schemaAPIFlagsStorage[i].second);
                         // merge the hierarchy storage
                         objectDb->getPrimHierarchyStorage().mergeHierarchyStorage(
-                            data.hierarchyStorage.first, data.hierarchyStorage.second);
+                            data.hierarchyStorage.first, std::move(data.hierarchyStorage.second));
                     }
                 });
 
@@ -1922,7 +1862,8 @@ namespace omni
 
         bool registerReplicator(AttachHandle attachHandle, const IReplicatorCallback& callback)
         {
-            return OmniPhysX::getInstance().registerReplicator(attachHandle, callback);
+            RuntimeExecutionScope operation(attachHandle);
+            return operation && OmniPhysX::getInstance().registerReplicator(attachHandle, callback);
         }
 
         void unregisterReplicator(AttachHandle attachHandle)
@@ -1932,11 +1873,10 @@ namespace omni
 
         bool replicate(AttachHandle attachHandle, uint64_t path, uint32_t numReplications, bool useEnvIds)
         {
-            // No replicator on this attach is a query answer, not a resolution failure -- that is
-            // what isReplicatorStage() reports -- so it stays a quiet false. The diagnostic for an
-            // unresolvable handle (ADR-0016 Decision 3) is raised one level down, where the attach
-            // is actually resolved.
-            PhysXReplicator* replicator = OmniPhysX::getInstance().getReplicator(attachHandle);
+            RuntimeExecutionScope operation(attachHandle);
+            if (!operation || !UsdLoad::getUsdLoad()->getAttachedStageByHandle(attachHandle))
+                return false;
+            auto replicator = OmniPhysX::getInstance().getReplicator(attachHandle);
             if (replicator)
             {
                 return replicator->replicate(attachHandle, path, numReplications, useEnvIds);
@@ -1944,12 +1884,13 @@ namespace omni
             return false;
         }
 
-
         void isReplicatorStage(AttachHandle attachHandle, bool& replicated)
         {
             replicated = false;
-
-            PhysXReplicator* replicator = OmniPhysX::getInstance().getReplicator(attachHandle);
+            auto owner = UsdLoad::getUsdLoad()->acquireAttachment(attachHandle);
+            if (!owner)
+                return;
+            auto replicator = OmniPhysX::getInstance().getReplicator(attachHandle);
             if (replicator)
             {
                 replicated = true;

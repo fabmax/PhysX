@@ -1,7 +1,17 @@
 // SPDX-FileCopyrightText: Copyright (c) 2020-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+/**
+ * @implements REQ-TENSOR-VIEW-001
+ * @covers AC-12
+ */
+
 #pragma once
+
+// @implements REQ-ATTACH-VIEWS-001
+// @covers AC-4
+// @implements REQ-ATTACH-EXECUTION-001
+// @covers AC-3 AC-4
 
 #include "ObjectTypes.h"
 
@@ -46,6 +56,12 @@ public:
     // return false if the simulation view is invalidated due to prim deletion
     virtual bool getValid() const = 0;
 
+    // True when the view is valid and its captured selection inputs still match:
+    // record-lifetime epoch, applied read ordinal, recursive-leaf matching mode,
+    // and (for GPU views) the rigid-body disable epoch. Existing selections may
+    // remain readable when this returns false. Serialize this check with mutations.
+    virtual bool isSelectionCurrent() const = 0;
+
     // invalidate the simulationView
     virtual void invalidate() = 0;
 
@@ -86,14 +102,18 @@ public:
     // needed to submit all commands to PhysX when using the direct GPU pipeline
     virtual bool flush() = 0;
 
-    virtual void updateArticulationsKinematic() = 0;
+    // Whole-scene articulation forward-kinematics refresh. Returns false if the refresh did not
+    // complete (DirectGPU: computeArticulationData reported an uninitialized/forbidden call or a CUDA
+    // error); a non-DirectGPU view has nothing to refresh and returns true.
+    virtual bool updateArticulationsKinematic() = 0;
     virtual void InitializeKinematicBodies() = 0;
 
     virtual bool check() const = 0;
 
     virtual void enableGpuUsageWarnings(bool enable) = 0;
 
-    virtual void release(bool recursive) = 0;
+    // Returns false while runtime execution is busy; the view remains owned by the caller.
+    virtual bool release(bool recursive) = 0;
 
     // HACK? manually stepping simulation
     virtual void step(float dt) = 0;

@@ -3,23 +3,51 @@
 
 # Contact Binding -- Reading Contact Forces
 
+> **Deprecated.** Contact bindings are a compatibility surface: C declarations
+> live in `ovphysx_legacy.h` (`ovphysx.h` still includes that header), and
+> Python `PhysX.create_contact_binding()` emits `DeprecationWarning`. This
+> tutorial documents the supported behavior. No replacement API or removal
+> date is implied.
+
 Contact bindings let you read contact forces between **sensor** bodies and
 **filter** bodies. A sensor is a rigid body prim (or a set of prims matched by a
 USD path pattern) whose contacts you want to measure. A filter is a second set of
 bodies whose contacts with each sensor you want to isolate.
 
-Contact reporting is opt-in: every prim matched by `sensor_patterns` must have
+Sensor selection is opt-in: every prim matched by `sensor_patterns` must have
 `PhysxContactReportAPI` applied. A matched prim without it is dropped from the
 binding — the runtime logs `Failed to find contact report API at '<path>'` — and if
 that leaves no sensors at all, `create_contact_binding()` fails. Filter prims need
-no extra schema, and runtime-only clones (which have no USD prim) inherit contact
-reporting from the source actor.
+no extra schema. Runtime-only clones (which have no USD prim) use the schema
+metadata copied from the corresponding source object. A cloned collider whose
+source collider lacks the schema is rejected even if its parent body has it.
+
+On CPU simulation and GPU dynamics with CPU readback, tagging a child collider makes it eligible as
+a sensor but does not enable reporting for its owning body. Enable reporting on the body as well
+(or on the owning articulation link or root), or the sensor depends on reports from the other actor
+in each contact pair. If neither actor reports matching contacts, the child sensor reads zero force.
+See [Child collider sensors](../read_write/readable.md#child-collider-sensors) for an authoring example
+and where to configure the reporting threshold and pairs.
+
+For these modes, enable reporting on the owner but select only the child as a
+binding sensor. If the owner is also selected as a sensor in this or another live
+contact binding on the same attachment, the owner takes precedence: contacts are
+credited to the owner and the child reads zero. Check wildcard patterns for
+unintended owner matches, and establish the bindings before stepping. Session
+reads support selecting both the owner and child in these modes.
+
+On DirectGPU, a separate child collider carrying `PhysxContactReportAPI` is
+accepted by the deprecated contact binding, but the runtime logs an unsupported
+collider warning and the child reads zero force. DirectGPU session queries omit
+that child row; select the owning body or articulation link instead.
 
 ## Prerequisites
 
 - Complete the [Tensor Bindings (deprecated)](tensor_bindings.md) tutorial.
 - Your USD scene has rigid body prims in contact (or that come into contact
-  during simulation).
+  during simulation). This tutorial uses `boxes_falling_on_groundplane.usda`, which
+  ships with every package under `ovphysx/samples/data/` in the wheel,
+  `<sdk-root>/samples/data/` in the C/C++ SDK, and `tests/data/` in a repository checkout.
 - Every prim you name in `sensor_patterns` has `PhysxContactReportAPI` applied:
 
   ```usda
@@ -32,11 +60,13 @@ reporting from the source actor.
   ```
 
   The optional `physxContactReport:threshold` is the force below which contacts are
-  not reported; the bundled sample scene uses `0` so every contact is reported.
+  not reported; the bundled sample scene uses `0` to avoid excluding contacts by force.
 
-  The schema must sit on the prim you actually name as the sensor. When the rigid
-  body and its collider are separate prims, applying it to the body but naming the
-  collider (or the reverse) matches nothing — the two must agree.
+  The schema must sit on the prim you actually name as the sensor. A schema on the
+  owning body does not make an untagged child collider eligible. For a child sensor,
+  apply the schema to the child and enable its owner's reporting as described above.
+  Do not also select the owner as a sensor in any live contact binding on the same
+  attachment.
 - For CUDA output tensors, enable DirectGPU TensorAPI before creating the
   `PhysX` instance; `physxScene:enableGPUDynamics=true` alone only selects GPU
   dynamics. Refer to
@@ -45,42 +75,70 @@ reporting from the source actor.
 ## Key Concepts
 
 - **Create the binding before the first step** whose contacts you want to observe.
-  The binding registers an internal contact-report callback. No contact data exists
-  until at least one `step()`, `step_sync()`, or `step_n_sync()` call has
+  No contact data exists until at least one `step()` or `step_sync()` call has
   completed.
 - Create contact bindings once outside simulation loops and reuse them. In Python,
   use the context-manager form or call `cb.destroy()` when finished; otherwise
   garbage collection emits `ResourceWarning` when it eventually releases the
   native binding.
 - Reading before the first step returns all-zeros tensors.
+- On CPU and GPU dynamics with CPU readback, sleeping pairs stop producing
+  persistent contact reports. A settled body can return zero forces and no raw
+  contacts while still touching another body. This is independent of environment
+  IDs; DirectGPU disables sleeping. For continuous reporting, disable sleeping
+  before attachment, or wake the bodies and step again before reading. See
+  [Sleeping contacts](../read_write/readable.md#contact-sensors).
 - `dt` for the impulse-to-force conversion (`force = impulse / dt`) is taken
-  automatically from the last successful `step()`, `step_sync()`, or
-  `step_n_sync()` call. You do not pass it manually.
+  automatically from the last successful `step()` or `step_sync()` call that
+  simulated. You do not pass it manually.
+- A step with `dt == 0` is accepted but simulates nothing: it neither produces
+  nor clears contacts, and it does not change the conversion `dt`. Every read
+  after it returns what it returned before it -- the contacts and forces of the
+  last step with a positive `dt`.
 - Result tensor shapes:
-  - Net forces: `[S, 3]` -- one 3-D force vector per matched sensor object.
-  - Force matrix: `[S, F, 3]` — force vectors per (sensor, filter) pair.
-  - Detailed contact data: contact forces and separations use `[C, 1]`;
+  - Net normal or net friction forces: `[S, 3]` -- one 3-D force vector per sensor.
+  - Normal or friction force matrix: `[S, F, 3]` — force vectors per (sensor, filter) pair.
+  - Detailed contact data: scalar normal forces and separations use `[C, 1]`;
     positions and normals use `[C, 3]`; all are indexed by `[S, F]`
     count/start-index tensors.
   - Detailed friction data: friction forces and points use `[C, 3]` buffers
     indexed by `[S, F]` count/start-index tensors.
+
+### Force Components and Filtering
+
+Net normal and net friction forces are reported separately as world-space
+vectors for each sensor. Both include all reported contacts, regardless of the
+configured filters. Adding the two vectors from the same simulation step yields
+the total contact force.
+
+The normal and friction force matrices contain only contributions from the
+configured sensor/filter pairs. Adding the two matrices from the same simulation
+step yields total contact forces for those pairs. For example, if a foot touches
+the floor and a wall but its filter selects only the floor, the friction matrix
+and detailed friction data omit the wall contribution. The net friction force
+includes both.
+
+The net friction force is the vector sum of the forces at the friction anchors.
+Opposing forces can cancel while still producing a torque, such as when a box
+rotates on the ground without translating. The net friction force does not
+represent that torque.
 
 ## Python
 
 ### Full Binding + Destroy
 
 This sample creates a contact binding on `boxes_falling_on_groundplane.usda`,
-steps until the sensor lands, reads both the net forces and the force matrix,
-then destroys the binding explicitly:
+steps until the sensor lands, and prints the normal, friction, and total contact
+forces for both net forces and the force matrix. It then destroys the binding
+explicitly:
 
 ```{literalinclude} ../../tests/python_samples/contact_binding.py
 :language: python
-:start-after: [tutorial-start]
-:end-before: [tutorial-end]
 ```
 
-After 120 steps both `read_net_forces()` and `read_force_matrix()` print a
-non-zero vector on the order of Cube1's weight (about 9810 N in Z). In
+After 120 steps the normal and total contact force vectors are on the order of
+Cube1's weight (about 9810 N in Z); friction is approximately zero for the settled
+box. The sample prints these components for both net forces and the force matrix. In
 `boxes_falling_on_groundplane.usda`, Cube1 lands on `/World/BigBase`, not the
 ground plane, so the sample's filter is that prim. A filter naming the ground
 still creates a valid 1x1 binding; the matrix is then all zeros while net
@@ -91,11 +149,53 @@ force is not, because the pair never touches.
 The context-manager form releases the native binding on scope exit, so no
 explicit `destroy()` call is required:
 
-```{literalinclude} ../../tests/python_samples/contact_binding.py
-:language: python
-:start-after: [tutorial-context-manager]
-:end-before: [tutorial-context-manager-end]
+```python
+import numpy as np
+
+def read_contacts_with_context_manager(physx):
+    with physx.create_contact_binding(sensor_patterns=["/World/Cube1"]) as binding:
+        for _ in range(60):
+            physx.step_sync(1.0 / 60.0)
+        forces = np.zeros((binding.sensor_count, 3), dtype=np.float32)
+        binding.read_net_normal_forces(forces)
+        return forces
 ```
+
+### Reading Normal and Friction Forces
+
+`read_net_normal_forces()` returns the net normal force on each sensor.
+`read_net_friction_forces()` returns the corresponding net friction force.
+Both methods work without filters or detailed-contact buffer capacity.
+`read_normal_force_matrix()` and `read_friction_force_matrix()` return the
+corresponding force components for each configured sensor/filter pair. Both
+matrices are independent of detailed-contact buffer capacity.
+
+For an existing binding and output arrays of shape `[sensor_count, 3]`, the
+total contact force is obtained by adding the results from the same simulation
+step:
+
+```python
+binding.read_net_normal_forces(normal_forces)
+binding.read_net_friction_forces(friction_forces)
+total_forces = normal_forces + friction_forces
+```
+
+For output arrays of shape `[sensor_count, filter_count, 3]`, the corresponding
+total forces for the configured pairs are obtained as follows:
+
+```python
+binding.read_normal_force_matrix(normal_matrix)
+binding.read_friction_force_matrix(friction_matrix)
+total_force_matrix = normal_matrix + friction_matrix
+```
+
+`read_net_forces()`, `read_force_matrix()`, and `read_contact_data()` remain as
+deprecated aliases of `read_net_normal_forces()`, `read_normal_force_matrix()`,
+and `read_normal_contact_data()`, respectively. Their force values remain
+normal-only; existing calculations that add separately reported friction retain
+their meaning.
+`read_friction_data()` is a deprecated alias of `read_friction_contact_data()`
+with unchanged results.
 
 ## C
 
@@ -104,8 +204,6 @@ the C API:
 
 ```{literalinclude} ../../tests/c_samples/contact_binding_c/main.c
 :language: c
-:start-after: [tutorial-start]
-:end-before: [tutorial-end]
 ```
 
 ## Unfiltered Contacts
@@ -129,7 +227,7 @@ In C:
 #include <ovphysx/ovphysx.h>
 
 static ovphysx_result_t create_unfiltered_binding(
-    ovphysx_handle_t handle,
+    ovphysx_instance_handle_t handle,
     ovphysx_contact_binding_handle_t* out_binding)
 {
     ovphysx_string_t sensors[] = { ovphysx_cstr("/World/robot/ee") };
@@ -159,6 +257,18 @@ def create_filtered_binding(physx):
 
 ## Detailed Contact and Friction Data
 
+`read_normal_contact_data()` returns scalar normal forces, contact normals, points,
+and separations. Each normal force vector is obtained by multiplying the scalar
+force by its corresponding contact normal. `read_friction_contact_data()` returns
+friction force vectors and their anchor points. Both methods report data for
+the configured sensor/filter pairs.
+
+Friction anchors need not correspond one-to-one with contact points. Each
+method's count/start-index tensors describe its own data. Summing detailed
+friction data reproduces the net friction only when the filters cover all
+relevant contacts without double counting and the buffers contain all reported
+anchors.
+
 Use `cb.max_contact_data_count` to allocate reusable flat buffers. For each
 sensor/filter pair, `counts[s, f]` and `start_indices[s, f]` identify the valid
 slice inside the flat buffers.
@@ -167,9 +277,10 @@ slice inside the flat buffers.
 `cb.filter_paths` returns a nested `[sensor][filter]` list in column order.
 
 Create the binding with `filter_patterns`, `filters_per_sensor > 0`, and
-`max_contact_data_count > 0` before calling `read_contact_data()` or
-`read_friction_data()`. The aggregate `read_net_forces()` and
-`read_force_matrix()` calls do not require this detailed-contact capacity.
+`max_contact_data_count > 0` before calling `read_normal_contact_data()` or
+`read_friction_contact_data()`. The aggregate `read_net_normal_forces()`,
+`read_net_friction_forces()`, `read_normal_force_matrix()`, and
+`read_friction_force_matrix()` calls do not require this detailed-contact capacity.
 `counts` and `start_indices` can be `int32` or `uint32`; NumPy's default integer
 dtype is usually `int64`, so allocate these arrays with an explicit dtype.
 
@@ -186,7 +297,7 @@ def read_detailed_data(binding):
     counts = np.zeros(shape, dtype=np.int32)
     starts = np.zeros(shape, dtype=np.int32)
 
-    binding.read_contact_data(
+    required_contacts = binding.read_normal_contact_data(
         contact_forces,
         positions,
         normals,
@@ -194,6 +305,8 @@ def read_detailed_data(binding):
         counts,
         starts,
     )
+    # required_contacts is the complete demand. If it exceeds capacity, counts/starts
+    # still describe only the in-range prefix that was written.
 
     sensor = 0
     contact_filter = 0
@@ -206,7 +319,7 @@ def read_detailed_data(binding):
     friction_counts = np.zeros(shape, dtype=np.int32)
     friction_starts = np.zeros(shape, dtype=np.int32)
 
-    binding.read_friction_data(
+    required_friction = binding.read_friction_contact_data(
         friction_forces,
         friction_points,
         friction_counts,
@@ -237,11 +350,6 @@ the quantities that are only meaningful in pairs:
 Pairing them this way means the caller cannot get a count out of step with its start index, or
 a sensor id out of step with its other id. No filter dimension is required for an unfiltered
 binding. Slice the columns out as views when you want them separately — that costs no copy.
-
-The examples in this section are sequential fragments. The path-resolution
-example reuses `binding`, `sensor_actor_ids`, and `other_actor_ids` from the raw
-read; the stale-ID example reuses its `ids`; and the filtering helper reuses the
-earlier `numpy as np` import.
 
 ```python
 import numpy as np
@@ -293,14 +401,7 @@ returns a list of USD path strings in the same order. Note that a column of `act
 a strided view: the DLPack boundary requires C-contiguous input, so wrap a column slice in
 `np.ascontiguousarray()` (or `.copy()`) before passing it. That copy is on the diagnostic
 path only — the per-contact read itself takes the whole contiguous tensor. It works for both `sensor_actor_ids` and
-`other_actor_ids` since both use the same identity namespace:
-
-```python
-ids = np.array([sensor_actor_ids[0], other_actor_ids[0]], dtype=np.uint64)
-paths = binding.get_other_actor_paths_from_ids(ids)
-# paths[0] → "/World/sensor_cube"
-# paths[1] → "/World/other_cube"
-```
+`other_actor_ids` since both use the same identity namespace, as shown in the raw-read helper above.
 
 **ID encoding**: actor IDs are opaque runtime handles, not encoded paths. Do not try to
 decode one yourself — the only supported way to get a path back is
@@ -313,16 +414,8 @@ the stage is detached or replaced, and do not persist one across runs.
 **Stale IDs resolve to empty, not to their old path.** Every non-zero ID is checked
 against the attached stage before it is resolved, so if you hold an ID and the actor is
 later removed, `get_other_actor_paths_from_ids()` returns `""` rather than the path it used
-to name. Because you hold the IDs, that is an unambiguous signal:
-
-```python
-paths = binding.get_other_actor_paths_from_ids(ids)
-for actor_id, path in zip(ids, paths):
-    if actor_id == 0:
-        continue          # no actor for this slot
-    if not path:
-        ...               # the actor is gone — the ID is stale
-```
+to name. A non-zero ID resolving to an empty path therefore identifies a stale
+actor; an ID of zero means there was no actor in that slot.
 
 The check is as precise as the backend's notion of existence. On an ovstage attach a
 removed prim reports stale. On a USD stage a merely *deactivated* prim still resolves,
@@ -356,6 +449,8 @@ on filter with an integer lookup. IDs are stable for the lifetime of the attach,
 settles after the first step and does no string work in steady state.
 
 ```python
+import numpy as np
+
 ignored: dict[int, bool] = {}   # actor id -> "expected support contact"
 
 def is_ignored(binding, actor_id: int) -> bool:
@@ -375,6 +470,9 @@ removed mid-run, re-resolve rather than trusting a cached entry, since a removed
 resolves to `""` and would not match the path test that produced the original verdict.
 
 In C, `ovphysx_read_raw_contact_data` takes the same six tensors in the same order —
-`sensor_layout_tensor` then `actor_ids_tensor` after the four value buffers. Refer to
-the [`ovphysx_read_raw_contact_data` declaration](../api.md) for the full parameter
+`sensor_layout_tensor` then `actor_ids_tensor` after the four value buffers — followed
+by `out_required_contact_count`. That output is the total demand before truncation. If
+it exceeds the binding's `max_contact_data_count`, the function returns
+`OVPHYSX_API_BUFFER_TOO_SMALL` while leaving a valid prefix in the tensors. Refer to the
+[`ovphysx_read_raw_contact_data` declaration](../api.md) for the full parameter
 documentation.

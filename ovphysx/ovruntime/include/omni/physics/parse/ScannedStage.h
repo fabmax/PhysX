@@ -1,10 +1,19 @@
 // SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+/** @implements REQ-PARSE-BATCH-001
+ * @covers AC-3
+ */
+
+/**
+ * @implements REQ-PARSE-INSTANCER-DISPATCH-001
+ * @covers AC-1
+ */
+
 /**
  * `ScannedStage` — the source-agnostic snapshot of a scanned physics
- * scene. Owns the parse-library descriptors plus the `IPhysicsSource`
- * that minted their handles.
+ * scene. Owns the parse-library descriptors. Standalone scans own the source
+ * that minted their handles; attachment scans borrow it until source retirement.
  *
  * This is the USD-free core of the scan result (ADR-0002). Backends
  * produce it: the native USD walk (`omni.physics.usd`) and the ovstage
@@ -40,6 +49,26 @@
 namespace omni::physics::parse
 {
 
+// Load-time particle/instancer dispatch retained independently of descriptor
+// pruning. Keys belong to the scan source, including invalid sampler candidates.
+// Backends emit parent-before-child candidates with contiguous depth-first
+// subtrees, allowing consumers to prune a subtree using its latest root.
+struct ParticleObjectCandidate
+{
+    enum class Kind
+    {
+        eParticleSystem,
+        eParticleSet,
+        eParticleSampler,
+        ePointInstancer,
+        eJointInstancer,
+        eVoxelMap,
+        eCustomInstancer
+    };
+    ObjectKey key;
+    Kind kind;
+};
+
 class ScannedStage;
 
 // Assemble an empty ScannedStage around an abstract backend source (ADR-0002
@@ -56,26 +85,29 @@ ScannedStage makeScannedStageFromSource(std::unique_ptr<IPhysicsSource> source);
 // returned ScannedStage.
 ScannedStage makeScannedStageBorrowingSource(IPhysicsSource& source);
 
-// Snapshot of a scanned physics scene's parsed state. Owns the parse-lib
-// descriptors and the backend source used to mint their handles. Immutable
-// after the scan returns; consumers iterate the typed lists and can move
-// descriptors out individually if they need to take ownership.
-//
-// `ObjectKey` / `TokenId` values on these descriptors are minted by this
-// scan's source and must be resolved through that same source (or, on the USD
-// side, through `omni::physics::usd::ScannedStage`'s `pathFor` / `tfTokenFor`).
-// Handles are not portable across `ScannedStage` instances.
-class ScannedStage
+namespace detail
+{
+// Owners are the first base and descriptor fields the second: reverse base
+// destruction keeps every owner alive until all descriptor fields are gone.
+class ScannedStageOwners
 {
 public:
+    struct Impl;
+    ScannedStageOwners();
+    ~ScannedStageOwners();
+    ScannedStageOwners(ScannedStageOwners&&) noexcept;
+protected:
+    std::unique_ptr<Impl> mImpl;
+};
+struct ScannedStageDescriptors
+{
     // Per-concept descriptor lists. Order within a list mirrors the
     // schema parser's prim-iteration order (USD: depth-first stage
     // walk), so consumers see deterministic results across runs.
-    // Descriptors are owned via `parse::DescPtr<T>` — a `unique_ptr`
-    // bound to the allocator passed to the scan. Consumers that want to
-    // take ownership of individual descriptors call `.release()` on the
-    // per-entry `DescPtr` (the allocator's matching `deallocate` runs
-    // once the consumer's own release path frees the descriptor).
+    // Descriptors retain their concrete destructor and allocator through DescPtr.
+    // Borrow with get(), or move the owning pointer together with any required
+    // pool/source/auxiliary ownership. Retaining the whole scan is the preferred
+    // consumer pattern. Raw release() loses allocator provenance.
     std::vector<parse::DescPtr<parse::PhysxSceneDesc>>                       scenes;
     std::vector<parse::DescPtr<parse::PhysxMaterialDesc>>                    materials;
     std::vector<parse::DescPtr<parse::PBDMaterialDesc>>                      pbdMaterials;
@@ -185,12 +217,36 @@ public:
     // True when the walk saw a point-instancer-shaped prim. The load consumer
     // uses this to enable instancer parsing without probing every source prim.
     bool hasPointInstancerPrims = false;
+    // Traversal-ordered candidates within the scan roots/exclusions. Discovery
+    // includes instancer descendants; ordinary body/shape emission still prunes
+    // them so the dedicated prototype scan owns their processing.
+    std::vector<ParticleObjectCandidate> particleObjectCandidates;
 
     std::vector<parse::DescPtr<parse::VehicleDesc>>                          vehicles;
     std::vector<parse::ObjectKey>                                            vehiclePaths;
     std::vector<parse::DescPtr<parse::SuspensionComplianceDesc>>             vehicleSuspensionCompliances;
     std::vector<parse::ObjectKey>                                            vehicleSuspensionCompliancePaths;
 
+};
+} // namespace detail
+
+// Snapshot of a scanned physics scene's parsed state. Owns the parse-lib
+// descriptors and either owns or borrows the backend source used to mint their
+// handles. A borrowed source must outlive the scan. Immutable
+// after the scan returns; consumers iterate the typed lists and can move
+// descriptors out individually only while retaining this scan (or all of its
+// allocator/source/auxiliary owners) through their final use. DescPtr carries a
+// borrowed allocator pointer; moving it alone does not retain a batch pool.
+//
+// `ObjectKey` / `TokenId` values on these descriptors are minted by this
+// scan's source and must be resolved through that same source (or, on the USD
+// side, through `omni::physics::usd::ScannedStage`'s `pathFor` / `tfTokenFor`).
+// Standalone scans have independent identities; attachment scan contexts may
+// share their attachment's object-key namespace.
+class ScannedStage : protected detail::ScannedStageOwners, public detail::ScannedStageDescriptors
+{
+public:
+    using Impl = detail::ScannedStageOwners::Impl;
     // The backend source that minted every `ObjectKey` / `TokenId` on these
     // descriptors. Stays alive for the scan's lifetime. Resolve handles back to
     // their source representation through it (`sourceKeyToString`,
@@ -206,6 +262,9 @@ public:
     // destroyed — the parse-only lifetime contract of the public surface.
     void retainOwnedMesh(parse::DescPtr<parse::MergeMeshDesc> mergedMesh);
 
+    // Keep a batch allocator alive through every descriptor and auxiliary owner.
+    void retainAllocator(std::shared_ptr<parse::IDescriptorAllocator> allocator);
+
     // Default-constructs an empty ScannedStage with no source. Used as a
     // "no-op" return value when the scan target is invalid.
     ScannedStage();
@@ -216,14 +275,8 @@ public:
     ScannedStage(const ScannedStage&) = delete;
     ScannedStage& operator=(const ScannedStage&) = delete;
 
-    // Implementation detail; not stable public API. `Impl` owns the backend
-    // `IPhysicsSource` and the retained owned-mesh storage.
-    struct Impl;
-
 protected:
     explicit ScannedStage(std::unique_ptr<Impl> impl);
-
-    std::unique_ptr<Impl> mImpl;
 
     friend ScannedStage makeScannedStageFromSource(std::unique_ptr<IPhysicsSource>);
     friend ScannedStage makeScannedStageBorrowingSource(IPhysicsSource&);

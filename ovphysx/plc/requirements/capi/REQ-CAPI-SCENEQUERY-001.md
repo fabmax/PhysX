@@ -50,11 +50,10 @@ resolver inherits rather than re-implements.
   out_paths, max_paths, out_count)` resolves each entry of `ids` through
   `IPhysx::objectKeyToPath` and writes the result to the matching index of
   `out_paths`, in order. `*out_count` is always set to `id_count` (the total
-  number of ids given), matching
-  `ovphysx_contact_binding_get_other_actor_paths_from_ids()`'s "total needed,
-  not written" convention; only `min(id_count, max_paths)` entries are
-  actually written to `out_paths`, so a caller detects truncation by
-  comparing `*out_count` against `max_paths`.
+  number of ids given). Only `min(id_count, max_paths)` entries are written
+  to `out_paths`. When `id_count > max_paths` the call returns
+  `OVPHYSX_API_BUFFER_TOO_SMALL`; when the complete result fits it returns
+  `OVPHYSX_API_SUCCESS`. Callers index `min(*out_count, max_paths)`.
 
 - AC-2: An id that does not resolve to a live object -- the zero/invalid
   sentinel, an id from an object removed since the query (whether or not the
@@ -87,7 +86,7 @@ resolver inherits rather than re-implements.
 
 ## Code References
 
-- ovphysx/include/ovphysx/ovphysx.h (`ovphysx_scene_query_get_paths_from_ids` declaration, `ovphysx_scene_query` group)
+- ovphysx/include/ovphysx/ovphysx_legacy.h (`ovphysx_scene_query_get_paths_from_ids` declaration, `ovphysx_scene_query` group)
 - ovphysx/src/ovphysx/ovphysxSceneQuery.cpp (`ovphysx_scene_query_get_paths_from_ids` implementation)
 - ovphysx/ovruntime/include/omni/physx/IPhysx.h (`objectKeyToPath` declaration/contract)
 - ovphysx/ovruntime/source/omni.physx/plugins/PhysX.cpp (`objectKeyToPath` implementation, liveness gate)
